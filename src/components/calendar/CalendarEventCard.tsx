@@ -28,28 +28,28 @@ import {
 // Fasting level labels and colors
 const fastingLevelInfo: Record<
   FastingLevel,
-  { uk: string; en: string; color: string; bgColor: string }
+  { ua: string; en: string; color: string; bgColor: string }
 > = {
   nirjala: {
-    uk: "Ніржала (без води)",
+    ua: "Ніржала (без води)",
     en: "Nirjala (no water)",
     color: "text-red-700 dark:text-red-300",
     bgColor: "bg-red-100 dark:bg-red-900/50",
   },
   full: {
-    uk: "Повний піст",
+    ua: "Повний піст",
     en: "Full fast",
     color: "text-orange-700 dark:text-orange-300",
     bgColor: "bg-orange-100 dark:bg-orange-900/50",
   },
   half: {
-    uk: "Половинний піст",
+    ua: "Половинний піст",
     en: "Half fast",
     color: "text-yellow-700 dark:text-yellow-300",
     bgColor: "bg-yellow-100 dark:bg-yellow-900/50",
   },
   none: {
-    uk: "Без посту",
+    ua: "Без посту",
     en: "No fasting",
     color: "text-green-700 dark:text-green-300",
     bgColor: "bg-green-100 dark:bg-green-900/50",
@@ -186,12 +186,12 @@ export function CalendarEventCard({
             )}
 
             {/* Тітхі та Вайшнавський місяць */}
-            {(event.tithi_name_uk || event.vaishnava_month_name_uk) && (
+            {(event.tithi_name_ua || event.vaishnava_month_name_ua) && (
               <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mt-2">
-                {event.tithi_name_uk && (
+                {event.tithi_name_ua && (
                   <span className="flex items-center gap-1">
                     <CircleDot className="h-3 w-3" />
-                    {language === "uk" ? event.tithi_name_uk : event.tithi_name_en}
+                    {language === "uk" ? event.tithi_name_ua : event.tithi_name_en}
                     {event.paksha && (
                       <span className="text-muted-foreground/60">
                         ({event.paksha === "shukla"
@@ -201,10 +201,10 @@ export function CalendarEventCard({
                     )}
                   </span>
                 )}
-                {event.vaishnava_month_name_uk && (
+                {event.vaishnava_month_name_ua && (
                   <span>
                     • {language === "uk"
-                      ? event.vaishnava_month_name_uk
+                      ? event.vaishnava_month_name_ua
                       : event.vaishnava_month_name_en}
                   </span>
                 )}

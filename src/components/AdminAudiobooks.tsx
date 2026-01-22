@@ -11,12 +11,12 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Save, Upload, Image as ImageIcon, ExternalLink, Trash2 } from "lucide-react";
 
 interface AudiobooksPageSettings {
-  title_uk: string;
+  title_ua: string;
   title_en: string;
-  subtitle_uk: string;
+  subtitle_ua: string;
   subtitle_en: string;
   hero_image_url: string | null;
-  description_uk: string;
+  description_ua: string;
   description_en: string;
 }
 
@@ -26,12 +26,12 @@ export default function AdminAudiobooks() {
   const { toast } = useToast();
 
   const [settings, setSettings] = useState<AudiobooksPageSettings>({
-    title_uk: "Аудіокниги",
+    title_ua: "Аудіокниги",
     title_en: "Audiobooks",
-    subtitle_uk: "Слухайте духовні твори в дорозі",
+    subtitle_ua: "Слухайте духовні твори в дорозі",
     subtitle_en: "Listen to spiritual works on the go",
     hero_image_url: null,
-    description_uk: "",
+    description_ua: "",
     description_en: "",
   });
 
@@ -256,11 +256,11 @@ export default function AdminAudiobooks() {
 
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="title-ua">Заголовок (UK)</Label>
+              <Label htmlFor="title-ua">Заголовок (UA)</Label>
               <Input
                 id="title-ua"
                 value={settings.title_uk}
-                onChange={(e) => setSettings((prev) => ({ ...prev, title_uk: e.target.value }))}
+                onChange={(e) => setSettings((prev) => ({ ...prev, title_ua: e.target.value }))}
                 placeholder="Аудіокниги"
               />
             </div>
@@ -276,11 +276,11 @@ export default function AdminAudiobooks() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="subtitle-ua">Підзаголовок (UK)</Label>
+              <Label htmlFor="subtitle-ua">Підзаголовок (UA)</Label>
               <Input
                 id="subtitle-ua"
-                value={settings.subtitle_uk}
-                onChange={(e) => setSettings((prev) => ({ ...prev, subtitle_uk: e.target.value }))}
+                value={settings.subtitle_ua}
+                onChange={(e) => setSettings((prev) => ({ ...prev, subtitle_ua: e.target.value }))}
                 placeholder="Слухайте духовні твори в дорозі"
               />
             </div>
@@ -303,11 +303,11 @@ export default function AdminAudiobooks() {
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="desc-ua">Опис (UK)</Label>
+              <Label htmlFor="desc-ua">Опис (UA)</Label>
               <Textarea
                 id="desc-ua"
                 value={settings.description_uk}
-                onChange={(e) => setSettings((prev) => ({ ...prev, description_uk: e.target.value }))}
+                onChange={(e) => setSettings((prev) => ({ ...prev, description_ua: e.target.value }))}
                 placeholder="Короткий опис сторінки для пошукових систем"
                 rows={3}
               />

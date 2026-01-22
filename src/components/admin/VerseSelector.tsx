@@ -20,23 +20,23 @@ interface VerseSelectorProps {
 type Book = {
   id: string;
   slug: string;
-  title_uk: string;
+  title_ua: string;
   title_en: string;
 };
 
 type Chapter = {
   id: string;
   chapter_number: number;
-  title_uk: string;
+  title_ua: string;
   title_en: string;
 };
 
 type Verse = {
   id: string;
   verse_number: string;
-  translation_uk: string;
+  translation_ua: string;
   translation_en: string;
-  sanskrit_uk?: string;
+  sanskrit_ua?: string;
 };
 
 export function VerseSelector({ selectedVerseId, onVerseSelect }: VerseSelectorProps) {
@@ -51,8 +51,8 @@ export function VerseSelector({ selectedVerseId, onVerseSelect }: VerseSelectorP
     queryFn: async () => {
       const { data, error } = await supabase
         .from("books")
-        .select("id, slug, title_uk, title_en")
-        .order("title_uk");
+        .select("id, slug, title_ua, title_en")
+        .order("title_ua");
 
       if (error) throw error;
       return data as Book[];
@@ -67,7 +67,7 @@ export function VerseSelector({ selectedVerseId, onVerseSelect }: VerseSelectorP
 
       const { data, error } = await supabase
         .from("chapters")
-        .select("id, chapter_number, title_uk, title_en")
+        .select("id, chapter_number, title_ua, title_en")
         .eq("book_id", selectedBookId)
         .order("chapter_number");
 
@@ -85,7 +85,7 @@ export function VerseSelector({ selectedVerseId, onVerseSelect }: VerseSelectorP
 
       const { data, error } = await supabase
         .from("verses")
-        .select("id, verse_number, translation_uk, translation_en, sanskrit_uk")
+        .select("id, verse_number, translation_ua, translation_en, sanskrit_ua")
         .eq("chapter_id", selectedChapterId)
         .eq("is_published", true)
         .order("verse_number");
@@ -107,18 +107,18 @@ export function VerseSelector({ selectedVerseId, onVerseSelect }: VerseSelectorP
         .select(`
           id,
           verse_number,
-          translation_uk,
+          translation_ua,
           translation_en,
-          sanskrit_uk,
+          sanskrit_ua,
           chapter:chapters (
             id,
             chapter_number,
-            title_uk,
+            title_ua,
             title_en,
             book:books (
               id,
               slug,
-              title_uk,
+              title_ua,
               title_en
             )
           )
@@ -158,12 +158,12 @@ export function VerseSelector({ selectedVerseId, onVerseSelect }: VerseSelectorP
               <div className="space-y-1">
                 <CardTitle className="text-lg flex items-center gap-2">
                   <BookOpen className="w-5 h-5" />
-                  {selectedVerse.chapter?.book?.[language === 'uk' ? 'title_uk' : 'title_en']}
+                  {selectedVerse.chapter?.book?.[language === 'uk' ? 'title_ua' : 'title_en']}
                   {' '}
                   {selectedVerse.chapter?.chapter_number}.{selectedVerse.verse_number}
                 </CardTitle>
                 <CardDescription>
-                  {selectedVerse.chapter?.[language === 'uk' ? 'title_uk' : 'title_en']}
+                  {selectedVerse.chapter?.[language === 'uk' ? 'title_ua' : 'title_en']}
                 </CardDescription>
               </div>
               <Button
@@ -176,13 +176,13 @@ export function VerseSelector({ selectedVerseId, onVerseSelect }: VerseSelectorP
             </div>
           </CardHeader>
           <CardContent>
-            {selectedVerse.sanskrit_uk && (
+            {selectedVerse.sanskrit_ua && (
               <p className="text-sm text-muted-foreground mb-2 italic">
-                {selectedVerse.sanskrit_uk}
+                {selectedVerse.sanskrit_ua}
               </p>
             )}
             <blockquote className="border-l-4 border-primary pl-4">
-              {selectedVerse[language === 'uk' ? 'translation_uk' : 'translation_en']}
+              {selectedVerse[language === 'uk' ? 'translation_ua' : 'translation_en']}
             </blockquote>
           </CardContent>
         </Card>
@@ -213,7 +213,7 @@ export function VerseSelector({ selectedVerseId, onVerseSelect }: VerseSelectorP
                 ) : (
                   books?.map((book) => (
                     <SelectItem key={book.id} value={book.id}>
-                      {book[language === 'uk' ? 'title_uk' : 'title_en']}
+                      {book[language === 'uk' ? 'title_ua' : 'title_en']}
                     </SelectItem>
                   ))
                 )}
@@ -244,7 +244,7 @@ export function VerseSelector({ selectedVerseId, onVerseSelect }: VerseSelectorP
                     chapters?.map((chapter) => (
                       <SelectItem key={chapter.id} value={chapter.id}>
                         Розділ {chapter.chapter_number}
-                        {chapter.title_uk && `: ${chapter[language === 'uk' ? 'title_uk' : 'title_en']}`}
+                        {chapter.title_uk && `: ${chapter[language === 'uk' ? 'title_ua' : 'title_en']}`}
                       </SelectItem>
                     ))
                   )}
@@ -293,13 +293,13 @@ export function VerseSelector({ selectedVerseId, onVerseSelect }: VerseSelectorP
                         <div className="flex items-start justify-between mb-2">
                           <Badge variant="outline">Вірш {verse.verse_number}</Badge>
                         </div>
-                        {verse.sanskrit_uk && (
+                        {verse.sanskrit_ua && (
                           <p className="text-xs text-muted-foreground mb-1 italic truncate">
-                            {verse.sanskrit_uk}
+                            {verse.sanskrit_ua}
                           </p>
                         )}
                         <p className="text-sm line-clamp-2">
-                          {verse[language === 'uk' ? 'translation_uk' : 'translation_en']}
+                          {verse[language === 'uk' ? 'translation_ua' : 'translation_en']}
                         </p>
                       </CardContent>
                     </Card>

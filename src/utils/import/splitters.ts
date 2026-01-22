@@ -72,15 +72,15 @@ export function splitIntoChapters(
       return [{
         chapter_number: 1,
         chapter_type: 'text',
-        title_uk: 'Розділ 1',
+        title_ua: 'Розділ 1',
         verses: [],
-        content_uk: text.trim()
+        content_ua: text.trim()
       }];
     }
     return [{
       chapter_number: 1,
       chapter_type: 'verses',
-      title_uk: 'Розділ 1',
+      title_ua: 'Розділ 1',
       verses: verses
     }];
   }
@@ -174,9 +174,9 @@ export function splitIntoChapters(
     chapters.push({
       chapter_number: chapterNum,
       chapter_type: chapterType,
-      title_uk: chapterTitle,
+      title_ua: chapterTitle,
       verses: verses,
-      content_uk: contentUa
+      content_ua: contentUa
     });
   });
   
@@ -298,7 +298,7 @@ export function splitIntoVerses(
       has_transliteration: !!verse.transliteration,
       has_synonyms: !!verse.synonyms_uk,
       has_translation: !!verse.translation_uk,
-      has_commentary: !!verse.commentary_uk
+      has_commentary: !!verse.commentary_ua
     });
     
     if (verse.verse_number) {
@@ -495,7 +495,7 @@ function parseVerse(
     const commentaryStart = commentaryMatch.index + commentaryMatch[0].length;
     const commentaryText = text.substring(commentaryStart).trim();
     if (commentaryText.length > 0) {
-      verse.commentary_uk = commentaryText;
+      verse.commentary_ua = commentaryText;
     }
   }
   

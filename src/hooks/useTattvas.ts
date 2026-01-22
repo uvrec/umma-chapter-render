@@ -7,11 +7,11 @@ import { supabase } from "@/integrations/supabase/client";
 
 export interface Tattva {
   id: string;
-  name_uk: string;
+  name_ua: string;
   name_en: string;
   name_sanskrit?: string;
   slug: string;
-  description_uk?: string;
+  description_ua?: string;
   description_en?: string;
   category?: "sambandha" | "abhidheya" | "prayojana";
   parent_id?: string;
@@ -28,7 +28,7 @@ export interface TattvaVerse {
   chapter_number: number;
   verse_number: string;
   sanskrit?: string;
-  translation_uk?: string;
+  translation_ua?: string;
   translation_en?: string;
   relevance_score: number;
   tattva_name?: string;
@@ -36,7 +36,7 @@ export interface TattvaVerse {
 
 export interface TattvaBreadcrumb {
   id: string;
-  name_uk: string;
+  name_ua: string;
   name_en: string;
   slug: string;
   depth: number;
@@ -70,10 +70,10 @@ export function useRootTattvas() {
       
       return data.map(t => ({
         id: t.id,
-        name_uk: t.name_uk,
+        name_ua: t.name_uk,
         name_en: t.name_en,
         slug: t.slug,
-        description_uk: t.description_uk,
+        description_ua: t.description_uk,
         description_en: t.description_en,
         parent_id: t.parent_id,
         category: t.category as Tattva['category'],
@@ -100,10 +100,10 @@ export function useTattva(slug: string) {
       
       return {
         id: data.id,
-        name_uk: data.name_uk,
+        name_ua: data.name_uk,
         name_en: data.name_en,
         slug: data.slug,
-        description_uk: data.description_uk,
+        description_ua: data.description_uk,
         description_en: data.description_en,
         parent_id: data.parent_id,
         category: data.category as Tattva['category'],
@@ -137,10 +137,10 @@ export function useTattvaChildren(parentId: string) {
             .eq("tattva_id", t.id);
           return {
             id: t.id,
-            name_uk: t.name_uk,
+            name_ua: t.name_uk,
             name_en: t.name_en,
             slug: t.slug,
-            description_uk: t.description_uk,
+            description_ua: t.description_uk,
             description_en: t.description_en,
             parent_id: t.parent_id,
             category: t.category as Tattva['category'],
@@ -265,10 +265,10 @@ export function useTattvasWithCounts() {
 
       return tattvas.map((t) => ({
         id: t.id,
-        name_uk: t.name_uk,
+        name_ua: t.name_uk,
         name_en: t.name_en,
         slug: t.slug,
-        description_uk: t.description_uk,
+        description_ua: t.description_uk,
         description_en: t.description_en,
         parent_id: t.parent_id,
         category: t.category as Tattva['category'],

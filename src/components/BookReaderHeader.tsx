@@ -30,13 +30,13 @@ import { cn } from "@/lib/utils";
 
 interface Chapter {
   chapter_number: number;
-  title_uk?: string;
+  title_ua?: string;
   title_en?: string;
 }
 
 interface Verse {
   verse_number: string;
-  transliteration_uk?: string;
+  transliteration_ua?: string;
   transliteration_en?: string;
 }
 
@@ -68,7 +68,7 @@ export const BookReaderHeader = ({
   onSettingsClick,
   introTitle,
 }: BookReaderHeaderProps) => {
-  const { language, t, getLocalizedPath } = useLanguage();
+  const { language, t } = useLanguage();
   const navigate = useNavigate();
   const [chapterPopoverOpen, setChapterPopoverOpen] = useState(false);
   const [versePopoverOpen, setVersePopoverOpen] = useState(false);
@@ -76,16 +76,16 @@ export const BookReaderHeader = ({
   // Build navigation paths
   const getChapterPath = (chapter: number) => {
     if (cantoNumber) {
-      return getLocalizedPath(`/lib/${bookSlug}/${cantoNumber}/${chapter}/1`);
+      return `/veda-reader/${bookSlug}/canto/${cantoNumber}/chapter/${chapter}/1`;
     }
-    return getLocalizedPath(`/lib/${bookSlug}/${chapter}/1`);
+    return `/veda-reader/${bookSlug}/${chapter}/1`;
   };
 
   const getVersePath = (verse: string) => {
     if (cantoNumber) {
-      return getLocalizedPath(`/lib/${bookSlug}/${cantoNumber}/${chapterNumber}/${verse}`);
+      return `/veda-reader/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/${verse}`;
     }
-    return getLocalizedPath(`/lib/${bookSlug}/${chapterNumber}/${verse}`);
+    return `/veda-reader/${bookSlug}/${chapterNumber}/${verse}`;
   };
 
   // Get current chapter title
@@ -247,7 +247,7 @@ export const BookReaderHeader = ({
                     {verses.map((verse) => {
                       const translit =
                         language === "uk"
-                          ? verse.transliteration_uk
+                          ? verse.transliteration_ua
                           : verse.transliteration_en;
                       const isActive = verse.verse_number === verseNumber;
 

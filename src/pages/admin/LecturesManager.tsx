@@ -88,9 +88,9 @@ export default function LecturesManager() {
         .from("lectures")
         .update({
           title_en: lecture.title_en,
-          title_uk: lecture.title_uk,
+          title_ua: lecture.title_uk,
           location_en: lecture.location_en,
-          location_uk: lecture.location_uk,
+          location_ua: lecture.location_ua,
           lecture_type: lecture.lecture_type,
         })
         .eq("id", lecture.id);
@@ -114,7 +114,7 @@ export default function LecturesManager() {
           .from("lecture_paragraphs")
           .update({
             content_en: p.content_en,
-            content_uk: p.content_uk,
+            content_ua: p.content_uk,
           })
           .eq("id", p.id);
 
@@ -163,7 +163,7 @@ export default function LecturesManager() {
 
     setEditingParagraphs((prev) => {
       const updated = [...prev];
-      updated[index] = { ...updated[index], content_uk: transliterated };
+      updated[index] = { ...updated[index], content_ua: transliterated };
       return updated;
     });
   };
@@ -173,7 +173,7 @@ export default function LecturesManager() {
     setEditingParagraphs((prev) =>
       prev.map((p) => ({
         ...p,
-        content_uk: p.content_en ? transliterateIAST(p.content_en) : p.content_uk,
+        content_ua: p.content_en ? transliterateIAST(p.content_en) : p.content_uk,
       }))
     );
     toast.success("Транслітерацію застосовано до всіх параграфів");
@@ -219,7 +219,7 @@ export default function LecturesManager() {
 
       setEditingParagraphs((prev) => {
         const updated = [...prev];
-        updated[index] = { ...updated[index], content_uk: data.translated };
+        updated[index] = { ...updated[index], content_ua: data.translated };
         return updated;
       });
 
@@ -282,7 +282,7 @@ export default function LecturesManager() {
 
         setEditingParagraphs((prev) => {
           const updated = [...prev];
-          updated[i] = { ...updated[i], content_uk: data.translated };
+          updated[i] = { ...updated[i], content_ua: data.translated };
           return updated;
         });
 
@@ -479,13 +479,13 @@ export default function LecturesManager() {
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Назва (UK)</label>
+                    <label className="text-sm font-medium">Назва (UA)</label>
                     <Input
                       value={editingLecture.title_uk || ""}
                       onChange={(e) =>
                         setEditingLecture({
                           ...editingLecture,
-                          title_uk: e.target.value,
+                          title_ua: e.target.value,
                         })
                       }
                     />
@@ -503,13 +503,13 @@ export default function LecturesManager() {
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Локація (UK)</label>
+                    <label className="text-sm font-medium">Локація (UA)</label>
                     <Input
-                      value={editingLecture.location_uk || ""}
+                      value={editingLecture.location_ua || ""}
                       onChange={(e) =>
                         setEditingLecture({
                           ...editingLecture,
-                          location_uk: e.target.value,
+                          location_ua: e.target.value,
                         })
                       }
                     />
@@ -613,7 +613,7 @@ export default function LecturesManager() {
                                   const updated = [...prev];
                                   updated[idx] = {
                                     ...updated[idx],
-                                    content_uk: html,
+                                    content_ua: html,
                                   };
                                   return updated;
                                 });

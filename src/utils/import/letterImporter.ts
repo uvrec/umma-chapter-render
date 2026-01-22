@@ -35,14 +35,14 @@ export async function importLetter(
         .from("letters")
         .update({
           recipient_en: data.metadata.recipient_en,
-          recipient_uk: data.metadata.recipient_uk,
+          recipient_ua: data.metadata.recipient_ua,
           letter_date: data.metadata.letter_date,
           location_en: data.metadata.location_en,
-          location_uk: data.metadata.location_uk,
+          location_ua: data.metadata.location_ua,
           reference: data.metadata.reference,
           address_block: data.metadata.address_block,
           content_en: data.content_en,
-          content_uk: data.content_uk || null,
+          content_ua: data.content_uk || null,
         })
         .eq("id", existing.id)
         .select("id")
@@ -57,14 +57,14 @@ export async function importLetter(
         .insert({
           slug: data.metadata.slug,
           recipient_en: data.metadata.recipient_en,
-          recipient_uk: data.metadata.recipient_uk,
+          recipient_ua: data.metadata.recipient_ua,
           letter_date: data.metadata.letter_date,
           location_en: data.metadata.location_en,
-          location_uk: data.metadata.location_uk,
+          location_ua: data.metadata.location_ua,
           reference: data.metadata.reference,
           address_block: data.metadata.address_block,
           content_en: data.content_en,
-          content_uk: data.content_uk || null,
+          content_ua: data.content_uk || null,
         })
         .select("id")
         .single();

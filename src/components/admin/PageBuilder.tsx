@@ -16,15 +16,15 @@ export interface PageBlock {
   id: string;
   type: BlockType;
   content: {
-    text_uk?: string;
+    text_ua?: string;
     text_en?: string;
     level?: number;
     sanskrit?: string;
     transliteration?: string;
     synonyms?: string;
-    translation_uk?: string;
+    translation_ua?: string;
     translation_en?: string;
-    commentary_uk?: string;
+    commentary_ua?: string;
     commentary_en?: string;
     display_blocks?: {
       sanskrit: boolean;
@@ -34,7 +34,7 @@ export interface PageBlock {
       commentary: boolean;
     };
     url?: string;
-    caption_uk?: string;
+    caption_ua?: string;
     caption_en?: string;
   };
   order: number;
@@ -46,7 +46,7 @@ interface PageBuilderProps {
 }
 
 export function PageBuilder({ sections, onChange }: PageBuilderProps) {
-  const [activeTab, setActiveTab] = useState<"uk" | "en">("uk");
+  const [activeTab, setActiveTab] = useState<"uk" | "en">("ua");
 
   const addBlock = (type: BlockType) => {
     const newBlock: PageBlock = {
@@ -191,8 +191,8 @@ export function PageBuilder({ sections, onChange }: PageBuilderProps) {
                     <div className="flex gap-2 border-b pb-2">
                       <Button
                         size="sm"
-                        variant={activeTab === "uk" ? "default" : "ghost"}
-                        onClick={() => setActiveTab("uk")}
+                        variant={activeTab === "ua" ? "default" : "ghost"}
+                        onClick={() => setActiveTab("ua")}
                       >
                         Українська
                       </Button>
@@ -204,10 +204,10 @@ export function PageBuilder({ sections, onChange }: PageBuilderProps) {
                         English
                       </Button>
                     </div>
-                    {activeTab === "uk" ? (
+                    {activeTab === "ua" ? (
                       <TiptapEditor
-                        content={block.content.text_uk || ""}
-                        onChange={(val) => updateBlock(block.id, { content: { ...block.content, text_uk: val } })}
+                        content={block.content.text_ua || ""}
+                        onChange={(val) => updateBlock(block.id, { content: { ...block.content, text_ua: val } })}
                         placeholder="Введіть текст українською..."
                       />
                     ) : (
@@ -239,10 +239,10 @@ export function PageBuilder({ sections, onChange }: PageBuilderProps) {
                       </Select>
                     </div>
                     <div>
-                      <Label>Текст (UK)</Label>
+                      <Label>Текст (UA)</Label>
                       <Input
-                        value={block.content.text_uk || ""}
-                        onChange={(e) => updateBlock(block.id, { content: { ...block.content, text_uk: e.target.value } })}
+                        value={block.content.text_ua || ""}
+                        onChange={(e) => updateBlock(block.id, { content: { ...block.content, text_ua: e.target.value } })}
                         placeholder="Заголовок українською"
                       />
                     </div>
@@ -284,10 +284,10 @@ export function PageBuilder({ sections, onChange }: PageBuilderProps) {
                       />
                     </div>
                     <div>
-                      <Label>Переклад (UK)</Label>
+                      <Label>Переклад (UA)</Label>
                       <TiptapEditor
                         content={block.content.translation_uk || ""}
-                        onChange={(val) => updateBlock(block.id, { content: { ...block.content, translation_uk: val } })}
+                        onChange={(val) => updateBlock(block.id, { content: { ...block.content, translation_ua: val } })}
                       />
                     </div>
                     <div>
@@ -298,10 +298,10 @@ export function PageBuilder({ sections, onChange }: PageBuilderProps) {
                       />
                     </div>
                     <div>
-                      <Label>Коментар (UK)</Label>
+                      <Label>Коментар (UA)</Label>
                       <TiptapEditor
-                        content={block.content.commentary_uk || ""}
-                        onChange={(val) => updateBlock(block.id, { content: { ...block.content, commentary_uk: val } })}
+                        content={block.content.commentary_ua || ""}
+                        onChange={(val) => updateBlock(block.id, { content: { ...block.content, commentary_ua: val } })}
                       />
                     </div>
                     <div>
@@ -349,10 +349,10 @@ export function PageBuilder({ sections, onChange }: PageBuilderProps) {
                       />
                     </div>
                     <div>
-                      <Label>Підпис (UK)</Label>
+                      <Label>Підпис (UA)</Label>
                       <Input
-                        value={block.content.caption_uk || ""}
-                        onChange={(e) => updateBlock(block.id, { content: { ...block.content, caption_uk: e.target.value } })}
+                        value={block.content.caption_ua || ""}
+                        onChange={(e) => updateBlock(block.id, { content: { ...block.content, caption_ua: e.target.value } })}
                       />
                     </div>
                     <div>

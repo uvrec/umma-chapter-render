@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Plus, Eye, EyeOff, Trash2, ExternalLink } from "lucide-react";
+import { ArrowLeft, Plus, Eye, EyeOff, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -21,7 +20,6 @@ import {
 
 const Books = () => {
   const { user, isAdmin } = useAuth();
-  const { getLocalizedPath } = useLanguage();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [deleteBookId, setDeleteBookId] = useState<string | null>(null);
@@ -119,15 +117,7 @@ const Books = () => {
             {books.map((book) => (
               <Card key={book.id}>
                 <CardHeader>
-                  <CardTitle>
-                    <Link
-                      to={getLocalizedPath(`/lib/${book.slug}`)}
-                      className="hover:text-primary hover:underline inline-flex items-center gap-2 transition-colors"
-                    >
-                      {book.title_uk}
-                      <ExternalLink className="w-4 h-4 opacity-50" />
-                    </Link>
-                  </CardTitle>
+                  <CardTitle>{book.title_uk}</CardTitle>
                   <CardDescription>{book.title_en}</CardDescription>
                 </CardHeader>
                 <CardContent>

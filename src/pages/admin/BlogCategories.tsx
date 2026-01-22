@@ -1,8 +1,6 @@
-import { useState, useMemo, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,33 +13,25 @@ import { generateSlug } from "@/utils/blogHelpers";
 
 type CategoryRow = {
   id: string;
-  name_uk: string;
+  name_ua: string;
   name_en: string;
   slug: string;
-  description_uk?: string | null;
+  description_ua?: string | null;
   description_en?: string | null;
   // nested count через звʼязок blog_posts
   blog_posts?: { count: number }[];
 };
 
 export default function BlogCategories() {
-  const { user, isAdmin } = useAuth();
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    if (!user || !isAdmin) {
-      navigate("/auth");
-    }
-  }, [user, isAdmin, navigate]);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [editId, setEditId] = useState<string | null>(null);
-  const [nameUk, setNameUk] = useState("");
+  const [nameUa, setNameUa] = useState("");
   const [nameEn, setNameEn] = useState("");
   const [slug, setSlug] = useState("");
-  const [descUk, setDescUk] = useState("");
+  const [descUa, setDescUa] = useState("");
   const [descEn, setDescEn] = useState("");
 
   const {
@@ -55,8 +45,8 @@ export default function BlogCategories() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("blog_categories")
-        .select("id, name_uk, name_en, slug, description_uk, description_en, blog_posts(count)")
-        .order("name_uk");
+        .select("id, name_ua, name_en, slug, description_ua, description_en, blog_posts(count)")
+        .order("name_ua");
 
       if (error) throw error;
       return data as CategoryRow[];
@@ -74,19 +64,19 @@ export default function BlogCategories() {
 
   const resetForm = () => {
     setEditId(null);
-    setNameUk("");
+    setNameUa("");
     setNameEn("");
     setSlug("");
-    setDescUk("");
+    setDescUa("");
     setDescEn("");
   };
 
   const handleEdit = (category: CategoryRow & { post_count?: number }) => {
     setEditId(category.id);
-    setNameUk(category.name_uk);
+    setNameUa(category.name_uk);
     setNameEn(category.name_en);
     setSlug(category.slug);
-    setDescUk(category.description_uk || "");
+    setDescUa(category.description_uk || "");
     setDescEn(category.description_en || "");
     setOpen(true);
   };
@@ -134,20 +124,20 @@ export default function BlogCategories() {
     e.preventDefault();
 
     // Мін-валідатор
-    if (!nameUk.trim() || !nameEn.trim()) {
+    if (!nameUa.trim() || !nameEn.trim()) {
       toast({ title: "Заповніть назви українською та англійською", variant: "destructive" });
       return;
     }
 
     setSaving(true);
     try {
-      const finalSlug = await ensureSlug(nameUk, editId);
+      const finalSlug = await ensureSlug(nameUa, editId);
 
       const categoryData = {
-        name_uk: nameUk.trim(),
+        name_ua: nameUa.trim(),
         name_en: nameEn.trim(),
         slug: finalSlug,
-        description_uk: descUk.trim() || null,
+        description_ua: descUa.trim() || null,
         description_en: descEn.trim() || null,
       };
 
@@ -172,7 +162,7 @@ export default function BlogCategories() {
     }
   };
 
-  const handleDelete = async (row: { id: string; name_uk: string; post_count: number }) => {
+  const handleDelete = async (row: { id: string; name_ua: string; post_count: number }) => {
     if (row.post_count > 0) {
       toast({
         title: "Неможливо видалити",
@@ -197,12 +187,10 @@ export default function BlogCategories() {
   };
 
   const fillSlugIfEmpty = () => {
-    if (!slug.trim() && nameUk.trim()) {
-      setSlug(generateSlug(nameUk.trim()));
+    if (!slug.trim() && nameUa.trim()) {
+      setSlug(generateSlug(nameUa.trim()));
     }
   };
-
-  if (!user || !isAdmin) return null;
 
   return (
     <div className="container mx-auto py-8">
@@ -224,11 +212,11 @@ export default function BlogCategories() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="name-ua">Назва (UK)</Label>
+                  <Label htmlFor="name-ua">Назва (UA)</Label>
                   <Input
                     id="name-ua"
-                    value={nameUk}
-                    onChange={(e) => setNameUk(e.target.value)}
+                    value={nameUa}
+                    onChange={(e) => setNameUa(e.target.value)}
                     onBlur={fillSlugIfEmpty}
                     required
                   />
@@ -246,7 +234,7 @@ export default function BlogCategories() {
                   value={slug}
                   onChange={(e) => setSlug(e.target.value.toLowerCase())}
                   placeholder="Згенерується автоматично"
-                  onBlur={() => setSlug((s) => generateSlug(s || nameUk))}
+                  onBlur={() => setSlug((s) => generateSlug(s || nameUa))}
                 />
                 {slug && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) && (
                   <p className="text-xs text-destructive mt-1">Лише латиниця/цифри та тире (lowercase).</p>
@@ -255,8 +243,8 @@ export default function BlogCategories() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="desc-ua">Опис (UK)</Label>
-                  <Textarea id="desc-ua" value={descUk} onChange={(e) => setDescUk(e.target.value)} rows={3} />
+                  <Label htmlFor="desc-ua">Опис (UA)</Label>
+                  <Textarea id="desc-ua" value={descUa} onChange={(e) => setDescUa(e.target.value)} rows={3} />
                 </div>
                 <div>
                   <Label htmlFor="desc-en">Description (EN)</Label>
@@ -276,7 +264,7 @@ export default function BlogCategories() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Назва (UK)</TableHead>
+              <TableHead>Назва (UA)</TableHead>
               <TableHead>Name (EN)</TableHead>
               <TableHead>Slug</TableHead>
               <TableHead>Постів</TableHead>
@@ -310,7 +298,7 @@ export default function BlogCategories() {
                         onClick={() =>
                           handleDelete({
                             id: category.id,
-                            name_uk: category.name_uk,
+                            name_ua: category.name_uk,
                             post_count: category.post_count,
                           })
                         }

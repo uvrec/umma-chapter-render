@@ -13,39 +13,39 @@ export type DailyQuote = {
   verse?: {
     verse_number: string;
     chapter_id?: string;
-    sanskrit_uk?: string;
-    transliteration_uk?: string;
-    translation_uk?: string;
+    sanskrit_ua?: string;
+    transliteration_ua?: string;
+    translation_ua?: string;
     translation_en?: string;
     chapter?: {
       id: string;
       chapter_number: number;
-      title_uk: string;
+      title_ua: string;
       title_en?: string;
       canto_id?: string;
       canto?: {
         canto_number: number;
         book?: {
           slug: string;
-          title_uk: string;
+          title_ua: string;
           title_en?: string;
           has_cantos?: boolean;
         };
       };
       book?: {
         slug: string;
-        title_uk: string;
+        title_ua: string;
         title_en?: string;
         has_cantos?: boolean;
       };
     };
   };
 
-  quote_uk?: string;
+  quote_ua?: string;
   quote_en?: string;
-  author_uk?: string;
+  author_ua?: string;
   author_en?: string;
-  source_uk?: string;
+  source_ua?: string;
   source_en?: string;
 
   priority: number;
@@ -62,7 +62,7 @@ export type DailyQuote = {
  * Автоматично вибирає наступну цитату на основі rotation_mode
  */
 export function useDailyQuote() {
-  const { language, getLocalizedPath } = useLanguage();
+  const { language } = useLanguage();
   const queryClient = useQueryClient();
 
   // Генеруємо унікальний ключ один раз при монтуванні компонента
@@ -130,7 +130,7 @@ export function useDailyQuote() {
         const { data: verseIds, error: idsError } = await supabase
           .from("verses")
           .select("id")
-          .not("translation_uk", "is", null)
+          .not("translation_ua", "is", null)
           .not("translation_en", "is", null);
 
         if (idsError || !verseIds || verseIds.length === 0) {
@@ -152,26 +152,26 @@ export function useDailyQuote() {
             id,
             verse_number,
             chapter_id,
-            translation_uk,
+            translation_ua,
             translation_en,
             chapter:chapters (
               id,
               chapter_number,
-              title_uk,
+              title_ua,
               title_en,
               canto_id,
               canto:cantos (
                 canto_number,
                 book:books (
                   slug,
-                  title_uk,
+                  title_ua,
                   title_en,
                   has_cantos
                 )
               ),
               book:books (
                 slug,
-                title_uk,
+                title_ua,
                 title_en,
                 has_cantos
               )
@@ -200,7 +200,7 @@ export function useDailyQuote() {
           verse: {
             verse_number: verse.verse_number,
             chapter_id: verse.chapter_id,
-            translation_uk: verse.translation_uk,
+            translation_ua: verse.translation_uk,
             translation_en: verse.translation_en,
             chapter: verse.chapter,
           },
@@ -253,20 +253,16 @@ export function useDailyQuote() {
   const formattedQuote = quote ? {
     // Очищаємо текст від HTML тегів (<p>, </p> тощо)
     text: stripParagraphTags(language === 'uk'
-      ? (quote.quote_type === 'verse' ? quote.verse?.translation_uk : quote.quote_uk) || ''
+      ? (quote.quote_type === 'verse' ? quote.verse?.translation_uk : quote.quote_ua) || ''
       : (quote.quote_type === 'verse' ? quote.verse?.translation_en : quote.quote_en) || ''),
 
-    author: language === 'uk' ? quote.author_uk : quote.author_en,
+    author: language === 'uk' ? quote.author_ua : quote.author_en,
 
     source: quote.quote_type === 'verse' && quote.verse?.chapter
       ? (() => {
           // Для книг з кантами book доступний через canto, інакше напряму
-          // Перевіряємо що book має title, бо Supabase може повернути порожній об'єкт
-          const directBook = quote.verse.chapter.book;
-          const cantoBook = quote.verse.chapter.canto?.book;
-          const book = (directBook?.title_uk ? directBook : null) || (cantoBook?.title_uk ? cantoBook : null);
-
-          const bookTitle = book?.[language === 'uk' ? 'title_uk' : 'title_en'] || book?.title_uk || '';
+          const book = quote.verse.chapter.book || quote.verse.chapter.canto?.book;
+          const bookTitle = book?.[language === 'uk' ? 'title_ua' : 'title_en'] || book?.title_uk || '';
           const chapterNumber = quote.verse.chapter.chapter_number;
           const verseNumber = quote.verse.verse_number;
 
@@ -278,28 +274,17 @@ export function useDailyQuote() {
 
           return `${bookTitle} ${chapterNumber}.${verseNumber}`;
         })()
-      : (language === 'uk' ? quote.source_uk : quote.source_en),
+      : (language === 'uk' ? quote.source_ua : quote.source_en),
 
     verseNumber: quote.quote_type === 'verse' ? quote.verse?.verse_number : null,
-    sanskrit: quote.quote_type === 'verse' ? quote.verse?.sanskrit_uk : null,
-    transliteration: quote.quote_type === 'verse' ? quote.verse?.transliteration_uk : null,
+    sanskrit: quote.quote_type === 'verse' ? quote.verse?.sanskrit_ua : null,
+    transliteration: quote.quote_type === 'verse' ? quote.verse?.transliteration_ua : null,
 
     link: quote.quote_type === 'verse' && quote.verse?.chapter
       ? (() => {
           // Для книг з кантами book доступний через canto, інакше напряму
-          // Перевіряємо що book має slug, бо Supabase може повернути порожній об'єкт
-          const directBook = quote.verse.chapter.book;
-          const cantoBook = quote.verse.chapter.canto?.book;
-          const book = (directBook?.slug ? directBook : null) || (cantoBook?.slug ? cantoBook : null);
-
-          if (!book?.slug) {
-            console.warn('[DailyQuote] Не вдалося знайти книгу для вірша:', {
-              directBook,
-              cantoBook,
-              chapter: quote.verse.chapter
-            });
-            return null;
-          }
+          const book = quote.verse.chapter.book || quote.verse.chapter.canto?.book;
+          if (!book) return null;
 
           const bookSlug = book.slug;
           const verseNumber = quote.verse.verse_number;
@@ -309,11 +294,11 @@ export function useDailyQuote() {
 
           // Якщо книга має канти і є canto_id
           if (hasCantos && cantoNumber) {
-            return getLocalizedPath(`/lib/${bookSlug}/${cantoNumber}/${chapterNumber}/${verseNumber}`);
+            return `/veda-reader/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/${verseNumber}`;
           }
 
           // Інакше використовуємо chapterNumber
-          return getLocalizedPath(`/lib/${bookSlug}/${chapterNumber}/${verseNumber}`);
+          return `/veda-reader/${bookSlug}/${chapterNumber}/${verseNumber}`;
         })()
       : null,
   } : null;
@@ -348,26 +333,26 @@ export function useDailyQuotesAdmin() {
           verse:verses!verse_id (
             verse_number,
             chapter_id,
-            translation_uk,
+            translation_ua,
             translation_en,
             chapter:chapters (
               id,
               chapter_number,
-              title_uk,
+              title_ua,
               title_en,
               canto_id,
               canto:cantos (
                 canto_number,
                 book:books (
                   slug,
-                  title_uk,
+                  title_ua,
                   title_en,
                   has_cantos
                 )
               ),
               book:books (
                 slug,
-                title_uk,
+                title_ua,
                 title_en,
                 has_cantos
               )

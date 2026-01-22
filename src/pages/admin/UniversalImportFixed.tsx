@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,7 +9,6 @@ import { Progress } from "@/components/ui/progress";
 import { toast } from "@/hooks/use-toast";
 import { Globe, BookOpen, FileText, CheckCircle, Download, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 
 import { ParserStatus } from "@/components/admin/ParserStatus";
 import { getMaxVerseFromChapter } from "@/utils/vedabaseParser";
@@ -40,12 +39,6 @@ import {
   parseRajaVidyaVedabase,
   mergeRajaVidyaChapters,
 } from "@/utils/rajaVidyaParser";
-import {
-  importIskconpressBook,
-  importIskconpressChapter,
-  importSBChapter,
-  fetchSBCantoChapters,
-} from "@/utils/iskconpressParser";
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeTransliteration } from "@/utils/text/translitNormalize";
 import { importSingleChapter } from "@/utils/import/importer";
@@ -73,7 +66,7 @@ interface ImportData {
   processedText: string;
   chapters: any[];
   metadata: {
-    title_uk: string;
+    title_ua: string;
     title_en: string;
     author: string;
     book_slug?: string;
@@ -156,24 +149,16 @@ function sleep(ms: number) {
 }
 
 export default function UniversalImportFixed() {
-  const navigate = useNavigate();
-  const { user, isAdmin } = useAuth();
   const [currentStep, setCurrentStep] = useState<Step>("source");
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    if (!user || !isAdmin) {
-      navigate("/auth");
-    }
-  }, [user, isAdmin, navigate]);
   const [importData, setImportData] = useState<ImportData>({
     source: "file",
     rawText: "",
     processedText: "",
     chapters: [],
     metadata: {
-      title_uk: "",
+      title_ua: "",
       title_en: "",
       author: "Шріла Прабгупада",
     },
@@ -194,6 +179,8 @@ export default function UniversalImportFixed() {
   // Wisdomlib import
   const [wisdomlibThrottle, setWisdomlibThrottle] = useState(1000); // ms between requests
   const [skippedUrls, setSkippedUrls] = useState<Array<{ url: string; reason: string }>>([]);
+
+  const navigate = useNavigate();
 
   const currentBookInfo = useMemo(() => getBookConfigByVedabaseSlug(vedabaseBook), [vedabaseBook]);
 
@@ -303,7 +290,7 @@ export default function UniversalImportFixed() {
       let result: any = null;
 
       // 🐍 Використовуємо локальний Python parser (обхід обмежень Puppeteer в Supabase)
-      if (USE_LOCAL_PARSER && bookInfo.hasGitabaseUK) {
+      if (USE_LOCAL_PARSER && bookInfo.hasGitabaseUA) {
         try {
           console.log("🐍 Using local Python parser (parse_server.py)");
           toast({ title: "🐍 Python парсер", description: "Звернення до локального parse_server.py..." });
@@ -328,7 +315,7 @@ export default function UniversalImportFixed() {
                   v?.synonyms_en ||
                   v?.synonyms_uk ||
                   v?.commentary_en ||
-                  v?.commentary_uk
+                  v?.commentary_ua
                 ),
             );
           if (badResult) {
@@ -419,7 +406,7 @@ export default function UniversalImportFixed() {
                   supabase.functions.invoke("fetch-html", { body: { url: vedabaseUrl } }),
                 ];
 
-                if (bookInfo.hasGitabaseUK) {
+                if (bookInfo.hasGitabaseUA) {
                   // ✅ ВИПРАВЛЕНО: використовуємо t.lastPart для підтримки складених віршів (263-264)
                   // ⚠️ Для NoI (hasSpecialStructure): /NoI/{verseNumber} замість /NoI/{chapter}/{verseNumber}
                   // ✅ FIX: Використовуємо bookInfo.gitabaseSlug для правильного регістру (NoI, не NOI)
@@ -435,7 +422,7 @@ export default function UniversalImportFixed() {
 
                 const results = await Promise.allSettled(requests);
                 const vedabaseRes = results[0];
-                const gitabaseRes = bookInfo.hasGitabaseUK ? results[1] : null;
+                const gitabaseRes = bookInfo.hasGitabaseUA ? results[1] : null;
 
                 console.log(`📊 Fetch results for verse ${t.lastPart}:`, {
                   vedabaseStatus: vedabaseRes.status,
@@ -445,7 +432,7 @@ export default function UniversalImportFixed() {
                 });
 
                 let parsedEN: any = null;
-                let parsedUK: any = null;
+                let parsedUA: any = null;
 
                 // ✅ NoI має спеціалізований парсер через іншу HTML структуру
                 const useNoIParser = (bookInfo as any).hasSpecialStructure;
@@ -464,7 +451,7 @@ export default function UniversalImportFixed() {
                 }
 
                 // ✅ Парсимо UA тільки якщо робили запит
-                if (bookInfo.hasGitabaseUK && gitabaseRes?.status === "fulfilled" && gitabaseRes.value.data) {
+                if (bookInfo.hasGitabaseUA && gitabaseRes?.status === "fulfilled" && gitabaseRes.value.data) {
                   // ✅ ВИПРАВЛЕНО: використовуємо t.lastPart для підтримки складених віршів (263-264)
                   // ✅ FIX: Використовуємо bookInfo.gitabaseSlug для правильного регістру (NoI, не NOI)
                   const gitabaseBookSlug = bookInfo.gitabaseSlug || vedabaseBook.toUpperCase();
@@ -476,19 +463,19 @@ export default function UniversalImportFixed() {
                   console.log(`🇺🇦 Parsing Gitabase for ${t.lastPart}:`, gitabaseUrl);
 
                   if (useNoIParser) {
-                    parsedUK = parseNoIGitabase(gitabaseRes.value.data.html, gitabaseUrl);
+                    parsedUA = parseNoIGitabase(gitabaseRes.value.data.html, gitabaseUrl);
                     console.log(`✅ [NoI] Gitabase parsed for ${t.lastPart}`);
                   } else {
-                    parsedUK = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
+                    parsedUA = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
                     console.log(`✅ Gitabase parsed for ${t.lastPart}:`, {
-                      hasSynonyms: !!parsedUK?.synonyms_uk,
-                      hasTranslation: !!parsedUK?.translation_uk,
-                      synonymsPreview: parsedUK?.synonyms_uk?.substring(0, 50),
+                      hasSynonyms: !!parsedUA?.synonyms_uk,
+                      hasTranslation: !!parsedUA?.translation_uk,
+                      synonymsPreview: parsedUA?.synonyms_uk?.substring(0, 50),
                     });
                   }
                 } else {
                   console.warn(`⚠️ Gitabase skipped for ${t.lastPart}:`, {
-                    hasGitabaseUK: bookInfo.hasGitabaseUK,
+                    hasGitabaseUA: bookInfo.hasGitabaseUA,
                     gitabaseResFulfilled: gitabaseRes?.status === "fulfilled",
                     gitabaseHasData: gitabaseRes?.status === "fulfilled" && !!gitabaseRes?.value?.data,
                   });
@@ -497,12 +484,12 @@ export default function UniversalImportFixed() {
                 // ✅ Використовуємо новий merger для об'єднання EN + UA
                 const merged = mergeVedabaseAndGitabase(
                   parsedEN,
-                  parsedUK,
+                  parsedUA,
                   vedabaseCanto, // lila
                   chapterNum,
                   t.lastPart, // verse number
                   vedabaseUrl,
-                  bookInfo.hasGitabaseUK
+                  bookInfo.hasGitabaseUA
                     ? // ✅ ВИПРАВЛЕНО: використовуємо t.lastPart для підтримки складених віршів (263-264)
                       // ⚠️ Для NoI (hasSpecialStructure): /NoI/{verseNumber} замість /NoI/{chapter}/{verseNumber}
                       // ✅ FIX: Використовуємо bookInfo.gitabaseSlug для правильного регістру (NoI, не NOI)
@@ -520,13 +507,13 @@ export default function UniversalImportFixed() {
                     verse_number: t.lastPart, // ← "7" або "7-8"
                     sanskrit: merged.bengali || "",
                     transliteration_en: merged.transliteration_en || "",
-                    transliteration_uk: merged.transliteration_uk || "",
+                    transliteration_ua: merged.transliteration_ua || "",
                     synonyms_en: merged.synonyms_en || "",
-                    synonyms_uk: merged.synonyms_uk || "",
+                    synonyms_ua: merged.synonyms_uk || "",
                     translation_en: merged.translation_en || "",
-                    translation_uk: merged.translation_uk || "",
-                    commentary_en: merged.commentary_en || "",
-                    commentary_uk: merged.commentary_uk || "",
+                    translation_ua: merged.translation_uk || "",
+                    commentary_en: merged.purport_en || "",
+                    commentary_ua: merged.purport_ua || "",
                   });
                 } else {
                   console.log(`⏭️ Пропускаю сегмент ${t.lastPart} (немає контенту)`);
@@ -559,7 +546,7 @@ export default function UniversalImportFixed() {
                 supabase.functions.invoke("fetch-html", { body: { url: vedabaseUrl } }),
               ];
 
-              if (bookInfo.hasGitabaseUK) {
+              if (bookInfo.hasGitabaseUA) {
                 // ✅ FIX: Використовуємо bookInfo.gitabaseSlug для правильного регістру (NoI, не NOI)
                 const gitabaseBookSlug = bookInfo.gitabaseSlug || vedabaseBook.toUpperCase();
                 const gitabaseUrl = bookInfo.isMultiVolume
@@ -573,7 +560,7 @@ export default function UniversalImportFixed() {
 
               const results = await Promise.allSettled(requests);
               const vedabaseRes = results[0];
-              const gitabaseRes = bookInfo.hasGitabaseUK ? results[1] : null;
+              const gitabaseRes = bookInfo.hasGitabaseUA ? results[1] : null;
 
               console.log(`📊 [Fallback] Fetch results for verse ${v}:`, {
                 vedabaseStatus: vedabaseRes.status,
@@ -583,7 +570,7 @@ export default function UniversalImportFixed() {
               });
 
               let parsedEN: any = null;
-              let parsedUK: any = null;
+              let parsedUA: any = null;
 
               // ✅ NoI має спеціалізований парсер
               const useNoIParser = (bookInfo as any).hasSpecialStructure;
@@ -597,7 +584,7 @@ export default function UniversalImportFixed() {
               }
 
               // ✅ Парсимо UA тільки якщо робили запит
-              if (bookInfo.hasGitabaseUK && gitabaseRes?.status === "fulfilled" && gitabaseRes.value.data) {
+              if (bookInfo.hasGitabaseUA && gitabaseRes?.status === "fulfilled" && gitabaseRes.value.data) {
                 // ⚠️ Для NoI (hasSpecialStructure): /NoI/{v} замість /NoI/{chapter}/{v}
                 // ✅ FIX: Використовуємо bookInfo.gitabaseSlug для правильного регістру (NoI, не NOI)
                 const gitabaseBookSlug = bookInfo.gitabaseSlug || vedabaseBook.toUpperCase();
@@ -609,13 +596,13 @@ export default function UniversalImportFixed() {
                 console.log(`🇺🇦 [Fallback] Parsing Gitabase for ${v}:`, gitabaseUrl);
 
                 if (useNoIParser) {
-                  parsedUK = parseNoIGitabase(gitabaseRes.value.data.html, gitabaseUrl);
+                  parsedUA = parseNoIGitabase(gitabaseRes.value.data.html, gitabaseUrl);
                 } else {
-                  parsedUK = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
+                  parsedUA = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
                 }
               } else {
                 console.warn(`⚠️ [Fallback] Gitabase skipped for ${v}:`, {
-                  hasGitabaseUK: bookInfo.hasGitabaseUK,
+                  hasGitabaseUA: bookInfo.hasGitabaseUA,
                   gitabaseResFulfilled: gitabaseRes?.status === "fulfilled",
                   gitabaseHasData: gitabaseRes?.status === "fulfilled" && !!gitabaseRes?.value?.data,
                 });
@@ -624,12 +611,12 @@ export default function UniversalImportFixed() {
               // ✅ Використовуємо новий merger для об'єднання EN + UA
               const merged = mergeVedabaseAndGitabase(
                 parsedEN,
-                parsedUK,
+                parsedUA,
                 vedabaseCanto, // lila
                 chapterNum,
                 String(v), // verse number
                 vedabaseUrl,
-                bookInfo.hasGitabaseUK
+                bookInfo.hasGitabaseUA
                   ? // ⚠️ Для NoI (hasSpecialStructure): /NoI/{v} замість /NoI/{chapter}/{v}
                     // ✅ FIX: Використовуємо bookInfo.gitabaseSlug для правильного регістру (NoI, не NOI)
                     bookInfo.isMultiVolume
@@ -645,13 +632,13 @@ export default function UniversalImportFixed() {
                   verse_number: String(v),
                   sanskrit: merged.bengali || "",
                   transliteration_en: merged.transliteration_en || "",
-                  transliteration_uk: merged.transliteration_uk || "",
+                  transliteration_ua: merged.transliteration_ua || "",
                   synonyms_en: merged.synonyms_en || "",
-                  synonyms_uk: merged.synonyms_uk || "",
+                  synonyms_ua: merged.synonyms_uk || "",
                   translation_en: merged.translation_en || "",
-                  translation_uk: merged.translation_uk || "",
-                  commentary_en: merged.commentary_en || "",
-                  commentary_uk: merged.commentary_uk || "",
+                  translation_ua: merged.translation_uk || "",
+                  commentary_en: merged.purport_en || "",
+                  commentary_ua: merged.purport_ua || "",
                 });
               }
             } catch (e: any) {
@@ -684,7 +671,7 @@ export default function UniversalImportFixed() {
                 v.transliteration_en = v.transliteration_en || parsed.transliteration_en || "";
                 v.synonyms_en = v.synonyms_en || parsed.synonyms_en || "";
                 v.translation_en = v.translation_en || parsed.translation_en || "";
-                v.commentary_en = v.commentary_en || parsed.commentary_en || "";
+                v.commentary_en = v.commentary_en || parsed.purport_en || "";
               }
             } catch (e) {
               console.warn("EN fill fail for verse", v?.verse_number, e);
@@ -711,12 +698,12 @@ export default function UniversalImportFixed() {
           {
             chapter_number: chapterNum,
             // ✅ Передаємо назви (з дефолтними значеннями для БД NOT NULL constraint)
-            title_uk: importData.metadata.title_uk?.trim() || undefined,
+            title_ua: importData.metadata.title_uk?.trim() || undefined,
             title_en:
               importData.metadata.title_en?.trim() ||
               `${bookInfo?.name_uk || vedabaseBook.toUpperCase()} ${vedabaseCanto ? vedabaseCanto + " " : ""}${chapterNum}`,
             // ✅ Передаємо intro як content для глави
-            ...(importData.chapters[0]?.intro_uk && { content_uk: importData.chapters[0].intro_uk }),
+            ...(importData.chapters[0]?.intro_ua && { content_ua: importData.chapters[0].intro_ua }),
             ...(importData.chapters[0]?.intro_en && { content_en: importData.chapters[0].intro_en }),
             chapter_type: "verses" as const,
             verses: result.verses,
@@ -858,7 +845,7 @@ export default function UniversalImportFixed() {
           let result: any = null;
 
           // Спробуємо Python parser якщо доступний
-          if (USE_LOCAL_PARSER && bookInfo.hasGitabaseUK) {
+          if (USE_LOCAL_PARSER && bookInfo.hasGitabaseUA) {
             try {
               result = await parseChapterWithPythonServer({
                 lila: lilaNum,
@@ -879,7 +866,7 @@ export default function UniversalImportFixed() {
                       v?.synonyms_en ||
                       v?.synonyms_uk ||
                       v?.commentary_en ||
-                      v?.commentary_uk
+                      v?.commentary_ua
                     ),
                 );
               if (badResult) {
@@ -978,8 +965,8 @@ export default function UniversalImportFixed() {
       if (results.success > 0 && chapterLinks.length > 0) {
         const firstChapter = chapterLinks[0];
         const targetPath = bookInfo.isMultiVolume
-          ? `/lib/${bookInfo.our_slug}/${lilaNum}/${firstChapter}`
-          : `/lib/${bookInfo.our_slug}/${firstChapter}`;
+          ? `/veda-reader/${bookInfo.our_slug}/canto/${lilaNum}/chapter/${firstChapter}`
+          : `/veda-reader/${bookInfo.our_slug}/${firstChapter}`;
 
         navigate(targetPath);
       }
@@ -1193,7 +1180,7 @@ export default function UniversalImportFixed() {
           metadata: {
             ...importData.metadata,
             title_en: `${bookInfo.name_en} - ${vedabaseCanto} khaṇḍa`,
-            title_uk: `${bookInfo.name_uk} - ${vedabaseCanto}`,
+            title_ua: `${bookInfo.name_uk} - ${vedabaseCanto}`,
             author: bookInfo.author || "Vrindavan Das Thakur",
             book_slug: bookInfo.our_slug,
             source_url: sourceUrl,
@@ -1374,7 +1361,7 @@ export default function UniversalImportFixed() {
           metadata: {
             ...importData.metadata,
             title_en: pageTitle.title_en || bookInfo.name_en,
-            title_uk: bookInfo.name_uk, // Use book config for UA
+            title_ua: bookInfo.name_uk, // Use book config for UA
             author: bookInfo.author || "Bhaktivinoda Thakur",
             book_slug: bookInfo.our_slug,
             source_url: sourceUrl,
@@ -1399,251 +1386,6 @@ export default function UniversalImportFixed() {
       }
     },
     [vedabaseBook, importData],
-  );
-
-  /** Імпорт з iskconpress GitHub repository */
-  const handleIskconpressImport = useCallback(
-    async (singleChapter?: number) => {
-      const bookInfo = getBookConfigByVedabaseSlug(vedabaseBook)!;
-
-      if (bookInfo.source !== "iskconpress") {
-        toast({ title: "Помилка", description: "Ця книга не з iskconpress", variant: "destructive" });
-        return;
-      }
-
-      setIsProcessing(true);
-      setProgress(10);
-
-      try {
-        const bookSlug = bookInfo.our_slug || bookInfo.slug;
-        // Determine template type from book config
-        const templateId = (bookInfo.templateId === "verses" ? "verses" : "text") as "verses" | "text";
-
-        if (singleChapter !== undefined) {
-          // Import single chapter
-          toast({ title: "Завантаження...", description: `Глава ${singleChapter} з GitHub...` });
-
-          const chapter = await importIskconpressChapter(bookSlug, singleChapter, templateId);
-          if (!chapter) {
-            throw new Error(`Главу ${singleChapter} не знайдено`);
-          }
-
-          setProgress(80);
-
-          // Create import data for single chapter
-          const newImport: ImportData = {
-            ...importData,
-            source: "file", // Use file type for prose content
-            rawText: "",
-            processedText: JSON.stringify(chapter, null, 2),
-            chapters: [chapter],
-            metadata: {
-              ...importData.metadata,
-              title_en: bookInfo.name_en,
-              title_uk: bookInfo.name_uk,
-              author: bookInfo.author || "A. C. Bhaktivedanta Swami Prabhupada",
-              book_slug: bookSlug,
-              source_url: bookInfo.sourceUrl,
-            },
-          };
-
-          setImportData(newImport);
-          setProgress(100);
-
-          toast({
-            title: "✅ Успішно!",
-            description: `Імпортовано главу ${chapter.chapter_number}: ${chapter.title_en}`,
-          });
-
-          await saveToDatabase(newImport);
-        } else {
-          // Import all chapters
-          toast({ title: "Завантаження...", description: "Отримання списку глав з GitHub..." });
-
-          const chapters = await importIskconpressBook(bookSlug, templateId, (current, total, filename) => {
-            const progressValue = 10 + Math.round((current / total) * 80);
-            setProgress(progressValue);
-            toast({ title: `Глава ${current}/${total}`, description: filename });
-          });
-
-          if (chapters.length === 0) {
-            throw new Error("Не знайдено жодної глави");
-          }
-
-          setProgress(95);
-
-          // Create import data
-          const newImport: ImportData = {
-            ...importData,
-            source: "file",
-            rawText: "",
-            processedText: JSON.stringify(chapters, null, 2),
-            chapters: chapters,
-            metadata: {
-              ...importData.metadata,
-              title_en: bookInfo.name_en,
-              title_uk: bookInfo.name_uk,
-              author: bookInfo.author || "A. C. Bhaktivedanta Swami Prabhupada",
-              book_slug: bookSlug,
-              source_url: bookInfo.sourceUrl,
-            },
-          };
-
-          setImportData(newImport);
-          setProgress(100);
-
-          const totalParagraphs = chapters.reduce((acc, ch) => acc + ch.verses.length, 0);
-          toast({
-            title: "✅ Успішно!",
-            description: `Імпортовано ${chapters.length} глав (${totalParagraphs} абзаців)`,
-          });
-
-          await saveToDatabase(newImport);
-        }
-      } catch (e: any) {
-        console.error("iskconpress import error:", e);
-        toast({ title: "Помилка", description: e.message, variant: "destructive" });
-      } finally {
-        setIsProcessing(false);
-        setProgress(0);
-      }
-    },
-    [vedabaseBook, importData],
-  );
-
-  /** Імпорт Шрімад-Бгаґаватам з iskconpress (canto-based structure) */
-  const handleSBImport = useCallback(
-    async (singleChapter?: number) => {
-      const bookInfo = getBookConfigByVedabaseSlug("sb")!;
-
-      if (!vedabaseCanto) {
-        toast({ title: "Помилка", description: "Оберіть канту (пісню)", variant: "destructive" });
-        return;
-      }
-
-      const cantoNum = parseInt(vedabaseCanto);
-      if (isNaN(cantoNum) || cantoNum < 1 || cantoNum > 10) {
-        toast({ title: "Помилка", description: "iskconpress має лише канти 1-10", variant: "destructive" });
-        return;
-      }
-
-      setIsProcessing(true);
-      setProgress(10);
-
-      try {
-        if (singleChapter !== undefined) {
-          // Import single chapter
-          toast({ title: "Завантаження...", description: `ШБ ${cantoNum}.${singleChapter} з GitHub...` });
-
-          const chapter = await importSBChapter(cantoNum, singleChapter, (current, total, verse) => {
-            const progressValue = 10 + Math.round((current / total) * 80);
-            setProgress(progressValue);
-          });
-
-          setProgress(95);
-
-          // Create import data
-          const newImport: ImportData = {
-            ...importData,
-            source: "file",
-            rawText: "",
-            processedText: JSON.stringify(chapter, null, 2),
-            chapters: [chapter],
-            metadata: {
-              ...importData.metadata,
-              title_en: `SB ${cantoNum}.${singleChapter}`,
-              title_uk: `ШБ ${cantoNum}.${singleChapter}`,
-              author: bookInfo.author || "A. C. Bhaktivedanta Swami Prabhupada",
-              book_slug: "sb",
-              source_url: `https://github.com/iskconpress/books/tree/master/sb/${cantoNum}/${singleChapter}`,
-              canto: cantoNum.toString(),
-              volume: cantoNum.toString(),
-            },
-          };
-
-          setImportData(newImport);
-          setProgress(100);
-
-          toast({
-            title: "✅ Успішно!",
-            description: `Імпортовано ШБ ${cantoNum}.${singleChapter} (${chapter.verses.length} віршів)`,
-          });
-
-          await saveToDatabase(newImport);
-        } else {
-          // Import all chapters in canto
-          toast({ title: "Завантаження...", description: `Отримання списку глав ШБ ${cantoNum}...` });
-
-          const chapterList = await fetchSBCantoChapters(cantoNum);
-          if (chapterList.length === 0) {
-            throw new Error(`Не знайдено глав у канті ${cantoNum}`);
-          }
-
-          toast({ title: `Знайдено ${chapterList.length} глав`, description: `Канта ${cantoNum}` });
-
-          const allChapters: any[] = [];
-          let totalVerses = 0;
-
-          for (let i = 0; i < chapterList.length; i++) {
-            const chapterNum = parseInt(chapterList[i]);
-            toast({ title: `Глава ${i + 1}/${chapterList.length}`, description: `ШБ ${cantoNum}.${chapterNum}` });
-
-            const chapter = await importSBChapter(cantoNum, chapterNum, (current, total, verse) => {
-              const baseProgress = 10 + Math.round((i / chapterList.length) * 80);
-              const chapterProgress = Math.round((current / total) * (80 / chapterList.length));
-              setProgress(baseProgress + chapterProgress);
-            });
-
-            allChapters.push(chapter);
-            totalVerses += chapter.verses.length;
-          }
-
-          setProgress(95);
-
-          // Create import data for all chapters
-          const newImport: ImportData = {
-            ...importData,
-            source: "file",
-            rawText: "",
-            processedText: JSON.stringify(allChapters, null, 2),
-            chapters: allChapters,
-            metadata: {
-              ...importData.metadata,
-              title_en: `Srimad Bhagavatam Canto ${cantoNum}`,
-              title_uk: `Шрімад-Бгаґаватам, Пісня ${cantoNum}`,
-              author: bookInfo.author || "A. C. Bhaktivedanta Swami Prabhupada",
-              book_slug: "sb",
-              source_url: `https://github.com/iskconpress/books/tree/master/sb/${cantoNum}`,
-              canto: cantoNum.toString(),
-              volume: cantoNum.toString(),
-            },
-          };
-
-          setImportData(newImport);
-          setProgress(100);
-
-          toast({
-            title: "✅ Успішно!",
-            description: `Імпортовано ШБ канта ${cantoNum}: ${allChapters.length} глав, ${totalVerses} віршів`,
-          });
-
-          // Save each chapter to database
-          for (const chapter of allChapters) {
-            await saveToDatabase({
-              ...newImport,
-              chapters: [chapter],
-            });
-          }
-        }
-      } catch (e: any) {
-        console.error("SB import error:", e);
-        toast({ title: "Помилка", description: e.message, variant: "destructive" });
-      } finally {
-        setIsProcessing(false);
-        setProgress(0);
-      }
-    },
-    [vedabaseCanto, importData],
   );
 
   /** Обробка файлу */
@@ -1751,9 +1493,9 @@ export default function UniversalImportFixed() {
           chapters = rajaVidyaChapters.map((ch) => ({
             chapter_number: ch.chapter_number,
             chapter_type: 'text' as const,
-            title_uk: ch.title_uk,
+            title_ua: ch.title_uk,
             verses: [],
-            content_uk: ch.content_uk,
+            content_ua: ch.content_uk,
           }));
 
           console.log(`✅ [Raja Vidya] Розпарсено ${chapters.length} глав`);
@@ -1860,8 +1602,8 @@ export default function UniversalImportFixed() {
         const merged = mergeRajaVidyaChapters(
           {
             chapter_number: uaChapter.chapter_number,
-            title_uk: uaChapter.title_uk,
-            content_uk: uaChapter.content_uk || '',
+            title_ua: uaChapter.title_uk,
+            content_ua: uaChapter.content_uk || '',
           },
           enChapter
         );
@@ -1894,7 +1636,7 @@ export default function UniversalImportFixed() {
         processedText: JSON.stringify(mergedChapters, null, 2),
         chapters: mergedChapters,
         metadata: {
-          title_uk: bookInfo.name_uk,
+          title_ua: bookInfo.name_uk,
           title_en: bookInfo.name_en,
           author: bookInfo.author || 'A. C. Bhaktivedanta Swami Prabhupada',
           book_slug: bookInfo.our_slug,
@@ -1956,7 +1698,7 @@ export default function UniversalImportFixed() {
           .from("books")
           .insert({
             slug,
-            title_uk: importData.metadata.title_uk || currentBookInfo?.name || "Імпортована книга",
+            title_ua: importData.metadata.title_uk || currentBookInfo?.name || "Імпортована книга",
             title_en: importData.metadata.title_en || currentBookInfo?.name || "Imported Book",
             is_published: true,
           })
@@ -2010,8 +1752,8 @@ export default function UniversalImportFixed() {
 
       // Навігація до розділу
       const targetPath = cantoId
-        ? `/lib/${slug}/${vedabaseCanto}/${chapter.chapter_number}`
-        : `/lib/${slug}/${chapter.chapter_number}`;
+        ? `/veda-reader/${slug}/canto/${vedabaseCanto}/chapter/${chapter.chapter_number}`
+        : `/veda-reader/${slug}/${chapter.chapter_number}`;
 
       navigate(targetPath);
     } catch (err: any) {
@@ -2048,7 +1790,7 @@ export default function UniversalImportFixed() {
             .from("books")
             .insert({
               slug,
-              title_uk: data.metadata.title_uk,
+              title_ua: data.metadata.title_uk,
               title_en: data.metadata.title_en,
               is_published: true,
             })
@@ -2108,8 +1850,8 @@ export default function UniversalImportFixed() {
         const slugForPath = data.metadata.book_slug || "library";
         const cantoNum = data.metadata.canto;
         const targetPath = cantoNum
-          ? `/lib/${slugForPath}/${cantoNum}/${chapterNum}`
-          : `/lib/${slugForPath}/${chapterNum}`;
+          ? `/veda-reader/${slugForPath}/canto/${cantoNum}/chapter/${chapterNum}`
+          : `/veda-reader/${slugForPath}/${chapterNum}`;
 
         setCurrentStep("save");
         navigate(targetPath);
@@ -2122,8 +1864,6 @@ export default function UniversalImportFixed() {
     },
     [importData],
   );
-
-  if (!user || !isAdmin) return null;
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -2217,13 +1957,13 @@ export default function UniversalImportFixed() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Назва глави (UK)</Label>
+                  <Label>Назва глави (UA)</Label>
                   <Input
                     value={importData.metadata.title_uk}
                     onChange={(e) =>
                       setImportData((prev) => ({
                         ...prev,
-                        metadata: { ...prev.metadata, title_uk: e.target.value },
+                        metadata: { ...prev.metadata, title_ua: e.target.value },
                       }))
                     }
                     placeholder={`${currentBookInfo?.name_uk} ${vedabaseCanto} ${vedabaseChapter}`}
@@ -2250,8 +1990,7 @@ export default function UniversalImportFixed() {
                   disabled={
                     isProcessing ||
                     currentBookInfo?.source === "bhaktivinodainstitute" ||
-                    currentBookInfo?.source === "kksongs" ||
-                    currentBookInfo?.source === "iskconpress"
+                    currentBookInfo?.source === "kksongs"
                   }
                 >
                   <Globe className="w-4 h-4 mr-2" />
@@ -2263,8 +2002,7 @@ export default function UniversalImportFixed() {
                   disabled={
                     isProcessing ||
                     currentBookInfo?.source === "bhaktivinodainstitute" ||
-                    currentBookInfo?.source === "kksongs" ||
-                    currentBookInfo?.source === "iskconpress"
+                    currentBookInfo?.source === "kksongs"
                   }
                   variant="secondary"
                 >
@@ -2287,55 +2025,12 @@ export default function UniversalImportFixed() {
                     Імпортувати з WisdomLib.org
                   </Button>
                 )}
-
-                {currentBookInfo?.source === "iskconpress" && vedabaseBook === "sb" && (
-                  <>
-                    <Button
-                      onClick={() => handleSBImport(vedabaseChapter ? parseInt(vedabaseChapter) : undefined)}
-                      disabled={isProcessing || !vedabaseCanto}
-                      variant="secondary"
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      {vedabaseChapter
-                        ? `Імпортувати ШБ ${vedabaseCanto}.${vedabaseChapter}`
-                        : vedabaseCanto
-                          ? `Імпортувати всі глави канти ${vedabaseCanto}`
-                          : "Оберіть канту"}
-                    </Button>
-                    {vedabaseChapter && vedabaseCanto && (
-                      <Button onClick={() => handleSBImport()} disabled={isProcessing} variant="outline">
-                        <BookOpen className="w-4 h-4 mr-2" />
-                        Імпортувати всю канту {vedabaseCanto}
-                      </Button>
-                    )}
-                  </>
-                )}
-
-                {currentBookInfo?.source === "iskconpress" && vedabaseBook !== "sb" && (
-                  <>
-                    <Button
-                      onClick={() => handleIskconpressImport(vedabaseChapter ? parseInt(vedabaseChapter) : undefined)}
-                      disabled={isProcessing}
-                      variant="secondary"
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      {vedabaseChapter ? `Імпортувати главу ${vedabaseChapter}` : "Імпортувати всі глави"}
-                    </Button>
-                    {vedabaseChapter && (
-                      <Button onClick={() => handleIskconpressImport()} disabled={isProcessing} variant="outline">
-                        <BookOpen className="w-4 h-4 mr-2" />
-                        Імпортувати всі глави
-                      </Button>
-                    )}
-                  </>
-                )}
               </div>
 
               {/* Інфо про масовий імпорт */}
               {currentBookInfo?.source !== "bhaktivinodainstitute" &&
                 currentBookInfo?.source !== "kksongs" &&
-                currentBookInfo?.source !== "wisdomlib" &&
-                currentBookInfo?.source !== "iskconpress" && (
+                currentBookInfo?.source !== "wisdomlib" && (
                   <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
                     <p className="text-sm text-green-900 dark:text-green-100">
                       <strong>💡 Порада:</strong> Кнопка "Імпортувати всі глави" автоматично визначить кількість глав
@@ -2345,33 +2040,6 @@ export default function UniversalImportFixed() {
                     </p>
                   </div>
                 )}
-
-              {currentBookInfo?.source === "iskconpress" && (
-                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-                  <p className="text-sm text-amber-900 dark:text-amber-100">
-                    <strong>📚 iskconpress (GitHub):</strong> Імпортується <strong>English</strong> версія книги з{" "}
-                    <a
-                      href={currentBookInfo?.sourceUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline hover:no-underline"
-                    >
-                      GitHub репозиторію iskconpress/books
-                    </a>
-                    . Вміст у форматі DokuWiki конвертується в HTML.
-                  </p>
-                  <p className="text-sm text-amber-800 dark:text-amber-200 mt-2">
-                    <strong>⚠️ Примітка:</strong> Це <em>оригінальні видання до 1977 року</em> під редакцією Шріли
-                    Прабгупади. Можуть відрізнятися від сучасних перевидань BBT.
-                    {vedabaseBook === "sb" && " Доступні лише канти 1-10 (11-12 немає)."}
-                  </p>
-                  {currentBookInfo?.sourceUrl && (
-                    <p className="text-xs text-amber-700 dark:text-amber-300 mt-2">
-                      Джерело: {currentBookInfo.sourceUrl}
-                    </p>
-                  )}
-                </div>
-              )}
 
               {currentBookInfo?.source === "kksongs" && (
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
@@ -2586,7 +2254,7 @@ export default function UniversalImportFixed() {
                               <strong>Номер:</strong> {parsedChapters[selectedChapterIndex].chapter_number}
                             </p>
                             <p>
-                              <strong>Назва (UK):</strong>{" "}
+                              <strong>Назва (UA):</strong>{" "}
                               {parsedChapters[selectedChapterIndex].title_uk || "Не вказано"}
                             </p>
                             <p>
@@ -2622,13 +2290,13 @@ export default function UniversalImportFixed() {
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label>Назва розділу (UK) - необов'язково</Label>
+                          <Label>Назва розділу (UA) - необов'язково</Label>
                           <Input
                             value={importData.metadata.title_uk}
                             onChange={(e) =>
                               setImportData((prev) => ({
                                 ...prev,
-                                metadata: { ...prev.metadata, title_uk: e.target.value },
+                                metadata: { ...prev.metadata, title_ua: e.target.value },
                               }))
                             }
                             placeholder={parsedChapters[selectedChapterIndex]?.title_uk || "Залишити як є"}
@@ -2741,9 +2409,9 @@ export default function UniversalImportFixed() {
                     Завантажити Intro EN
                   </Button>
                 </div>
-                <Label>Intro (UK)</Label>
+                <Label>Intro (UA)</Label>
                 <Textarea
-                  value={importData.chapters[0]?.intro_uk || ""}
+                  value={importData.chapters[0]?.intro_ua || ""}
                   onChange={(e) =>
                     setImportData((prev) => {
                       const ch = [...prev.chapters];
@@ -2753,7 +2421,7 @@ export default function UniversalImportFixed() {
                           chapter_type: "verses",
                           verses: [],
                         });
-                      ch[0] = { ...ch[0], intro_uk: e.target.value };
+                      ch[0] = { ...ch[0], intro_ua: e.target.value };
                       return { ...prev, chapters: ch };
                     })
                   }
@@ -2783,11 +2451,11 @@ export default function UniversalImportFixed() {
             <TabsContent value="normalize" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Нормалізація послівних термінів (UK)</CardTitle>
+                  <CardTitle>Нормалізація послівних термінів (UA)</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-3">
-                    Застосувати технічну нормалізацію діакритики (ı̄ тощо) до поля "synonyms_uk" у поточних даних
+                    Застосувати технічну нормалізацію діакритики (ı̄ тощо) до поля "synonyms_ua" у поточних даних
                     імпорту.
                   </p>
                   <Button
@@ -2798,7 +2466,7 @@ export default function UniversalImportFixed() {
                           ...ch,
                           verses: ch.verses.map((v: any) => ({
                             ...v,
-                            synonyms_uk: v.synonyms_uk ? normalizeTransliteration(v.synonyms_uk) : v.synonyms_uk,
+                            synonyms_ua: v.synonyms_uk ? normalizeTransliteration(v.synonyms_uk) : v.synonyms_uk,
                           })),
                         }));
                         return { ...prev, chapters };

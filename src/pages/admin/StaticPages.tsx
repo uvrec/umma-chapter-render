@@ -15,9 +15,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 interface StaticPageMetadata {
   id: string;
   slug: string;
-  title_uk: string;
+  title_ua: string;
   title_en: string;
-  meta_description_uk?: string;
+  meta_description_ua?: string;
   meta_description_en?: string;
   hero_image_url?: string;
   og_image?: string;
@@ -94,9 +94,9 @@ const StaticPages = () => {
   const [editingPage, setEditingPage] = useState<StaticPageMetadata | null>(null);
   const [formData, setFormData] = useState({
     slug: "",
-    title_uk: "",
+    title_ua: "",
     title_en: "",
-    meta_description_uk: "",
+    meta_description_ua: "",
     meta_description_en: "",
     hero_image_url: "",
     og_image: "",
@@ -210,9 +210,9 @@ const StaticPages = () => {
   const resetForm = () => {
     setFormData({
       slug: "",
-      title_uk: "",
+      title_ua: "",
       title_en: "",
-      meta_description_uk: "",
+      meta_description_ua: "",
       meta_description_en: "",
       hero_image_url: "",
       og_image: "",
@@ -225,9 +225,9 @@ const StaticPages = () => {
     setEditingPage(page);
     setFormData({
       slug: page.slug,
-      title_uk: page.title_uk,
+      title_ua: page.title_uk,
       title_en: page.title_en,
-      meta_description_uk: page.meta_description_uk || "",
+      meta_description_ua: page.meta_description_uk || "",
       meta_description_en: page.meta_description_en || "",
       hero_image_url: page.hero_image_url || "",
       og_image: page.og_image || "",
@@ -249,7 +249,7 @@ const StaticPages = () => {
     if (!prepared.slug.trim() || !prepared.title_uk.trim() || !prepared.title_en.trim()) {
       toast({
         title: "Помилка",
-        description: "Slug, Назва (UK) та Назва (EN) — обовʼязкові",
+        description: "Slug, Назва (UA) та Назва (EN) — обовʼязкові",
         variant: "destructive",
       });
       return;
@@ -326,11 +326,11 @@ const StaticPages = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="title_uk">Назва (UK)</Label>
+                    <Label htmlFor="title_ua">Назва (UA)</Label>
                     <Input
-                      id="title_uk"
+                      id="title_ua"
                       value={formData.title_uk}
-                      onChange={(e) => setFormData({ ...formData, title_uk: e.target.value })}
+                      onChange={(e) => setFormData({ ...formData, title_ua: e.target.value })}
                       required
                     />
                   </div>
@@ -346,11 +346,11 @@ const StaticPages = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="meta_description_uk">Мета-опис (UK)</Label>
+                    <Label htmlFor="meta_description_ua">Мета-опис (UA)</Label>
                     <Textarea
-                      id="meta_description_uk"
+                      id="meta_description_ua"
                       value={formData.meta_description_uk}
-                      onChange={(e) => setFormData({ ...formData, meta_description_uk: e.target.value })}
+                      onChange={(e) => setFormData({ ...formData, meta_description_ua: e.target.value })}
                       rows={3}
                     />
                   </div>

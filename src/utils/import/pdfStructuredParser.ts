@@ -14,13 +14,13 @@ export interface StructuredVerse {
   sanskrit?: string;
   transliteration?: string;
   transliteration_en?: string;
-  transliteration_uk?: string;
+  transliteration_ua?: string;
   synonyms_en?: string;
-  synonyms_uk?: string;
+  synonyms_ua?: string;
   translation_en?: string;
-  translation_uk?: string;
+  translation_ua?: string;
   commentary_en?: string;
-  commentary_uk?: string;
+  commentary_ua?: string;
 }
 
 /**
@@ -114,10 +114,10 @@ function cleanPDFText(text: string): string {
 /**
  * Розпізнає мову тексту (en/ua)
  */
-function detectLanguage(text: string): 'en' | 'uk' {
+function detectLanguage(text: string): 'en' | 'ua' {
   // Українські літери
   const ukrainianRegex = /[а-яіїєґА-ЯІЇЄҐ]/;
-  return ukrainianRegex.test(text) ? 'uk' : 'en';
+  return ukrainianRegex.test(text) ? 'ua' : 'en';
 }
 
 /**
@@ -141,7 +141,7 @@ export function parseStructuredVerses(lines: string[]): StructuredVerse[] {
         break;
       case 'transliteration':
         if (lang === 'uk') {
-          currentVerse.transliteration_uk = blockText;
+          currentVerse.transliteration_ua = blockText;
         } else {
           currentVerse.transliteration_en = blockText;
         }
@@ -166,7 +166,7 @@ export function parseStructuredVerses(lines: string[]): StructuredVerse[] {
         break;
       case 'commentary':
         if (lang === 'uk') {
-          currentVerse.commentary_uk = blockText;
+          currentVerse.commentary_ua = blockText;
         } else {
           currentVerse.commentary_en = blockText;
         }
@@ -246,17 +246,17 @@ export function exportForDatabase(verses: StructuredVerse[]) {
     verses: verses.map(v => ({
       ...v,
       // Додаємо fallback значення
-      transliteration: v.transliteration || v.transliteration_en || v.transliteration_uk || '',
+      transliteration: v.transliteration || v.transliteration_en || v.transliteration_ua || '',
       translation_en: v.translation_en || '',
-      translation_uk: v.translation_uk || '',
+      translation_ua: v.translation_uk || '',
       commentary_en: v.commentary_en || '',
-      commentary_uk: v.commentary_uk || '',
+      commentary_ua: v.commentary_ua || '',
     })),
     summary: {
       total: verses.length,
       hasTransliteration: verses.filter(v => v.transliteration || v.transliteration_en).length,
       hasSynonyms: verses.filter(v => v.synonyms_en || v.synonyms_uk).length,
-      hasCommentary: verses.filter(v => v.commentary_en || v.commentary_uk).length,
+      hasCommentary: verses.filter(v => v.commentary_en || v.commentary_ua).length,
     }
   };
 }

@@ -6,7 +6,7 @@
 import { BookReaderHeader } from "@/components/BookReaderHeader";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
-  GITA_DISCIPLIC_SUCCESSION_UK,
+  GITA_DISCIPLIC_SUCCESSION_UA,
   GITA_DISCIPLIC_SUCCESSION_EN,
   type DiscipleLineage
 } from "@/data/book-resources/gita-resources";
@@ -63,7 +63,7 @@ export const DisciplicSuccessionPage = ({
 
   // Get disciplic succession based on language
   const succession = language === "uk"
-    ? GITA_DISCIPLIC_SUCCESSION_UK
+    ? GITA_DISCIPLIC_SUCCESSION_UA
     : GITA_DISCIPLIC_SUCCESSION_EN;
 
   return (

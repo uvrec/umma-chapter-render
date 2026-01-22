@@ -20,11 +20,11 @@ const urlSchema = z.string().url("Невірний формат URL").or(z.liter
 
 type PageRow = {
   slug: string;
-  title_uk: string | null;
+  title_ua: string | null;
   title_en: string | null;
-  content_uk: string | null;
+  content_ua: string | null;
   content_en: string | null;
-  meta_description_uk: string | null;
+  meta_description_ua: string | null;
   meta_description_en: string | null;
   hero_image_url: string | null;
   banner_image_url: string | null;
@@ -41,11 +41,11 @@ export default function EditPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const [titleUk, setTitleUk] = useState("");
+  const [titleUa, setTitleUa] = useState("");
   const [titleEn, setTitleEn] = useState("");
-  const [contentUk, setContentUk] = useState("");
+  const [contentUa, setContentUa] = useState("");
   const [contentEn, setContentEn] = useState("");
-  const [metaDescriptionUk, setMetaDescriptionUk] = useState("");
+  const [metaDescriptionUa, setMetaDescriptionUa] = useState("");
   const [metaDescriptionEn, setMetaDescriptionEn] = useState("");
   const [heroImageUrl, setHeroImageUrl] = useState("");
   const [bannerImageUrl, setBannerImageUrl] = useState("");
@@ -73,11 +73,11 @@ export default function EditPage() {
   const initialSnapshot = useMemo(
     () =>
       JSON.stringify({
-        titleUk,
+        titleUa,
         titleEn,
-        contentUk,
+        contentUa,
         contentEn,
-        metaDescriptionUk,
+        metaDescriptionUa,
         metaDescriptionEn,
         heroImageUrl,
         bannerImageUrl,
@@ -92,11 +92,11 @@ export default function EditPage() {
   // як тільки прийшла сторінка — заповнюємо поля
   useEffect(() => {
     if (page) {
-      setTitleUk(page.title_uk || "");
+      setTitleUa(page.title_uk || "");
       setTitleEn(page.title_en || "");
-      setContentUk(page.content_uk || "");
+      setContentUa(page.content_uk || "");
       setContentEn(page.content_en || "");
-      setMetaDescriptionUk(page.meta_description_uk || "");
+      setMetaDescriptionUa(page.meta_description_uk || "");
       setMetaDescriptionEn(page.meta_description_en || "");
       setHeroImageUrl(page.hero_image_url || "");
       setBannerImageUrl(page.banner_image_url || "");
@@ -110,11 +110,11 @@ export default function EditPage() {
   // dirty state
   const isDirty = useMemo(() => {
     const current = JSON.stringify({
-      titleUk,
+      titleUa,
       titleEn,
-      contentUk,
+      contentUa,
       contentEn,
-      metaDescriptionUk,
+      metaDescriptionUa,
       metaDescriptionEn,
       heroImageUrl,
       bannerImageUrl,
@@ -125,11 +125,11 @@ export default function EditPage() {
     // якщо initialSnapshot порожній (ще не встановлено) — не блокуємо
     return initialSnapshot && current !== initialSnapshot;
   }, [
-    titleUk,
+    titleUa,
     titleEn,
-    contentUk,
+    contentUa,
     contentEn,
-    metaDescriptionUk,
+    metaDescriptionUa,
     metaDescriptionEn,
     heroImageUrl,
     bannerImageUrl,
@@ -154,11 +154,11 @@ export default function EditPage() {
   const updatePageMutation = useMutation({
     mutationFn: async () => {
       const payload = {
-        title_uk: titleUk,
+        title_ua: titleUa,
         title_en: titleEn,
-        content_uk: contentUk,
+        content_ua: contentUa,
         content_en: contentEn,
-        meta_description_uk: metaDescriptionUk,
+        meta_description_ua: metaDescriptionUa,
         meta_description_en: metaDescriptionEn,
         hero_image_url: heroImageUrl,
         banner_image_url: bannerImageUrl,
@@ -211,7 +211,7 @@ export default function EditPage() {
 
   const handleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!titleUk || !titleEn) {
+    if (!titleUa || !titleEn) {
       toast({
         title: "Помилка",
         description: "Заповніть обов'язкові поля (UA та EN заголовки)",
@@ -225,11 +225,11 @@ export default function EditPage() {
 
   const handleReset = () => {
     if (!page) return;
-    setTitleUk(page.title_uk || "");
+    setTitleUa(page.title_uk || "");
     setTitleEn(page.title_en || "");
-    setContentUk(page.content_uk || "");
+    setContentUa(page.content_uk || "");
     setContentEn(page.content_en || "");
-    setMetaDescriptionUk(page.meta_description_uk || "");
+    setMetaDescriptionUa(page.meta_description_uk || "");
     setMetaDescriptionEn(page.meta_description_en || "");
     setHeroImageUrl(page.hero_image_url || "");
     setBannerImageUrl(page.banner_image_url || "");
@@ -295,19 +295,19 @@ export default function EditPage() {
 
                 <TabsContent value="basic" className="space-y-4">
                   <div>
-                    <Label htmlFor="titleUk">Заголовок (UK) *</Label>
-                    <Input id="titleUk" value={titleUk} onChange={(e) => setTitleUk(e.target.value)} required />
+                    <Label htmlFor="titleUa">Заголовок (UA) *</Label>
+                    <Input id="titleUa" value={titleUa} onChange={(e) => setTitleUa(e.target.value)} required />
                   </div>
                   <div>
                     <Label htmlFor="titleEn">Заголовок (EN) *</Label>
                     <Input id="titleEn" value={titleEn} onChange={(e) => setTitleEn(e.target.value)} required />
                   </div>
                   <div>
-                    <Label htmlFor="metaDescriptionUk">Meta опис (UK)</Label>
+                    <Label htmlFor="metaDescriptionUa">Meta опис (UA)</Label>
                     <Textarea
-                      id="metaDescriptionUk"
-                      value={metaDescriptionUk}
-                      onChange={(e) => setMetaDescriptionUk(e.target.value)}
+                      id="metaDescriptionUa"
+                      value={metaDescriptionUa}
+                      onChange={(e) => setMetaDescriptionUa(e.target.value)}
                       rows={2}
                     />
                   </div>
@@ -331,8 +331,8 @@ export default function EditPage() {
                     Використовується для сторінок без блокової структури (застарілий формат)
                   </p>
                   <div>
-                    <Label htmlFor="contentUk">Контент (UK)</Label>
-                    <TiptapEditor content={contentUk} onChange={setContentUk} />
+                    <Label htmlFor="contentUa">Контент (UA)</Label>
+                    <TiptapEditor content={contentUa} onChange={setContentUa} />
                   </div>
                   <div>
                     <Label htmlFor="contentEn">Content (EN)</Label>

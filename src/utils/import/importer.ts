@@ -130,9 +130,9 @@ export async function upsertChapter(
     cantoId?: string | null;
     chapter_number: number;
     chapter_type: "verses" | "text";
-    title_uk?: string;
+    title_ua?: string;
     title_en?: string;
-    content_uk?: string;
+    content_ua?: string;
     content_en?: string;
   },
 ): Promise<string> {
@@ -146,7 +146,7 @@ export async function upsertChapter(
   if (cantoId) {
     const { data } = await supabase
       .from("chapters")
-      .select("id, title_uk, title_en, content_uk, content_en, canto_id")
+      .select("id, title_ua, title_en, content_ua, content_en, canto_id")
       .eq("chapter_number", chapter_number)
       .eq("canto_id", cantoId)
       .maybeSingle();
@@ -157,7 +157,7 @@ export async function upsertChapter(
   if (!existingChapter) {
     const { data } = await supabase
       .from("chapters")
-      .select("id, title_uk, title_en, content_uk, content_en, canto_id")
+      .select("id, title_ua, title_en, content_ua, content_en, canto_id")
       .eq("chapter_number", chapter_number)
       .eq("book_id", bookId)
       .maybeSingle();
@@ -169,14 +169,14 @@ export async function upsertChapter(
   try {
     const { data: bookMeta } = await supabase
       .from("books")
-      .select("title_uk, title_en")
+      .select("title_ua, title_en")
       .eq("id", bookId)
       .maybeSingle();
     if (bookMeta) fallbackExtras.push(bookMeta.title_uk || "", bookMeta.title_en || "");
     if (cantoId) {
       const { data: cantoMeta } = await supabase
         .from("cantos")
-        .select("title_uk, title_en")
+        .select("title_ua, title_en")
         .eq("id", cantoId)
         .maybeSingle();
       if (cantoMeta) fallbackExtras.push(cantoMeta.title_uk || "", cantoMeta.title_en || "");
@@ -198,10 +198,10 @@ export async function upsertChapter(
     ...baseRefs,
     chapter_number,
     chapter_type: params.chapter_type,
-    title_uk: uaTitle,
+    title_ua: uaTitle,
     // ✅ Ensure title_en always has a value (database NOT NULL constraint)
     title_en: enTitle,
-    content_uk: safeHtml(params.content_uk),
+    content_ua: safeHtml(params.content_uk),
     content_en: safeHtml(params.content_en),
   };
 
@@ -214,12 +214,12 @@ export async function upsertChapter(
 
   console.log('🔍 upsertChapter: Отримав параметри', {
     chapter_number,
-    title_uk: params.title_uk,
+    title_ua: params.title_uk,
     title_en: params.title_en,
-    title_uk_provided: params.title_uk !== undefined,
+    title_ua_provided: params.title_uk !== undefined,
     title_en_provided: params.title_en !== undefined,
     existing_chapter_id: existingChapter?.id,
-    existing_title_uk: existingChapter?.title_uk,
+    existing_title_ua: existingChapter?.title_uk,
     existing_title_en: existingChapter?.title_en,
   });
 
@@ -228,10 +228,10 @@ export async function upsertChapter(
   // 2. Має текст
   // 3. НЕ є fallback
   if (params.title_uk !== undefined && hasText(params.title_uk) && !isFallbackTitle(params.title_uk, chapter_number, fallbackExtras)) {
-    console.log('🔍 upsertChapter: Оновлюємо title_uk');
+    console.log('🔍 upsertChapter: Оновлюємо title_ua');
     updatePayload.title_uk = params.title_uk;
   } else {
-    console.log('🔍 upsertChapter: НЕ оновлюємо title_uk (undefined або fallback)');
+    console.log('🔍 upsertChapter: НЕ оновлюємо title_ua (undefined або fallback)');
   }
   
   if (params.title_en !== undefined && hasText(params.title_en) && !isFallbackTitle(params.title_en, chapter_number, fallbackExtras)) {
@@ -300,13 +300,13 @@ export async function replaceChapterVerses(
       sanskrit: normalizedSanskrit,
       transliteration: normalizedTranslit,
       transliteration_en: (v as any).transliteration_en ?? null,
-      transliteration_uk: (v as any).transliteration_uk ?? null,
-      synonyms_uk: normalizeSynonymsSoft((v as any).synonyms_uk ?? ""),
+      transliteration_ua: (v as any).transliteration_ua ?? null,
+      synonyms_ua: normalizeSynonymsSoft((v as any).synonyms_uk ?? ""),
       // Fallback to generic EN keys when Python parser returns {synonyms, translation, purport}
       synonyms_en: (v as any).synonyms_en ?? (v as any).synonyms ?? null,
-      translation_uk: (v as any).translation_uk ?? null,
+      translation_ua: (v as any).translation_uk ?? null,
       translation_en: (v as any).translation_en ?? (v as any).translation ?? null,
-      commentary_uk: safeHtml(stripSectionLabel((v as any).commentary_uk ?? "")),
+      commentary_ua: safeHtml(stripSectionLabel((v as any).commentary_ua ?? "")),
       commentary_en: safeHtml(stripSectionLabel((v as any).commentary_en ?? (v as any).purport ?? "")),
       // підтримуємо і audioUrl (camelCase), і audio_url (snake_case)
       audio_url: (v as any).audio_url ?? (v as any).audioUrl ?? null,
@@ -330,7 +330,7 @@ export async function upsertChapterVerses(supabase: SupabaseClient, chapterId: s
   const { data: existingRows, error: exErr } = await supabase
     .from("verses")
     .select(
-      "id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_uk, synonyms_uk, synonyms_en, translation_uk, translation_en, commentary_uk, commentary_en, audio_url"
+      "id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, synonyms_ua, synonyms_en, translation_ua, translation_en, commentary_ua, commentary_en, audio_url"
     )
     .eq("chapter_id", chapterId);
   if (exErr) throw exErr;
@@ -371,7 +371,7 @@ export async function upsertChapterVerses(supabase: SupabaseClient, chapterId: s
     // Transliteration fields - update only when provided
     if (hasText(translitToUse)) row.transliteration = translitToUse;
     if (hasText(incoming.transliteration_en)) row.transliteration_en = incoming.transliteration_en;
-    if (hasText(incoming.transliteration_uk)) row.transliteration_uk = incoming.transliteration_uk;
+    if (hasText(incoming.transliteration_ua)) row.transliteration_ua = incoming.transliteration_ua;
 
     // EN blocks: update whenever provided
     if (hasText(incoming.synonyms_en)) row.synonyms_en = incoming.synonyms_en;
@@ -391,8 +391,8 @@ export async function upsertChapterVerses(supabase: SupabaseClient, chapterId: s
     if (hasText(incoming.translation_uk)) {
       row.translation_uk = incoming.translation_uk;
     }
-    if (hasText(incoming.commentary_uk)) {
-      row.commentary_uk = safeHtml(stripSectionLabel(incoming.commentary_uk));
+    if (hasText(incoming.commentary_ua)) {
+      row.commentary_ua = safeHtml(stripSectionLabel(incoming.commentary_ua));
     }
 
     // Audio URL - update when provided
@@ -430,9 +430,9 @@ export async function importSingleChapter(
     cantoId: cantoId ?? null,
     chapter_number: chapter.chapter_number,
     chapter_type: chapter.chapter_type ?? "verses",
-    title_uk: chapter.title_uk,
+    title_ua: chapter.title_uk,
     title_en: chapter.title_en,
-    content_uk: chapter.content_uk,
+    content_ua: chapter.content_uk,
     content_en: chapter.content_en,
   });
 

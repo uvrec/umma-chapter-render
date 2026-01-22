@@ -15,29 +15,18 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { debounce } from "lodash";
 
-// Define the expected return type for search_synonyms with search_mode parameter
-interface SynonymSearchResult {
-  book_slug: string;
-  book_title: string;
-  canto_number: number;
-  chapter_number: number;
-  match_rank: number;
-  sanskrit: string;
-  synonyms: string;
-  translation: string;
-  transliteration: string;
-  verse_id: string;
-  verse_number: string;
-}
+// Використовуємо типи з Supabase для search_synonyms RPC
+import type { Database } from "@/integrations/supabase/types";
+type SynonymSearchResult = Database['public']['Functions']['search_synonyms']['Returns'][number];
 
 // Helper to build verse link (must match App.tsx routes)
-const buildVerseLinkPath = (result: SynonymSearchResult): string => {
+const buildVerseLink = (result: SynonymSearchResult): string => {
   if (result.canto_number) {
-    // Srimad-Bhagavatam structure: /lib/:bookId/:cantoNumber/:chapterNumber/:verseNumber
-    return `/lib/${result.book_slug}/${result.canto_number}/${result.chapter_number}/${result.verse_number}`;
+    // Srimad-Bhagavatam structure: /veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseNumber
+    return `/veda-reader/${result.book_slug}/canto/${result.canto_number}/chapter/${result.chapter_number}/${result.verse_number}`;
   }
-  // Direct book-chapter structure: /lib/:bookId/:chapterNumber/:verseNumber
-  return `/lib/${result.book_slug}/${result.chapter_number}/${result.verse_number}`;
+  // Direct book-chapter structure: /veda-reader/:bookId/:chapterNumber/:verseNumber
+  return `/veda-reader/${result.book_slug}/${result.chapter_number}/${result.verse_number}`;
 };
 
 // Escape special RegExp characters to prevent ReDoS and ensure correct matching
@@ -72,20 +61,15 @@ const highlightSearchTerm = (text: string, term: string): string => {
 
 interface AutocompleteItem {
   term: string;
-  count: number;
+  frequency: number;
 }
 
 type SearchMode = "contains" | "starts_with" | "exact";
 
 export default function SynonymsSearch() {
-  const { language: contextLanguage, getLocalizedPath } = useLanguage();
-
-  // Build verse link with language prefix
-  const buildVerseLink = (result: SynonymSearchResult): string => {
-    return getLocalizedPath(buildVerseLinkPath(result));
-  };
+  const { language: contextLanguage } = useLanguage();
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchLanguage, setSearchLanguage] = useState<"uk" | "en">("uk");
+  const [searchLanguage, setSearchLanguage] = useState<"uk" | "en">("ua");
   const [searchMode, setSearchMode] = useState<SearchMode>("contains");
   const [results, setResults] = useState<SynonymSearchResult[]>([]);
   const [autocomplete, setAutocomplete] = useState<AutocompleteItem[]>([]);
@@ -110,13 +94,12 @@ export default function SynonymsSearch() {
       try {
         const { data, error } = await supabase.rpc("get_unique_synonym_terms", {
           search_language: lang,
+          prefix_filter: term,
+          limit_count: 10,
         });
 
         if (error) throw error;
-        // Filter client-side since prefix_filter may not exist in type definition
-        const items = (data ?? []).filter(item => 
-          item.term.toLowerCase().startsWith(term.toLowerCase())
-        ).slice(0, 10);
+        const items = data ?? [];
         setAutocomplete(items);
       } catch (error) {
         console.error("Autocomplete error:", error);
@@ -131,7 +114,7 @@ export default function SynonymsSearch() {
   const performSearch = async () => {
     if (!searchTerm.trim()) {
       toast.error(
-        searchLanguage === "uk" ? "Введіть пошуковий термін" : "Enter search term"
+        searchLanguage === "ua" ? "Введіть пошуковий термін" : "Enter search term"
       );
       return;
     }
@@ -144,29 +127,27 @@ export default function SynonymsSearch() {
         search_mode: searchMode,
         limit_count: 100,
         offset_count: 0,
-      } as any); // Use 'as any' due to Supabase type union ambiguity
-      
-      const typedData = data as SynonymSearchResult[] | null;
+      });
 
       if (error) throw error;
 
-      const rows = typedData ?? [];
+      const rows = data ?? [];
       setResults(rows);
       setTotalResults(rows.length);
 
       if (!rows || rows.length === 0) {
         toast.info(
-          searchLanguage === "uk" ? "Нічого не знайдено" : "No results found",
+          searchLanguage === "ua" ? "Нічого не знайдено" : "No results found",
           {
             description:
-              searchLanguage === "uk"
+              searchLanguage === "ua"
                 ? "Спробуйте інший термін або змініть режим пошуку"
                 : "Try another term or change search mode",
           }
         );
       } else {
         toast.success(
-          searchLanguage === "uk"
+          searchLanguage === "ua"
             ? `Знайдено результатів: ${rows.length}`
             : `Results found: ${rows.length}`
         );
@@ -174,7 +155,7 @@ export default function SynonymsSearch() {
     } catch (error: any) {
       console.error("Search error:", error);
       toast.error(
-        searchLanguage === "uk" ? "Помилка пошуку" : "Search error",
+        searchLanguage === "ua" ? "Помилка пошуку" : "Search error",
         {
           description: error.message,
         }
@@ -202,10 +183,10 @@ export default function SynonymsSearch() {
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold mb-2">
               <MessageSquare className="inline-block mr-2 mb-1" />
-              {searchLanguage === "uk" ? "Пошук синонімів" : "Synonyms Search"}
+              {searchLanguage === "ua" ? "Пошук синонімів" : "Synonyms Search"}
             </h1>
             <p className="text-muted-foreground">
-              {searchLanguage === "uk"
+              {searchLanguage === "ua"
                 ? "Знайдіть санскритські терміни та їх переклади у священних текстах"
                 : "Find Sanskrit terms and their translations in sacred texts"}
             </p>
@@ -215,10 +196,10 @@ export default function SynonymsSearch() {
           <div className="mb-8">
             <div className="mb-4">
               <h2 className="text-xl font-semibold">
-                {searchLanguage === "uk" ? "Параметри пошуку" : "Search Parameters"}
+                {searchLanguage === "ua" ? "Параметри пошуку" : "Search Parameters"}
               </h2>
               <p className="text-sm text-muted-foreground">
-                {searchLanguage === "uk"
+                {searchLanguage === "ua"
                   ? "Налаштуйте параметри для точного пошуку"
                   : "Configure parameters for precise search"}
               </p>
@@ -227,7 +208,7 @@ export default function SynonymsSearch() {
               {/* Мова */}
               <div>
                 <Label className="mb-2 block">
-                  {searchLanguage === "uk" ? "Мова пошуку" : "Search Language"}
+                  {searchLanguage === "ua" ? "Мова пошуку" : "Search Language"}
                 </Label>
                 <RadioGroup
                   value={searchLanguage}
@@ -235,7 +216,7 @@ export default function SynonymsSearch() {
                   className="flex gap-4"
                 >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="uk" id="lang-ua" />
+                    <RadioGroupItem value="ua" id="lang-ua" />
                     <Label htmlFor="lang-ua">Українська</Label>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -248,7 +229,7 @@ export default function SynonymsSearch() {
               {/* Режим пошуку */}
               <div>
                 <Label className="mb-2 block">
-                  {searchLanguage === "uk" ? "Режим пошуку" : "Search Mode"}
+                  {searchLanguage === "ua" ? "Режим пошуку" : "Search Mode"}
                 </Label>
                 <RadioGroup
                   value={searchMode}
@@ -258,27 +239,27 @@ export default function SynonymsSearch() {
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="contains" id="mode-contains" />
                     <Label htmlFor="mode-contains" className="font-normal">
-                      {searchLanguage === "uk" ? "Містить термін" : "Contains term"}{" "}
+                      {searchLanguage === "ua" ? "Містить термін" : "Contains term"}{" "}
                       <span className="text-muted-foreground text-sm">
-                        ({searchLanguage === "uk" ? "найбільш гнучкий" : "most flexible"})
+                        ({searchLanguage === "ua" ? "найбільш гнучкий" : "most flexible"})
                       </span>
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="starts_with" id="mode-starts" />
                     <Label htmlFor="mode-starts" className="font-normal">
-                      {searchLanguage === "uk" ? "Починається з" : "Starts with"}{" "}
+                      {searchLanguage === "ua" ? "Починається з" : "Starts with"}{" "}
                       <span className="text-muted-foreground text-sm">
-                        ({searchLanguage === "uk" ? "точніший" : "more precise"})
+                        ({searchLanguage === "ua" ? "точніший" : "more precise"})
                       </span>
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="exact" id="mode-exact" />
                     <Label htmlFor="mode-exact" className="font-normal">
-                      {searchLanguage === "uk" ? "Точний збіг" : "Exact match"}{" "}
+                      {searchLanguage === "ua" ? "Точний збіг" : "Exact match"}{" "}
                       <span className="text-muted-foreground text-sm">
-                        ({searchLanguage === "uk" ? "найточніший" : "most accurate"})
+                        ({searchLanguage === "ua" ? "найточніший" : "most accurate"})
                       </span>
                     </Label>
                   </div>
@@ -288,7 +269,7 @@ export default function SynonymsSearch() {
               {/* Поле пошуку */}
               <div className="relative">
                 <Label className="mb-2 block">
-                  {searchLanguage === "uk" ? "Пошуковий термін" : "Search Term"}
+                  {searchLanguage === "ua" ? "Пошуковий термін" : "Search Term"}
                 </Label>
                 <div className="relative">
                   <Input
@@ -301,7 +282,7 @@ export default function SynonymsSearch() {
                       }
                     }}
                     placeholder={
-                      searchLanguage === "uk"
+                      searchLanguage === "ua"
                         ? "Введіть санскритський термін..."
                         : "Enter Sanskrit term..."
                     }
@@ -326,7 +307,7 @@ export default function SynonymsSearch() {
                       >
                         <span>{item.term}</span>
                         <Badge variant="secondary" className="text-xs">
-                          {item.count}
+                          {item.frequency}
                         </Badge>
                       </button>
                     ))}
@@ -344,12 +325,12 @@ export default function SynonymsSearch() {
                 {isSearching ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {searchLanguage === "uk" ? "Шукаємо..." : "Searching..."}
+                    {searchLanguage === "ua" ? "Шукаємо..." : "Searching..."}
                   </>
                 ) : (
                   <>
                     <Search className="mr-2 h-4 w-4" />
-                    {searchLanguage === "uk" ? "Шукати" : "Search"}
+                    {searchLanguage === "ua" ? "Шукати" : "Search"}
                   </>
                 )}
               </Button>
@@ -360,7 +341,7 @@ export default function SynonymsSearch() {
           {totalResults > 0 && (
             <div className="mb-4">
               <p className="text-sm text-muted-foreground">
-                {searchLanguage === "uk" ? "Знайдено результатів:" : "Results found:"}{" "}
+                {searchLanguage === "ua" ? "Знайдено результатів:" : "Results found:"}{" "}
                 {totalResults}
               </p>
             </div>
@@ -384,7 +365,7 @@ export default function SynonymsSearch() {
                       </Link>
                     </div>
                     <Badge variant="outline">
-                      {searchLanguage === "uk" ? "Ранг:" : "Rank:"}{" "}
+                      {searchLanguage === "ua" ? "Ранг:" : "Rank:"}{" "}
                       {result.match_rank.toFixed(2)}
                     </Badge>
                   </div>
@@ -410,7 +391,7 @@ export default function SynonymsSearch() {
                   {/* Синоніми (підсвічуємо знайдений термін) */}
                   <div className="mb-3 p-3 bg-muted rounded-md">
                     <p className="text-sm font-medium mb-1">
-                      {searchLanguage === "uk" ? "Синоніми:" : "Synonyms:"}
+                      {searchLanguage === "ua" ? "Синоніми:" : "Synonyms:"}
                     </p>
                     <p
                       className="text-sm leading-relaxed"
@@ -424,7 +405,7 @@ export default function SynonymsSearch() {
                   {result.translation && (
                     <div>
                       <p className="text-sm font-medium mb-1">
-                        {searchLanguage === "uk" ? "Переклад:" : "Translation:"}
+                        {searchLanguage === "ua" ? "Переклад:" : "Translation:"}
                       </p>
                       <p className="text-sm leading-relaxed">{result.translation}</p>
                     </div>
@@ -439,10 +420,10 @@ export default function SynonymsSearch() {
             <div className="py-12 text-center">
               <MessageSquare className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
               <h3 className="text-lg font-medium mb-2">
-                {searchLanguage === "uk" ? "Нічого не знайдено" : "No results found"}
+                {searchLanguage === "ua" ? "Нічого не знайдено" : "No results found"}
               </h3>
               <p className="text-muted-foreground">
-                {searchLanguage === "uk"
+                {searchLanguage === "ua"
                   ? "Спробуйте змінити пошуковий термін або режим пошуку"
                   : "Try changing your search term or search mode"}
               </p>
@@ -454,12 +435,12 @@ export default function SynonymsSearch() {
             <div className="py-12 text-center">
               <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
               <h3 className="text-lg font-medium mb-2">
-                {searchLanguage === "uk"
+                {searchLanguage === "ua"
                   ? "Розпочніть пошук синонімів"
                   : "Start searching for synonyms"}
               </h3>
               <p className="text-muted-foreground">
-                {searchLanguage === "uk"
+                {searchLanguage === "ua"
                   ? "Введіть санскритський термін вгорі, щоб знайти його переклади та значення"
                   : "Enter a Sanskrit term above to find its translations and meanings"}
               </p>

@@ -28,7 +28,10 @@ import type {
 
 export const LettersContent = () => {
   const navigate = useNavigate();
-  const { language, t, getLocalizedPath } = useLanguage();
+  const { language } = useLanguage();
+
+  // Мовні налаштування для контенту
+  const [contentLanguage, setContentLanguage] = useState<"uk" | "en">("ua");
 
   // Пошук та фільтрація
   const [searchQuery, setSearchQuery] = useState("");
@@ -43,6 +46,8 @@ export const LettersContent = () => {
 
   // Групування
   const [groupBy, setGroupBy] = useState<"none" | "year" | "recipient">("year");
+
+  const t = (ua: string, en: string) => contentLanguage === "ua" ? ua : en;
 
   // Завантажити листи з БД
   const { data: letters = [], isLoading } = useQuery({
@@ -77,13 +82,13 @@ export const LettersContent = () => {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter((letter) => {
-        const recipient = language === "uk" && letter.recipient_uk
-          ? letter.recipient_uk
+        const recipient = contentLanguage === "ua" && letter.recipient_ua
+          ? letter.recipient_ua
           : letter.recipient_en;
-        const location = language === "uk" && letter.location_uk
-          ? letter.location_uk
+        const location = contentLanguage === "ua" && letter.location_ua
+          ? letter.location_ua
           : letter.location_en;
-        const content = language === "uk" && letter.content_uk
+        const content = contentLanguage === "ua" && letter.content_uk
           ? letter.content_uk
           : letter.content_en;
 
@@ -133,7 +138,7 @@ export const LettersContent = () => {
     });
 
     return result;
-  }, [letters, searchQuery, filters, sortBy, sortOrder, language]);
+  }, [letters, searchQuery, filters, sortBy, sortOrder, contentLanguage]);
 
   // Групувати листи
   const groupedLetters = useMemo(() => {
@@ -180,15 +185,202 @@ export const LettersContent = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-      {/* Results - Main content */}
-      <div className="lg:col-span-3 order-2 lg:order-1">
-        {filteredAndSortedLetters.length > 0 && (
-          <div className="mb-4 text-sm text-muted-foreground">
-            {filteredAndSortedLetters.length} {t("листів", "letters")}
+    <div className="space-y-6">
+      {/* Заголовок з лічильником та мовним переключачем */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <Mail className="w-8 h-8 text-primary" />
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">
+              {t("Листи Шріли Прабгупади", "Letters of Srila Prabhupada")}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {t(
+                `${letters.length} листів (1947-1977)`,
+                `${letters.length} letters (1947-1977)`
+              )}
+            </p>
           </div>
-        )}
-        <div className="space-y-6">
+        </div>
+
+        {/* Мовний переключач */}
+        <div className="flex gap-2">
+          <Button
+            variant={contentLanguage === "ua" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setContentLanguage("ua")}
+          >
+            Українська
+          </Button>
+          <Button
+            variant={contentLanguage === "en" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setContentLanguage("en")}
+          >
+            English
+          </Button>
+        </div>
+      </div>
+
+      {/* Пошук та фільтри */}
+      <div className="space-y-4">
+        <div className="flex items-center text-lg font-semibold mb-4">
+          <Search className="w-5 h-5 mr-2" />
+          {t("Пошук та фільтри", "Search & filters")}
+        </div>
+          {/* Пошук */}
+          <div>
+            <Input
+              placeholder={t(
+                "Пошук по отримувачу, локації, тексту...",
+                "Search by recipient, location, content..."
+              )}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full"
+            />
+          </div>
+
+          {/* Фільтри */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                {t("Отримувач", "Recipient")}
+              </label>
+              <Select
+                value={filters.recipient || "all"}
+                onValueChange={(value) =>
+                  setFilters({ ...filters, recipient: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t("Всі", "All")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("Всі отримувачі", "All recipients")}</SelectItem>
+                  {recipients.map((recipient) => (
+                    <SelectItem key={recipient} value={recipient}>
+                      {recipient}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                {t("Локація", "Location")}
+              </label>
+              <Select
+                value={filters.location || "all"}
+                onValueChange={(value) =>
+                  setFilters({ ...filters, location: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t("Всі", "All")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("Всі локації", "All locations")}</SelectItem>
+                  {locations.map((location) => (
+                    <SelectItem key={location} value={location}>
+                      {location}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                {t("Рік", "Year")}
+              </label>
+              <div className="flex gap-2">
+                <Input
+                  type="number"
+                  placeholder={t("Від", "From")}
+                  value={filters.yearFrom || ""}
+                  onChange={(e) =>
+                    setFilters({
+                      ...filters,
+                      yearFrom: e.target.value ? parseInt(e.target.value) : undefined,
+                    })
+                  }
+                  className="w-full"
+                />
+                <Input
+                  type="number"
+                  placeholder={t("До", "To")}
+                  value={filters.yearTo || ""}
+                  onChange={(e) =>
+                    setFilters({
+                      ...filters,
+                      yearTo: e.target.value ? parseInt(e.target.value) : undefined,
+                    })
+                  }
+                  className="w-full"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Сортування та групування */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                {t("Сортувати за", "Sort by")}
+              </label>
+              <Select value={sortBy} onValueChange={(v) => setSortBy(v as LetterSortBy)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="date">{t("Дата", "Date")}</SelectItem>
+                  <SelectItem value="recipient">{t("Отримувач", "Recipient")}</SelectItem>
+                  <SelectItem value="location">{t("Локація", "Location")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                {t("Напрямок", "Order")}
+              </label>
+              <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as LetterSortOrder)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="asc">{t("За зростанням", "Ascending")}</SelectItem>
+                  <SelectItem value="desc">{t("За спаданням", "Descending")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                {t("Групувати за", "Group by")}
+              </label>
+              <Select value={groupBy} onValueChange={(v) => setGroupBy(v as any)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">{t("Без групування", "No grouping")}</SelectItem>
+                  <SelectItem value="year">{t("Рік", "Year")}</SelectItem>
+                  <SelectItem value="recipient">{t("Отримувач", "Recipient")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+      </div>
+
+      {/* Результати */}
+      <div className="mb-4 text-sm text-muted-foreground">
+        {t("Знайдено листів:", "Letters found:")} {filteredAndSortedLetters.length}
+      </div>
+
+      <div className="space-y-8">
         {groupedLetters.map((group) => (
           <div key={group.label}>
             <h3 className="text-xl font-bold mb-4">{group.label}</h3>
@@ -197,21 +389,21 @@ export const LettersContent = () => {
                 <div
                   key={letter.id}
                   className="cursor-pointer hover:bg-muted/30 transition-colors py-3"
-                  onClick={() => navigate(getLocalizedPath(`/library/letters/${letter.slug}`))}
+                  onClick={() => navigate(`/library/letters/${letter.slug}`)}
                 >
                   <div className="flex items-start gap-3">
                     <Mail className="w-5 h-5 mt-1 flex-shrink-0 text-muted-foreground" />
                     <div className="flex-1 min-w-0">
                       <h4 className="text-lg font-semibold line-clamp-2">
-                        {language === "uk" && letter.recipient_uk
-                          ? letter.recipient_uk
+                        {contentLanguage === "ua" && letter.recipient_ua
+                          ? letter.recipient_ua
                           : letter.recipient_en}
                       </h4>
                       <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mt-1">
                         <div className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
                           {new Date(letter.letter_date).toLocaleDateString(
-                            language === "uk" ? "uk-UA" : "en-US",
+                            contentLanguage === "ua" ? "uk-UA" : "en-US",
                             {
                               year: "numeric",
                               month: "long",
@@ -222,8 +414,8 @@ export const LettersContent = () => {
                         <div className="flex items-center gap-1">
                           <MapPin className="w-4 h-4" />
                           <span className="truncate">
-                            {language === "uk" && letter.location_uk
-                              ? letter.location_uk
+                            {contentLanguage === "ua" && letter.location_ua
+                              ? letter.location_ua
                               : letter.location_en}
                           </span>
                         </div>
@@ -234,7 +426,7 @@ export const LettersContent = () => {
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-2 mt-2">
-                        {language === "uk" && letter.content_uk
+                        {contentLanguage === "ua" && letter.content_uk
                           ? letter.content_uk.substring(0, 150) + "..."
                           : letter.content_en.substring(0, 150) + "..."}
                       </p>
@@ -247,112 +439,16 @@ export const LettersContent = () => {
         ))}
       </div>
 
-        {filteredAndSortedLetters.length === 0 && (
-          <div className="text-center py-12 text-muted-foreground">
-            {t("Листів не знайдено", "No letters found")}
-          </div>
-        )}
-      </div>
-
-      {/* Sidebar - Filters */}
-      <div className="lg:col-span-1 order-1 lg:order-2">
-        <div className="sticky top-4 space-y-3">
-          {/* Search */}
-          <Input
-            placeholder={t("Пошук...", "Search...")}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-
-          {/* Filters */}
-          <Select
-            value={filters.recipient || "all"}
-            onValueChange={(value) => setFilters({ ...filters, recipient: value })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder={t("Отримувач", "Recipient")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("Всі отримувачі", "All recipients")}</SelectItem>
-              {recipients.map((recipient) => (
-                <SelectItem key={recipient} value={recipient}>{recipient}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select
-            value={filters.location || "all"}
-            onValueChange={(value) => setFilters({ ...filters, location: value })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder={t("Локація", "Location")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("Всі локації", "All locations")}</SelectItem>
-              {locations.map((location) => (
-                <SelectItem key={location} value={location}>{location}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {/* Year range */}
-          <div className="flex gap-2">
-            <Input
-              type="number"
-              placeholder={t("Від", "From")}
-              value={filters.yearFrom || ""}
-              onChange={(e) => setFilters({
-                ...filters,
-                yearFrom: e.target.value ? parseInt(e.target.value) : undefined,
-              })}
-            />
-            <Input
-              type="number"
-              placeholder={t("До", "To")}
-              value={filters.yearTo || ""}
-              onChange={(e) => setFilters({
-                ...filters,
-                yearTo: e.target.value ? parseInt(e.target.value) : undefined,
-              })}
-            />
-          </div>
-
-          {/* Sort & Group */}
-          <div className="pt-3 border-t space-y-3">
-            <Select value={sortBy} onValueChange={(v) => setSortBy(v as LetterSortBy)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="date">{t("Дата", "Date")}</SelectItem>
-                <SelectItem value="recipient">{t("Отримувач", "Recipient")}</SelectItem>
-                <SelectItem value="location">{t("Локація", "Location")}</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as LetterSortOrder)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="asc">{t("↑ Зростання", "↑ Ascending")}</SelectItem>
-                <SelectItem value="desc">{t("↓ Спадання", "↓ Descending")}</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={groupBy} onValueChange={(v) => setGroupBy(v as any)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">{t("Без групування", "No grouping")}</SelectItem>
-                <SelectItem value="year">{t("За роком", "By year")}</SelectItem>
-                <SelectItem value="recipient">{t("За отримувачем", "By recipient")}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+      {filteredAndSortedLetters.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">
+            {t(
+              "Листів не знайдено за вказаними критеріями",
+              "No letters found matching the criteria"
+            )}
+          </p>
         </div>
-      </div>
+      )}
     </div>
   );
 };

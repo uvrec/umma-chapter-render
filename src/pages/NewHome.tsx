@@ -11,9 +11,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { WebsiteSchema, OrganizationSchema } from "@/components/StructuredData";
-import { Helmet } from "react-helmet-async";
-import { SITE_CONFIG } from "@/lib/constants";
 import { InlineBannerEditor } from "@/components/InlineBannerEditor";
 import { Button } from "@/components/ui/button";
 import { DailyQuoteBanner } from "@/components/DailyQuoteBanner";
@@ -23,8 +20,6 @@ import { HomeSearchBar } from "@/components/HomeSearchBar";
 import { QuickActions } from "@/components/QuickActions";
 import { openExternal } from "@/lib/openExternal";
 import { useAudio } from "@/contexts/ModernAudioContext";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { MobileLibraryList } from "@/components/mobile/MobileLibraryList";
 
 // --- Types ---
 type ContentItem = {
@@ -86,7 +81,7 @@ function Hero() {
       return (data as any)?.value as {
         background_image: string;
         logo_image: string;
-        subtitle_uk: string;
+        subtitle_ua: string;
         subtitle_en: string;
       };
     }
@@ -96,7 +91,7 @@ function Hero() {
   const settings = settingsData || {
     background_image: "/lovable-uploads/38e84a84-ccf1-4f23-9197-595040426276.png",
     logo_image: "/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png",
-    subtitle_uk: "Бібліотека ведичних аудіокниг",
+    subtitle_ua: "Бібліотека ведичних аудіокниг",
     subtitle_en: "Library of Vedic audiobooks"
   };
 
@@ -107,18 +102,18 @@ function Hero() {
     const s = Math.floor(seconds % 60);
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
-  const subtitle = language === "uk" ? settings.subtitle_uk : settings.subtitle_en;
+  const subtitle = language === "uk" ? settings.subtitle_ua : settings.subtitle_en;
   const {
     isAdmin
   } = useAuth();
   const inlineSettings = {
     background_image: settings.background_image || "",
     logo_image: settings.logo_image || "",
-    subtitle_uk: settings.subtitle_uk || "",
+    subtitle_ua: settings.subtitle_ua || "",
     subtitle_en: settings.subtitle_en || "",
-    quote_uk: (settingsData as any)?.quote_uk || "",
+    quote_ua: (settingsData as any)?.quote_ua || "",
     quote_en: (settingsData as any)?.quote_en || "",
-    quote_author_uk: (settingsData as any)?.quote_author_uk || "",
+    quote_author_ua: (settingsData as any)?.quote_author_ua || "",
     quote_author_en: (settingsData as any)?.quote_author_en || ""
   };
   return <section className="relative min-h-fit py-8 sm:py-12 md:min-h-[70vh] md:py-0 flex items-center justify-center bg-cover bg-center bg-no-repeat" style={{
@@ -132,6 +127,9 @@ function Hero() {
               <img src={settings.logo_image} alt="Прабгупада соловʼїною" className="h-full w-full object-contain" />
             </div>
           </div>
+
+          {/* Search Bar */}
+          <HomeSearchBar className="mb-6 sm:mb-8" />
 
           {isAdmin && <InlineBannerEditor settings={inlineSettings} onUpdate={() => refetch()} />}
 
@@ -166,14 +164,9 @@ function Hero() {
             </div>}
         </div>
 
-        {/* Daily Quote Banner - moved above search */}
+        {/* Daily Quote Banner - адаптивна ширина */}
         <div className="mt-1.5 sm:mt-3.5 mx-auto max-w-5xl sm:max-w-6xl px-2 sm:px-4">
           <DailyQuoteBanner />
-        </div>
-
-        {/* Search Bar - moved below daily quote */}
-        <div className="mt-4 sm:mt-6 mx-auto max-w-5xl sm:max-w-6xl px-2 sm:px-4">
-          <HomeSearchBar className="mb-2 sm:mb-4" />
         </div>
       </div>
 
@@ -207,7 +200,7 @@ function LatestContent() {
         error
       } = await supabase.from("audio_tracks").select(`
           id,
-          title_uk,
+          title_ua,
           title_en,
           audio_url,
           duration,
@@ -215,7 +208,7 @@ function LatestContent() {
           playlist_id,
           audio_playlists!inner (
             id,
-            title_uk,
+            title_ua,
             is_published,
             category_id,
             audio_categories (
@@ -243,7 +236,7 @@ function LatestContent() {
       const {
         data,
         error
-      } = await supabase.from("blog_posts").select("id, title_uk, excerpt_uk, slug, created_at, read_time").eq("is_published", true).order("published_at", {
+      } = await supabase.from("blog_posts").select("id, title_ua, excerpt_ua, slug, created_at, read_time").eq("is_published", true).order("published_at", {
         ascending: false
       }).limit(3);
       if (error) {
@@ -264,7 +257,7 @@ function LatestContent() {
     audioData: {
       id: track.id,
       title: track.title_uk,
-      title_uk: track.title_uk,
+      title_ua: track.title_uk,
       title_en: track.title_en,
       subtitle: track.audio_playlists?.title_uk,
       artist: "Шріла Прабгупада",
@@ -351,8 +344,7 @@ function LatestContent() {
 // --- Featured Books Section ---
 function FeaturedBooks() {
   const {
-    language,
-    getLocalizedPath
+    language
   } = useLanguage();
   const {
     data: books = [],
@@ -366,7 +358,7 @@ function FeaturedBooks() {
       const {
         data,
         error
-      } = await supabase.from("books").select("id, slug, title_uk, title_en, cover_image_url, is_published, display_order").eq("is_published", true).order("display_order", {
+      } = await supabase.from("books").select("id, slug, title_ua, title_en, cover_image_url, is_published, display_order").eq("is_published", true).order("display_order", {
         ascending: true,
         nullsFirst: false
       }).limit(4);
@@ -433,7 +425,7 @@ function FeaturedBooks() {
 
       {/* Responsive grid - 2 колонки на мобільних, 3 на планшетах, 4 на десктопах */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-        {books.map(book => <a key={book.id} href={getLocalizedPath(`/lib/${book.slug}`)} className="group cursor-pointer">
+        {books.map(book => <a key={book.id} href={`/veda-reader/${book.slug}`} className="group cursor-pointer">
             {/* Book Cover */}
             <div className="relative aspect-[2/3] overflow-hidden rounded-lg shadow-md group-hover:shadow-xl transition-all duration-300">
               {book.cover_image_url ? <img src={book.cover_image_url} alt={language === "uk" ? book.title_uk : book.title_en} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" /> : <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
@@ -480,93 +472,7 @@ function SupportSection() {
 
 // --- Main Page ---
 export const NewHome = () => {
-  const { language, t } = useLanguage();
-  const isMobile = useIsMobile();
-
-  // Fetch books with chapter counts for mobile home view
-  const { data: mobileBooks = [], isLoading: mobileBooksLoading } = useQuery({
-    queryKey: ['home-mobile-books'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('books')
-        .select('id, slug, title_uk, title_en, has_cantos')
-        .eq('is_published', true)
-        .order('display_order');
-      if (error) throw error;
-
-      // Fetch chapter/canto counts
-      const booksWithCounts = await Promise.all(
-        (data || []).map(async (book) => {
-          if (book.has_cantos) {
-            const { count } = await supabase
-              .from('cantos')
-              .select('*', { count: 'exact', head: true })
-              .eq('book_id', book.id);
-            return { ...book, chapter_count: count || 0 };
-          } else {
-            const { count } = await supabase
-              .from('chapters')
-              .select('*', { count: 'exact', head: true })
-              .eq('book_id', book.id);
-            return { ...book, chapter_count: count || 0 };
-          }
-        })
-      );
-
-      return booksWithCounts;
-    },
-    enabled: isMobile, // Only fetch when on mobile
-  });
-
-  const title = language === 'uk'
-    ? "Прабгупада солов'їною — Ведичні писання українською"
-    : "Vedavoice — Vedic scriptures in Ukrainian";
-  const description = language === 'uk'
-    ? "Бгаґавад-ґіта, Шрімад-Бгаґаватам та інші священні тексти ведичної традиції українською мовою з коментарями Шріли Прабгупади."
-    : "Bhagavad-gita, Srimad-Bhagavatam and other sacred texts of the Vedic tradition in Ukrainian with Srila Prabhupada's commentaries.";
-  const canonicalUrl = `${SITE_CONFIG.baseUrl}/${language}`;
-
-  // Mobile: Show library list as home page
-  if (isMobile) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Helmet>
-          <title>{title}</title>
-          <meta name="description" content={description} />
-        </Helmet>
-        <WebsiteSchema />
-        <OrganizationSchema language={language} />
-        <MobileLibraryList books={mobileBooks} isLoading={mobileBooksLoading} />
-      </div>
-    );
-  }
-
-  // Desktop: Full home page
   return <div className="min-h-screen bg-background">
-      {/* SEO Metadata */}
-      <Helmet>
-        <title>{title}</title>
-        <meta name="description" content={description} />
-        <link rel="canonical" href={canonicalUrl} />
-        <link rel="alternate" hrefLang="uk" href={`${SITE_CONFIG.baseUrl}/uk`} />
-        <link rel="alternate" hrefLang="en" href={`${SITE_CONFIG.baseUrl}/en`} />
-        <link rel="alternate" hrefLang="x-default" href={`${SITE_CONFIG.baseUrl}/uk`} />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={canonicalUrl} />
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={description} />
-        <meta property="og:image" content={SITE_CONFIG.socialImage} />
-        <meta property="og:site_name" content={SITE_CONFIG.siteName} />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={title} />
-        <meta name="twitter:description" content={description} />
-        <meta name="twitter:image" content={SITE_CONFIG.socialImage} />
-      </Helmet>
-
-      {/* Structured Data */}
-      <WebsiteSchema />
-      <OrganizationSchema language={language} />
-
       <Header />
       <main>
         <Hero />

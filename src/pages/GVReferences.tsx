@@ -40,7 +40,7 @@ import {
 } from '@/types/gv-references';
 
 export const GVReferences = () => {
-  const { language, t, getLocalizedPath } = useLanguage();
+  const { language, t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
 
   // Fetch data
@@ -220,7 +220,7 @@ export const GVReferences = () => {
                             {/* Link to book if available */}
                             {book.is_available_in_app && book.internal_book_slug && (
                               <Link
-                                to={getLocalizedPath(`/lib/${book.internal_book_slug}`)}
+                                to={`/veda-reader/${book.internal_book_slug}`}
                                 className="flex items-center gap-1 text-sm text-primary hover:underline shrink-0"
                               >
                                 {t('Читати', 'Read')}
@@ -269,7 +269,7 @@ export const GVReferences = () => {
                       <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                         <Users className="w-5 h-5 text-primary" />
                         {language === 'uk'
-                          ? eraDisplayNames[era].uk
+                          ? eraDisplayNames[era].ua
                           : eraDisplayNames[era].en}
                         <span className="text-sm font-normal text-muted-foreground">
                           ({eraAuthors.length})
@@ -307,9 +307,9 @@ export const GVReferences = () => {
                               </div>
                             )}
                             {/* Significance */}
-                            {(author.significance_uk || author.significance_en) && (
+                            {(author.significance_ua || author.significance_en) && (
                               <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
-                                {language === 'uk' ? author.significance_uk : author.significance_en}
+                                {language === 'uk' ? author.significance_ua : author.significance_en}
                               </p>
                             )}
                           </div>

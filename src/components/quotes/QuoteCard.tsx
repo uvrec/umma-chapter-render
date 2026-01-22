@@ -26,12 +26,12 @@ const sourceTypeIcons: Record<string, React.ReactNode> = {
   conversation: <Users className="h-3.5 w-3.5" />,
 };
 
-const sourceTypeLabels: Record<string, { uk: string; en: string }> = {
-  book: { uk: "Книга", en: "Book" },
-  lecture: { uk: "Лекція", en: "Lecture" },
-  letter: { uk: "Лист", en: "Letter" },
-  conversation: { uk: "Бесіда", en: "Conversation" },
-  unknown: { uk: "Джерело", en: "Source" },
+const sourceTypeLabels: Record<string, { ua: string; en: string }> = {
+  book: { ua: "Книга", en: "Book" },
+  lecture: { ua: "Лекція", en: "Lecture" },
+  letter: { ua: "Лист", en: "Letter" },
+  conversation: { ua: "Бесіда", en: "Conversation" },
+  unknown: { ua: "Джерело", en: "Source" },
 };
 
 export function QuoteCard({
@@ -40,10 +40,10 @@ export function QuoteCard({
   showCategory = false,
   className,
 }: QuoteCardProps) {
-  const { language, t, getLocalizedPath } = useLanguage();
+  const { language, t } = useLanguage();
   const [copied, setCopied] = useState(false);
 
-  const text = (language === "uk" && quote.text_uk) ? quote.text_uk : quote.text_en;
+  const text = (language === "uk" && quote.text_ua) ? quote.text_ua : quote.text_en;
   const sourceLabel = sourceTypeLabels[quote.source_type] || sourceTypeLabels.unknown;
 
   const handleCopy = async () => {
@@ -54,7 +54,7 @@ export function QuoteCard({
 
   // Генерувати посилання на вірш, якщо є
   const verseLink = quote.book_slug && quote.chapter_number && quote.verse_number
-    ? getLocalizedPath(`/lib/${quote.book_slug}/${quote.chapter_number}/${quote.verse_number}`)
+    ? `/veda-reader/${quote.book_slug}/${quote.chapter_number}/${quote.verse_number}`
     : null;
 
   return (
@@ -72,7 +72,7 @@ export function QuoteCard({
             {showSource && quote.source_type && (
               <Badge variant="secondary" className="gap-1.5">
                 {sourceTypeIcons[quote.source_type]}
-                {t(sourceLabel.uk, sourceLabel.en)}
+                {t(sourceLabel.ua, sourceLabel.en)}
               </Badge>
             )}
 

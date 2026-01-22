@@ -52,7 +52,7 @@ interface UnifiedSearchProps {
 
 export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
   const navigate = useNavigate();
-  const { language, t, getLocalizedPath } = useLanguage();
+  const { language, t } = useLanguage();
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 300);
   const { history, addToHistory, removeFromHistory, clearHistory } = useSearchHistory();
@@ -103,10 +103,10 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
   const fallbackSuggestions = async (prefix: string): Promise<SuggestionResult[]> => {
     const { data } = await supabase
       .from('verses')
-      .select('translation_uk, translation_en')
+      .select('translation_ua, translation_en')
       .or(
         language === 'uk'
-          ? `translation_uk.ilike.%${prefix}%`
+          ? `translation_ua.ilike.%${prefix}%`
           : `translation_en.ilike.%${prefix}%`
       )
       .limit(6);
@@ -179,20 +179,20 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
         .select(`
           id,
           verse_number,
-          translation_uk,
+          translation_ua,
           translation_en,
           chapters!inner(
             chapter_number,
-            title_uk,
+            title_ua,
             title_en,
             canto_id,
-            books!inner(slug, title_uk, title_en),
+            books!inner(slug, title_ua, title_en),
             cantos(canto_number)
           )
         `)
         .or(
           language === 'uk'
-            ? `translation_uk.ilike.${pattern},synonyms_uk.ilike.${pattern}`
+            ? `translation_ua.ilike.${pattern},synonyms_ua.ilike.${pattern}`
             : `translation_en.ilike.${pattern},synonyms_en.ilike.${pattern}`
         )
         .limit(8);
@@ -203,8 +203,8 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
         const canto = verse.chapters.cantos;
 
         const href = canto?.canto_number
-          ? getLocalizedPath(`/lib/${book.slug}/${canto.canto_number}/${chapter.chapter_number}/${verse.verse_number}`)
-          : getLocalizedPath(`/lib/${book.slug}/${chapter.chapter_number}/${verse.verse_number}`);
+          ? `/veda-reader/${book.slug}/canto/${canto.canto_number}/chapter/${chapter.chapter_number}/${verse.verse_number}`
+          : `/veda-reader/${book.slug}/${chapter.chapter_number}/${verse.verse_number}`;
 
         searchResults.push({
           result_type: 'verse',
@@ -225,11 +225,11 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
       // Пошук у блозі
       const { data: posts } = await supabase
         .from('blog_posts')
-        .select('id, slug, title_uk, title_en, excerpt_uk, excerpt_en')
+        .select('id, slug, title_ua, title_en, excerpt_ua, excerpt_en')
         .eq('is_published', true)
         .or(
           language === 'uk'
-            ? `title_uk.ilike.${pattern},content_uk.ilike.${pattern}`
+            ? `title_ua.ilike.${pattern},content_ua.ilike.${pattern}`
             : `title_en.ilike.${pattern},content_en.ilike.${pattern}`
         )
         .limit(5);
@@ -241,7 +241,7 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
           title: language === 'uk' ? post.title_uk : post.title_en,
           subtitle: t('Блог', 'Blog'),
           snippet: (language === 'uk' ? post.excerpt_uk : post.excerpt_en)?.substring(0, 100),
-          href: getLocalizedPath(`/blog/${post.slug}`),
+          href: `/blog/${post.slug}`,
           relevance: 0.8,
           matched_in: ['blog'],
         });

@@ -43,7 +43,7 @@ interface LocalLLMChatProps {
   className?: string;
 }
 
-const WELCOME_MESSAGE_UK = `Харе Крішна! Це локальна AI-система, яка працює на вашому комп'ютері.
+const WELCOME_MESSAGE_UA = `Харе Крішна! Це локальна AI-система, яка працює на вашому комп'ютері.
 
 Я відповідаю ВИКЛЮЧНО на основі книг Шріли Прабгупади та ґаудія-вайшнавських ачар'їв, які є у базі даних.
 
@@ -200,7 +200,7 @@ export function LocalLLMChat({ className }: LocalLLMChatProps) {
         {
           id: 'welcome',
           role: 'assistant',
-          content: language === 'uk' ? WELCOME_MESSAGE_UK : WELCOME_MESSAGE_EN,
+          content: language === 'uk' ? WELCOME_MESSAGE_UA : WELCOME_MESSAGE_EN,
         },
       ]);
     }
@@ -325,7 +325,7 @@ export function LocalLLMChat({ className }: LocalLLMChatProps) {
       {
         id: 'welcome',
         role: 'assistant',
-        content: language === 'uk' ? WELCOME_MESSAGE_UK : WELCOME_MESSAGE_EN,
+        content: language === 'uk' ? WELCOME_MESSAGE_UA : WELCOME_MESSAGE_EN,
       },
     ]);
   }, [language]);

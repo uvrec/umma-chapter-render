@@ -28,8 +28,8 @@ const ukrainianChapterNumbers: Record<string, number> = {
 
 export interface RajaVidyaChapterUA {
   chapter_number: number;
-  title_uk: string;
-  content_uk: string; // Весь текст глави з вбудованими віршами
+  title_ua: string;
+  content_ua: string; // Весь текст глави з вбудованими віршами
 }
 
 export interface RajaVidyaChapterEN {
@@ -169,8 +169,8 @@ export function parseRajaVidyaEPUB(html: string): RajaVidyaChapterUA[] {
       if (content) {
         chapters.push({
           chapter_number: chapterNumber,
-          title_uk: title,
-          content_uk: content,
+          title_ua: title,
+          content_ua: content,
         });
       }
     });
@@ -287,9 +287,9 @@ export function mergeRajaVidyaChapters(
   return {
     chapter_number: chapterNumber,
     chapter_type: 'text' as const,
-    title_uk: ua?.title_uk || '',
+    title_ua: ua?.title_uk || '',
     title_en: en?.title_en || '',
-    content_uk: ua?.content_uk || '',
+    content_ua: ua?.content_uk || '',
     content_en: en?.content_en || '',
     verses: [], // Raja Vidya - текстова книга без окремих віршів
   };

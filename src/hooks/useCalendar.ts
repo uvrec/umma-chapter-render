@@ -6,8 +6,6 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { format, startOfMonth, endOfMonth, addMonths, subMonths } from "date-fns";
-import { useMonthEkadashis, ekadashiToCalendarEvent, useIsEkadashi } from "./useCalculatedEkadashis";
-import type { GeoLocation } from "@/services/ekadashiCalculator";
 import type {
   CalendarEventDisplay,
   MonthData,
@@ -31,20 +29,11 @@ import * as calendarService from "@/services/calendarService";
 interface UseCalendarOptions {
   initialDate?: Date;
   locationId?: string;
-  geoLocation?: GeoLocation | null; // For calculated ekadashis
 }
 
 export function useCalendar(options: UseCalendarOptions = {}) {
   const { language } = useLanguage();
   const queryClient = useQueryClient();
-
-  // Feature flag: ?calc=true enables calculated ekadashis
-  // Use window.location to avoid Router context issues
-  const useCalculatedEkadashis = useMemo(() => {
-    if (typeof window === 'undefined') return false;
-    const params = new URLSearchParams(window.location.search);
-    return params.get("calc") === "true";
-  }, []);
 
   // Стан календаря
   const [currentDate, setCurrentDate] = useState(options.initialDate || new Date());
@@ -59,9 +48,9 @@ export function useCalendar(options: UseCalendarOptions = {}) {
   const startDate = format(startOfMonth(currentDate), "yyyy-MM-dd");
   const endDate = format(endOfMonth(currentDate), "yyyy-MM-dd");
 
-  // Завантаження даних місяця з БД
+  // Завантаження даних місяця
   const {
-    data: dbMonthData,
+    data: monthData,
     isLoading: isLoadingMonth,
     error: monthError,
   } = useQuery({
@@ -69,48 +58,6 @@ export function useCalendar(options: UseCalendarOptions = {}) {
     queryFn: () => calendarService.getMonthData(year, month, options.locationId),
     staleTime: 5 * 60 * 1000, // 5 хвилин
   });
-
-  // Розрахунок екадаші (якщо увімкнено)
-  const { ekadashis: calculatedEkadashis, isLoading: isLoadingEkadashis } = useMonthEkadashis(
-    year,
-    month,
-    useCalculatedEkadashis ? options.geoLocation || null : null
-  );
-
-  // Об'єднання даних БД з розрахованими екадаші
-  const monthData = useMemo(() => {
-    if (!dbMonthData) return null;
-    if (!useCalculatedEkadashis || !calculatedEkadashis.length) return dbMonthData;
-
-    // Clone the month data
-    const mergedData: MonthData = {
-      ...dbMonthData,
-      days: dbMonthData.days.map(day => {
-        const dateStr = format(day.date, "yyyy-MM-dd");
-
-        // Check if there's a calculated ekadashi for this day
-        const ekadashi = calculatedEkadashis.find(e => e.dateStr === dateStr);
-
-        if (ekadashi) {
-          // Check if DB already has an ekadashi event
-          const hasDbEkadashi = day.events.some(e => e.is_ekadashi);
-
-          if (!hasDbEkadashi) {
-            // Add calculated ekadashi to events
-            const ekadashiEvent = ekadashiToCalendarEvent(ekadashi, language as 'uk' | 'en');
-            return {
-              ...day,
-              events: [ekadashiEvent, ...day.events],
-            };
-          }
-        }
-
-        return day;
-      }),
-    };
-
-    return mergedData;
-  }, [dbMonthData, calculatedEkadashis, useCalculatedEkadashis, language]);
 
   // Навігація
   const goToPreviousMonth = useCallback(() => {
@@ -182,7 +129,7 @@ export function useCalendar(options: UseCalendarOptions = {}) {
 // HOOK ДЛЯ СЬОГОДНІШНІХ ПОДІЙ
 // ============================================
 
-export function useTodayEvents(locationId?: string, geoLocation?: GeoLocation | null) {
+export function useTodayEvents(locationId?: string) {
   const { language } = useLanguage();
 
   const { data, isLoading, error } = useQuery({
@@ -192,42 +139,16 @@ export function useTodayEvents(locationId?: string, geoLocation?: GeoLocation | 
     refetchOnWindowFocus: true,
   });
 
-  // Перевірка чи сьогодні екадаші через астрономічний розрахунок
-  const today = useMemo(() => new Date(), []);
-  const calculatedEkadashi = useIsEkadashi(today, geoLocation || null);
-
   // Форматовані події
   const events = useMemo(() => {
-    const dbEvents = data?.events || [];
-    const formattedEvents = dbEvents.map((event) => ({
+    if (!data?.events) return [];
+    return data.events.map((event) => ({
       ...event,
       name: language === "uk" ? event.name_uk : event.name_en,
       description:
         language === "uk" ? event.description_uk : event.description_en,
     }));
-
-    // Якщо в БД немає екадаші, але астрономічний розрахунок каже що сьогодні екадаші
-    const hasDbEkadashi = formattedEvents.some(e => e.is_ekadashi);
-    if (!hasDbEkadashi && calculatedEkadashi?.isEkadashi && geoLocation) {
-      const ekadashiEvent = ekadashiToCalendarEvent({
-        date: today,
-        dateStr: format(today, 'yyyy-MM-dd'),
-        paksha: calculatedEkadashi.paksha,
-        checkType: calculatedEkadashi.checkType ?? 'brahma_muhurta',
-      }, language as 'uk' | 'en');
-
-      return [
-        {
-          ...ekadashiEvent,
-          name: language === "uk" ? ekadashiEvent.name_uk : ekadashiEvent.name_en,
-          description: language === "uk" ? ekadashiEvent.description_uk : ekadashiEvent.description_en,
-        },
-        ...formattedEvents
-      ];
-    }
-
-    return formattedEvents;
-  }, [data?.events, language, calculatedEkadashi, geoLocation, today]);
+  }, [data?.events, language]);
 
   // Наступний екадаші
   const nextEkadashi = useMemo(() => {
@@ -253,7 +174,6 @@ export function useTodayEvents(locationId?: string, geoLocation?: GeoLocation | 
     moonPhase: data?.moon_phase,
     isLoading,
     error,
-    calculatedEkadashi,
   };
 }
 
@@ -325,7 +245,7 @@ export function useEkadashi(slug: string) {
         language === "uk" ? data.presiding_deity_uk : data.presiding_deity_en,
       recommendedActivities:
         language === "uk"
-          ? data.recommended_activities_uk
+          ? data.recommended_activities_ua
           : data.recommended_activities_en,
       fastingRules:
         language === "uk" ? data.fasting_rules_uk : data.fasting_rules_en,
@@ -393,7 +313,7 @@ export function useFestival(slug: string) {
           ? data.short_description_uk
           : data.short_description_en,
       significance:
-        language === "uk" ? data.significance_uk : data.significance_en,
+        language === "uk" ? data.significance_ua : data.significance_en,
       observances:
         language === "uk" ? data.observances_uk : data.observances_en,
     };
@@ -545,8 +465,7 @@ export function useCalendarSettings() {
     settings: effectiveSettings as Partial<UserCalendarSettings>,
     isLoading,
     error,
-    updateSettings: updateSettings.mutateAsync,
-    isSaving: updateSettings.isPending,
+    updateSettings: updateSettings.mutate,
     saveLocalSettings,
     isLoggedIn: !!data,
   };

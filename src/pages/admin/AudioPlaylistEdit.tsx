@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,26 +17,19 @@ import { AudioUploadWithMetadata } from "@/components/admin/AudioUploadWithMetad
 
 type Category = {
   id: string;
-  name_uk: string;
+  name_ua: string;
 };
 
 export default function AudioPlaylistEdit() {
-  const { user, isAdmin } = useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const isNew = id === "new";
 
-  useEffect(() => {
-    if (!user || !isAdmin) {
-      navigate("/auth");
-    }
-  }, [user, isAdmin, navigate]);
-
   const [formData, setFormData] = useState({
-    title_uk: "",
+    title_ua: "",
     title_en: "",
-    description_uk: "",
+    description_ua: "",
     description_en: "",
     category_id: "",
     cover_image_url: "",
@@ -51,7 +43,7 @@ export default function AudioPlaylistEdit() {
 
   const [trackDialog, setTrackDialog] = useState(false);
   const [trackForm, setTrackForm] = useState({
-    title_uk: "",
+    title_ua: "",
     title_en: "",
     audio_url: "",
     duration: 0,
@@ -99,9 +91,9 @@ export default function AudioPlaylistEdit() {
   useEffect(() => {
     if (playlist) {
       setFormData({
-        title_uk: playlist.title_uk || "",
+        title_ua: playlist.title_uk || "",
         title_en: playlist.title_en || "",
-        description_uk: playlist.description_uk || "",
+        description_ua: playlist.description_uk || "",
         description_en: playlist.description_en || "",
         category_id: playlist.category_id || "",
         cover_image_url: playlist.cover_image_url || "",
@@ -124,7 +116,7 @@ export default function AudioPlaylistEdit() {
   const saveMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
       // валідація
-      if (!data.title_uk.trim()) throw new Error("Введіть назву (UK).");
+      if (!data.title_uk.trim()) throw new Error("Введіть назву (UA).");
       if (!data.category_id) throw new Error("Оберіть категорію.");
       const safeYear = Number.isFinite(Number(data.year)) ? Number(data.year) : new Date().getFullYear();
 
@@ -158,7 +150,7 @@ export default function AudioPlaylistEdit() {
   const saveTrackMutation = useMutation({
     mutationFn: async (trackData: typeof trackForm) => {
       if (!id || id === "new") throw new Error("Спочатку збережіть плейліст.");
-      if (!trackData.title_uk.trim()) throw new Error("Введіть назву треку (UK).");
+      if (!trackData.title_uk.trim()) throw new Error("Введіть назву треку (UA).");
       if (!trackData.audio_url.trim()) throw new Error("Додайте посилання на аудіо.");
 
       const safeDuration = Number.isFinite(Number(trackData.duration)) ? Number(trackData.duration) : 0;
@@ -176,7 +168,7 @@ export default function AudioPlaylistEdit() {
       toast.success("Трек додано");
       setTrackDialog(false);
       setTrackForm({
-        title_uk: "",
+        title_ua: "",
         title_en: "",
         audio_url: "",
         duration: 0,
@@ -253,8 +245,6 @@ export default function AudioPlaylistEdit() {
     toast.success("Трек успішно додано до плейлиста!");
   };
 
-  if (!user || !isAdmin) return null;
-
   // ---- UI
   return (
     <div className="container mx-auto px-4 py-8">
@@ -296,11 +286,11 @@ export default function AudioPlaylistEdit() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="title_uk">Назва (UK) *</Label>
+                  <Label htmlFor="title_ua">Назва (UA) *</Label>
                   <Input
-                    id="title_uk"
+                    id="title_ua"
                     value={formData.title_uk}
-                    onChange={(e) => setFormData({ ...formData, title_uk: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, title_ua: e.target.value })}
                     required
                   />
                 </div>
@@ -315,11 +305,11 @@ export default function AudioPlaylistEdit() {
               </div>
 
               <div>
-                <Label htmlFor="description_uk">Опис (UK)</Label>
+                <Label htmlFor="description_ua">Опис (UA)</Label>
                 <Textarea
-                  id="description_uk"
+                  id="description_ua"
                   value={formData.description_uk}
-                  onChange={(e) => setFormData({ ...formData, description_uk: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, description_ua: e.target.value })}
                 />
               </div>
 
@@ -441,11 +431,11 @@ export default function AudioPlaylistEdit() {
                     </DialogHeader>
                     <form onSubmit={handleTrackSubmit} className="space-y-4">
                       <div>
-                        <Label htmlFor="track_title_uk">Назва треку (UK) *</Label>
+                        <Label htmlFor="track_title_ua">Назва треку (UA) *</Label>
                         <Input
-                          id="track_title_uk"
+                          id="track_title_ua"
                           value={trackForm.title_uk}
-                          onChange={(e) => setTrackForm({ ...trackForm, title_uk: e.target.value })}
+                          onChange={(e) => setTrackForm({ ...trackForm, title_ua: e.target.value })}
                           required
                         />
                       </div>

@@ -103,7 +103,7 @@ function findMatchedFields(verse: any, searchQuery: string): string[] {
       verse.translation_en?.toLowerCase().includes(searchLower)) {
     matched.push('translation');
   }
-  if (verse.commentary_uk?.toLowerCase().includes(searchLower) ||
+  if (verse.commentary_ua?.toLowerCase().includes(searchLower) ||
       verse.commentary_en?.toLowerCase().includes(searchLower)) {
     matched.push('commentary');
   }
@@ -167,7 +167,7 @@ export default function KnowledgeCompiler() {
   const [limitCount, setLimitCount] = useState(50);
 
   // Books list
-  const [books, setBooks] = useState<Array<{ id: string; title_uk: string; title_en: string; slug: string }>>([]);
+  const [books, setBooks] = useState<Array<{ id: string; title_ua: string; title_en: string; slug: string }>>([]);
 
   // Compilation
   const [compilation, setCompilation] = useState<CompilationVerse[]>([]);
@@ -181,7 +181,7 @@ export default function KnowledgeCompiler() {
     const loadBooks = async () => {
       const { data, error } = await supabase
         .from('books')
-        .select('id, title_uk, title_en, slug')
+        .select('id, title_ua, title_en, slug')
         .eq('is_published', true)
         .order('display_order', { ascending: true });
 
@@ -240,22 +240,22 @@ export default function KnowledgeCompiler() {
             chapter_id,
             sanskrit,
             transliteration,
-            synonyms_uk,
+            synonyms_ua,
             synonyms_en,
-            translation_uk,
+            translation_ua,
             translation_en,
-            commentary_uk,
+            commentary_ua,
             commentary_en,
             chapters!inner(
               id,
               chapter_number,
-              title_uk,
+              title_ua,
               title_en,
               book_id,
               books!inner(
                 id,
                 slug,
-                title_uk,
+                title_ua,
                 title_en
               )
             )
@@ -265,7 +265,7 @@ export default function KnowledgeCompiler() {
 
         // Add search conditions
         if (language === 'uk') {
-          query.or(`translation_uk.ilike.${searchPattern},commentary_uk.ilike.${searchPattern},synonyms_uk.ilike.${searchPattern}`);
+          query.or(`translation_ua.ilike.${searchPattern},commentary_ua.ilike.${searchPattern},synonyms_ua.ilike.${searchPattern}`);
         } else {
           query.or(`translation_en.ilike.${searchPattern},commentary_en.ilike.${searchPattern},synonyms_en.ilike.${searchPattern}`);
         }
@@ -281,7 +281,7 @@ export default function KnowledgeCompiler() {
         // Transform fallback data to match expected format
         const transformedData = fallbackData?.map((verse: any) => {
           const translation = language === 'uk' ? verse.translation_uk : verse.translation_en;
-          const commentary = language === 'uk' ? verse.commentary_uk : verse.commentary_en;
+          const commentary = language === 'uk' ? verse.commentary_ua : verse.commentary_en;
           const synonyms = language === 'uk' ? verse.synonyms_uk : verse.synonyms_en;
 
           // Find which field has the match and create snippet from it

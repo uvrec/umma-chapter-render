@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Globe, Palette, RotateCcw, Smartphone, Maximize, Square, Sun, Moon, Leaf, Snowflake, Eye, HardDrive } from "lucide-react";
+import { Settings, Globe, Palette, RotateCcw, Smartphone, Maximize, Square, Sun, Moon, Leaf, Snowflake, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -13,8 +13,6 @@ import { useTheme } from "@/components/ThemeProvider";
 import { useAuth } from "@/contexts/AuthContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { AdminTypographyPanel } from "@/components/AdminTypographyPanel";
-import { OfflineManager } from "@/components/OfflineManager";
-import { VersionDebugBadge } from "@/components/VersionDebugBadge";
 import { errorLogger } from "@/utils/errorLogger";
 
 const MIN_FONT = 12;
@@ -104,26 +102,8 @@ function readContinuousReading(): ContinuousReadingState {
   return DEFAULTS.continuousReading;
 }
 
-interface GlobalSettingsPanelProps {
-  /** Controlled mode: external open state */
-  isOpen?: boolean;
-  /** Controlled mode: callback when open state changes */
-  onOpenChange?: (open: boolean) => void;
-  /** Show floating button (default: true for backward compatibility) */
-  showFloatingButton?: boolean;
-}
-
-export const GlobalSettingsPanel = ({
-  isOpen: externalIsOpen,
-  onOpenChange: externalOnOpenChange,
-  showFloatingButton = true,
-}: GlobalSettingsPanelProps) => {
-  const [internalIsOpen, setInternalIsOpen] = useState(false);
-
-  // Support both controlled and uncontrolled modes
-  const isControlled = externalIsOpen !== undefined;
-  const isOpen = isControlled ? externalIsOpen : internalIsOpen;
-  const setIsOpen = isControlled ? (externalOnOpenChange ?? (() => {})) : setInternalIsOpen;
+export const GlobalSettingsPanel = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
   const { theme, setTheme } = useTheme();
   const { isAdmin } = useAuth();
@@ -198,17 +178,15 @@ export const GlobalSettingsPanel = ({
 
   return (
     <>
-      {/* Floating Button - only shown when not in controlled mode or explicitly enabled */}
-      {showFloatingButton && (
-        <Button
-          onClick={() => setIsOpen(true)}
-          className="global-settings-btn fixed bottom-32 right-6 z-40 h-14 w-14 rounded-full shadow-lg"
-          size="icon"
-          aria-label="Open settings"
-        >
-          <Settings className="h-6 w-6" />
-        </Button>
-      )}
+      {/* Floating Button */}
+      <Button
+        onClick={() => setIsOpen(true)}
+        className="global-settings-btn fixed bottom-32 right-6 z-40 h-14 w-14 rounded-full shadow-lg"
+        size="icon"
+        aria-label="Open settings"
+      >
+        <Settings className="h-6 w-6" />
+      </Button>
 
       {/* Settings Panel */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -218,13 +196,9 @@ export const GlobalSettingsPanel = ({
           </SheetHeader>
 
           <Tabs defaultValue="general" className="w-full">
-            <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-3' : 'grid-cols-2'}`}>
+            <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-2' : 'grid-cols-1'}`}>
               <TabsTrigger value="general">{t("Загальні", "General")}</TabsTrigger>
-              <TabsTrigger value="offline" className="gap-1">
-                <HardDrive className="h-3 w-3" />
-                {t("Офлайн", "Offline")}
-              </TabsTrigger>
-              {isAdmin && <TabsTrigger value="admin">{t("Стилі", "Styles")}</TabsTrigger>}
+              {isAdmin && <TabsTrigger value="admin">{t("Стилі (Admin)", "Styles (Admin)")}</TabsTrigger>}
             </TabsList>
 
             <TabsContent value="general" className="space-y-6 pb-6 mt-6">
@@ -256,7 +230,7 @@ export const GlobalSettingsPanel = ({
               <div className="flex gap-2">
                 <Button
                   variant={language === "uk" ? "default" : "outline"}
-                  onClick={() => setLanguage("uk")}
+                  onClick={() => setLanguage("ua")}
                   className="flex-1"
                 >
                   <Globe className="w-4 h-4 mr-2" />
@@ -386,27 +360,27 @@ export const GlobalSettingsPanel = ({
                 <RowToggle
                   label={t("Санскрит / Деванагарі", "Sanskrit / Devanagari")}
                   checked={textDisplaySettings.showSanskrit}
-                  onChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showSanskrit: v }))}
+                  onChange={(v) => setTextDisplaySettings({ ...textDisplaySettings, showSanskrit: v })}
                 />
                 <RowToggle
                   label={t("Транслітерація", "Transliteration")}
                   checked={textDisplaySettings.showTransliteration}
-                  onChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showTransliteration: v }))}
+                  onChange={(v) => setTextDisplaySettings({ ...textDisplaySettings, showTransliteration: v })}
                 />
                 <RowToggle
                   label={language === "uk" ? "Послівний переклад" : "Synonyms"}
                   checked={textDisplaySettings.showSynonyms}
-                  onChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showSynonyms: v }))}
+                  onChange={(v) => setTextDisplaySettings({ ...textDisplaySettings, showSynonyms: v })}
                 />
                 <RowToggle
                   label={language === "uk" ? "Літературний переклад" : "Translation"}
                   checked={textDisplaySettings.showTranslation}
-                  onChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showTranslation: v }))}
+                  onChange={(v) => setTextDisplaySettings({ ...textDisplaySettings, showTranslation: v })}
                 />
                 <RowToggle
                   label={language === "uk" ? "Пояснення" : "Purport"}
                   checked={textDisplaySettings.showCommentary}
-                  onChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showCommentary: v }))}
+                  onChange={(v) => setTextDisplaySettings({ ...textDisplaySettings, showCommentary: v })}
                 />
               </div>
             </div>
@@ -422,7 +396,7 @@ export const GlobalSettingsPanel = ({
                   <Switch
                     id="continuous-enabled"
                     checked={continuousReadingSettings.enabled}
-                    onCheckedChange={(v) => setContinuousReadingSettings(prev => ({ ...prev, enabled: v }))}
+                    onCheckedChange={(v) => setContinuousReadingSettings({ ...continuousReadingSettings, enabled: v })}
                   />
                 </div>
 
@@ -433,7 +407,7 @@ export const GlobalSettingsPanel = ({
                       <Switch
                         id="cont-sanskrit"
                         checked={continuousReadingSettings.showSanskrit}
-                        onCheckedChange={(v) => setContinuousReadingSettings(prev => ({ ...prev, showSanskrit: v }))}
+                        onCheckedChange={(v) => setContinuousReadingSettings({ ...continuousReadingSettings, showSanskrit: v })}
                       />
                     </div>
 
@@ -442,7 +416,7 @@ export const GlobalSettingsPanel = ({
                       <Switch
                         id="cont-transliteration"
                         checked={continuousReadingSettings.showTransliteration}
-                        onCheckedChange={(v) => setContinuousReadingSettings(prev => ({ ...prev, showTransliteration: v }))}
+                        onCheckedChange={(v) => setContinuousReadingSettings({ ...continuousReadingSettings, showTransliteration: v })}
                       />
                     </div>
 
@@ -451,7 +425,7 @@ export const GlobalSettingsPanel = ({
                       <Switch
                         id="cont-translation"
                         checked={continuousReadingSettings.showTranslation}
-                        onCheckedChange={(v) => setContinuousReadingSettings(prev => ({ ...prev, showTranslation: v }))}
+                        onCheckedChange={(v) => setContinuousReadingSettings({ ...continuousReadingSettings, showTranslation: v })}
                       />
                     </div>
 
@@ -460,7 +434,7 @@ export const GlobalSettingsPanel = ({
                       <Switch
                         id="cont-commentary"
                         checked={continuousReadingSettings.showCommentary}
-                        onCheckedChange={(v) => setContinuousReadingSettings(prev => ({ ...prev, showCommentary: v }))}
+                        onCheckedChange={(v) => setContinuousReadingSettings({ ...continuousReadingSettings, showCommentary: v })}
                       />
                     </div>
                   </div>
@@ -481,19 +455,6 @@ export const GlobalSettingsPanel = ({
                 {t("Скинути до початкових", "Reset to Defaults")}
               </Button>
             </div>
-
-            <Separator />
-
-            {/* Версія для діагностики */}
-            <div>
-              <Label className="text-xs text-muted-foreground mb-2 block">{t("Версія", "Version")}</Label>
-              <VersionDebugBadge />
-            </div>
-            </TabsContent>
-
-            {/* Offline Manager */}
-            <TabsContent value="offline" className="mt-6 pb-6">
-              <OfflineManager />
             </TabsContent>
 
             {/* Admin Typography Panel */}

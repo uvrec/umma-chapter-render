@@ -15,7 +15,7 @@ export interface AudioTrack {
   // Supabase integration fields
   playlist_id?: string;
   track_number?: number;
-  title_uk?: string;
+  title_ua?: string;
   title_en?: string;
   // Verse sync fields
   verseId?: string;         // ID of the verse this audio belongs to
@@ -39,7 +39,7 @@ export interface AudioFavorite {
   id: string;
   trackId: string;
   title: string;
-  title_uk?: string;
+  title_ua?: string;
   src: string;
   coverImage?: string;
   verseId?: string;
@@ -169,7 +169,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
       id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       trackId: track.id,
       title: track.title,
-      title_uk: track.title_uk,
+      title_ua: track.title_uk,
       src: track.src,
       coverImage: track.coverImage,
       verseId: track.verseId,
@@ -304,7 +304,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
           return {
             id: `verse-${v.id}`,
             title: `${v.verse_number}`,
-            title_uk: `Вірш ${v.verse_number}`,
+            title_ua: `Вірш ${v.verse_number}`,
             subtitle: track.subtitle || track.title,
             src: audioSrc!,
             verseId: v.id,

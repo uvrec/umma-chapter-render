@@ -1458,12 +1458,7 @@ export type Database = {
           name_en: string
           name_sanskrit: string
           name_uk: string
-          padma_purana_book_slug: string | null
-          padma_purana_chapter: number | null
           paksha: string
-          prabhupada_instructions_en: string | null
-          prabhupada_instructions_uk: string | null
-          prabhupada_source: string | null
           presiding_deity_en: string | null
           presiding_deity_uk: string | null
           recommended_activities_en: string | null
@@ -1494,12 +1489,7 @@ export type Database = {
           name_en: string
           name_sanskrit: string
           name_uk: string
-          padma_purana_book_slug?: string | null
-          padma_purana_chapter?: number | null
           paksha: string
-          prabhupada_instructions_en?: string | null
-          prabhupada_instructions_uk?: string | null
-          prabhupada_source?: string | null
           presiding_deity_en?: string | null
           presiding_deity_uk?: string | null
           recommended_activities_en?: string | null
@@ -1530,12 +1520,7 @@ export type Database = {
           name_en?: string
           name_sanskrit?: string
           name_uk?: string
-          padma_purana_book_slug?: string | null
-          padma_purana_chapter?: number | null
           paksha?: string
-          prabhupada_instructions_en?: string | null
-          prabhupada_instructions_uk?: string | null
-          prabhupada_source?: string | null
           presiding_deity_en?: string | null
           presiding_deity_uk?: string | null
           recommended_activities_en?: string | null
@@ -1606,7 +1591,6 @@ export type Database = {
           death_year: number | null
           display_order: number | null
           era: string | null
-          fts: unknown
           guru_id: string | null
           id: string
           image_url: string | null
@@ -1634,7 +1618,6 @@ export type Database = {
           death_year?: number | null
           display_order?: number | null
           era?: string | null
-          fts?: unknown
           guru_id?: string | null
           id?: string
           image_url?: string | null
@@ -1662,7 +1645,6 @@ export type Database = {
           death_year?: number | null
           display_order?: number | null
           era?: string | null
-          fts?: unknown
           guru_id?: string | null
           id?: string
           image_url?: string | null
@@ -1748,7 +1730,6 @@ export type Database = {
           description_uk: string | null
           display_order: number | null
           external_url: string | null
-          fts: unknown
           id: string
           importance_level: number | null
           internal_book_slug: string | null
@@ -1783,7 +1764,6 @@ export type Database = {
           description_uk?: string | null
           display_order?: number | null
           external_url?: string | null
-          fts?: unknown
           id?: string
           importance_level?: number | null
           internal_book_slug?: string | null
@@ -1818,7 +1798,6 @@ export type Database = {
           description_uk?: string | null
           display_order?: number | null
           external_url?: string | null
-          fts?: unknown
           id?: string
           importance_level?: number | null
           internal_book_slug?: string | null
@@ -1938,36 +1917,7 @@ export type Database = {
           verse_id?: string | null
           verse_number?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "highlights_book_id_fkey"
-            columns: ["book_id"]
-            isOneToOne: false
-            referencedRelation: "books"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "highlights_book_id_fkey"
-            columns: ["book_id"]
-            isOneToOne: false
-            referencedRelation: "books_with_mapping"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "highlights_chapter_id_fkey"
-            columns: ["chapter_id"]
-            isOneToOne: false
-            referencedRelation: "chapters"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "highlights_chapter_id_fkey"
-            columns: ["chapter_id"]
-            isOneToOne: false
-            referencedRelation: "readable_chapters"
-            referencedColumns: ["chapter_id"]
-          },
-        ]
+        Relationships: []
       }
       intro_chapters: {
         Row: {
@@ -2223,84 +2173,6 @@ export type Database = {
           title_en?: string
           title_uk?: string
           updated_at?: string
-        }
-        Relationships: []
-      }
-      prabhupada_events: {
-        Row: {
-          content_en: string | null
-          content_preview_en: string | null
-          content_preview_uk: string | null
-          content_uk: string | null
-          created_at: string | null
-          date_display: string
-          day: number | null
-          event_date: string
-          id: string
-          is_published: boolean | null
-          location_en: string | null
-          location_uk: string | null
-          month: number | null
-          source_book_slug: string | null
-          source_chapter: number | null
-          source_type: string
-          source_url: string | null
-          source_verse: string | null
-          source_volume: number | null
-          title_en: string | null
-          title_uk: string | null
-          updated_at: string | null
-          year: number | null
-        }
-        Insert: {
-          content_en?: string | null
-          content_preview_en?: string | null
-          content_preview_uk?: string | null
-          content_uk?: string | null
-          created_at?: string | null
-          date_display: string
-          day?: number | null
-          event_date: string
-          id?: string
-          is_published?: boolean | null
-          location_en?: string | null
-          location_uk?: string | null
-          month?: number | null
-          source_book_slug?: string | null
-          source_chapter?: number | null
-          source_type: string
-          source_url?: string | null
-          source_verse?: string | null
-          source_volume?: number | null
-          title_en?: string | null
-          title_uk?: string | null
-          updated_at?: string | null
-          year?: number | null
-        }
-        Update: {
-          content_en?: string | null
-          content_preview_en?: string | null
-          content_preview_uk?: string | null
-          content_uk?: string | null
-          created_at?: string | null
-          date_display?: string
-          day?: number | null
-          event_date?: string
-          id?: string
-          is_published?: boolean | null
-          location_en?: string | null
-          location_uk?: string | null
-          month?: number | null
-          source_book_slug?: string | null
-          source_chapter?: number | null
-          source_type?: string
-          source_url?: string | null
-          source_verse?: string | null
-          source_volume?: number | null
-          title_en?: string | null
-          title_uk?: string | null
-          updated_at?: string | null
-          year?: number | null
         }
         Relationships: []
       }
@@ -2652,174 +2524,6 @@ export type Database = {
           title_en?: string
           title_uk?: string
           updated_at?: string
-        }
-        Relationships: []
-      }
-      stripe_customers: {
-        Row: {
-          created_at: string | null
-          email: string | null
-          id: string
-          stripe_customer_id: string
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          email?: string | null
-          id?: string
-          stripe_customer_id: string
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          email?: string | null
-          id?: string
-          stripe_customer_id?: string
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      stripe_payments: {
-        Row: {
-          amount: number
-          created_at: string | null
-          currency: string
-          description: string | null
-          id: string
-          metadata: Json | null
-          status: string
-          stripe_checkout_session_id: string | null
-          stripe_customer_id: string | null
-          stripe_payment_intent_id: string | null
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          amount: number
-          created_at?: string | null
-          currency?: string
-          description?: string | null
-          id?: string
-          metadata?: Json | null
-          status?: string
-          stripe_checkout_session_id?: string | null
-          stripe_customer_id?: string | null
-          stripe_payment_intent_id?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          amount?: number
-          created_at?: string | null
-          currency?: string
-          description?: string | null
-          id?: string
-          metadata?: Json | null
-          status?: string
-          stripe_checkout_session_id?: string | null
-          stripe_customer_id?: string | null
-          stripe_payment_intent_id?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      stripe_products: {
-        Row: {
-          amount: number
-          created_at: string | null
-          currency: string
-          description: string | null
-          id: string
-          interval: string | null
-          interval_count: number | null
-          is_active: boolean | null
-          metadata: Json | null
-          name: string
-          stripe_price_id: string
-          stripe_product_id: string
-          updated_at: string | null
-        }
-        Insert: {
-          amount: number
-          created_at?: string | null
-          currency?: string
-          description?: string | null
-          id?: string
-          interval?: string | null
-          interval_count?: number | null
-          is_active?: boolean | null
-          metadata?: Json | null
-          name: string
-          stripe_price_id: string
-          stripe_product_id: string
-          updated_at?: string | null
-        }
-        Update: {
-          amount?: number
-          created_at?: string | null
-          currency?: string
-          description?: string | null
-          id?: string
-          interval?: string | null
-          interval_count?: number | null
-          is_active?: boolean | null
-          metadata?: Json | null
-          name?: string
-          stripe_price_id?: string
-          stripe_product_id?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      stripe_subscriptions: {
-        Row: {
-          cancel_at_period_end: boolean | null
-          canceled_at: string | null
-          created_at: string | null
-          current_period_end: string | null
-          current_period_start: string | null
-          id: string
-          is_effectively_active: boolean | null
-          status: string
-          stripe_customer_id: string
-          stripe_price_id: string
-          stripe_subscription_id: string
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          cancel_at_period_end?: boolean | null
-          canceled_at?: string | null
-          created_at?: string | null
-          current_period_end?: string | null
-          current_period_start?: string | null
-          id?: string
-          is_effectively_active?: boolean | null
-          status?: string
-          stripe_customer_id: string
-          stripe_price_id: string
-          stripe_subscription_id: string
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          cancel_at_period_end?: boolean | null
-          canceled_at?: string | null
-          created_at?: string | null
-          current_period_end?: string | null
-          current_period_start?: string | null
-          id?: string
-          is_effectively_active?: boolean | null
-          status?: string
-          stripe_customer_id?: string
-          stripe_price_id?: string
-          stripe_subscription_id?: string
-          updated_at?: string | null
-          user_id?: string
         }
         Relationships: []
       }
@@ -3281,75 +2985,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_reading_goals: {
-        Row: {
-          book_slug: string
-          book_title: string | null
-          completed_at: string | null
-          created_at: string | null
-          current_page: number | null
-          current_sloka: number | null
-          duration: number
-          id: string
-          is_active: boolean | null
-          reminder_enabled: boolean | null
-          reminder_time: string | null
-          started_at: string
-          target_date: string | null
-          target_per_day: number | null
-          time_unit: string
-          total_pages: number | null
-          total_slokas: number | null
-          track_by: string
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          book_slug: string
-          book_title?: string | null
-          completed_at?: string | null
-          created_at?: string | null
-          current_page?: number | null
-          current_sloka?: number | null
-          duration: number
-          id?: string
-          is_active?: boolean | null
-          reminder_enabled?: boolean | null
-          reminder_time?: string | null
-          started_at?: string
-          target_date?: string | null
-          target_per_day?: number | null
-          time_unit: string
-          total_pages?: number | null
-          total_slokas?: number | null
-          track_by?: string
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          book_slug?: string
-          book_title?: string | null
-          completed_at?: string | null
-          created_at?: string | null
-          current_page?: number | null
-          current_sloka?: number | null
-          duration?: number
-          id?: string
-          is_active?: boolean | null
-          reminder_enabled?: boolean | null
-          reminder_time?: string | null
-          started_at?: string
-          target_date?: string | null
-          target_per_day?: number | null
-          time_unit?: string
-          total_pages?: number | null
-          total_slokas?: number | null
-          track_by?: string
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
       user_reading_sessions: {
         Row: {
           book_slug: string
@@ -3427,225 +3062,6 @@ export type Database = {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
-          user_id?: string
-        }
-        Relationships: []
-      }
-      user_sadhana_config: {
-        Row: {
-          apns_token: string | null
-          avatar_url: string | null
-          bed_time_target: string | null
-          created_at: string | null
-          display_name: string | null
-          fcm_token: string | null
-          id: string
-          is_public: boolean | null
-          japa_before_730_target: number | null
-          japa_rounds_target: number | null
-          language: string | null
-          reading_minutes_target: number | null
-          reminder_enabled: boolean | null
-          reminder_time: string | null
-          timezone: string | null
-          track_kirtan: boolean | null
-          track_lections: boolean | null
-          track_service: boolean | null
-          track_yoga: boolean | null
-          updated_at: string | null
-          user_id: string
-          wake_up_target: string | null
-        }
-        Insert: {
-          apns_token?: string | null
-          avatar_url?: string | null
-          bed_time_target?: string | null
-          created_at?: string | null
-          display_name?: string | null
-          fcm_token?: string | null
-          id?: string
-          is_public?: boolean | null
-          japa_before_730_target?: number | null
-          japa_rounds_target?: number | null
-          language?: string | null
-          reading_minutes_target?: number | null
-          reminder_enabled?: boolean | null
-          reminder_time?: string | null
-          timezone?: string | null
-          track_kirtan?: boolean | null
-          track_lections?: boolean | null
-          track_service?: boolean | null
-          track_yoga?: boolean | null
-          updated_at?: string | null
-          user_id: string
-          wake_up_target?: string | null
-        }
-        Update: {
-          apns_token?: string | null
-          avatar_url?: string | null
-          bed_time_target?: string | null
-          created_at?: string | null
-          display_name?: string | null
-          fcm_token?: string | null
-          id?: string
-          is_public?: boolean | null
-          japa_before_730_target?: number | null
-          japa_rounds_target?: number | null
-          language?: string | null
-          reading_minutes_target?: number | null
-          reminder_enabled?: boolean | null
-          reminder_time?: string | null
-          timezone?: string | null
-          track_kirtan?: boolean | null
-          track_lections?: boolean | null
-          track_service?: boolean | null
-          track_yoga?: boolean | null
-          updated_at?: string | null
-          user_id?: string
-          wake_up_target?: string | null
-        }
-        Relationships: []
-      }
-      user_sadhana_daily: {
-        Row: {
-          bed_time: string | null
-          completion_percent: number | null
-          created_at: string | null
-          entry_date: string
-          id: string
-          japa_after_1800: number | null
-          japa_before_1000: number | null
-          japa_before_1800: number | null
-          japa_before_730: number | null
-          japa_total: number | null
-          kirtan_minutes: number | null
-          lections_attended: boolean | null
-          notes: string | null
-          reading_minutes: number | null
-          service_done: boolean | null
-          updated_at: string | null
-          user_id: string
-          wake_up_time: string | null
-          yoga_done: boolean | null
-        }
-        Insert: {
-          bed_time?: string | null
-          completion_percent?: number | null
-          created_at?: string | null
-          entry_date?: string
-          id?: string
-          japa_after_1800?: number | null
-          japa_before_1000?: number | null
-          japa_before_1800?: number | null
-          japa_before_730?: number | null
-          japa_total?: number | null
-          kirtan_minutes?: number | null
-          lections_attended?: boolean | null
-          notes?: string | null
-          reading_minutes?: number | null
-          service_done?: boolean | null
-          updated_at?: string | null
-          user_id: string
-          wake_up_time?: string | null
-          yoga_done?: boolean | null
-        }
-        Update: {
-          bed_time?: string | null
-          completion_percent?: number | null
-          created_at?: string | null
-          entry_date?: string
-          id?: string
-          japa_after_1800?: number | null
-          japa_before_1000?: number | null
-          japa_before_1800?: number | null
-          japa_before_730?: number | null
-          japa_total?: number | null
-          kirtan_minutes?: number | null
-          lections_attended?: boolean | null
-          notes?: string | null
-          reading_minutes?: number | null
-          service_done?: boolean | null
-          updated_at?: string | null
-          user_id?: string
-          wake_up_time?: string | null
-          yoga_done?: boolean | null
-        }
-        Relationships: []
-      }
-      user_sadhana_friends: {
-        Row: {
-          created_at: string | null
-          friend_id: string
-          id: string
-          is_favorite: boolean | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          friend_id: string
-          id?: string
-          is_favorite?: boolean | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          friend_id?: string
-          id?: string
-          is_favorite?: boolean | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      user_sadhana_monthly_stats: {
-        Row: {
-          avg_bed_time: string | null
-          avg_wake_up_time: string | null
-          created_at: string | null
-          days_tracked: number | null
-          days_with_lections: number | null
-          days_with_service: number | null
-          days_with_yoga: number | null
-          id: string
-          stats_month: string
-          streak_at_month_end: number | null
-          total_japa_rounds: number | null
-          total_kirtan_minutes: number | null
-          total_reading_minutes: number | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          avg_bed_time?: string | null
-          avg_wake_up_time?: string | null
-          created_at?: string | null
-          days_tracked?: number | null
-          days_with_lections?: number | null
-          days_with_service?: number | null
-          days_with_yoga?: number | null
-          id?: string
-          stats_month: string
-          streak_at_month_end?: number | null
-          total_japa_rounds?: number | null
-          total_kirtan_minutes?: number | null
-          total_reading_minutes?: number | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          avg_bed_time?: string | null
-          avg_wake_up_time?: string | null
-          created_at?: string | null
-          days_tracked?: number | null
-          days_with_lections?: number | null
-          days_with_service?: number | null
-          days_with_yoga?: number | null
-          id?: string
-          stats_month?: string
-          streak_at_month_end?: number | null
-          total_japa_rounds?: number | null
-          total_kirtan_minutes?: number | null
-          total_reading_minutes?: number | null
-          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -3945,7 +3361,6 @@ export type Database = {
           display_blocks: Json | null
           embedding: string | null
           end_verse: number | null
-          event_date: string | null
           explanation_en_audio_url: string | null
           explanation_uk_audio_url: string | null
           full_verse_audio_url: string | null
@@ -3985,7 +3400,6 @@ export type Database = {
           display_blocks?: Json | null
           embedding?: string | null
           end_verse?: number | null
-          event_date?: string | null
           explanation_en_audio_url?: string | null
           explanation_uk_audio_url?: string | null
           full_verse_audio_url?: string | null
@@ -4025,7 +3439,6 @@ export type Database = {
           display_blocks?: Json | null
           embedding?: string | null
           end_verse?: number | null
-          event_date?: string | null
           explanation_en_audio_url?: string | null
           explanation_uk_audio_url?: string | null
           full_verse_audio_url?: string | null
@@ -4246,8 +3659,7 @@ export type Database = {
           published_at: string | null
           read_time: number | null
           scheduled_publish_at: string | null
-          search_vector_en: unknown
-          search_vector_uk: unknown
+          search_vector: unknown
           slug: string | null
           substack_embed_url: string | null
           tags: string[] | null
@@ -4277,8 +3689,7 @@ export type Database = {
           published_at?: string | null
           read_time?: number | null
           scheduled_publish_at?: string | null
-          search_vector_en?: unknown
-          search_vector_uk?: unknown
+          search_vector?: unknown
           slug?: string | null
           substack_embed_url?: string | null
           tags?: string[] | null
@@ -4308,8 +3719,7 @@ export type Database = {
           published_at?: string | null
           read_time?: number | null
           scheduled_publish_at?: string | null
-          search_vector_en?: unknown
-          search_vector_uk?: unknown
+          search_vector?: unknown
           slug?: string | null
           substack_embed_url?: string | null
           tags?: string[] | null
@@ -4370,53 +3780,41 @@ export type Database = {
         Row: {
           cantos_count: number | null
           chapters_count: number | null
+          default_structure: string | null
+          gitabase_slug: string | null
+          has_cantos: boolean | null
           id: string | null
           our_slug: string | null
           title_en: string | null
           title_uk: string | null
+          vedabase_slug: string | null
           verses_count: number | null
         }
         Insert: {
           cantos_count?: never
           chapters_count?: never
+          default_structure?: string | null
+          gitabase_slug?: string | null
+          has_cantos?: boolean | null
           id?: string | null
           our_slug?: string | null
           title_en?: string | null
           title_uk?: string | null
+          vedabase_slug?: string | null
           verses_count?: never
         }
         Update: {
           cantos_count?: never
           chapters_count?: never
+          default_structure?: string | null
+          gitabase_slug?: string | null
+          has_cantos?: boolean | null
           id?: string | null
           our_slug?: string | null
           title_en?: string | null
           title_uk?: string | null
+          vedabase_slug?: string | null
           verses_count?: never
-        }
-        Relationships: []
-      }
-      glossary_stats_cache_en: {
-        Row: {
-          book_slug: string | null
-          book_title: string | null
-          term: string | null
-        }
-        Relationships: []
-      }
-      glossary_stats_cache_ua: {
-        Row: {
-          book_slug: string | null
-          book_title: string | null
-          term: string | null
-        }
-        Relationships: []
-      }
-      glossary_stats_cache_uk: {
-        Row: {
-          book_slug: string | null
-          book_title: string | null
-          term: string | null
         }
         Relationships: []
       }
@@ -4430,7 +3828,7 @@ export type Database = {
           slug: string | null
           sort_date: string | null
           title_en: string | null
-          title_ua: string | null
+          title_uk: string | null
         }
         Relationships: [
           {
@@ -4499,14 +3897,32 @@ export type Database = {
           commentary_en: string | null
           commentary_uk: string | null
           created_at: string | null
+          deleted_at: string | null
+          display_blocks: Json | null
+          end_verse: number | null
           id: string | null
+          is_composite: boolean | null
+          is_published: boolean | null
           sanskrit: string | null
+          sanskrit_en: string | null
+          sanskrit_uk: string | null
+          search_vector: unknown
+          sort_key: number | null
+          start_verse: number | null
           synonyms_en: string | null
           synonyms_uk: string | null
           translation_en: string | null
           translation_uk: string | null
           transliteration: string | null
+          transliteration_en: string | null
+          transliteration_uk: string | null
+          verse_count: number | null
+          verse_end: number | null
           verse_number: string | null
+          verse_number_sort: number | null
+          verse_start: number | null
+          verse_suffix: string | null
+          verse_type_display: string | null
         }
         Relationships: [
           {
@@ -4529,6 +3945,7 @@ export type Database = {
         Row: {
           chapter_id: string | null
           detected_structure: string | null
+          display_blocks: Json | null
           has_commentary: boolean | null
           has_sanskrit: boolean | null
           has_synonyms: boolean | null
@@ -4540,6 +3957,7 @@ export type Database = {
         Insert: {
           chapter_id?: string | null
           detected_structure?: never
+          display_blocks?: Json | null
           has_commentary?: never
           has_sanskrit?: never
           has_synonyms?: never
@@ -4551,6 +3969,7 @@ export type Database = {
         Update: {
           chapter_id?: string | null
           detected_structure?: never
+          display_blocks?: Json | null
           has_commentary?: never
           has_sanskrit?: never
           has_synonyms?: never
@@ -4588,53 +4007,29 @@ export type Database = {
           title_uk: string | null
           translation_en: string | null
           translation_uk: string | null
-          transliteration: string | null
+          transliteration_en: string | null
+          transliteration_uk: string | null
           verse_number: string | null
         }
         Relationships: []
       }
     }
     Functions: {
-      compile_canto_knowledge: {
-        Args: {
-          language_code?: string
-          p_book_id: string
-          p_canto_number: number
-        }
-        Returns: Json
-      }
-      compile_chapter_knowledge: {
-        Args: {
-          language_code?: string
-          p_book_id: string
-          p_canto_number?: number
-          p_chapter_number: number
-        }
-        Returns: Json
-      }
-      compile_verse_knowledge: {
-        Args: { language_code?: string; p_verse_id: string }
-        Returns: Json
-      }
-      count_blog_search_results: {
-        Args: { lang?: string; q: string }
-        Returns: number
-      }
       count_visible_blocks: { Args: { verse_id: string }; Returns: number }
       create_blog_post: {
         Args: {
           _audio_url?: string
           _category_id?: string
           _content_en: string
-          _content_ua: string
+          _content_uk: string
           _cover_image_url?: string
           _excerpt_en?: string
-          _excerpt_ua?: string
+          _excerpt_uk?: string
           _is_published?: boolean
           _scheduled_publish_at?: string
           _tags?: string[]
           _title_en: string
-          _title_ua: string
+          _title_uk: string
           _video_url?: string
         }
         Returns: {
@@ -4696,7 +4091,6 @@ export type Database = {
           isSetofReturn: false
         }
       }
-      decode_html_entities: { Args: { input_text: string }; Returns: string }
       end_reading_session: {
         Args: {
           p_end_verse?: string
@@ -4730,17 +4124,6 @@ export type Database = {
           isSetofReturn: false
         }
       }
-      find_html_encoding_remnants: {
-        Args: never
-        Returns: {
-          affected_count: number
-          column_name: string
-          sample_id: string
-          sample_text: string
-          sample_verse_number: string
-          table_name: string
-        }[]
-      }
       find_verse_id: {
         Args: {
           p_book_slug: string
@@ -4750,14 +4133,6 @@ export type Database = {
         }
         Returns: string
       }
-      fix_html_encoding_remnants: {
-        Args: never
-        Returns: {
-          column_name: string
-          fixed_count: number
-          table_name: string
-        }[]
-      }
       get_book_by_vedabase_slug: {
         Args: { v_slug: string }
         Returns: {
@@ -4766,7 +4141,7 @@ export type Database = {
           id: string
           slug: string
           title_en: string
-          title_ua: string
+          title_uk: string
           vedabase_slug: string
         }[]
       }
@@ -4807,7 +4182,7 @@ export type Database = {
           category_color: string
           category_slug: string
           description_en: string
-          description_ua: string
+          description_uk: string
           event_date: string
           event_id: string
           event_type: string
@@ -4815,7 +4190,7 @@ export type Database = {
           is_major: boolean
           moon_phase: number
           name_en: string
-          name_ua: string
+          name_uk: string
           sunrise_time: string
           sunset_time: string
         }[]
@@ -4825,16 +4200,16 @@ export type Database = {
         Returns: {
           audio_url: string
           commentary_en: string
-          commentary_ua: string
+          commentary_uk: string
           end_verse: number
           id: string
           is_composite: boolean
           sanskrit: string
           start_verse: number
           synonyms_en: string
-          synonyms_ua: string
+          synonyms_uk: string
           translation_en: string
-          translation_ua: string
+          translation_uk: string
           transliteration: string
           verse_count: number
           verse_number: string
@@ -4847,7 +4222,7 @@ export type Database = {
           quotes_count: number
           slug: string
           title: string
-          title_ua: string
+          title_uk: string
         }[]
       }
       get_glossary_stats: {
@@ -4859,64 +4234,40 @@ export type Database = {
           unique_terms: number
         }[]
       }
-      get_glossary_term_by_name: {
-        Args: { search_language?: string; term_name: string }
-        Returns: {
-          categories: string[]
-          definition: string
-          devanagari: string
-          etymology: string
-          id: string
-          related_terms: string[]
-          term: string
-          translation: string
-          transliteration: string
-          usage_examples: Json
-        }[]
-      }
       get_glossary_term_details: {
-        Args: { search_language?: string; term_to_find: string }
+        Args: { search_language?: string; term_text: string }
         Returns: {
           book_slug: string
           book_title: string
           canto_number: number
           chapter_number: number
-          has_cantos: boolean
           meaning: string
+          sanskrit: string
           term: string
           transliteration: string
+          verse_id: string
           verse_link: string
           verse_number: string
         }[]
       }
-      get_glossary_terms_grouped:
-        | {
-            Args: {
-              result_limit?: number
-              search_language?: string
-              search_term?: string
-            }
-            Returns: {
-              letter: string
-              terms: Json
-            }[]
-          }
-        | {
-            Args: {
-              book_filter: string
-              page_number: number
-              page_size: number
-              search_language: string
-              search_mode: string
-              search_term: string
-              search_translation: string
-            }
-            Returns: {
-              group_key: string
-              items: Json
-              total_count: number
-            }[]
-          }
+      get_glossary_terms_grouped: {
+        Args: {
+          book_filter?: string
+          page_number?: number
+          page_size?: number
+          search_language?: string
+          search_mode?: string
+          search_term?: string
+          search_translation?: string
+        }
+        Returns: {
+          books: string[]
+          sample_meanings: string[]
+          term: string
+          total_unique_terms: number
+          usage_count: number
+        }[]
+      }
       get_lecture_verses: {
         Args: { p_lecture_id: string }
         Returns: {
@@ -4963,59 +4314,13 @@ export type Database = {
           isSetofReturn: false
         }
       }
-      get_public_sadhana_users: {
-        Args: { p_limit?: number; p_offset?: number }
-        Returns: {
-          avatar_url: string
-          current_streak: number
-          display_name: string
-          today_japa: number
-          today_reading: number
-          user_id: string
-        }[]
-      }
-      get_sadhana_monthly_stats: {
-        Args: { p_user_id: string; p_year?: number }
-        Returns: {
-          avg_bed_time: string
-          avg_wake_up: string
-          days_tracked: number
-          japa_quality_percent: number
-          month_name: string
-          month_num: number
-          streak_score: number
-          total_japa: number
-          total_reading_minutes: number
-        }[]
-      }
-      get_sadhana_streak: {
-        Args: { p_user_id: string }
-        Returns: {
-          current_streak: number
-          last_entry_date: string
-          longest_streak: number
-        }[]
-      }
-      get_synonyms_for_term: {
-        Args: {
-          language_code?: string
-          limit_count?: number
-          search_term: string
-        }
-        Returns: {
-          meaning: string
-          sanskrit: string
-          term: string
-          verse_refs: string[]
-        }[]
-      }
       get_tattva_breadcrumb: {
         Args: { p_tattva_slug: string }
         Returns: {
           depth: number
           id: string
           name_en: string
-          name_ua: string
+          name_uk: string
           slug: string
         }[]
       }
@@ -5035,7 +4340,7 @@ export type Database = {
           sanskrit: string
           tattva_name: string
           translation_en: string
-          translation_ua: string
+          translation_uk: string
           verse_id: string
           verse_number: string
         }[]
@@ -5048,11 +4353,11 @@ export type Database = {
           event_type: string
           is_ekadashi: boolean
           name_en: string
-          name_ua: string
+          name_uk: string
           parana_end_time: string
           parana_start_time: string
           short_description_en: string
-          short_description_ua: string
+          short_description_uk: string
         }[]
       }
       get_topic_statistics: {
@@ -5071,12 +4376,12 @@ export type Database = {
       }
       get_unique_synonym_terms: {
         Args: {
-          book_filter?: string
-          canto_filter?: number
+          limit_count?: number
+          prefix_filter?: string
           search_language?: string
         }
         Returns: {
-          count: number
+          frequency: number
           term: string
         }[]
       }
@@ -5146,7 +4451,7 @@ export type Database = {
           source_reference: string
           source_type: string
           text_en: string
-          text_ua: string
+          text_uk: string
         }[]
       }
       get_verse_tattvas: {
@@ -5156,7 +4461,7 @@ export type Database = {
           id: string
           name_en: string
           name_sanskrit: string
-          name_ua: string
+          name_uk: string
           relevance_score: number
           slug: string
         }[]
@@ -5202,7 +4507,6 @@ export type Database = {
         }
         Returns: undefined
       }
-      normalize_language_code: { Args: { lang: string }; Returns: string }
       normalize_sanskrit_word: { Args: { word: string }; Returns: string }
       normalize_ukrainian_cc_texts: { Args: never; Returns: undefined }
       parse_advanced_query: {
@@ -5234,7 +4538,6 @@ export type Database = {
           ts_query: unknown
         }[]
       }
-      refresh_glossary_cache: { Args: never; Returns: undefined }
       remove_adjacent_duplicate_paragraphs: {
         Args: { input_text: string }
         Returns: string
@@ -5248,95 +4551,27 @@ export type Database = {
         Args: { config: unknown; query_text: string }
         Returns: unknown
       }
-      search_blog_posts: {
+      search_glossary_terms: {
         Args: {
-          lang?: string
-          limit_count?: number
-          offset_count?: number
-          q: string
-        }
-        Returns: {
-          author_display_name: string
-          category_id: string
-          cover_image_url: string
-          created_at: string
-          excerpt: string
-          featured_image: string
-          id: string
-          published_at: string
-          rank: number
-          read_time: number
-          slug: string
-          tags: string[]
-          title: string
-          view_count: number
-        }[]
-      }
-      search_glossary_by_translation: {
-        Args: {
+          book_filter?: string
           limit_count?: number
           search_language?: string
-          search_text: string
+          search_mode?: string
+          search_term: string
         }
         Returns: {
-          id: string
-          rank: number
+          book_id: string
+          book_slug: string
+          book_title: string
+          canto_number: number
+          chapter_number: number
+          meaning: string
           term: string
-          translation: string
+          verse_id: string
+          verse_link: string
+          verse_number: string
         }[]
       }
-      search_glossary_similar: {
-        Args: {
-          limit_count?: number
-          search_language?: string
-          search_text: string
-          similarity_threshold?: number
-        }
-        Returns: {
-          id: string
-          similarity_score: number
-          term: string
-          translation: string
-        }[]
-      }
-      search_glossary_terms:
-        | {
-            Args: {
-              book_filter?: string
-              limit_count?: number
-              search_language?: string
-              search_mode?: string
-              search_term: string
-            }
-            Returns: {
-              book_id: string
-              book_slug: string
-              book_title: string
-              canto_number: number
-              chapter_number: number
-              meaning: string
-              term: string
-              verse_id: string
-              verse_link: string
-              verse_number: string
-            }[]
-          }
-        | {
-            Args: {
-              limit_count?: number
-              offset_count?: number
-              search_language?: string
-              search_text: string
-            }
-            Returns: {
-              definition: string
-              devanagari: string
-              id: string
-              rank: number
-              term: string
-              translation: string
-            }[]
-          }
       search_glossary_terms_v2: {
         Args: {
           book_filter?: string
@@ -5379,7 +4614,7 @@ export type Database = {
           source_reference: string
           source_type: string
           text_en: string
-          text_ua: string
+          text_uk: string
           verse_number: string
         }[]
       }
@@ -5440,64 +4675,24 @@ export type Database = {
           suggestion: string
         }[]
       }
-      search_synonyms:
-        | {
-            Args: {
-              limit_count?: number
-              offset_count?: number
-              search_language?: string
-              search_mode?: string
-              search_term: string
-            }
-            Returns: {
-              book_slug: string
-              book_title: string
-              canto_number: number
-              chapter_number: number
-              match_rank: number
-              sanskrit: string
-              synonyms: string
-              translation: string
-              transliteration: string
-              verse_id: string
-              verse_number: string
-            }[]
-          }
-        | {
-            Args: {
-              book_filter?: string
-              canto_filter?: number
-              limit_results?: number
-              search_language?: string
-              search_term: string
-            }
-            Returns: {
-              book_id: string
-              canto_number: number
-              chapter_number: number
-              rank: number
-              synonyms: string
-              translation: string
-              verse_id: string
-              verse_number: string
-            }[]
-          }
-      search_synonyms_with_canto: {
+      search_synonyms: {
         Args: {
-          book_filter?: string
-          canto_filter?: number
-          chapter_filter?: number
-          limit_results?: number
+          limit_count?: number
+          offset_count?: number
           search_language?: string
+          search_mode?: string
           search_term: string
         }
         Returns: {
-          book_id: string
+          book_slug: string
+          book_title: string
           canto_number: number
           chapter_number: number
-          rank: number
+          match_rank: number
+          sanskrit: string
           synonyms: string
           translation: string
+          transliteration: string
           verse_id: string
           verse_number: string
         }[]
@@ -5507,78 +4702,51 @@ export type Database = {
         Returns: {
           category: string
           description_en: string
-          description_ua: string
+          description_uk: string
           id: string
           name_en: string
           name_sanskrit: string
-          name_ua: string
+          name_uk: string
           parent_id: string
           parent_slug: string
           slug: string
           verses_count: number
         }[]
       }
-      search_verses_fulltext:
-        | {
-            Args: {
-              book_ids?: string[]
-              include_commentary: boolean
-              include_sanskrit: boolean
-              include_synonyms: boolean
-              include_translation: boolean
-              include_transliteration: boolean
-              language_code: string
-              limit_count?: number
-              search_query: string
-            }
-            Returns: {
-              book_id: string
-              book_slug: string
-              book_title: string
-              canto_id: string
-              canto_number: number
-              canto_title: string
-              chapter_id: string
-              chapter_number: number
-              chapter_title: string
-              commentary: string
-              matched_in: string[]
-              relevance_rank: number
-              sanskrit: string
-              search_snippet: string
-              synonyms: string
-              translation: string
-              transliteration: string
-              verse_id: string
-              verse_number: string
-            }[]
-          }
-        | {
-            Args: {
-              book_filter?: string
-              canto_filter?: number
-              chapter_filter?: number
-              language_code?: string
-              limit_results?: number
-              offset_results?: number
-              search_term: string
-            }
-            Returns: {
-              book_id: string
-              canto_number: number
-              chapter_number: number
-              devanagari: string
-              headline_text: string
-              headline_translation: string
-              id: string
-              purport: string
-              rank: number
-              synonyms: string
-              translation: string
-              verse_number: string
-              verse_text: string
-            }[]
-          }
+      search_verses_fulltext: {
+        Args: {
+          book_ids?: string[]
+          include_commentary: boolean
+          include_sanskrit: boolean
+          include_synonyms: boolean
+          include_translation: boolean
+          include_transliteration: boolean
+          language_code: string
+          limit_count?: number
+          search_query: string
+        }
+        Returns: {
+          book_id: string
+          book_slug: string
+          book_title: string
+          canto_id: string
+          canto_number: number
+          canto_title: string
+          chapter_id: string
+          chapter_number: number
+          chapter_title: string
+          commentary: string
+          matched_in: string[]
+          relevance_rank: number
+          sanskrit: string
+          search_snippet: string
+          synonyms: string
+          translation: string
+          transliteration: string
+          verse_id: string
+          verse_number: string
+        }[]
+      }
       semantic_search_verses: {
         Args: {
           match_count?: number
@@ -5589,11 +4757,11 @@ export type Database = {
           book_slug: string
           chapter_id: string
           commentary_en: string
-          commentary_ua: string
+          commentary_uk: string
           id: string
           similarity: number
           translation_en: string
-          translation_ua: string
+          translation_uk: string
           verse_number: string
         }[]
       }
@@ -5634,51 +4802,6 @@ export type Database = {
           p_words?: number
         }
         Returns: undefined
-      }
-      upsert_sadhana_daily: {
-        Args: {
-          p_bed_time?: string
-          p_entry_date: string
-          p_japa_after_1800?: number
-          p_japa_before_1000?: number
-          p_japa_before_1800?: number
-          p_japa_before_730?: number
-          p_kirtan_minutes?: number
-          p_lections_attended?: boolean
-          p_notes?: string
-          p_reading_minutes?: number
-          p_service_done?: boolean
-          p_user_id: string
-          p_wake_up_time?: string
-          p_yoga_done?: boolean
-        }
-        Returns: {
-          bed_time: string | null
-          completion_percent: number | null
-          created_at: string | null
-          entry_date: string
-          id: string
-          japa_after_1800: number | null
-          japa_before_1000: number | null
-          japa_before_1800: number | null
-          japa_before_730: number | null
-          japa_total: number | null
-          kirtan_minutes: number | null
-          lections_attended: boolean | null
-          notes: string | null
-          reading_minutes: number | null
-          service_done: boolean | null
-          updated_at: string | null
-          user_id: string
-          wake_up_time: string | null
-          yoga_done: boolean | null
-        }
-        SetofOptions: {
-          from: "*"
-          to: "user_sadhana_daily"
-          isOneToOne: true
-          isSetofReturn: false
-        }
       }
     }
     Enums: {

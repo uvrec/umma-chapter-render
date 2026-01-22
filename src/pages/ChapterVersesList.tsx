@@ -5,58 +5,18 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { useBooks } from "@/contexts/BooksContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, BookOpen, Edit, Save, X, ChevronLeft, ChevronRight, Plus, Trash2, Settings } from "lucide-react";
-import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
-import { useEffect, useState, useMemo, useRef, useCallback } from "react";
+import { ArrowLeft, BookOpen, Edit, Save, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
 import DOMPurify from "dompurify";
-import { VerseSlider } from "@/components/mobile/VerseSlider";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { toast } from "@/hooks/use-toast";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { stripParagraphTags, sanitizeForRender } from "@/utils/import/normalizers";
+import { stripParagraphTags } from "@/utils/import/normalizers";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
-import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
-import { useTrackpadNavigation } from "@/hooks/useTrackpadNavigation";
-import { ChapterSchema, BreadcrumbSchema } from "@/components/StructuredData";
-import { getChapterOgImage } from "@/utils/og-image";
-import { Helmet } from "react-helmet-async";
-import { SITE_CONFIG } from "@/lib/constants";
-
-/**
- * Safety check: detect if chapter content looks like incorrectly imported verse text
- * This prevents showing full verse content as a "chapter introduction"
- */
-function isLikelyMisimportedVerseContent(content: string | null | undefined): boolean {
-  if (!content) return false;
-  const text = content.toLowerCase();
-
-  // Check for verse number patterns (e.g., "вірш 1", "verse 1", "text 1")
-  const versePatterns = /\b(вірш|verse|text)\s+\d+/i;
-  const hasVerseNumbers = versePatterns.test(text);
-
-  // Check for multiple numbered items (indication of verse list)
-  const multipleNumbers = (text.match(/\b\d+\s*[-–—.):]/g) || []).length > 3;
-
-  // Check for Sanskrit/Devanagari characters (more than 50 chars indicates full text)
-  const devanagariChars = (content.match(/[\u0900-\u097F]/g) || []).length;
-  const hasSignificantSanskrit = devanagariChars > 50;
-
-  // Check if content is suspiciously long for an introduction (>5000 chars)
-  const isTooLong = content.length > 5000;
-
-  // Content from wrong chapter (e.g., "глава перша" in chapter 10)
-  const hasChapterMismatch = /глава\s+(перш|друг|трет|четверт|п'ят)/i.test(text);
-
-  return (hasVerseNumbers && (multipleNumbers || isTooLong)) ||
-         hasSignificantSanskrit ||
-         hasChapterMismatch;
-}
 
 // Type for verse data
 interface Verse {
@@ -65,43 +25,24 @@ interface Verse {
   sanskrit: string | null;
   transliteration: string | null;
   transliteration_en: string | null;
-  transliteration_uk: string | null;
-  translation_uk: string | null;
+  transliteration_ua: string | null;
+  translation_ua: string | null;
   translation_en: string | null;
   is_published: boolean;
   deleted_at: string | null;
 }
 export const ChapterVersesList = () => {
-  // Support both /veda-reader/ and /lib/ URL patterns
-  const params = useParams<{
-    bookId?: string;
-    cantoNumber?: string;
-    chapterNumber?: string;
-    // /lib/ params
-    p1?: string;
-    p2?: string;
-  }>();
-
-  const { hasCantoStructure } = useBooks();
-
-  // Normalize params from /lib/ format to standard format
-  const bookId = params.bookId;
-  const isCantoBook = bookId ? hasCantoStructure(bookId) : false;
-
-  // For /lib/ routes: p1/p2 need to be mapped based on book type
-  // /lib/sb/1/3 → canto=1, chapter=3 (canto book)
-  // /lib/bg/3 → chapter=3 (non-canto book)
-  const cantoNumber = params.cantoNumber ?? (isCantoBook ? params.p1 : undefined);
-  const chapterNumber = params.chapterNumber ?? (isCantoBook ? params.p2 : params.p1);
-
   const {
-    language,
-    getLocalizedPath
+    bookId,
+    cantoNumber,
+    chapterNumber
+  } = useParams();
+  const {
+    language
   } = useLanguage();
   const navigate = useNavigate();
   const {
-    user,
-    isAdmin
+    user
   } = useAuth();
   const queryClient = useQueryClient();
   const {
@@ -109,48 +50,13 @@ export const ChapterVersesList = () => {
     lineHeight,
     dualLanguageMode,
     showNumbers,
-    flowMode,
-    fullscreenMode,
-    setFullscreenMode
+    flowMode
   } = useReaderSettings();
-  const isMobile = useIsMobile();
 
   // Editing state
   const [isEditingContent, setIsEditingContent] = useState(false);
-  const [editedContentUk, setEditedContentUk] = useState("");
+  const [editedContentUa, setEditedContentUa] = useState("");
   const [editedContentEn, setEditedContentEn] = useState("");
-  const [verseToDelete, setVerseToDelete] = useState<string | null>(null);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-
-  // Mobile Bible-style navigation
-  const [verseSliderOpen, setVerseSliderOpen] = useState(false);
-  const [currentVisibleVerse, setCurrentVisibleVerse] = useState<string | null>(null);
-  const verseRefs = useRef<Map<string, HTMLElement>>(new Map());
-  const swipeStartX = useRef<number | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Long-press to peek alternate language
-  const [peekingVerseId, setPeekingVerseId] = useState<string | null>(null);
-  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const LONG_PRESS_DURATION = 400; // ms to trigger peek
-
-  const handleVerseTouchStart = useCallback((verseId: string) => {
-    longPressTimerRef.current = setTimeout(() => {
-      setPeekingVerseId(verseId);
-      // Haptic feedback if available
-      if (navigator.vibrate) {
-        navigator.vibrate(50);
-      }
-    }, LONG_PRESS_DURATION);
-  }, []);
-
-  const handleVerseTouchEnd = useCallback(() => {
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current);
-      longPressTimerRef.current = null;
-    }
-    setPeekingVerseId(null);
-  }, []);
   const isCantoMode = !!cantoNumber;
   const effectiveChapterParam = chapterNumber;
   const {
@@ -161,7 +67,7 @@ export const ChapterVersesList = () => {
       const {
         data,
         error
-      } = await supabase.from("books").select("id, slug, title_uk, title_en").eq("slug", bookId).maybeSingle();
+      } = await supabase.from("books").select("id, slug, title_ua, title_en").eq("slug", bookId).maybeSingle();
       if (error) throw error;
       return data;
     }
@@ -175,7 +81,7 @@ export const ChapterVersesList = () => {
       const {
         data,
         error
-      } = await supabase.from("cantos").select("id, canto_number, title_uk, title_en").eq("book_id", book.id).eq("canto_number", parseInt(cantoNumber)).maybeSingle();
+      } = await supabase.from("cantos").select("id, canto_number, title_ua, title_en").eq("book_id", book.id).eq("canto_number", parseInt(cantoNumber)).maybeSingle();
       if (error) throw error;
       return data;
     },
@@ -188,7 +94,7 @@ export const ChapterVersesList = () => {
     queryKey: ["chapter", book?.id, canto?.id, effectiveChapterParam, isCantoMode],
     queryFn: async () => {
       if (!book?.id || !effectiveChapterParam) return null;
-      const base = supabase.from("chapters").select("id, chapter_number, title_uk, title_en, content_uk, content_en").eq("chapter_number", parseInt(effectiveChapterParam as string));
+      const base = supabase.from("chapters").select("id, chapter_number, title_ua, title_en, content_ua, content_en").eq("chapter_number", parseInt(effectiveChapterParam as string));
       const query = isCantoMode && canto?.id ? base.eq("canto_id", canto.id) : base.eq("book_id", book.id);
       const {
         data,
@@ -208,7 +114,7 @@ export const ChapterVersesList = () => {
       const {
         data,
         error
-      } = await supabase.from("chapters").select("id, chapter_number, title_uk, title_en, content_uk, content_en").eq("book_id", book.id).eq("chapter_number", parseInt(effectiveChapterParam as string)).is("canto_id", null).maybeSingle();
+      } = await supabase.from("chapters").select("id, chapter_number, title_ua, title_en, content_ua, content_en").eq("book_id", book.id).eq("chapter_number", parseInt(effectiveChapterParam as string)).is("canto_id", null).maybeSingle();
       if (error) throw error;
       return data;
     },
@@ -224,7 +130,7 @@ export const ChapterVersesList = () => {
       const {
         data,
         error
-      } = await supabase.from("verses").select("id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_uk, translation_uk, translation_en, is_published, deleted_at").eq("chapter_id", chapter.id).is("deleted_at", null).eq("is_published", true).order("sort_key", {
+      } = await supabase.from("verses").select("id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, translation_ua, translation_en, is_published, deleted_at").eq("chapter_id", chapter.id).is("deleted_at", null).eq("is_published", true).order("sort_key", {
         ascending: true
       });
       if (error) throw error;
@@ -242,7 +148,7 @@ export const ChapterVersesList = () => {
       const {
         data,
         error
-      } = await supabase.from("verses").select("id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_uk, translation_uk, translation_en, is_published, deleted_at").eq("chapter_id", fallbackChapter.id).is("deleted_at", null).eq("is_published", true).order("sort_key", {
+      } = await supabase.from("verses").select("id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, translation_ua, translation_en, is_published, deleted_at").eq("chapter_id", fallbackChapter.id).is("deleted_at", null).eq("is_published", true).order("sort_key", {
         ascending: true
       });
       if (error) throw error;
@@ -262,7 +168,7 @@ export const ChapterVersesList = () => {
         next: null
       };
       const currentNum = parseInt(effectiveChapterParam as string);
-      const base = supabase.from("chapters").select("id, chapter_number, title_uk, title_en");
+      const base = supabase.from("chapters").select("id, chapter_number, title_ua, title_en");
       if (isCantoMode && canto?.id) {
         const {
           data
@@ -290,54 +196,28 @@ export const ChapterVersesList = () => {
   const isLoading = isLoadingChapter || isLoadingVersesMain || isLoadingVersesFallback;
   const getVerseUrl = (verseNumber: string) => {
     if (isCantoMode) {
-      return getLocalizedPath(`/lib/${bookId}/${cantoNumber}/${chapterNumber}/${verseNumber}`);
+      return `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${verseNumber}`;
     }
-    return getLocalizedPath(`/lib/${bookId}/${chapterNumber}/${verseNumber}`);
+    return `/veda-reader/${bookId}/${chapterNumber}/${verseNumber}`;
   };
   const handleBack = () => {
     if (isCantoMode) {
-      navigate(getLocalizedPath(`/lib/${bookId}/${cantoNumber}`));
+      navigate(`/veda-reader/${bookId}/canto/${cantoNumber}`);
     } else {
-      navigate(getLocalizedPath(`/lib/${bookId}`));
+      navigate(`/veda-reader/${bookId}`);
     }
   };
   const bookTitle = language === "uk" ? book?.title_uk : book?.title_en;
   const cantoTitle = canto ? language === "uk" ? canto.title_uk : canto.title_en : null;
   const effectiveChapterObj = chapter ?? fallbackChapter;
-  const chapterTitle = effectiveChapterObj && "title_uk" in effectiveChapterObj ? language === "uk" ? effectiveChapterObj.title_uk : effectiveChapterObj.title_en : null;
-
-  // SEO metadata
-  const chapterPath = isCantoMode
-    ? `/${language}/lib/${bookId}/${cantoNumber}/${chapterNumber}`
-    : `/${language}/lib/${bookId}/${chapterNumber}`;
-  const canonicalUrl = `${SITE_CONFIG.baseUrl}${chapterPath}`;
-  const alternateUkUrl = isCantoMode
-    ? `${SITE_CONFIG.baseUrl}/uk/lib/${bookId}/${cantoNumber}/${chapterNumber}`
-    : `${SITE_CONFIG.baseUrl}/uk/lib/${bookId}/${chapterNumber}`;
-  const alternateEnUrl = isCantoMode
-    ? `${SITE_CONFIG.baseUrl}/en/lib/${bookId}/${cantoNumber}/${chapterNumber}`
-    : `${SITE_CONFIG.baseUrl}/en/lib/${bookId}/${chapterNumber}`;
-  const ogImage = getChapterOgImage(
-    bookId || '',
-    bookTitle || '',
-    parseInt(chapterNumber || '1'),
-    chapterTitle || '',
-    cantoNumber ? parseInt(cantoNumber) : undefined,
-    language
-  );
-  const pageTitle = cantoTitle
-    ? `${bookTitle} - ${cantoTitle} - ${chapterTitle}`
-    : `${bookTitle} - ${chapterTitle}`;
-  const pageDescription = language === "uk"
-    ? `${chapterTitle || `Глава ${chapterNumber}`} з ${bookTitle}${cantoTitle ? ` (${cantoTitle})` : ''}`
-    : `${chapterTitle || `Chapter ${chapterNumber}`} from ${bookTitle}${cantoTitle ? ` (${cantoTitle})` : ''}`;
+  const chapterTitle = effectiveChapterObj && "title_ua" in effectiveChapterObj ? language === "uk" ? effectiveChapterObj.title_uk : effectiveChapterObj.title_en : null;
   const saveContentMutation = useMutation({
     mutationFn: async () => {
       if (!effectiveChapterObj || !("id" in effectiveChapterObj)) return;
       const {
         error
       } = await supabase.from("chapters").update({
-        content_uk: editedContentUk,
+        content_ua: editedContentUa,
         content_en: editedContentEn
       }).eq("id", effectiveChapterObj.id);
       if (error) throw error;
@@ -358,76 +238,19 @@ export const ChapterVersesList = () => {
       });
     }
   });
-
-  // Мутація для видалення вірша
-  const deleteVerseMutation = useMutation({
-    mutationFn: async (verseId: string) => {
-      const { error } = await supabase
-        .from("verses")
-        .delete()
-        .eq("id", verseId);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["chapter-verses-list"] });
-      queryClient.invalidateQueries({ queryKey: ["chapter-verses-fallback"] });
-      setVerseToDelete(null);
-      toast({
-        title: language === "uk" ? "Вірш видалено" : "Verse deleted"
-      });
-    },
-    onError: () => {
-      toast({
-        title: language === "uk" ? "Помилка видалення" : "Delete error",
-        variant: "destructive"
-      });
-    }
-  });
-
   useEffect(() => {
     if (effectiveChapterObj) {
-      setEditedContentUk(effectiveChapterObj.content_uk || "");
+      setEditedContentUa(effectiveChapterObj.content_uk || "");
       setEditedContentEn(effectiveChapterObj.content_en || "");
     }
   }, [effectiveChapterObj]);
   const handleNavigate = (chapterNum: number) => {
     if (isCantoMode) {
-      navigate(getLocalizedPath(`/lib/${bookId}/${cantoNumber}/${chapterNum}`));
+      navigate(`/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNum}`);
     } else {
-      navigate(getLocalizedPath(`/lib/${bookId}/${chapterNum}`));
+      navigate(`/veda-reader/${bookId}/${chapterNum}`);
     }
   };
-
-  // Swipe/trackpad navigation handlers
-  const handlePrevChapter = useCallback(() => {
-    if (adjacentChapters?.prev) {
-      handleNavigate(adjacentChapters.prev.chapter_number);
-    }
-  }, [adjacentChapters?.prev]);
-
-  const handleNextChapter = useCallback(() => {
-    if (adjacentChapters?.next) {
-      handleNavigate(adjacentChapters.next.chapter_number);
-    }
-  }, [adjacentChapters?.next]);
-
-  // Touch swipe navigation (mobile)
-  useSwipeNavigation({
-    onSwipeLeft: handleNextChapter,
-    onSwipeRight: handlePrevChapter,
-    threshold: 80,
-    velocityThreshold: 0.3,
-    enabled: isMobile && !!(adjacentChapters?.prev || adjacentChapters?.next),
-  });
-
-  // Trackpad swipe navigation (desktop)
-  useTrackpadNavigation({
-    onSwipeLeft: handleNextChapter,
-    onSwipeRight: handlePrevChapter,
-    threshold: 50,
-    enabled: !isMobile && !!(adjacentChapters?.prev || adjacentChapters?.next),
-  });
-
   const readerTextStyle = {
     fontSize: `${fontSize}px`,
     lineHeight: lineHeight
@@ -442,64 +265,6 @@ export const ChapterVersesList = () => {
     chapterTitle: chapterTitle || '',
     cantoNumber: cantoNumber ? parseInt(cantoNumber) : undefined
   });
-
-  // Mobile Bible-style: свайп для відкриття слайдера віршів
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    swipeStartX.current = e.touches[0].clientX;
-  }, []);
-
-  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    if (swipeStartX.current === null) return;
-
-    const swipeEndX = e.changedTouches[0].clientX;
-    const deltaX = swipeStartX.current - swipeEndX;
-
-    // Свайп справа наліво (> 50px) - відкрити слайдер віршів
-    if (deltaX > 50 && isMobile) {
-      setVerseSliderOpen(true);
-    }
-
-    swipeStartX.current = null;
-  }, [isMobile]);
-
-  // Прокрутка до вірша при виборі зі слайдера
-  const handleVerseSelect = useCallback((verseNumber: string) => {
-    const element = verseRefs.current.get(verseNumber);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      setCurrentVisibleVerse(verseNumber);
-    }
-  }, []);
-
-  // Відстеження видимого вірша при скролі (для мобільних)
-  useEffect(() => {
-    if (!isMobile || verses.length === 0) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const verseNum = entry.target.getAttribute('data-verse');
-            if (verseNum) setCurrentVisibleVerse(verseNum);
-          }
-        });
-      },
-      { threshold: 0.5 }
-    );
-
-    verseRefs.current.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, [isMobile, verses]);
-
-  // Cleanup long-press timer on unmount
-  useEffect(() => {
-    return () => {
-      if (longPressTimerRef.current) {
-        clearTimeout(longPressTimerRef.current);
-      }
-    };
-  }, []);
-
   if (isLoading) {
     return <div className="flex min-h-screen flex-col">
         <Header />
@@ -515,110 +280,29 @@ export const ChapterVersesList = () => {
         <Footer />
       </div>;
   }
-  // Build breadcrumb items
-  const breadcrumbItems = [
-    { name: language === "uk" ? "Головна" : "Home", url: `/${language}` },
-    { name: language === "uk" ? "Бібліотека" : "Library", url: `/${language}/library` },
-    { name: bookTitle || '', url: `/${language}/lib/${bookId}` },
-  ];
-  if (isCantoMode && cantoTitle) {
-    breadcrumbItems.push({ name: cantoTitle, url: `/${language}/lib/${bookId}/${cantoNumber}` });
-  }
-  breadcrumbItems.push({ name: chapterTitle || `${language === "uk" ? "Глава" : "Chapter"} ${chapterNumber}`, url: chapterPath });
-
-  return <div
-      className="flex min-h-screen flex-col"
-      ref={containerRef}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-    >
-      {/* SEO Metadata */}
-      <Helmet>
-        <title>{`${pageTitle} | ${SITE_CONFIG.siteName}`}</title>
-        <meta name="description" content={pageDescription} />
-        <link rel="canonical" href={canonicalUrl} />
-        <link rel="alternate" hrefLang="uk" href={alternateUkUrl} />
-        <link rel="alternate" hrefLang="en" href={alternateEnUrl} />
-        <link rel="alternate" hrefLang="x-default" href={alternateUkUrl} />
-        <meta property="og:type" content="article" />
-        <meta property="og:url" content={canonicalUrl} />
-        <meta property="og:title" content={pageTitle} />
-        <meta property="og:description" content={pageDescription} />
-        <meta property="og:image" content={ogImage} />
-        <meta property="og:site_name" content={SITE_CONFIG.siteName} />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={pageTitle} />
-        <meta name="twitter:description" content={pageDescription} />
-        <meta name="twitter:image" content={ogImage} />
-      </Helmet>
-
-      {/* Structured Data */}
-      {book && effectiveChapterObj && (
-        <>
-          <ChapterSchema
-            bookSlug={bookId || ''}
-            bookTitle={bookTitle || ''}
-            chapterNumber={parseInt(chapterNumber || '1')}
-            chapterTitle={chapterTitle || ''}
-            cantoNumber={cantoNumber ? parseInt(cantoNumber) : undefined}
-            cantoTitle={cantoTitle || undefined}
-            description={pageDescription}
-            language={language}
-          />
-          <BreadcrumbSchema items={breadcrumbItems} />
-        </>
-      )}
-
+  return <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="flex-1 bg-background pb-4 sm:pb-8">
+      <main className="flex-1 bg-background py-4 sm:py-8">
         <div className="container mx-auto max-w-6xl px-3 sm:px-4">
-          <div className="mb-2 sm:mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-2">
-            {/* Back button - hidden on mobile (swipe to go back) */}
-            {!isMobile && (
-              <Button variant="ghost" onClick={handleBack} className="gap-2" size="sm">
-                <ArrowLeft className="h-4 w-4" />
-                <span className="hidden xs:inline">Назад</span>
-              </Button>
-            )}
+          <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-2">
+            <Button variant="ghost" onClick={handleBack} className="gap-2" size="sm">
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden xs:inline">Назад</span>
+            </Button>
 
             <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-              {/* Навігація по главах - ховаємо на мобільних */}
-              {!isMobile && adjacentChapters?.prev && <Button variant="outline" size="sm" onClick={() => handleNavigate(adjacentChapters.prev.chapter_number)} className="gap-1 flex-1 sm:flex-none">
+              {adjacentChapters?.prev && <Button variant="outline" size="sm" onClick={() => handleNavigate(adjacentChapters.prev.chapter_number)} className="gap-1 flex-1 sm:flex-none">
                   <ChevronLeft className="h-4 w-4" />
                   <span className="hidden sm:inline">{language === "uk" ? "Попередня" : "Previous"}</span>
                 </Button>}
-              {!isMobile && adjacentChapters?.next && <Button variant="outline" size="sm" onClick={() => handleNavigate(adjacentChapters.next.chapter_number)} className="gap-1 flex-1 sm:flex-none">
+              {adjacentChapters?.next && <Button variant="outline" size="sm" onClick={() => handleNavigate(adjacentChapters.next.chapter_number)} className="gap-1 flex-1 sm:flex-none">
                   <span className="hidden sm:inline">{language === "uk" ? "Наступна" : "Next"}</span>
                   <ChevronRight className="h-4 w-4" />
                 </Button>}
             </div>
           </div>
 
-          {/* Sticky buttons: Add verse + Settings */}
-          <div className="sticky top-0 z-40 flex justify-end gap-2 py-2 -mt-2 mb-2 bg-background/95 backdrop-blur-sm -mx-3 px-3 sm:-mx-4 sm:px-4">
-            {isAdmin && effectiveChapterObj?.id && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate(`/admin/verses/new?chapterId=${effectiveChapterObj.id}`)}
-                className="gap-1"
-                title={language === "uk" ? "Додати вірш" : "Add verse"}
-              >
-                <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">{language === "uk" ? "Додати вірш" : "Add verse"}</span>
-              </Button>
-            )}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setSettingsOpen(true)}
-              title={language === "uk" ? "Налаштування" : "Settings"}
-            >
-              <Settings className="h-5 w-5" />
-            </Button>
-          </div>
-
-          <div className="mb-8 sm:mb-10">
+          <div className="mb-6 sm:mb-8">
             <div className="mb-2 gap-2 text-xs sm:text-sm text-muted-foreground flex-wrap flex items-center justify-center">
               <BookOpen className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
               <span className="truncate max-w-[200px] sm:max-w-none">{bookTitle}</span>
@@ -632,9 +316,7 @@ export const ChapterVersesList = () => {
             </h1>
           </div>
 
-          {effectiveChapterObj && (effectiveChapterObj.content_uk || effectiveChapterObj.content_en) &&
-           !isLikelyMisimportedVerseContent(effectiveChapterObj.content_uk) &&
-           !isLikelyMisimportedVerseContent(effectiveChapterObj.content_en) && (
+          {effectiveChapterObj && (effectiveChapterObj.content_uk || effectiveChapterObj.content_en) && (
             <div className="mb-8">
               {user && !isEditingContent && (
                 <div className="mb-4 flex justify-end">
@@ -648,7 +330,7 @@ export const ChapterVersesList = () => {
               {isEditingContent ? (
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
-                    <EnhancedInlineEditor content={editedContentUk} onChange={setEditedContentUk} label="Українська" />
+                    <EnhancedInlineEditor content={editedContentUa} onChange={setEditedContentUa} label="Українська" />
                     <EnhancedInlineEditor content={editedContentEn} onChange={setEditedContentEn} label="English" />
                   </div>
                   <div className="flex gap-2">
@@ -658,7 +340,7 @@ export const ChapterVersesList = () => {
                     </Button>
                     <Button variant="outline" onClick={() => {
                 setIsEditingContent(false);
-                setEditedContentUk(effectiveChapterObj.content_uk || "");
+                setEditedContentUa(effectiveChapterObj.content_uk || "");
                 setEditedContentEn(effectiveChapterObj.content_en || "");
               }} className="gap-2">
                       <X className="h-4 w-4" />
@@ -713,13 +395,13 @@ export const ChapterVersesList = () => {
                             <div
                               className="prose prose-slate dark:prose-invert max-w-none"
                               dangerouslySetInnerHTML={{
-                                __html: sanitizeForRender(paraUa || '<span class="italic text-muted-foreground">—</span>'),
+                                __html: DOMPurify.sanitize(paraUa || '<span class="italic text-muted-foreground">—</span>'),
                               }}
                             />
                             <div
                               className="prose prose-slate dark:prose-invert max-w-none border-l border-border pl-6"
                               dangerouslySetInnerHTML={{
-                                __html: sanitizeForRender(paraEn || '<span class="italic text-muted-foreground">—</span>'),
+                                __html: DOMPurify.sanitize(paraEn || '<span class="italic text-muted-foreground">—</span>'),
                               }}
                             />
                           </div>
@@ -732,7 +414,7 @@ export const ChapterVersesList = () => {
                   className="prose prose-slate dark:prose-invert max-w-none"
                   style={readerTextStyle}
                   dangerouslySetInnerHTML={{
-                    __html: sanitizeForRender(
+                    __html: DOMPurify.sanitize(
                       language === "uk"
                         ? effectiveChapterObj.content_uk || effectiveChapterObj.content_en || ""
                         : effectiveChapterObj.content_en || effectiveChapterObj.content_uk || "",
@@ -743,62 +425,7 @@ export const ChapterVersesList = () => {
             </div>
           )}
 
-          {/* Mobile Bible-style: суцільний текст з маленькими номерами */}
-          {/* Long-press on verse text to peek alternate language */}
-          {isMobile ? (
-            <div
-              className="prose prose-lg max-w-none"
-              style={readerTextStyle}
-              onClick={() => setFullscreenMode(!fullscreenMode)}
-            >
-              <p className="text-foreground text-justify leading-relaxed">
-                {verses.map((verse: Verse) => {
-                  // Show alternate language when peeking this verse
-                  const isPeeking = peekingVerseId === verse.id;
-                  const displayLang = isPeeking ? (language === "uk" ? "en" : "uk") : language;
-                  const text = displayLang === "uk" ? verse.translation_uk : verse.translation_en;
-
-                  return (
-                    <span
-                      key={verse.id}
-                      ref={(el) => {
-                        if (el) verseRefs.current.set(verse.verse_number, el);
-                      }}
-                      data-verse={verse.verse_number}
-                      className={`inline transition-all duration-200 ${isPeeking ? 'bg-primary/10 rounded px-0.5 -mx-0.5' : ''}`}
-                      onTouchStart={(e) => {
-                        // Don't trigger on sup (verse number) clicks
-                        if ((e.target as HTMLElement).tagName !== 'SUP') {
-                          handleVerseTouchStart(verse.id);
-                        }
-                      }}
-                      onTouchEnd={handleVerseTouchEnd}
-                      onTouchCancel={handleVerseTouchEnd}
-                      onTouchMove={handleVerseTouchEnd}
-                    >
-                      <sup
-                        className="text-primary font-bold text-xs mr-0.5 cursor-pointer hover:text-primary/80"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(getVerseUrl(verse.verse_number));
-                        }}
-                      >
-                        {verse.verse_number}
-                      </sup>
-                      {stripParagraphTags(text || "") || (
-                        <span className="italic text-muted-foreground">—</span>
-                      )}
-                      {isPeeking && (
-                        <sup className="text-[10px] text-muted-foreground ml-0.5">
-                          {displayLang.toUpperCase()}
-                        </sup>
-                      )}{" "}
-                    </span>
-                  );
-                })}
-              </p>
-            </div>
-          ) : flowMode ? <div className="prose prose-lg max-w-none" style={readerTextStyle}>
+          {flowMode ? <div className="prose prose-lg max-w-none" style={readerTextStyle}>
               {verses.map((verse: Verse) => {
             const text = language === "uk" ? verse.translation_uk : verse.translation_en;
             return <p key={verse.id} className="text-foreground mb-6">
@@ -814,41 +441,9 @@ export const ChapterVersesList = () => {
             return <div key={verse.id} className="space-y-3">
                     {dualLanguageMode ? <div className="grid gap-6 md:grid-cols-2">
                         <div className="space-y-3">
-                          {showNumbers && <div className="flex items-center gap-2">
-                              <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
-                                ВІРШ {verse.verse_number}
-                              </Link>
-                              {isAdmin && (
-                                verseToDelete === verse.id ? (
-                                  <div className="flex items-center gap-1">
-                                    <Button
-                                      variant="destructive"
-                                      size="sm"
-                                      onClick={() => deleteVerseMutation.mutate(verse.id)}
-                                      disabled={deleteVerseMutation.isPending}
-                                    >
-                                      Так
-                                    </Button>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => setVerseToDelete(null)}
-                                    >
-                                      Ні
-                                    </Button>
-                                  </div>
-                                ) : (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => setVerseToDelete(verse.id)}
-                                    className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 px-2"
-                                  >
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                  </Button>
-                                )
-                              )}
-                            </div>}
+                          {showNumbers && <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
+                              ВІРШ {verse.verse_number}
+                            </Link>}
                           <p className="text-foreground text-justify" style={readerTextStyle}>
                             {stripParagraphTags(translationUa) || <span className="italic text-muted-foreground">Немає перекладу</span>}
                           </p>
@@ -863,41 +458,9 @@ export const ChapterVersesList = () => {
                           </p>
                         </div>
                       </div> : <div className="space-y-3">
-                        {showNumbers && <div className="flex items-center gap-2">
-                            <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
-                              {language === "uk" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
-                            </Link>
-                            {isAdmin && (
-                              verseToDelete === verse.id ? (
-                                <div className="flex items-center gap-1">
-                                  <Button
-                                    variant="destructive"
-                                    size="sm"
-                                    onClick={() => deleteVerseMutation.mutate(verse.id)}
-                                    disabled={deleteVerseMutation.isPending}
-                                  >
-                                    {language === "uk" ? "Так" : "Yes"}
-                                  </Button>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => setVerseToDelete(null)}
-                                  >
-                                    {language === "uk" ? "Ні" : "No"}
-                                  </Button>
-                                </div>
-                              ) : (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => setVerseToDelete(verse.id)}
-                                  className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 px-2"
-                                >
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                </Button>
-                              )
-                            )}
-                          </div>}
+                        {showNumbers && <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
+                            {language === "uk" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
+                          </Link>}
                         <p className="text-foreground" style={readerTextStyle}>
                           {language === "uk" ? stripParagraphTags(translationUa) || <span className="italic text-muted-foreground">Немає перекладу</span> : stripParagraphTags(translationEn) || <span className="italic text-muted-foreground">No translation</span>}
                         </p>
@@ -910,8 +473,7 @@ export const ChapterVersesList = () => {
 
           {verses.length === 0}
 
-          {/* Навігація по главах - ховаємо на мобільних (мінімалістичний дизайн) */}
-          {!isMobile && (adjacentChapters?.prev || adjacentChapters?.next) && <div className="mt-12 flex items-center justify-between border-t border-border pt-6">
+          {(adjacentChapters?.prev || adjacentChapters?.next) && <div className="mt-12 flex items-center justify-between border-t border-border pt-6">
               {adjacentChapters?.prev ? <Button variant="outline" onClick={() => handleNavigate(adjacentChapters.prev.chapter_number)} className="gap-2">
                   <ChevronLeft className="h-4 w-4" />
                   <div className="text-left">
@@ -939,22 +501,5 @@ export const ChapterVersesList = () => {
         </div>
       </main>
       <Footer />
-
-      <GlobalSettingsPanel
-        isOpen={settingsOpen}
-        onOpenChange={setSettingsOpen}
-        showFloatingButton={false}
-      />
-
-      {/* Mobile Verse Slider - бокова стрічка навігації */}
-      {isMobile && verses.length > 0 && (
-        <VerseSlider
-          verses={verses.map(v => ({ id: v.id, verse_number: v.verse_number }))}
-          currentVerseNumber={currentVisibleVerse || verses[0]?.verse_number}
-          onVerseSelect={handleVerseSelect}
-          isOpen={verseSliderOpen}
-          onClose={() => setVerseSliderOpen(false)}
-        />
-      )}
     </div>;
 };

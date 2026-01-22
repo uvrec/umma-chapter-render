@@ -21,16 +21,16 @@ import { Search, BookOpen, Languages, Info } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
 
 // Grammar abbreviations
-const GRAMMAR_LABELS: Record<string, { uk: string; en: string; color: string }> = {
-  m: { uk: "чол. рід", en: "masculine", color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" },
-  f: { uk: "жін. рід", en: "feminine", color: "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200" },
-  n: { uk: "сер. рід", en: "neuter", color: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200" },
-  adj: { uk: "прикм.", en: "adjective", color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" },
-  ind: { uk: "незмін.", en: "indeclinable", color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200" },
-  "1. P.": { uk: "дієсл. 1 клас", en: "verb class 1", color: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200" },
-  "4. P.": { uk: "дієсл. 4 клас", en: "verb class 4", color: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200" },
-  "6. P.": { uk: "дієсл. 6 клас", en: "verb class 6", color: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200" },
-  "10. P.": { uk: "дієсл. 10 клас", en: "verb class 10", color: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200" },
+const GRAMMAR_LABELS: Record<string, { ua: string; en: string; color: string }> = {
+  m: { ua: "чол. рід", en: "masculine", color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" },
+  f: { ua: "жін. рід", en: "feminine", color: "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200" },
+  n: { ua: "сер. рід", en: "neuter", color: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200" },
+  adj: { ua: "прикм.", en: "adjective", color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" },
+  ind: { ua: "незмін.", en: "indeclinable", color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200" },
+  "1. P.": { ua: "дієсл. 1 клас", en: "verb class 1", color: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200" },
+  "4. P.": { ua: "дієсл. 4 клас", en: "verb class 4", color: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200" },
+  "6. P.": { ua: "дієсл. 6 клас", en: "verb class 6", color: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200" },
+  "10. P.": { ua: "дієсл. 10 клас", en: "verb class 10", color: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200" },
 };
 
 interface LexiconEntry {
@@ -102,7 +102,7 @@ export const SanskritDictionary = () => {
     if (info) {
       return (
         <Badge variant="secondary" className={info.color}>
-          {language === "uk" ? info.uk : info.en}
+          {language === "uk" ? info.ua : info.en}
         </Badge>
       );
     }
