@@ -15,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import type { Lecture, LectureFilters, LectureSortOptions } from "@/types/lecture";
@@ -33,8 +32,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 export const LecturesContent = () => {
   const navigate = useNavigate();
-  const { language } = useLanguage();
-  const [contentLanguage, setContentLanguage] = useState<"uk" | "en">("uk");
+  const { language, t, getLocalizedPath } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<LectureFilters>({
     type: "all",
@@ -173,7 +171,7 @@ export const LecturesContent = () => {
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return contentLanguage === "uk"
+    return language === "uk"
       ? date.toLocaleDateString("uk-UA", {
           year: "numeric",
           month: "long",
@@ -187,16 +185,14 @@ export const LecturesContent = () => {
   };
 
   const getLectureTitle = (lecture: Lecture) => {
-    return contentLanguage === "uk" && lecture.title_uk ? lecture.title_uk : lecture.title_en;
+    return language === "uk" && lecture.title_uk ? lecture.title_uk : lecture.title_en;
   };
 
   const getLectureLocation = (lecture: Lecture) => {
-    return contentLanguage === "uk" && lecture.location_uk
+    return language === "uk" && lecture.location_uk
       ? lecture.location_uk
       : lecture.location_en;
   };
-
-  const t = (ua: string, en: string) => contentLanguage === "uk" ? ua : en;
 
   if (isLoading) {
     return (
@@ -209,157 +205,15 @@ export const LecturesContent = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Заголовок з лічильником та мовним переключачем */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Mic className="w-8 h-8 text-primary" />
-          <div>
-            <h2 className="text-2xl font-bold text-foreground">
-              {t("Бібліотека лекцій", "Lecture Library")}
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              {t(
-                `${lectures.length} лекцій доступно`,
-                `${lectures.length} lectures available`
-              )}
-            </p>
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      {/* Results - Main content */}
+      <div className="lg:col-span-3 order-2 lg:order-1">
+        {filteredAndSortedLectures.length > 0 && (
+          <div className="mb-4 text-sm text-muted-foreground">
+            {filteredAndSortedLectures.length} {t("лекцій", "lectures")}
           </div>
-        </div>
-
-        {/* Мовний переключач */}
-        <Tabs value={contentLanguage} onValueChange={(v) => setContentLanguage(v as "uk" | "en")}>
-          <TabsList>
-            <TabsTrigger value="ua">Українська</TabsTrigger>
-            <TabsTrigger value="en">English</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
-
-      {/* Пошук та фільтри */}
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Пошук */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder={t("Пошук лекцій...", "Search lectures...")}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-
-          {/* Фільтр по типу */}
-          <Select
-            value={filters.type || "all"}
-            onValueChange={(value) =>
-              setFilters({ ...filters, type: value as any })
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder={t("Всі типи", "All types")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("Всі типи", "All types")}</SelectItem>
-              {uniqueTypes.map((type) => (
-                <SelectItem key={type} value={type}>
-                  {type}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {/* Фільтр по локації */}
-          <Select
-            value={filters.location || "all"}
-            onValueChange={(value) =>
-              setFilters({ ...filters, location: value })
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder={t("Всі місця", "All locations")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("Всі місця", "All locations")}</SelectItem>
-              {uniqueLocations.map((location) => (
-                <SelectItem key={location} value={location}>
-                  {location}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {/* Фільтр по книзі */}
-          <Select
-            value={filters.book || "all"}
-            onValueChange={(value) => setFilters({ ...filters, book: value })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder={t("Всі книги", "All books")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("Всі книги", "All books")}</SelectItem>
-              {uniqueBooks.map((book) => (
-                <SelectItem key={book} value={book!}>
-                  {book?.toUpperCase()}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Сортування та групування */}
-        <div className="flex flex-wrap gap-4">
-          <Select
-            value={sortOptions.sortBy}
-            onValueChange={(value) =>
-              setSortOptions({ ...sortOptions, sortBy: value as any })
-            }
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="date">{t("За датою", "By date")}</SelectItem>
-              <SelectItem value="location">{t("За місцем", "By location")}</SelectItem>
-              <SelectItem value="type">{t("За типом", "By type")}</SelectItem>
-              <SelectItem value="title">{t("За назвою", "By title")}</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              setSortOptions({
-                ...sortOptions,
-                sortOrder: sortOptions.sortOrder === "asc" ? "desc" : "asc",
-              })
-            }
-          >
-            {sortOptions.sortOrder === "asc" ? (
-              <SortAsc className="w-4 h-4" />
-            ) : (
-              <SortDesc className="w-4 h-4" />
-            )}
-          </Button>
-
-          <Select value={groupBy} onValueChange={(value) => setGroupBy(value as any)}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="date">{t("Групувати за роком", "Group by year")}</SelectItem>
-              <SelectItem value="location">{t("Групувати за місцем", "Group by location")}</SelectItem>
-              <SelectItem value="type">{t("Групувати за типом", "Group by type")}</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* Список лекцій */}
-      <div className="space-y-8">
+        )}
+        <div className="space-y-6">
         {Object.keys(groupedLectures)
           .sort()
           .reverse()
@@ -371,7 +225,7 @@ export const LecturesContent = () => {
                   <div
                     key={lecture.id}
                     className="py-3 cursor-pointer hover:bg-muted/30 transition-colors"
-                    onClick={() => navigate(`/library/lectures/${lecture.slug}`)}
+                    onClick={() => navigate(getLocalizedPath(`/library/lectures/${lecture.slug}`))}
                   >
                     <div className="flex items-start gap-3">
                       <Mic className="w-5 h-5 mt-1 flex-shrink-0 text-muted-foreground" />
@@ -416,17 +270,116 @@ export const LecturesContent = () => {
           ))}
       </div>
 
-      {/* Якщо немає результатів */}
-      {filteredAndSortedLectures.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">
-            {t(
-              "Лекцій не знайдено. Спробуйте змінити фільтри.",
-              "No lectures found. Try changing the filters."
-            )}
-          </p>
+        {/* Якщо немає результатів */}
+        {filteredAndSortedLectures.length === 0 && (
+          <div className="text-center py-12 text-muted-foreground">
+            {t("Лекцій не знайдено", "No lectures found")}
+          </div>
+        )}
+      </div>
+
+      {/* Sidebar - Filters */}
+      <div className="lg:col-span-1 order-1 lg:order-2">
+        <div className="sticky top-4 space-y-3">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder={t("Пошук...", "Search...")}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
+          {/* Filters */}
+          <Select
+            value={filters.type || "all"}
+            onValueChange={(value) => setFilters({ ...filters, type: value as any })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={t("Тип", "Type")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("Всі типи", "All types")}</SelectItem>
+              {uniqueTypes.map((type) => (
+                <SelectItem key={type} value={type}>{type}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={filters.location || "all"}
+            onValueChange={(value) => setFilters({ ...filters, location: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={t("Місце", "Location")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("Всі місця", "All locations")}</SelectItem>
+              {uniqueLocations.map((location) => (
+                <SelectItem key={location} value={location}>{location}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={filters.book || "all"}
+            onValueChange={(value) => setFilters({ ...filters, book: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={t("Книга", "Book")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("Всі книги", "All books")}</SelectItem>
+              {uniqueBooks.map((book) => (
+                <SelectItem key={book} value={book!}>{book?.toUpperCase()}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Sort & Group */}
+          <div className="pt-3 border-t space-y-3">
+            <div className="flex gap-2">
+              <Select
+                value={sortOptions.sortBy}
+                onValueChange={(value) => setSortOptions({ ...sortOptions, sortBy: value as any })}
+              >
+                <SelectTrigger className="flex-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="date">{t("Дата", "Date")}</SelectItem>
+                  <SelectItem value="location">{t("Місце", "Location")}</SelectItem>
+                  <SelectItem value="type">{t("Тип", "Type")}</SelectItem>
+                  <SelectItem value="title">{t("Назва", "Title")}</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setSortOptions({
+                  ...sortOptions,
+                  sortOrder: sortOptions.sortOrder === "asc" ? "desc" : "asc",
+                })}
+              >
+                {sortOptions.sortOrder === "asc" ? <SortAsc className="w-4 h-4" /> : <SortDesc className="w-4 h-4" />}
+              </Button>
+            </div>
+
+            <Select value={groupBy} onValueChange={(value) => setGroupBy(value as any)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="date">{t("За роком", "By year")}</SelectItem>
+                <SelectItem value="location">{t("За місцем", "By location")}</SelectItem>
+                <SelectItem value="type">{t("За типом", "By type")}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };

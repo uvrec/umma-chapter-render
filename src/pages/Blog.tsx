@@ -22,10 +22,10 @@ export const Blog = () => {
         .from('blog_posts')
         .select(`
           id,
-          title_ua,
+          title_uk,
           title_en,
           slug,
-          excerpt_ua,
+          excerpt_uk,
           excerpt_en,
           cover_image_url,
           featured_image,
@@ -36,7 +36,7 @@ export const Blog = () => {
           author_display_name,
           blog_categories (
             id,
-            name_ua,
+            name_uk,
             name_en,
             slug
           )
@@ -62,7 +62,7 @@ export const Blog = () => {
       const { data, error } = await supabase
         .from('blog_categories')
         .select('*')
-        .order(language === 'uk' ? 'name_ua' : 'name_en');
+        .order(language === 'uk' ? 'name_uk' : 'name_en');
       if (error) throw error;
       return data;
     },
@@ -155,14 +155,17 @@ export const Blog = () => {
                 ? post.blog_categories?.name_uk 
                 : post.blog_categories?.name_en;
 
+              // Використовуємо featured_image як основне, cover_image_url як fallback
+              const imageUrl = post.featured_image || post.cover_image_url;
+
               return (
                 <Link key={post.id} to={`/blog/${post.slug}`} className="block hover:bg-muted/30 transition-colors py-4">
-                  {post.cover_image_url && (
+                  {imageUrl && (
                     <div className="aspect-video mb-4">
                       <img
-                        src={post.cover_image_url}
+                        src={imageUrl}
                         alt={title}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover rounded-lg"
                       />
                     </div>
                   )}

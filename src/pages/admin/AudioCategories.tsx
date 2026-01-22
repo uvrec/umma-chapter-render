@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,25 +10,25 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ArrowLeft, Plus, Edit, Trash2, Loader2 } from "lucide-react";
 import * as Icons from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 
 interface AudioCategory {
   id: string;
-  name_ua: string;
+  name_uk: string;
   name_en: string;
   slug: string;
-  description_ua?: string | null;
+  description_uk?: string | null;
   description_en?: string | null;
   icon?: string | null;
   display_order: number;
 }
 
 type FormState = {
-  name_ua: string;
+  name_uk: string;
   name_en: string;
   slug: string;
-  description_ua: string;
+  description_uk: string;
   description_en: string;
   icon: string;
   display_order: number;
@@ -44,16 +45,24 @@ function generateSlug(input: string) {
 }
 
 export default function AudioCategories() {
+  const { user, isAdmin } = useAuth();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  useEffect(() => {
+    if (!user || !isAdmin) {
+      navigate("/auth");
+    }
+  }, [user, isAdmin, navigate]);
   const [editingCategory, setEditingCategory] = useState<AudioCategory | null>(null);
   const [isCheckingSlug, setIsCheckingSlug] = useState(false);
 
   const [formData, setFormData] = useState<FormState>({
-    name_ua: "",
+    name_uk: "",
     name_en: "",
     slug: "",
-    description_ua: "",
+    description_uk: "",
     description_en: "",
     icon: "",
     display_order: 0,
@@ -80,10 +89,10 @@ export default function AudioCategories() {
   const resetForm = () => {
     setEditingCategory(null);
     setFormData({
-      name_ua: "",
+      name_uk: "",
       name_en: "",
       slug: "",
-      description_ua: "",
+      description_uk: "",
       description_en: "",
       icon: "",
       display_order: 0,
@@ -104,10 +113,10 @@ export default function AudioCategories() {
   const handleEdit = (category: AudioCategory) => {
     setEditingCategory(category);
     setFormData({
-      name_ua: category.name_uk ?? "",
+      name_uk: category.name_uk ?? "",
       name_en: category.name_en ?? "",
       slug: category.slug ?? "",
-      description_ua: category.description_uk ?? "",
+      description_uk: category.description_uk ?? "",
       description_en: category.description_en ?? "",
       icon: category.icon ?? "",
       display_order: category.display_order ?? 0,
@@ -145,10 +154,10 @@ export default function AudioCategories() {
       }
 
       const payload = {
-        name_ua: data.name_uk.trim(),
+        name_uk: data.name_uk.trim(),
         name_en: data.name_en.trim(),
         slug: data.slug.trim(),
-        description_ua: data.description_uk.trim() || null,
+        description_uk: data.description_uk.trim() || null,
         description_en: data.description_en.trim() || null,
         icon: data.icon.trim() || null,
         display_order: Number.isFinite(data.display_order) ? data.display_order : 0,
@@ -191,6 +200,8 @@ export default function AudioCategories() {
     saveMutation.mutate(formData);
   };
 
+  if (!user || !isAdmin) return null;
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
@@ -221,11 +232,11 @@ export default function AudioCategories() {
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="name_ua">Назва (UA) *</Label>
+                  <Label htmlFor="name_uk">Назва (UK) *</Label>
                   <Input
-                    id="name_ua"
+                    id="name_uk"
                     value={formData.name_uk}
-                    onChange={(e) => setFormData((s) => ({ ...s, name_ua: e.target.value }))}
+                    onChange={(e) => setFormData((s) => ({ ...s, name_uk: e.target.value }))}
                     required
                   />
                 </div>
@@ -298,11 +309,11 @@ export default function AudioCategories() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="description_ua">Опис (UA)</Label>
+                  <Label htmlFor="description_uk">Опис (UK)</Label>
                   <Textarea
-                    id="description_ua"
+                    id="description_uk"
                     value={formData.description_uk}
-                    onChange={(e) => setFormData((s) => ({ ...s, description_ua: e.target.value }))}
+                    onChange={(e) => setFormData((s) => ({ ...s, description_uk: e.target.value }))}
                     rows={3}
                   />
                 </div>

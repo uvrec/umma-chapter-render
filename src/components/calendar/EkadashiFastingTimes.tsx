@@ -235,7 +235,7 @@ export function EkadashiFastingTimes({
         </div>
 
         {/* Additional notes */}
-        {(fastingTimes.notes_ua || fastingTimes.notes_en) && (
+        {(fastingTimes.notes_uk || fastingTimes.notes_en) && (
           <>
             <Separator />
             <div className="space-y-2">
@@ -244,7 +244,7 @@ export function EkadashiFastingTimes({
                 {language === "uk" ? "Примітки" : "Notes"}
               </h4>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                {language === "uk" ? fastingTimes.notes_ua : fastingTimes.notes_en}
+                {language === "uk" ? fastingTimes.notes_uk : fastingTimes.notes_en}
               </p>
             </div>
           </>

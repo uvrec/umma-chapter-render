@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,11 +9,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ArrowLeft, Music } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { AudioUploader } from "@/components/admin/shared/AudioUploader";
 import { Breadcrumbs, BreadcrumbItem } from "@/components/admin/Breadcrumbs";
+import { LRCEditor } from "@/components/admin/LRCEditor";
 
 export default function AddEditVerse() {
   const { id } = useParams();
@@ -26,15 +28,15 @@ export default function AddEditVerse() {
   const [selectedCantoId, setSelectedCantoId] = useState(searchParams.get("cantoId") || "");
   const [chapterId, setChapterId] = useState(searchParams.get("chapterId") || "");
   const [verseNumber, setVerseNumber] = useState("");
-  const [sanskritUa, setSanskritUa] = useState("");
+  const [sanskritUk, setSanskritUk] = useState("");
   const [sanskritEn, setSanskritEn] = useState("");
-  const [transliterationUa, setTransliterationUa] = useState("");
+  const [transliterationUk, setTransliterationUk] = useState("");
   const [transliterationEn, setTransliterationEn] = useState("");
-  const [synonymsUa, setSynonymsUa] = useState("");
+  const [synonymsUk, setSynonymsUk] = useState("");
   const [synonymsEn, setSynonymsEn] = useState("");
-  const [translationUa, setTranslationUa] = useState("");
+  const [translationUk, setTranslationUk] = useState("");
   const [translationEn, setTranslationEn] = useState("");
-  const [commentaryUa, setCommentaryUa] = useState("");
+  const [commentaryUk, setCommentaryUk] = useState("");
   const [commentaryEn, setCommentaryEn] = useState("");
 
   // Audio URLs - simplified structure (4 fields)
@@ -47,10 +49,39 @@ export default function AddEditVerse() {
   // UI state for collapsible advanced audio section
   const [showAdvancedAudio, setShowAdvancedAudio] = useState(false);
 
+  // LRC Editor state
+  const [showLRCEditor, setShowLRCEditor] = useState(false);
+  const [lrcSection, setLrcSection] = useState<'sanskrit' | 'translation' | 'commentary'>('sanskrit');
+
+  // Track if form has unsaved changes to warn user before leaving
+  const [isDirty, setIsDirty] = useState(false);
+  const isInitialLoadRef = useRef(true);
+
+  // Mark form as dirty when any field changes (after initial load)
+  const markDirty = useCallback(() => {
+    if (!isInitialLoadRef.current) {
+      setIsDirty(true);
+    }
+  }, []);
+
+  // Warn user before leaving with unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = ""; // Required for Chrome
+        return "У вас є незбережені зміни. Ви впевнені, що хочете покинути сторінку?";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
+
   const { data: books } = useQuery({
     queryKey: ["admin-books"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("books").select("*").order("title_ua");
+      const { data, error } = await supabase.from("books").select("*").order("title_uk");
       if (error) throw error;
       return data;
     },
@@ -79,7 +110,7 @@ export default function AddEditVerse() {
     queryFn: async () => {
       if (!selectedBookId) return [];
 
-      let query = supabase.from("chapters").select("*, books(title_ua), cantos(title_ua, canto_number)");
+      let query = supabase.from("chapters").select("*, books(title_uk), cantos(title_uk, canto_number)");
 
       if (selectedBook?.has_cantos && selectedCantoId) {
         query = query.eq("canto_id", selectedCantoId);
@@ -107,44 +138,101 @@ export default function AddEditVerse() {
     enabled: !!id && !!user && isAdmin,
   });
 
-  // Підвантажуємо контекст глави (книгу/пісню) у режимі редагування
+  // Fetch existing verses for the chapter to calculate next verse number
+  const { data: chapterVerses } = useQuery({
+    queryKey: ["chapter-verses-for-auto-number", chapterId],
+    queryFn: async () => {
+      if (!chapterId) return [];
+      const { data, error } = await supabase
+        .from("verses")
+        .select("verse_number, end_verse")
+        .eq("chapter_id", chapterId)
+        .is("deleted_at", null);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!chapterId && !id, // Only fetch for new verses
+  });
+
+  // Helper function to calculate the next verse number
+  const calculateNextVerseNumber = useCallback((verses: { verse_number: string; end_verse?: number | null }[]): string => {
+    if (!verses || verses.length === 0) return "1";
+
+    let maxNumber = 0;
+
+    verses.forEach((v) => {
+      // Check end_verse for composite verses like "73-74"
+      if (v.end_verse && v.end_verse > maxNumber) {
+        maxNumber = v.end_verse;
+      }
+
+      // Try to parse verse_number
+      const verseNum = v.verse_number;
+      if (verseNum) {
+        // Handle composite format like "73-74"
+        if (verseNum.includes("-")) {
+          const parts = verseNum.split("-");
+          const endNum = parseInt(parts[parts.length - 1], 10);
+          if (!isNaN(endNum) && endNum > maxNumber) {
+            maxNumber = endNum;
+          }
+        } else {
+          // Simple number format
+          const num = parseInt(verseNum, 10);
+          if (!isNaN(num) && num > maxNumber) {
+            maxNumber = num;
+          }
+        }
+      }
+    });
+
+    return String(maxNumber + 1);
+  }, []);
+
+  // Підвантажуємо контекст глави (книгу/пісню) за chapterId з URL
   useEffect(() => {
     const loadChapterContext = async () => {
-      if (chapterId && chapters) {
-        const chapter = chapters.find((c) => c.id === chapterId);
-        if (chapter) {
-          if (chapter.book_id) {
-            setSelectedBookId(chapter.book_id);
-          } else if (chapter.canto_id) {
-            const { data: canto } = await supabase
-              .from("cantos")
-              .select("book_id, id")
-              .eq("id", chapter.canto_id)
-              .single();
-            if (canto) {
-              setSelectedBookId(canto.book_id);
-              setSelectedCantoId(canto.id);
-            }
-          }
+      if (!chapterId || selectedBookId) return;
+
+      // Завантажуємо главу напряму з бази даних
+      const { data: chapter, error } = await supabase
+        .from("chapters")
+        .select("book_id, canto_id")
+        .eq("id", chapterId)
+        .single();
+
+      if (error || !chapter) return;
+
+      if (chapter.book_id) {
+        setSelectedBookId(chapter.book_id);
+      } else if (chapter.canto_id) {
+        const { data: canto } = await supabase
+          .from("cantos")
+          .select("book_id, id")
+          .eq("id", chapter.canto_id)
+          .single();
+        if (canto) {
+          setSelectedBookId(canto.book_id);
+          setSelectedCantoId(canto.id);
         }
       }
     };
     loadChapterContext();
-  }, [chapterId, chapters]);
+  }, [chapterId, selectedBookId]);
 
   useEffect(() => {
     if (verse) {
       setChapterId(verse.chapter_id);
       setVerseNumber(verse.verse_number);
-      setSanskritUa(verse.sanskrit_ua || (verse as any).sanskrit || "");
+      setSanskritUk(verse.sanskrit_uk || (verse as any).sanskrit || "");
       setSanskritEn(verse.sanskrit_en || (verse as any).sanskrit || "");
-      setTransliterationUa(verse.transliteration_ua || "");
+      setTransliterationUk(verse.transliteration_uk || "");
       setTransliterationEn(verse.transliteration_en || "");
-      setSynonymsUa(verse.synonyms_uk || "");
+      setSynonymsUk(verse.synonyms_uk || "");
       setSynonymsEn(verse.synonyms_en || "");
-      setTranslationUa(verse.translation_uk || "");
+      setTranslationUk(verse.translation_uk || "");
       setTranslationEn(verse.translation_en || "");
-      setCommentaryUa(verse.commentary_ua || "");
+      setCommentaryUk(verse.commentary_uk || "");
       setCommentaryEn(verse.commentary_en || "");
 
       // Legacy audio field
@@ -160,23 +248,74 @@ export default function AddEditVerse() {
       if (verse.recitation_audio_url || verse.explanation_ua_audio_url || verse.explanation_en_audio_url) {
         setShowAdvancedAudio(true);
       }
+
+      // Mark initial load as complete after data is loaded
+      setTimeout(() => {
+        isInitialLoadRef.current = false;
+      }, 100);
     }
   }, [verse]);
+
+  // Mark initial load as complete for new verses (no verse data to load)
+  useEffect(() => {
+    if (!id) {
+      // For new verses, mark initial load as complete after a short delay
+      const timer = setTimeout(() => {
+        isInitialLoadRef.current = false;
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [id]);
+
+  // Auto-set next verse number when chapter is selected (for new verses only)
+  useEffect(() => {
+    if (!id && chapterId && chapterVerses) {
+      const nextNumber = calculateNextVerseNumber(chapterVerses);
+      setVerseNumber(nextNumber);
+    }
+  }, [id, chapterId, chapterVerses, calculateNextVerseNumber]);
+
+  // Track if we should add another verse after save
+  const [addAnother, setAddAnother] = useState(false);
+
+  // Helper to reset form for new verse
+  const resetFormForNewVerse = (nextVerseNum?: string) => {
+    // Clear all content fields, but keep the chapter context
+    // Set the next verse number if provided, otherwise empty
+    setVerseNumber(nextVerseNum || "");
+    setSanskritUk("");
+    setSanskritEn("");
+    setTransliterationUk("");
+    setTransliterationEn("");
+    setSynonymsUk("");
+    setSynonymsEn("");
+    setTranslationUk("");
+    setTranslationEn("");
+    setCommentaryUk("");
+    setCommentaryEn("");
+    setAudioUrl("");
+    setFullVerseAudioUrl("");
+    setRecitationAudioUrl("");
+    setExplanationUaAudioUrl("");
+    setExplanationEnAudioUrl("");
+    setShowAdvancedAudio(false);
+    setIsDirty(false); // Reset dirty flag for new form
+  };
 
   const mutation = useMutation({
     mutationFn: async () => {
       const verseData = {
         chapter_id: chapterId,
         verse_number: verseNumber,
-        sanskrit_ua: sanskritUa || null,
+        sanskrit_uk: sanskritUk || null,
         sanskrit_en: sanskritEn || null,
-        transliteration_ua: transliterationUa || null,
+        transliteration_uk: transliterationUk || null,
         transliteration_en: transliterationEn || null,
-        synonyms_ua: synonymsUa || null,
+        synonyms_uk: synonymsUk || null,
         synonyms_en: synonymsEn || null,
-        translation_ua: translationUa || null,
+        translation_uk: translationUk || null,
         translation_en: translationEn || null,
-        commentary_ua: commentaryUa || null,
+        commentary_uk: commentaryUk || null,
         commentary_en: commentaryEn || null,
 
         // Audio URLs - simplified structure
@@ -197,21 +336,49 @@ export default function AddEditVerse() {
         if (error) throw error;
       }
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       // Очищуємо кеш для фронтенду і адмінки
       queryClient.invalidateQueries({ queryKey: ["verses"] });
       queryClient.invalidateQueries({ queryKey: ["admin-verses"] });
+      queryClient.invalidateQueries({ queryKey: ["chapter-verses-for-auto-number", chapterId] });
       toast({
         title: id ? "Вірш оновлено" : "Вірш додано",
         description: "Зміни успішно збережено",
       });
 
-      // Navigate back with context preserved
-      const params = new URLSearchParams();
-      if (selectedBookId) params.set("bookId", selectedBookId);
-      if (selectedCantoId) params.set("cantoId", selectedCantoId);
-      if (chapterId) params.set("chapterId", chapterId);
-      navigate(`/admin/scripture?${params.toString()}`);
+      // Check if we should add another verse or navigate back
+      if (addAnother && !id) {
+        // Calculate next verse number based on current verse number
+        // Parse current verse number and increment
+        let nextNum = "1";
+        if (verseNumber) {
+          if (verseNumber.includes("-")) {
+            // Composite like "73-74" - take the end number
+            const parts = verseNumber.split("-");
+            const endNum = parseInt(parts[parts.length - 1], 10);
+            if (!isNaN(endNum)) {
+              nextNum = String(endNum + 1);
+            }
+          } else {
+            const num = parseInt(verseNumber, 10);
+            if (!isNaN(num)) {
+              nextNum = String(num + 1);
+            }
+          }
+        }
+        // Reset form to add another verse (only for new verses, not edits)
+        resetFormForNewVerse(nextNum);
+        setAddAnother(false); // Reset flag
+      } else {
+        // Clear dirty flag before navigating to prevent beforeunload warning
+        setIsDirty(false);
+        // Navigate back with context preserved
+        const params = new URLSearchParams();
+        if (selectedBookId) params.set("bookId", selectedBookId);
+        if (selectedCantoId) params.set("cantoId", selectedCantoId);
+        if (chapterId) params.set("chapterId", chapterId);
+        navigate(`/admin/scripture?${params.toString()}`);
+      }
     },
     onError: (error) => {
       toast({
@@ -219,6 +386,7 @@ export default function AddEditVerse() {
         description: (error as any).message,
         variant: "destructive",
       });
+      setAddAnother(false); // Reset flag on error
     },
   });
 
@@ -354,7 +522,7 @@ export default function AddEditVerse() {
               <Input
                 id="verseNumber"
                 value={verseNumber}
-                onChange={(e) => setVerseNumber(e.target.value)}
+                onChange={(e) => { setVerseNumber(e.target.value); markDirty(); }}
                 placeholder="напр., 1.1.1"
                 required
               />
@@ -366,54 +534,54 @@ export default function AddEditVerse() {
                 <h3 className="font-semibold text-lg border-b pb-2">Українська</h3>
 
                 <div>
-                  <Label htmlFor="sanskritUa">Санскрит</Label>
+                  <Label htmlFor="sanskritUk">Санскрит</Label>
                   <Textarea
-                    id="sanskritUa"
-                    value={sanskritUa}
-                    onChange={(e) => setSanskritUa(e.target.value)}
+                    id="sanskritUk"
+                    value={sanskritUk}
+                    onChange={(e) => { setSanskritUk(e.target.value); markDirty(); }}
                     placeholder="ॐ नमो भगवते वासुदेवाय..."
                     rows={3}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="transliterationUa">Транслітерація</Label>
+                  <Label htmlFor="transliterationUk">Транслітерація</Label>
                   <Textarea
-                    id="transliterationUa"
-                    value={transliterationUa}
-                    onChange={(e) => setTransliterationUa(e.target.value)}
+                    id="transliterationUk"
+                    value={transliterationUk}
+                    onChange={(e) => { setTransliterationUk(e.target.value); markDirty(); }}
                     placeholder="ом̇ намо бгаґавате ва̄судева̄йа..."
                     rows={3}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="synonymsUa">Синоніми</Label>
+                  <Label htmlFor="synonymsUk">Синоніми</Label>
                   <Textarea
-                    id="synonymsUa"
-                    value={synonymsUa}
-                    onChange={(e) => setSynonymsUa(e.target.value)}
+                    id="synonymsUk"
+                    value={synonymsUk}
+                    onChange={(e) => { setSynonymsUk(e.target.value); markDirty(); }}
                     placeholder="ом̇ – мій Господи; намах̣ – у шанобі схиляюсь..."
                     rows={4}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="translationUa">Переклад</Label>
+                  <Label htmlFor="translationUk">Переклад</Label>
                   <Textarea
-                    id="translationUa"
-                    value={translationUa}
-                    onChange={(e) => setTranslationUa(e.target.value)}
+                    id="translationUk"
+                    value={translationUk}
+                    onChange={(e) => { setTranslationUk(e.target.value); markDirty(); }}
                     placeholder="Український переклад вірша..."
                     rows={4}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="commentaryUa">Коментар</Label>
+                  <Label htmlFor="commentaryUk">Коментар</Label>
                   <EnhancedInlineEditor
-                    content={commentaryUa}
-                    onChange={setCommentaryUa}
+                    content={commentaryUk}
+                    onChange={(val) => { setCommentaryUk(val); markDirty(); }}
                     label="Коментар українською..."
                   />
                 </div>
@@ -428,7 +596,7 @@ export default function AddEditVerse() {
                   <Textarea
                     id="sanskritEn"
                     value={sanskritEn}
-                    onChange={(e) => setSanskritEn(e.target.value)}
+                    onChange={(e) => { setSanskritEn(e.target.value); markDirty(); }}
                     placeholder="ॐ नमो भगवते वासुदेवाय..."
                     rows={3}
                   />
@@ -439,7 +607,7 @@ export default function AddEditVerse() {
                   <Textarea
                     id="transliterationEn"
                     value={transliterationEn}
-                    onChange={(e) => setTransliterationEn(e.target.value)}
+                    onChange={(e) => { setTransliterationEn(e.target.value); markDirty(); }}
                     placeholder="oṁ namo bhagavate vāsudevāya..."
                     rows={3}
                   />
@@ -450,7 +618,7 @@ export default function AddEditVerse() {
                   <Textarea
                     id="synonymsEn"
                     value={synonymsEn}
-                    onChange={(e) => setSynonymsEn(e.target.value)}
+                    onChange={(e) => { setSynonymsEn(e.target.value); markDirty(); }}
                     placeholder="om – O my Lord; namah – offering obeisances..."
                     rows={4}
                   />
@@ -461,7 +629,7 @@ export default function AddEditVerse() {
                   <Textarea
                     id="translationEn"
                     value={translationEn}
-                    onChange={(e) => setTranslationEn(e.target.value)}
+                    onChange={(e) => { setTranslationEn(e.target.value); markDirty(); }}
                     placeholder="English translation of the verse..."
                     rows={4}
                   />
@@ -471,7 +639,7 @@ export default function AddEditVerse() {
                   <Label htmlFor="commentaryEn">Commentary</Label>
                   <EnhancedInlineEditor
                     content={commentaryEn}
-                    onChange={setCommentaryEn}
+                    onChange={(val) => { setCommentaryEn(val); markDirty(); }}
                     label="Commentary in English..."
                   />
                 </div>
@@ -491,7 +659,7 @@ export default function AddEditVerse() {
               <AudioUploader
                 label="Повний вірш (лекція)"
                 value={fullVerseAudioUrl}
-                onChange={setFullVerseAudioUrl}
+                onChange={(val) => { setFullVerseAudioUrl(val); markDirty(); }}
                 primary={true}
               />
 
@@ -526,7 +694,7 @@ export default function AddEditVerse() {
                     <AudioUploader
                       label="Читання санскриту/бенгалі"
                       value={recitationAudioUrl}
-                      onChange={setRecitationAudioUrl}
+                      onChange={(val) => { setRecitationAudioUrl(val); markDirty(); }}
                       compact={true}
                     />
 
@@ -534,14 +702,14 @@ export default function AddEditVerse() {
                       <AudioUploader
                         label="Пояснення (українською)"
                         value={explanationUaAudioUrl}
-                        onChange={setExplanationUaAudioUrl}
+                        onChange={(val) => { setExplanationUaAudioUrl(val); markDirty(); }}
                         compact={true}
                       />
 
                       <AudioUploader
                         label="Explanation (English)"
                         value={explanationEnAudioUrl}
-                        onChange={setExplanationEnAudioUrl}
+                        onChange={(val) => { setExplanationEnAudioUrl(val); markDirty(); }}
                         compact={true}
                       />
                     </div>
@@ -559,10 +727,102 @@ export default function AddEditVerse() {
                   <Label className="text-xs text-muted-foreground">Застаріле поле (для сумісності)</Label>
                   <Input
                     value={audioUrl}
-                    onChange={(e) => setAudioUrl(e.target.value)}
+                    onChange={(e) => { setAudioUrl(e.target.value); markDirty(); }}
                     placeholder="https://example.com/audio.mp3"
                     className="mt-2"
                   />
+                </div>
+              )}
+
+              {/* LRC Timestamps Editor */}
+              {id && fullVerseAudioUrl && (
+                <div className="mt-6 pt-6 border-t">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h4 className="font-medium">Синхронізація аудіо з текстом</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Створіть LRC timestamps для караоке-стилю підсвітки тексту
+                      </p>
+                    </div>
+                    <Dialog open={showLRCEditor} onOpenChange={setShowLRCEditor}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <Music className="mr-2 h-4 w-4" />
+                          LRC Editor
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>LRC Timestamps Editor — Вірш {verseNumber}</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          {/* Section selector */}
+                          <div className="flex gap-2">
+                            <Button
+                              variant={lrcSection === 'sanskrit' ? 'default' : 'outline'}
+                              size="sm"
+                              onClick={() => setLrcSection('sanskrit')}
+                            >
+                              Санскрит
+                            </Button>
+                            <Button
+                              variant={lrcSection === 'translation' ? 'default' : 'outline'}
+                              size="sm"
+                              onClick={() => setLrcSection('translation')}
+                            >
+                              Переклад
+                            </Button>
+                            <Button
+                              variant={lrcSection === 'commentary' ? 'default' : 'outline'}
+                              size="sm"
+                              onClick={() => setLrcSection('commentary')}
+                            >
+                              Коментар
+                            </Button>
+                          </div>
+
+                          {/* LRC Editor */}
+                          <LRCEditor
+                            verseId={id}
+                            audioUrl={fullVerseAudioUrl}
+                            initialText={
+                              lrcSection === 'sanskrit'
+                                ? sanskritUk || sanskritEn
+                                : lrcSection === 'translation'
+                                  ? translationUk || translationEn
+                                  : commentaryUk || commentaryEn
+                            }
+                            section={lrcSection}
+                            onSave={async (lrcContent) => {
+                              // TODO: Save to verse_lyrics table
+                              try {
+                                await supabase.from('verse_lyrics').upsert({
+                                  verse_id: id,
+                                  audio_type: 'full',
+                                  language: 'uk',
+                                  lrc_content: lrcContent,
+                                  sync_type: 'line',
+                                }, {
+                                  onConflict: 'verse_id,audio_type,language',
+                                });
+                                toast({
+                                  title: "LRC збережено",
+                                  description: `Timestamps для ${lrcSection} збережено`,
+                                });
+                              } catch (error) {
+                                toast({
+                                  title: "Помилка",
+                                  description: (error as any).message,
+                                  variant: "destructive",
+                                });
+                              }
+                            }}
+                            onCancel={() => setShowLRCEditor(false)}
+                          />
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 </div>
               )}
             </div>
@@ -571,6 +831,28 @@ export default function AddEditVerse() {
               <Button type="submit" disabled={mutation.isPending}>
                 {mutation.isPending ? "Збереження..." : "Зберегти"}
               </Button>
+              {/* Show "Save & Add Another" only for new verses */}
+              {!id && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={mutation.isPending}
+                  onClick={() => {
+                    if (!chapterId || !verseNumber) {
+                      toast({
+                        title: "Помилка",
+                        description: "Заповніть обов'язкові поля: глава та номер вірша",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                    setAddAnother(true);
+                    mutation.mutate();
+                  }}
+                >
+                  {mutation.isPending ? "Збереження..." : "Зберегти та додати ще"}
+                </Button>
+              )}
               <Button type="button" variant="outline" onClick={() => navigate("/admin/scripture")}>
                 Скасувати
               </Button>

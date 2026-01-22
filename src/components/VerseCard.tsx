@@ -304,10 +304,10 @@ export const VerseCard = ({
   // Парсинг синонімів - використовуємо єдиний парсер з glossaryParser.ts
   const synonymPairs = parseSynonymPairs(isEditing ? edited.synonyms : synonyms);
 
-  // Визначаємо класи для контуру (не показуємо на мобільних для мінімалістичного дизайну)
+  // Визначаємо класи для контуру
   const contourClasses = isNowPlaying
     ? 'ring-2 ring-primary ring-offset-2 ring-offset-background now-playing'
-    : showVerseContour && !isMobile
+    : showVerseContour
       ? 'ring-1 ring-primary/30 ring-offset-1 ring-offset-background verse-contour'
       : '';
 
@@ -317,7 +317,7 @@ export const VerseCard = ({
       className={`verse-surface w-full animate-fade-in ${contourClasses}`}
     >
       <div
-        className="pb-6"
+        className="pt-2 pb-6"
         style={{
           fontSize: `${fontSize}px`,
           lineHeight,
@@ -325,7 +325,7 @@ export const VerseCard = ({
       >
         {/* НОМЕР ВІРША - відцентрований */}
         {showNumbers && (
-          <div className="flex flex-col items-center justify-center gap-2 mb-6 verse-number-block">
+          <div className="flex flex-col items-center justify-center gap-2 mb-4 verse-number-block">
             {isAdmin && verseId ? (
               <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} bookSlug={bookSlug} />
             ) : (

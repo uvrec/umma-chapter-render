@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "@/hooks/use-toast";
 import { BookOpen, CheckCircle, Loader2, Database } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -14,26 +16,34 @@ import bbtData from "@/data/bbt-parsed.json";
 
 interface ParsedChapter {
   chapter_number: number;
-  title_ua: string;
+  title_uk: string;
   verses: {
     verse_number: string;
-    transliteration_ua?: string;
-    synonyms_ua?: string;
-    translation_ua?: string;
-    commentary_ua?: string;
+    transliteration_uk?: string;
+    synonyms_uk?: string;
+    translation_uk?: string;
+    commentary_uk?: string;
   }[];
 }
 
 interface ParsedIntro {
   slug: string;
-  title_ua: string;
-  content_ua: string;
+  title_uk: string;
+  content_uk: string;
   display_order: number;
 }
 
 export default function BBTImport() {
+  const { user, isAdmin } = useAuth();
+  const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
   const [saveProgress, setSaveProgress] = useState(0);
+
+  useEffect(() => {
+    if (!user || !isAdmin) {
+      navigate("/auth");
+    }
+  }, [user, isAdmin, navigate]);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(() => {
     // Auto-select all items
     const allIds = new Set<string>();
@@ -94,7 +104,7 @@ export default function BBTImport() {
           // Update chapter title if needed
           await supabase
             .from("chapters")
-            .update({ title_ua: chapter.title_uk.replace(/\n/g, ' ') })
+            .update({ title_uk: chapter.title_uk.replace(/\n/g, ' ') })
             .eq("id", chapterId);
         } else {
           // Create new chapter
@@ -103,7 +113,7 @@ export default function BBTImport() {
             .insert({
               book_id: bookId,
               chapter_number: chapter.chapter_number,
-              title_ua: chapter.title_uk.replace(/\n/g, ' '),
+              title_uk: chapter.title_uk.replace(/\n/g, ' '),
               title_en: chapter.title_uk.replace(/\n/g, ' '), // Fallback
             })
             .select("id")
@@ -131,10 +141,10 @@ export default function BBTImport() {
             const { error } = await supabase
               .from("verses")
               .update({
-                transliteration_ua: verse.transliteration_ua,
-                synonyms_ua: verse.synonyms_uk,
-                translation_ua: verse.translation_uk,
-                commentary_ua: verse.commentary_ua,
+                transliteration_uk: verse.transliteration_uk,
+                synonyms_uk: verse.synonyms_uk,
+                translation_uk: verse.translation_uk,
+                commentary_uk: verse.commentary_uk,
               })
               .eq("id", existingVerse.id);
 
@@ -148,10 +158,10 @@ export default function BBTImport() {
             const { error } = await supabase.from("verses").insert({
               chapter_id: chapterId,
               verse_number: verse.verse_number,
-              transliteration_ua: verse.transliteration_ua,
-              synonyms_ua: verse.synonyms_uk,
-              translation_ua: verse.translation_uk,
-              commentary_ua: verse.commentary_ua,
+              transliteration_uk: verse.transliteration_uk,
+              synonyms_uk: verse.synonyms_uk,
+              translation_uk: verse.translation_uk,
+              commentary_uk: verse.commentary_uk,
             });
 
             if (error) {
@@ -181,8 +191,8 @@ export default function BBTImport() {
           const { error } = await supabase
             .from("intro_chapters")
             .update({
-              title_ua: intro.title_uk,
-              content_ua: intro.content_uk,
+              title_uk: intro.title_uk,
+              content_uk: intro.content_uk,
               display_order: intro.display_order,
             })
             .eq("id", existingIntro.id);
@@ -197,9 +207,9 @@ export default function BBTImport() {
           const { error } = await supabase.from("intro_chapters").insert({
             book_id: bookId,
             slug: intro.slug,
-            title_ua: intro.title_uk,
+            title_uk: intro.title_uk,
             title_en: intro.title_uk, // Fallback
-            content_ua: intro.content_uk,
+            content_uk: intro.content_uk,
             display_order: intro.display_order,
           });
 
@@ -250,6 +260,8 @@ export default function BBTImport() {
       setSelectedItems(allIds);
     }
   };
+
+  if (!user || !isAdmin) return null;
 
   return (
     <div className="container mx-auto py-8 space-y-6">

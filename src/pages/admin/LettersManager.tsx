@@ -3,9 +3,10 @@
  * /admin/letters
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -45,8 +46,15 @@ import { toast } from "sonner";
 
 export default function LettersManager() {
   const navigate = useNavigate();
+  const { user, isAdmin } = useAuth();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    if (!user || !isAdmin) {
+      navigate("/auth");
+    }
+  }, [user, isAdmin, navigate]);
   const [editingLetter, setEditingLetter] = useState<Letter | null>(null);
 
   // Завантажити листи
@@ -70,11 +78,12 @@ export default function LettersManager() {
         .from("letters")
         .update({
           recipient_en: letter.recipient_en,
-          recipient_ua: letter.recipient_ua,
+          recipient_uk: letter.recipient_uk,
           location_en: letter.location_en,
-          location_ua: letter.location_ua,
+          location_uk: letter.location_uk,
           content_en: letter.content_en,
-          content_ua: letter.content_uk,
+          content_uk: letter.content_uk,
+          letter_date: letter.letter_date,
         })
         .eq("id", letter.id);
 
@@ -113,7 +122,7 @@ export default function LettersManager() {
     const transliterated = transliterateIAST(editingLetter.content_en);
     setEditingLetter({
       ...editingLetter,
-      content_ua: transliterated,
+      content_uk: transliterated,
     });
     toast.success("Транслітерацію застосовано");
   };
@@ -156,7 +165,7 @@ export default function LettersManager() {
 
       setEditingLetter({
         ...editingLetter,
-        content_ua: data.translated,
+        content_uk: data.translated,
       });
 
       toast.success(
@@ -177,6 +186,8 @@ export default function LettersManager() {
       l.slug?.toLowerCase().includes(search.toLowerCase()) ||
       l.location_en?.toLowerCase().includes(search.toLowerCase())
   );
+
+  if (!user || !isAdmin) return null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -326,13 +337,13 @@ export default function LettersManager() {
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Отримувач (UA)</label>
+                    <label className="text-sm font-medium">Отримувач (UK)</label>
                     <Input
-                      value={editingLetter.recipient_ua || ""}
+                      value={editingLetter.recipient_uk || ""}
                       onChange={(e) =>
                         setEditingLetter({
                           ...editingLetter,
-                          recipient_ua: e.target.value,
+                          recipient_uk: e.target.value,
                         })
                       }
                     />
@@ -350,13 +361,26 @@ export default function LettersManager() {
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Локація (UA)</label>
+                    <label className="text-sm font-medium">Локація (UK)</label>
                     <Input
-                      value={editingLetter.location_ua || ""}
+                      value={editingLetter.location_uk || ""}
                       onChange={(e) =>
                         setEditingLetter({
                           ...editingLetter,
-                          location_ua: e.target.value,
+                          location_uk: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Дата листа</label>
+                    <Input
+                      type="date"
+                      value={editingLetter.letter_date || ""}
+                      onChange={(e) =>
+                        setEditingLetter({
+                          ...editingLetter,
+                          letter_date: e.target.value,
                         })
                       }
                     />
@@ -414,7 +438,7 @@ export default function LettersManager() {
                         onChange={(e) =>
                           setEditingLetter({
                             ...editingLetter,
-                            content_ua: e.target.value,
+                            content_uk: e.target.value,
                           })
                         }
                         rows={15}

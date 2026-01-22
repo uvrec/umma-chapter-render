@@ -13,17 +13,15 @@ import { useNavigate } from "react-router-dom";
 import {
   Info,
   ChevronRight,
-  ChevronDown,
   Check,
   X,
   MessageCircle,
   Lock,
   Send,
+  Facebook,
   Instagram,
   Youtube,
   Heart,
-  Wallet,
-  Building2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -127,13 +125,19 @@ function saveReminders(settings: ReminderSettings) {
   }
 }
 
-// Social + Support links for contact section
-const EXTERNAL_LINKS = [
+// Social links for contact section
+const SOCIAL_LINKS = [
   {
     id: "telegram",
     label: "Telegram",
     icon: Send,
     url: "https://t.me/prabhupada_ua",
+  },
+  {
+    id: "facebook",
+    label: "Facebook",
+    icon: Facebook,
+    url: "https://facebook.com/prabhupada.ua",
   },
   {
     id: "instagram",
@@ -147,18 +151,6 @@ const EXTERNAL_LINKS = [
     icon: Youtube,
     url: "https://youtube.com/@prabhupada_ua",
   },
-  {
-    id: "paypal",
-    label: "PayPal",
-    icon: Wallet,
-    url: "https://paypal.me/andriiuvarov",
-  },
-  {
-    id: "monobank",
-    label: "Monobank",
-    icon: Building2,
-    url: "https://send.monobank.ua/jar/YAmYDYgti",
-  },
 ];
 
 export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
@@ -169,7 +161,6 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
   const [showRemindersSheet, setShowRemindersSheet] = useState(false);
   const [reminders, setReminders] = useState<ReminderSettings>(loadReminders);
   const [activeBookId, setActiveBookId] = useState("prabhupada-uk");
-  const [showSupportSection, setShowSupportSection] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -184,30 +175,6 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
   const handleNavigate = (path: string) => {
     navigate(getLocalizedPath(path));
     onClose();
-  };
-
-  // Handle language change with URL navigation
-  const handleLanguageChange = (newLang: "uk" | "en") => {
-    if (newLang === language) return;
-
-    setLanguage(newLang);
-
-    // Navigate to the same page in new language
-    const currentPath = window.location.pathname;
-    let newPath: string;
-
-    if (currentPath.startsWith('/uk/')) {
-      newPath = currentPath.replace('/uk/', `/${newLang}/`);
-    } else if (currentPath.startsWith('/en/')) {
-      newPath = currentPath.replace('/en/', `/${newLang}/`);
-    } else if (currentPath === '/uk' || currentPath === '/en') {
-      newPath = `/${newLang}`;
-    } else {
-      // No language prefix - add it
-      newPath = `/${newLang}${currentPath}`;
-    }
-
-    navigate(newPath);
   };
 
   const handleSelectBook = (id: string) => {
@@ -310,7 +277,7 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
             </Label>
             <div className="flex gap-2">
               <button
-                onClick={() => handleLanguageChange("uk")}
+                onClick={() => setLanguage("uk")}
                 className={cn(
                   "flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors",
                   language === "uk"
@@ -321,7 +288,7 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
                 Українська
               </button>
               <button
-                onClick={() => handleLanguageChange("en")}
+                onClick={() => setLanguage("en")}
                 className={cn(
                   "flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors",
                   language === "en"
@@ -508,7 +475,7 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
               </button>
 
               <button
-                onClick={() => setShowSupportSection(!showSupportSection)}
+                onClick={() => handleNavigate("/support")}
                 className="w-full flex items-center justify-between px-2 py-3
                   hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
               >
@@ -516,97 +483,49 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
                   <Heart className="h-5 w-5 text-muted-foreground" />
                   <span>{t("Підтримати проєкт", "Support the Project")}</span>
                 </span>
-                <ChevronDown className={cn(
-                  "h-5 w-5 text-muted-foreground transition-transform",
-                  showSupportSection && "rotate-180"
-                )} />
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
               </button>
-
-              {/* Expandable Support Section */}
-              {showSupportSection && (
-                <div className="px-2 py-3 space-y-3 animate-in slide-in-from-top-2 duration-200">
-                  <p className="text-sm text-muted-foreground">
-                    {t(
-                      "Якщо ви хочете підтримати проєкт, ви можете зробити це через:",
-                      "If you want to support the project, you can do so via:"
-                    )}
-                  </p>
-                  <div className="flex flex-col gap-2">
-                    <button
-                      onClick={() => window.open("https://paypal.me/andriiuvarov", '_blank', 'noopener,noreferrer')}
-                      className="flex items-center justify-between px-4 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-                    >
-                      <span className="flex items-center gap-2">
-                        <CreditCard className="h-5 w-5" />
-                        <span className="font-medium">PayPal</span>
-                      </span>
-                      <ExternalLink className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => window.open("https://send.monobank.ua/jar/YAmYDYgti", '_blank', 'noopener,noreferrer')}
-                      className="flex items-center justify-between px-4 py-3 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors"
-                    >
-                      <span className="flex items-center gap-2">
-                        <Building className="h-5 w-5" />
-                        <span className="font-medium">Monobank</span>
-                      </span>
-                      <ExternalLink className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
 
           <Separator />
 
-          {/* 5. CONTACT & SUPPORT Section - 2-column icon grid */}
+          {/* 5. CONTACT Section - Social Links */}
           <div>
             <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
-              {t("Зв'язок і підтримка", "Contact & Support")}
+              {t("Зв'язатися з нами", "Contact Us")}
             </Label>
-            <div className="grid grid-cols-2 gap-3">
-              {EXTERNAL_LINKS.map((link) => {
+            <div className="space-y-1">
+              {SOCIAL_LINKS.map((link) => {
                 const Icon = link.icon;
-                const isInternal = "internal" in link && link.internal;
-
-                if (isInternal) {
-                  return (
-                    <button
-                      key={link.id}
-                      onClick={() => handleNavigate(link.url)}
-                      className="flex items-center justify-center p-3
-                        hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
-                      aria-label={link.label}
-                    >
-                      <Icon className="h-6 w-6 text-muted-foreground" />
-                    </button>
-                  );
-                }
-
                 return (
                   <a
                     key={link.id}
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center p-3
+                    className="w-full flex items-center px-2 py-3
                       hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
-                    aria-label={link.label}
                   >
-                    <Icon className="h-6 w-6 text-muted-foreground" />
+                    <span className="flex items-center gap-3">
+                      <Icon className="h-5 w-5 text-muted-foreground" />
+                      <span>{link.label}</span>
+                    </span>
                   </a>
                 );
               })}
 
-              {/* Direct message button */}
+              {/* Direct message option */}
               <button
                 onClick={() => handleNavigate("/contact")}
-                className="flex items-center justify-center p-3
+                className="w-full flex items-center justify-between px-2 py-3
                   hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
-                aria-label={t("Написати нам", "Write to Us")}
               >
-                <MessageCircle className="h-6 w-6 text-muted-foreground" />
+                <span className="flex items-center gap-3">
+                  <MessageCircle className="h-5 w-5 text-muted-foreground" />
+                  <span>{t("Написати нам", "Write to Us")}</span>
+                </span>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
               </button>
             </div>
           </div>

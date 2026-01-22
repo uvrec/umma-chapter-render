@@ -32,7 +32,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
   const [isImportingBook, setIsImportingBook] = useState(false);
   const [selectedBookId, setSelectedBookId] = useState<string>("");
   const [selectedCantoId, setSelectedCantoId] = useState<string>("");
-  const [originalTitles, setOriginalTitles] = useState<{ ua?: string; en?: string }>({});
+  const [originalTitles, setOriginalTitles] = useState<{ uk?: string; en?: string }>({});
   
   type ImportStrategy = 'replace' | 'upsert';
   const [importStrategy, setImportStrategy] = useState<ImportStrategy>('upsert');
@@ -88,7 +88,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
   useEffect(() => {
     if (existingChapter?.title_uk || existingChapter?.title_en) {
       setOriginalTitles({
-        ua: existingChapter.title_uk,
+        uk: existingChapter.title_uk,
         en: existingChapter.title_en,
       });
     }
@@ -181,8 +181,8 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
     };
 
     // Видалити назви якщо вони не змінені або є fallback
-    if (isFallbackOrUnchanged(safeChapter.title_uk, originalTitles.ua)) {
-      console.log('🔍 PreviewStep: Видаляємо title_ua (fallback/unchanged)');
+    if (isFallbackOrUnchanged(safeChapter.title_uk, originalTitles.uk)) {
+      console.log('🔍 PreviewStep: Видаляємо title_uk (fallback/unchanged)');
       delete safeChapter.title_uk;
     }
     if (isFallbackOrUnchanged(safeChapter.title_en, originalTitles.en)) {
@@ -192,9 +192,9 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
     
     console.log('🔍 PreviewStep: Відправляю главу', {
       chapter_number: safeChapter.chapter_number,
-      title_ua: safeChapter.title_uk,
+      title_uk: safeChapter.title_uk,
       title_en: safeChapter.title_en,
-      title_ua_deleted: !safeChapter.title_uk,
+      title_uk_deleted: !safeChapter.title_uk,
       title_en_deleted: !safeChapter.title_en,
       strategy: importStrategy,
       verses_count: safeChapter.verses?.length
@@ -348,10 +348,10 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
         </div>
 
         <div>
-          <Label>Назва глави (UA)</Label>
+          <Label>Назва глави (UK)</Label>
           <Input
             value={editedChapter.title_uk || ""}
-            onChange={(e) => setEditedChapter({ ...editedChapter, title_ua: e.target.value })}
+            onChange={(e) => setEditedChapter({ ...editedChapter, title_uk: e.target.value })}
           />
         </div>
 
@@ -370,7 +370,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
           <div className="p-4 border rounded-lg">
             <EnhancedInlineEditor
               content={editedChapter.content_uk || ""}
-              onChange={(html) => setEditedChapter({ ...editedChapter, content_ua: html })}
+              onChange={(html) => setEditedChapter({ ...editedChapter, content_uk: html })}
               label="Текст українською (форматування зберігається)"
             />
           </div>
@@ -406,27 +406,27 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
                       />
                     </div>
                     <div>
-                      <Label className="text-xs">Синоніми (UA)</Label>
+                      <Label className="text-xs">Синоніми (UK)</Label>
                       <Textarea
                         value={verse.synonyms_uk || ""}
-                        onChange={(e) => updateVerse(index, "synonyms_ua", e.target.value)}
+                        onChange={(e) => updateVerse(index, "synonyms_uk", e.target.value)}
                         rows={3}
                       />
                     </div>
                     <div>
-                      <Label className="text-xs">Переклад (UA)</Label>
+                      <Label className="text-xs">Переклад (UK)</Label>
                       <Textarea
                         value={verse.translation_uk || ""}
-                        onChange={(e) => updateVerse(index, "translation_ua", e.target.value)}
+                        onChange={(e) => updateVerse(index, "translation_uk", e.target.value)}
                         rows={3}
                       />
                     </div>
                     <div>
-                      <Label className="text-xs">Пояснення (UA)</Label>
+                      <Label className="text-xs">Пояснення (UK)</Label>
                       <EnhancedInlineEditor
-                        content={verse.commentary_ua || ""}
-                        onChange={(html) => updateVerse(index, "commentary_ua", html)}
-                        label="Пояснення (UA) — форматування зберігається"
+                        content={verse.commentary_uk || ""}
+                        onChange={(html) => updateVerse(index, "commentary_uk", html)}
+                        label="Пояснення (UK) — форматування зберігається"
                       />
                     </div>
                   </div>

@@ -213,7 +213,7 @@ export function VerseSelector({ selectedVerseId, onVerseSelect }: VerseSelectorP
                 ) : (
                   books?.map((book) => (
                     <SelectItem key={book.id} value={book.id}>
-                      {book[language === 'uk' ? 'title_ua' : 'title_en']}
+                      {book[language === 'uk' ? 'title_uk' : 'title_en']}
                     </SelectItem>
                   ))
                 )}
@@ -244,7 +244,7 @@ export function VerseSelector({ selectedVerseId, onVerseSelect }: VerseSelectorP
                     chapters?.map((chapter) => (
                       <SelectItem key={chapter.id} value={chapter.id}>
                         Розділ {chapter.chapter_number}
-                        {chapter.title_uk && `: ${chapter[language === 'uk' ? 'title_ua' : 'title_en']}`}
+                        {chapter.title_uk && `: ${chapter[language === 'uk' ? 'title_uk' : 'title_en']}`}
                       </SelectItem>
                     ))
                   )}
@@ -299,7 +299,7 @@ export function VerseSelector({ selectedVerseId, onVerseSelect }: VerseSelectorP
                           </p>
                         )}
                         <p className="text-sm line-clamp-2">
-                          {verse[language === 'uk' ? 'translation_ua' : 'translation_en']}
+                          {verse[language === 'uk' ? 'translation_uk' : 'translation_en']}
                         </p>
                       </CardContent>
                     </Card>

@@ -8,7 +8,6 @@ import { useQuery } from "@tanstack/react-query";
 import { X, Search, Book, Hash, User, Clock, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useSpineTheme } from "@/contexts/SpineThemeContext";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -84,7 +83,6 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { t, getLocalizedPath, language } = useLanguage();
-  const { gradient: spineGradient } = useSpineTheme();
 
   // ✅ Smooth translate-x animation on open/close
   useEffect(() => {
@@ -307,14 +305,14 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
   return (
     <div
       className={cn(
-        "fixed left-14 top-0 bottom-0 z-[60] flex flex-col",
+        "fixed left-14 top-0 bottom-0 z-[40] flex flex-col",
         "transition-transform duration-300 ease-out",
         isAnimating ? "translate-x-0" : "-translate-x-full"
       )}
       style={{ width: 'calc(100% - 56px)' }}
     >
-      {/* Gradient Header - follows Spine theme */}
-      <div className={cn("bg-gradient-to-r pt-safe", spineGradient)}>
+      {/* Gradient Header */}
+      <div className="bg-gradient-to-r from-brand-500 to-brand-400 pt-safe">
         <div className="flex items-center gap-3 px-4 py-4">
           <div className="relative flex-1">
             <Input

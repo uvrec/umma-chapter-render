@@ -16,15 +16,15 @@ export interface PageBlock {
   id: string;
   type: BlockType;
   content: {
-    text_ua?: string;
+    text_uk?: string;
     text_en?: string;
     level?: number;
     sanskrit?: string;
     transliteration?: string;
     synonyms?: string;
-    translation_ua?: string;
+    translation_uk?: string;
     translation_en?: string;
-    commentary_ua?: string;
+    commentary_uk?: string;
     commentary_en?: string;
     display_blocks?: {
       sanskrit: boolean;
@@ -34,7 +34,7 @@ export interface PageBlock {
       commentary: boolean;
     };
     url?: string;
-    caption_ua?: string;
+    caption_uk?: string;
     caption_en?: string;
   };
   order: number;
@@ -206,8 +206,8 @@ export function PageBuilder({ sections, onChange }: PageBuilderProps) {
                     </div>
                     {activeTab === "uk" ? (
                       <TiptapEditor
-                        content={block.content.text_ua || ""}
-                        onChange={(val) => updateBlock(block.id, { content: { ...block.content, text_ua: val } })}
+                        content={block.content.text_uk || ""}
+                        onChange={(val) => updateBlock(block.id, { content: { ...block.content, text_uk: val } })}
                         placeholder="Введіть текст українською..."
                       />
                     ) : (
@@ -239,10 +239,10 @@ export function PageBuilder({ sections, onChange }: PageBuilderProps) {
                       </Select>
                     </div>
                     <div>
-                      <Label>Текст (UA)</Label>
+                      <Label>Текст (UK)</Label>
                       <Input
-                        value={block.content.text_ua || ""}
-                        onChange={(e) => updateBlock(block.id, { content: { ...block.content, text_ua: e.target.value } })}
+                        value={block.content.text_uk || ""}
+                        onChange={(e) => updateBlock(block.id, { content: { ...block.content, text_uk: e.target.value } })}
                         placeholder="Заголовок українською"
                       />
                     </div>
@@ -284,10 +284,10 @@ export function PageBuilder({ sections, onChange }: PageBuilderProps) {
                       />
                     </div>
                     <div>
-                      <Label>Переклад (UA)</Label>
+                      <Label>Переклад (UK)</Label>
                       <TiptapEditor
-                        content={block.content.translation_ua || ""}
-                        onChange={(val) => updateBlock(block.id, { content: { ...block.content, translation_ua: val } })}
+                        content={block.content.translation_uk || ""}
+                        onChange={(val) => updateBlock(block.id, { content: { ...block.content, translation_uk: val } })}
                       />
                     </div>
                     <div>
@@ -298,10 +298,10 @@ export function PageBuilder({ sections, onChange }: PageBuilderProps) {
                       />
                     </div>
                     <div>
-                      <Label>Коментар (UA)</Label>
+                      <Label>Коментар (UK)</Label>
                       <TiptapEditor
-                        content={block.content.commentary_ua || ""}
-                        onChange={(val) => updateBlock(block.id, { content: { ...block.content, commentary_ua: val } })}
+                        content={block.content.commentary_uk || ""}
+                        onChange={(val) => updateBlock(block.id, { content: { ...block.content, commentary_uk: val } })}
                       />
                     </div>
                     <div>
@@ -349,10 +349,10 @@ export function PageBuilder({ sections, onChange }: PageBuilderProps) {
                       />
                     </div>
                     <div>
-                      <Label>Підпис (UA)</Label>
+                      <Label>Підпис (UK)</Label>
                       <Input
-                        value={block.content.caption_ua || ""}
-                        onChange={(e) => updateBlock(block.id, { content: { ...block.content, caption_ua: e.target.value } })}
+                        value={block.content.caption_uk || ""}
+                        onChange={(e) => updateBlock(block.id, { content: { ...block.content, caption_uk: e.target.value } })}
                       />
                     </div>
                     <div>

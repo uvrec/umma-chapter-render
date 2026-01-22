@@ -2,72 +2,102 @@
 // Нижня навігаційна панель для мобільних пристроїв
 
 import { useLocation, useNavigate } from "react-router-dom";
-import { Book, Headphones, Calendar, Search, User } from "lucide-react";
+import { Home, Book, Headphones, Calendar, User } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
 interface TabItem {
   id: string;
   icon: React.ElementType;
-  labelUa: string;
+  labelUk: string;
   labelEn: string;
-  path: string;
-  matchPaths?: string[];
+  basePath: string; // Base path without language prefix
+  matchPaths?: string[]; // Paths to match (without language prefix)
+  exactMatch?: boolean;
+  nonLocalized?: boolean; // For paths like /auth that don't have language prefix
 }
 
 const tabs: TabItem[] = [
   {
+    id: "home",
+    icon: Home,
+    labelUk: "Головна",
+    labelEn: "Home",
+    basePath: "/",
+    exactMatch: true,
+  },
+  {
     id: "library",
     icon: Book,
-    labelUa: "Бібліотека",
+    labelUk: "Бібліотека",
     labelEn: "Library",
-    path: "/library",
-    matchPaths: ["/library", "/veda-reader"],
+    basePath: "/library",
+    matchPaths: ["/library", "/lib", "/veda-reader"],
   },
   {
     id: "audio",
     icon: Headphones,
-    labelUa: "Аудіо",
+    labelUk: "Аудіо",
     labelEn: "Audio",
-    path: "/audio",
+    basePath: "/audio",
     matchPaths: ["/audio", "/audiobooks"],
   },
   {
     id: "calendar",
     icon: Calendar,
-    labelUa: "Календар",
+    labelUk: "Календар",
     labelEn: "Calendar",
-    path: "/calendar",
+    basePath: "/calendar",
     matchPaths: ["/calendar"],
-  },
-  {
-    id: "search",
-    icon: Search,
-    labelUa: "Пошук",
-    labelEn: "Search",
-    path: "/search",
-    matchPaths: ["/search"],
   },
   {
     id: "profile",
     icon: User,
-    labelUa: "Профіль",
+    labelUk: "Профіль",
     labelEn: "Profile",
-    path: "/auth",
-    matchPaths: ["/auth", "/stats", "/admin"],
+    basePath: "/auth",
+    matchPaths: ["/auth", "/stats", "/admin", "/search"],
+    nonLocalized: true, // /auth doesn't have language prefix
   },
 ];
 
 export function MobileTabBar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { language } = useLanguage();
+  const { language, getLocalizedPath } = useLanguage();
+
+  // Remove language prefix from pathname for matching
+  const getPathWithoutLang = (pathname: string) => {
+    const match = pathname.match(/^\/(uk|en)(\/.*)?$/);
+    return match ? (match[2] || '/') : pathname;
+  };
+
+  const pathWithoutLang = getPathWithoutLang(location.pathname);
 
   const isActive = (tab: TabItem) => {
-    if (tab.matchPaths) {
-      return tab.matchPaths.some((p) => location.pathname.startsWith(p));
+    // For non-localized paths, check original pathname
+    if (tab.nonLocalized) {
+      if (tab.matchPaths) {
+        return tab.matchPaths.some((p) => location.pathname.startsWith(p));
+      }
+      return location.pathname === tab.basePath;
     }
-    return location.pathname === tab.path;
+
+    // For localized paths, check path without language prefix
+    if (tab.exactMatch) {
+      return pathWithoutLang === '/' || pathWithoutLang === '';
+    }
+    if (tab.matchPaths) {
+      return tab.matchPaths.some((p) => pathWithoutLang.startsWith(p));
+    }
+    return pathWithoutLang === tab.basePath;
+  };
+
+  const getTabPath = (tab: TabItem) => {
+    if (tab.nonLocalized) {
+      return tab.basePath;
+    }
+    return getLocalizedPath(tab.basePath);
   };
 
   return (
@@ -76,12 +106,12 @@ export function MobileTabBar() {
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const active = isActive(tab);
-          const label = language === "uk" ? tab.labelUa : tab.labelEn;
+          const label = language === "uk" ? tab.labelUk : tab.labelEn;
 
           return (
             <button
               key={tab.id}
-              onClick={() => navigate(tab.path)}
+              onClick={() => navigate(getTabPath(tab))}
               className={cn(
                 "flex flex-col items-center justify-center flex-1 h-full py-1 px-2 transition-colors",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",

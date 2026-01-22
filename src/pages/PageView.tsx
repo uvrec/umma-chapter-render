@@ -28,11 +28,11 @@ export const PageView = () => {
   const queryClient = useQueryClient();
   
   const [isEditMode, setIsEditMode] = useState(false);
-  const [editedTitleUa, setEditedTitleUa] = useState("");
+  const [editedTitleUk, setEditedTitleUk] = useState("");
   const [editedTitleEn, setEditedTitleEn] = useState("");
-  const [editedMetaDescriptionUa, setEditedMetaDescriptionUa] = useState("");
+  const [editedMetaDescriptionUk, setEditedMetaDescriptionUk] = useState("");
   const [editedMetaDescriptionEn, setEditedMetaDescriptionEn] = useState("");
-  const [editedContentUa, setEditedContentUa] = useState("");
+  const [editedContentUk, setEditedContentUk] = useState("");
   const [editedContentEn, setEditedContentEn] = useState("");
   const [editedHeroImageUrl, setEditedHeroImageUrl] = useState("");
   const [editedBannerImageUrl, setEditedBannerImageUrl] = useState("");
@@ -58,11 +58,11 @@ export const PageView = () => {
 
   useEffect(() => {
     if (page) {
-      setEditedTitleUa(page.title_uk || "");
+      setEditedTitleUk(page.title_uk || "");
       setEditedTitleEn(page.title_en || "");
-      setEditedMetaDescriptionUa(page.meta_description_uk || "");
+      setEditedMetaDescriptionUk(page.meta_description_uk || "");
       setEditedMetaDescriptionEn(page.meta_description_en || "");
-      setEditedContentUa(page.content_uk || "");
+      setEditedContentUk(page.content_uk || "");
       setEditedContentEn(page.content_en || "");
       setEditedHeroImageUrl(page.hero_image_url || "");
       setEditedBannerImageUrl(page.banner_image_url || "");
@@ -87,11 +87,11 @@ export const PageView = () => {
       const { error } = await supabase
         .from('pages')
         .update({
-          title_ua: editedTitleUa,
+          title_uk: editedTitleUk,
           title_en: editedTitleEn,
-          meta_description_ua: editedMetaDescriptionUa,
+          meta_description_uk: editedMetaDescriptionUk,
           meta_description_en: editedMetaDescriptionEn,
-          content_ua: editedContentUa,
+          content_uk: editedContentUk,
           content_en: editedContentEn,
           hero_image_url: editedHeroImageUrl || null,
           banner_image_url: editedBannerImageUrl || null,
@@ -120,7 +120,7 @@ export const PageView = () => {
   });
 
   const handleSave = () => {
-    if (!editedTitleUa || !editedTitleEn) {
+    if (!editedTitleUk || !editedTitleEn) {
       toast({
         title: "Помилка валідації",
         description: "Заголовки обов'язкові для заповнення",
@@ -133,11 +133,11 @@ export const PageView = () => {
 
   const handleCancel = () => {
     if (page) {
-      setEditedTitleUa(page.title_uk || "");
+      setEditedTitleUk(page.title_uk || "");
       setEditedTitleEn(page.title_en || "");
-      setEditedMetaDescriptionUa(page.meta_description_uk || "");
+      setEditedMetaDescriptionUk(page.meta_description_uk || "");
       setEditedMetaDescriptionEn(page.meta_description_en || "");
-      setEditedContentUa(page.content_uk || "");
+      setEditedContentUk(page.content_uk || "");
       setEditedContentEn(page.content_en || "");
       setEditedHeroImageUrl(page.hero_image_url || "");
       setEditedBannerImageUrl(page.banner_image_url || "");
@@ -173,15 +173,15 @@ export const PageView = () => {
   }
 
   const title = isEditMode 
-    ? (language === "uk" ? editedTitleUa : editedTitleEn)
+    ? (language === "uk" ? editedTitleUk : editedTitleEn)
     : (language === "uk" ? page.title_uk : page.title_en);
   
   const metaDescription = isEditMode
-    ? (language === "uk" ? editedMetaDescriptionUa : editedMetaDescriptionEn)
+    ? (language === "uk" ? editedMetaDescriptionUk : editedMetaDescriptionEn)
     : (language === "uk" ? page.meta_description_uk : page.meta_description_en);
 
   const content = isEditMode
-    ? (language === "uk" ? editedContentUa : editedContentEn)
+    ? (language === "uk" ? editedContentUk : editedContentEn)
     : (language === "uk" ? page.content_uk : page.content_en);
 
   const heroImageUrl = isEditMode ? editedHeroImageUrl : page.hero_image_url;
@@ -190,9 +190,9 @@ export const PageView = () => {
   return (
     <div className="min-h-screen bg-background">
       <PageMeta
-        titleUa={page.title_uk}
+        titleUk={page.title_uk}
         titleEn={page.title_en}
-        metaDescriptionUa={page.meta_description_uk || ""}
+        metaDescriptionUk={page.meta_description_uk || ""}
         metaDescriptionEn={page.meta_description_en || ""}
         ogImage={page.og_image || ""}
         seoKeywords={page.seo_keywords || ""}
@@ -214,10 +214,10 @@ export const PageView = () => {
           {isEditMode ? (
             <>
               <InlineEditableBlock
-                value={language === "uk" ? editedTitleUa : editedTitleEn}
-                onChange={language === "uk" ? setEditedTitleUa : setEditedTitleEn}
+                value={language === "uk" ? editedTitleUk : editedTitleEn}
+                onChange={language === "uk" ? setEditedTitleUk : setEditedTitleEn}
                 type="text"
-                label={`Заголовок (${language === "uk" ? "UA" : "EN"})`}
+                label={`Заголовок (${language === "uk" ? "UK" : "EN"})`}
                 isEditing={isEditMode}
                 placeholder="Заголовок сторінки"
               />
@@ -228,10 +228,10 @@ export const PageView = () => {
           
           {isEditMode ? (
             <InlineEditableBlock
-              value={language === "uk" ? editedMetaDescriptionUa : editedMetaDescriptionEn}
-              onChange={language === "uk" ? setEditedMetaDescriptionUa : setEditedMetaDescriptionEn}
+              value={language === "uk" ? editedMetaDescriptionUk : editedMetaDescriptionEn}
+              onChange={language === "uk" ? setEditedMetaDescriptionUk : setEditedMetaDescriptionEn}
               type="textarea"
-              label={`Опис (${language === "uk" ? "UA" : "EN"})`}
+              label={`Опис (${language === "uk" ? "UK" : "EN"})`}
               isEditing={isEditMode}
               placeholder="Короткий опис сторінки"
               className="mb-8"
@@ -285,12 +285,12 @@ export const PageView = () => {
 
             {isEditMode ? (
               <EnhancedInlineEditor
-                content={language === "uk" ? editedContentUa : editedContentEn}
-                onChange={language === "uk" ? setEditedContentUa : setEditedContentEn}
-                label={`Контент (${language === "uk" ? "UA" : "EN"})`}
+                content={language === "uk" ? editedContentUk : editedContentEn}
+                onChange={language === "uk" ? setEditedContentUk : setEditedContentEn}
+                label={`Контент (${language === "uk" ? "UK" : "EN"})`}
               />
             ) : (
-              content && <PageRenderer page={{ content_ua: editedContentUa, content_en: editedContentEn }} language={language} />
+              content && <PageRenderer page={{ content_uk: editedContentUk, content_en: editedContentEn }} language={language} />
             )}
           </div>
         </div>

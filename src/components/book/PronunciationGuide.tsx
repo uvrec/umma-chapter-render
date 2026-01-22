@@ -116,7 +116,7 @@ export const PronunciationGuide = ({
   const { language, t } = useLanguage();
 
   const consonantLabels = {
-    ua: {
+    uk: {
       gutturals: "Гортанні",
       palatals: "Палатальні",
       cerebrals: "Церебральні",
@@ -138,7 +138,7 @@ export const PronunciationGuide = ({
     },
   };
 
-  const labels = language === "uk" ? consonantLabels.ua : consonantLabels.en;
+  const labels = language === "uk" ? consonantLabels.uk : consonantLabels.en;
 
   return (
     <div className="min-h-screen bg-background">

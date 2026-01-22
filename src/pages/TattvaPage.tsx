@@ -29,21 +29,21 @@ import {
 import { cn } from "@/lib/utils";
 
 function Breadcrumb({ slug }: { slug: string }) {
-  const { language } = useLanguage();
+  const { language, getLocalizedPath } = useLanguage();
   const { data: breadcrumb } = useTattvaBreadcrumb(slug);
 
   if (!breadcrumb || breadcrumb.length <= 1) return null;
 
   return (
     <nav className="flex items-center gap-1 text-sm text-muted-foreground mb-6 flex-wrap">
-      <Link to="/tattvas" className="hover:text-foreground transition-colors">
+      <Link to={getLocalizedPath("/tattvas")} className="hover:text-foreground transition-colors">
         Таттви
       </Link>
       {breadcrumb.slice(0, -1).map((item) => (
         <span key={item.id} className="flex items-center gap-1">
           <ChevronRight className="h-3 w-3" />
           <Link
-            to={`/tattva/${item.slug}`}
+            to={getLocalizedPath(`/tattva/${item.slug}`)}
             className="hover:text-foreground transition-colors"
           >
             {language === "uk" ? item.name_uk : item.name_en}
@@ -55,12 +55,12 @@ function Breadcrumb({ slug }: { slug: string }) {
 }
 
 function SubcategoryRow({ tattva }: { tattva: Tattva }) {
-  const { language } = useLanguage();
+  const { language, getLocalizedPath } = useLanguage();
   const name = language === "uk" ? tattva.name_uk : tattva.name_en;
 
   return (
     <Link
-      to={`/tattva/${tattva.slug}`}
+      to={getLocalizedPath(`/tattva/${tattva.slug}`)}
       className="flex items-center justify-between py-3 px-4 -mx-4 hover:bg-muted/50 transition-colors group"
     >
       <span className="text-foreground group-hover:text-primary transition-colors">
@@ -79,12 +79,12 @@ function SubcategoryRow({ tattva }: { tattva: Tattva }) {
 }
 
 function VerseRow({ verse }: { verse: TattvaVerse }) {
-  const { language, t } = useLanguage();
+  const { language, t, getLocalizedPath } = useLanguage();
 
   // Generate link to verse
   const verseLink = verse.canto_number
-    ? `/veda-reader/${verse.book_slug}/canto/${verse.canto_number}/chapter/${verse.chapter_number}/${verse.verse_number}`
-    : `/veda-reader/${verse.book_slug}/${verse.chapter_number}/${verse.verse_number}`;
+    ? getLocalizedPath(`/lib/${verse.book_slug}/${verse.canto_number}/${verse.chapter_number}/${verse.verse_number}`)
+    : getLocalizedPath(`/lib/${verse.book_slug}/${verse.chapter_number}/${verse.verse_number}`);
 
   // Generate reference text
   const reference = verse.canto_number
@@ -174,7 +174,7 @@ function VersesSection({ slug }: { slug: string }) {
 
 export function TattvaPage() {
   const { slug } = useParams<{ slug: string }>();
-  const { language, t } = useLanguage();
+  const { language, t, getLocalizedPath } = useLanguage();
   const { data: tattva, isLoading: tattvaLoading } = useTattva(slug!);
   const { data: children, isLoading: childrenLoading } = useTattvaChildren(
     tattva?.id || ""
@@ -195,9 +195,9 @@ export function TattvaPage() {
   return (
     <>
       <PageMeta
-        titleUa={`${name || "Таттва"} | Vedavoice`}
+        titleUk={`${name || "Таттва"} | Vedavoice`}
         titleEn={`${name || "Tattva"} | Vedavoice`}
-        metaDescriptionUa={description || "Філософська категорія"}
+        metaDescriptionUk={description || "Філософська категорія"}
         metaDescriptionEn={description || "Philosophical category"}
         language={language}
       />
@@ -207,14 +207,14 @@ export function TattvaPage() {
         <header className="border-b sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
-              <Link to="/tattvas">
+              <Link to={getLocalizedPath("/tattvas")}>
                 <Button variant="ghost" size="sm" className="gap-2">
                   <ArrowLeft className="h-4 w-4" />
                   {t("Таттви", "Tattvas")}
                 </Button>
               </Link>
 
-              <Link to="/library">
+              <Link to={getLocalizedPath("/library")}>
                 <Button variant="ghost" size="sm" className="gap-2">
                   <BookOpen className="h-4 w-4" />
                   {t("Бібліотека", "Library")}
@@ -273,7 +273,7 @@ export function TattvaPage() {
               <p className="text-muted-foreground">
                 {t("Таттву не знайдено", "Tattva not found")}
               </p>
-              <Link to="/tattvas">
+              <Link to={getLocalizedPath("/tattvas")}>
                 <Button variant="link" className="mt-4">
                   {t("Повернутися до списку", "Back to list")}
                 </Button>

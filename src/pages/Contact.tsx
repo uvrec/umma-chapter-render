@@ -100,9 +100,9 @@ export const Contact = () => {
     <div className="min-h-screen bg-background">
       {pageMeta && (
         <PageMeta
-          titleUa={pageMeta.title_uk}
+          titleUk={pageMeta.title_uk}
           titleEn={pageMeta.title_en}
-          metaDescriptionUa={pageMeta.meta_description_uk}
+          metaDescriptionUk={pageMeta.meta_description_uk}
           metaDescriptionEn={pageMeta.meta_description_en}
           ogImage={pageMeta.og_image}
           seoKeywords={pageMeta.seo_keywords}

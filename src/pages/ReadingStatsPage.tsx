@@ -79,7 +79,7 @@ const BOOK_COLORS = [
 type TimeRange = '7d' | '14d' | '30d';
 
 export default function ReadingStatsPage() {
-  const { t, language } = useLanguage();
+  const { t, language, getLocalizedPath } = useLanguage();
   const { user } = useAuth();
 
   const [stats, setStats] = useState<ReadingStats | null>(null);
@@ -479,7 +479,7 @@ export default function ReadingStatsPage() {
               <BookOpen className="h-12 w-12 mx-auto mb-3 opacity-50" />
               <p>{language === 'uk' ? 'Почніть читати щоб відслідковувати прогрес' : 'Start reading to track your progress'}</p>
               <Button asChild className="mt-4">
-                <Link to="/veda-reader">
+                <Link to={getLocalizedPath("/library")}>
                   {language === 'uk' ? 'Перейти до читання' : 'Start Reading'}
                 </Link>
               </Button>

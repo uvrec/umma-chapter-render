@@ -5,19 +5,19 @@ export interface BhaktivinodaVerse {
   verse_number: string;
   sanskrit?: string;
   transliteration_en?: string;
-  transliteration_ua?: string;
+  transliteration_uk?: string;
   synonyms_en?: string;
-  synonyms_ua?: string;
+  synonyms_uk?: string;
   translation_en?: string;
-  translation_ua?: string;
+  translation_uk?: string;
   commentary_en?: string;
-  commentary_ua?: string;
+  commentary_uk?: string;
 }
 
 export interface BhaktivinodaSong {
   song_number: number;
   title_en?: string;
-  title_ua?: string;
+  title_uk?: string;
   verses: BhaktivinodaVerse[];
   canto_number?: number; // Додано для підтримки структури cantos
 }
@@ -25,7 +25,7 @@ export interface BhaktivinodaSong {
 export interface BhaktivinodaCanto {
   canto_number: number;
   title_en: string;
-  title_ua: string;
+  title_uk: string;
   songs: BhaktivinodaSong[];
 }
 
@@ -33,53 +33,53 @@ export interface BhaktivinodaCanto {
  * Визначити canto на основі URL пісні
  * Приклад: /dainya-song-one/ → Canto 1 (Dainya)
  */
-export function determineCantoFromUrl(url: string): { number: number; name: string; name_ua: string } | null {
+export function determineCantoFromUrl(url: string): { number: number; name: string; name_uk: string } | null {
   const urlLower = url.toLowerCase();
 
   // Canto 1: Dainya (Смирення) - 7 songs
   if (urlLower.includes('dainya')) {
-    return { number: 1, name: 'Dainya', name_ua: 'Смирення' };
+    return { number: 1, name: 'Dainya', name_uk: 'Смирення' };
   }
 
   // Canto 2: Ātma Nivedana (Посвячення себе) - 8 songs
   if (urlLower.includes('atmanivedana') || urlLower.includes('atma-nivedana')) {
-    return { number: 2, name: 'Ātma Nivedana', name_ua: 'Посвячення себе' };
+    return { number: 2, name: 'Ātma Nivedana', name_uk: 'Посвячення себе' };
   }
 
   // Canto 3: Goptṛtve-Varaṇa (Вибір Захисника) - 4 songs
   if (urlLower.includes('goptritve') || urlLower.includes('varana')) {
-    return { number: 3, name: 'Goptṛtve-Varaṇa', name_ua: 'Вибір Захисника' };
+    return { number: 3, name: 'Goptṛtve-Varaṇa', name_uk: 'Вибір Захисника' };
   }
 
   // Canto 4: Avaśya Rakṣibe Kṛṣṇa (Крішна неодмінно захистить) - 6 songs
   if (urlLower.includes('avasya') || urlLower.includes('raksibe') || urlLower.includes('krsna')) {
-    return { number: 4, name: 'Avaśya Rakṣibe Kṛṣṇa', name_ua: 'Крішна неодмінно захистить' };
+    return { number: 4, name: 'Avaśya Rakṣibe Kṛṣṇa', name_uk: 'Крішна неодмінно захистить' };
   }
 
   // Canto 5: Bhakti-Pratikūla-Bhāva (Відкинути несприятливе для бгакті) - 5 songs
   if (urlLower.includes('bhakti-pratikula') || urlLower.includes('pratikula')) {
-    return { number: 5, name: 'Bhakti-Pratikūla-Bhāva', name_ua: 'Відкинути несприятливе для бгакті' };
+    return { number: 5, name: 'Bhakti-Pratikūla-Bhāva', name_uk: 'Відкинути несприятливе для бгакті' };
   }
 
   // Canto 6: Svīkara (Прийняти сприятливе) - 5 songs
   if (urlLower.includes('svikara')) {
-    return { number: 6, name: 'Svīkara', name_ua: 'Прийняти сприятливе' };
+    return { number: 6, name: 'Svīkara', name_uk: 'Прийняти сприятливе' };
   }
 
   // Canto 7: Bhajana Lālasā (Прагнення до бгаджану) - 13 songs
   if (urlLower.includes('bhajana') || urlLower.includes('lalasa')) {
-    return { number: 7, name: 'Bhajana Lālasā', name_ua: 'Прагнення до бгаджану' };
+    return { number: 7, name: 'Bhajana Lālasā', name_uk: 'Прагнення до бгаджану' };
   }
 
   // Canto 8: Siddhi Lālasā (Прагнення до досконалості) - 3 songs
   if (urlLower.includes('siddhi')) {
-    return { number: 8, name: 'Siddhi Lālasā', name_ua: 'Прагнення до досконалості' };
+    return { number: 8, name: 'Siddhi Lālasā', name_uk: 'Прагнення до досконалості' };
   }
 
   // Canto 9: Vijñapti & Śrī Nāma Māhātmya (Молитва і слава Святого Імені) - 2 songs
   if (urlLower.includes('vijnaptih') || urlLower.includes('vijnapti') ||
       urlLower.includes('nama-mahatmya') || urlLower.includes('sri-nama')) {
-    return { number: 9, name: 'Vijñapti & Śrī Nāma Māhātmya', name_ua: 'Молитва і слава Святого Імені' };
+    return { number: 9, name: 'Vijñapti & Śrī Nāma Māhātmya', name_uk: 'Молитва і слава Святого Імені' };
   }
 
   return null;
@@ -136,8 +136,8 @@ export function extractSongUrls(html: string, baseUrl: string): string[] {
  * Групувати URL пісень за cantos (розділами)
  * Повертає структуру: Map<canto_number, { info, urls }>
  */
-export function groupSongUrlsByCantos(songUrls: string[]): Map<number, { name: string; name_ua: string; urls: string[] }> {
-  const cantoMap = new Map<number, { name: string; name_ua: string; urls: string[] }>();
+export function groupSongUrlsByCantos(songUrls: string[]): Map<number, { name: string; name_uk: string; urls: string[] }> {
+  const cantoMap = new Map<number, { name: string; name_uk: string; urls: string[] }>();
 
   for (const url of songUrls) {
     const cantoInfo = determineCantoFromUrl(url);
@@ -150,7 +150,7 @@ export function groupSongUrlsByCantos(songUrls: string[]): Map<number, { name: s
     if (!cantoMap.has(cantoInfo.number)) {
       cantoMap.set(cantoInfo.number, {
         name: cantoInfo.name,
-        name_ua: cantoInfo.name_uk,
+        name_uk: cantoInfo.name_uk,
         urls: []
       });
     }
@@ -206,7 +206,7 @@ export function parseBhaktivinodaSongPage(html: string, url: string): Bhaktivino
     return {
       song_number: 1,
       title_en: songTitle.title_en,
-      title_ua: songTitle.title_uk,
+      title_uk: songTitle.title_uk,
       verses: verses
     };
   } catch (error) {
@@ -291,7 +291,7 @@ function parseTextContent(text: string): BhaktivinodaVerse[] {
 /**
  * Отримати назву пісні зі сторінки
  */
-function getBhaktivinodaSongTitle(html: string): { title_en: string; title_ua?: string } {
+function getBhaktivinodaSongTitle(html: string): { title_en: string; title_uk?: string } {
   try {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
@@ -331,7 +331,7 @@ function getBhaktivinodaSongTitle(html: string): { title_en: string; title_ua?: 
 /**
  * Get book title from page (for main book page)
  */
-export function getBhaktivinodaTitle(html: string): { title_en: string; title_ua?: string } {
+export function getBhaktivinodaTitle(html: string): { title_en: string; title_uk?: string } {
   return getBhaktivinodaSongTitle(html);
 }
 
@@ -352,19 +352,19 @@ export function bhaktivinodaSongToChapter(song: BhaktivinodaSong, chapterNumber:
     chapter_number: chapterNumber,
     canto_number: song.canto_number || undefined, // Додано підтримку cantos
     title_en: song.title_en || `Song ${song.song_number}`,
-    title_ua: song.title_uk || `Пісня ${song.song_number}`,
+    title_uk: song.title_uk || `Пісня ${song.song_number}`,
     chapter_type: 'verses' as const,
     verses: song.verses.map(v => ({
       verse_number: v.verse_number,
       sanskrit: v.sanskrit || '',
       transliteration_en: v.transliteration_en || '',
-      transliteration_ua: v.transliteration_ua || '',
+      transliteration_uk: v.transliteration_uk || '',
       synonyms_en: v.synonyms_en || '',
-      synonyms_ua: v.synonyms_uk || '',
+      synonyms_uk: v.synonyms_uk || '',
       translation_en: v.translation_en || '',
-      translation_ua: v.translation_uk || '',
+      translation_uk: v.translation_uk || '',
       commentary_en: v.commentary_en || '',
-      commentary_ua: v.commentary_ua || '',
+      commentary_uk: v.commentary_uk || '',
     }))
   };
 }

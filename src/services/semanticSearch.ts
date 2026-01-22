@@ -259,10 +259,10 @@ export async function getVerseReferences(
         target_verse:verses!cross_references_target_verse_id_fkey (
           id,
           verse_number,
-          translation_ua,
+          translation_uk,
           translation_en,
           transliteration,
-          transliteration_ua,
+          transliteration_uk,
           transliteration_en,
           chapter:chapters!verses_chapter_id_fkey (
             chapter_number,
@@ -299,7 +299,7 @@ export async function getVerseReferences(
           ? verse?.translation_uk
           : verse?.translation_en;
         const transliteration = language === 'uk'
-          ? (verse?.transliteration_ua || verse?.transliteration)
+          ? (verse?.transliteration_uk || verse?.transliteration)
           : (verse?.transliteration_en || verse?.transliteration);
 
         return {
@@ -350,10 +350,10 @@ export async function getBidirectionalReferences(
         source_verse:verses!cross_references_source_verse_id_fkey (
           id,
           verse_number,
-          translation_ua,
+          translation_uk,
           translation_en,
           transliteration,
-          transliteration_ua,
+          transliteration_uk,
           transliteration_en,
           chapter:chapters!verses_chapter_id_fkey (
             chapter_number,
@@ -385,7 +385,7 @@ export async function getBidirectionalReferences(
           ? verse?.translation_uk
           : verse?.translation_en;
         const transliteration = language === 'uk'
-          ? (verse?.transliteration_ua || verse?.transliteration)
+          ? (verse?.transliteration_uk || verse?.transliteration)
           : (verse?.transliteration_en || verse?.transliteration);
 
         return {
@@ -443,13 +443,13 @@ export function formatSearchResult(
  * Get book abbreviation based on slug
  */
 function getBookAbbreviation(slug: string, language: 'uk' | 'en'): string {
-  const abbreviations: Record<string, { ua: string; en: string }> = {
-    'bg': { ua: 'БГ', en: 'BG' },
-    'sb': { ua: 'ШБ', en: 'SB' },
-    'cc': { ua: 'ЧЧ', en: 'CC' },
-    'noi': { ua: 'НН', en: 'NOI' },
-    'nod': { ua: 'НВ', en: 'NOD' },
-    'iso': { ua: 'Ішо', en: 'ISO' },
+  const abbreviations: Record<string, { uk: string; en: string }> = {
+    'bg': { uk: 'БГ', en: 'BG' },
+    'sb': { uk: 'ШБ', en: 'SB' },
+    'cc': { uk: 'ЧЧ', en: 'CC' },
+    'noi': { uk: 'НН', en: 'NOI' },
+    'nod': { uk: 'НВ', en: 'NOD' },
+    'iso': { uk: 'Ішо', en: 'ISO' },
   };
 
   return abbreviations[slug]?.[language] || slug.toUpperCase();

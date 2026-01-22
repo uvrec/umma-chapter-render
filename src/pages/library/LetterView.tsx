@@ -33,6 +33,7 @@ import {
   X,
 } from "lucide-react";
 import type { Letter } from "@/types/letter";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 
 export const LetterView = () => {
@@ -40,19 +41,18 @@ export const LetterView = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isAdmin } = useAuth();
-
-  // Мовні налаштування
-  const [language, setLanguage] = useState<"uk" | "en">("ua");
+  const { language, getLocalizedPath } = useLanguage();
 
   // Inline editing state
   const [isEditing, setIsEditing] = useState(false);
   const [editedLetter, setEditedLetter] = useState<{
-    recipient_ua: string;
+    recipient_uk: string;
     recipient_en: string;
-    location_ua: string;
+    location_uk: string;
     location_en: string;
-    content_ua: string;
+    content_uk: string;
     content_en: string;
+    letter_date: string;
   } | null>(null);
 
   // Завантажити лист
@@ -77,12 +77,13 @@ export const LetterView = () => {
       if (!letter || !editedLetter) return;
 
       const updates: Partial<Letter> = {};
-      if (editedLetter.recipient_ua !== letter.recipient_ua) updates.recipient_ua = editedLetter.recipient_ua;
+      if (editedLetter.recipient_uk !== letter.recipient_uk) updates.recipient_uk = editedLetter.recipient_uk;
       if (editedLetter.recipient_en !== letter.recipient_en) updates.recipient_en = editedLetter.recipient_en;
-      if (editedLetter.location_ua !== letter.location_ua) updates.location_ua = editedLetter.location_ua;
+      if (editedLetter.location_uk !== letter.location_uk) updates.location_uk = editedLetter.location_uk;
       if (editedLetter.location_en !== letter.location_en) updates.location_en = editedLetter.location_en;
       if (editedLetter.content_uk !== letter.content_uk) updates.content_uk = editedLetter.content_uk;
       if (editedLetter.content_en !== letter.content_en) updates.content_en = editedLetter.content_en;
+      if (editedLetter.letter_date !== letter.letter_date) updates.letter_date = editedLetter.letter_date;
 
       if (Object.keys(updates).length > 0) {
         const { error } = await (supabase as any)
@@ -106,12 +107,13 @@ export const LetterView = () => {
   const startEdit = () => {
     if (!letter) return;
     setEditedLetter({
-      recipient_ua: letter.recipient_ua || "",
+      recipient_uk: letter.recipient_uk || "",
       recipient_en: letter.recipient_en,
-      location_ua: letter.location_ua || "",
+      location_uk: letter.location_uk || "",
       location_en: letter.location_en,
-      content_ua: letter.content_uk || "",
+      content_uk: letter.content_uk || "",
       content_en: letter.content_en,
+      letter_date: letter.letter_date,
     });
     setIsEditing(true);
   };
@@ -146,9 +148,9 @@ export const LetterView = () => {
         <main className="container mx-auto px-4 py-8">
           <div className="text-center py-12">
             <h2 className="text-2xl font-bold mb-4">Лист не знайдено</h2>
-            <Button onClick={() => navigate("/library/letters")}>
+            <Button onClick={() => navigate(getLocalizedPath("/library/letters"))}>
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Повернутися до списку
+              {language === "uk" ? "Повернутися до списку" : "Back to list"}
             </Button>
           </div>
         </main>
@@ -157,12 +159,12 @@ export const LetterView = () => {
     );
   }
 
-  const recipient = language === "uk" && letter.recipient_ua
-    ? letter.recipient_ua
+  const recipient = language === "uk" && letter.recipient_uk
+    ? letter.recipient_uk
     : letter.recipient_en;
 
-  const location = language === "uk" && letter.location_ua
-    ? letter.location_ua
+  const location = language === "uk" && letter.location_uk
+    ? letter.location_uk
     : letter.location_en;
 
   return (
@@ -170,31 +172,14 @@ export const LetterView = () => {
       <Header />
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Навігація */}
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6">
           <Button
             variant="ghost"
-            onClick={() => navigate("/library/letters")}
+            onClick={() => navigate(getLocalizedPath("/library/letters"))}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            До списку листів
+            {language === "uk" ? "До списку листів" : "Back to letters"}
           </Button>
-
-          <div className="flex gap-2">
-            <Button
-              variant={language === "uk" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setLanguage("ua")}
-            >
-              Українська
-            </Button>
-            <Button
-              variant={language === "en" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setLanguage("en")}
-            >
-              English
-            </Button>
-          </div>
         </div>
 
         {/* Admin Edit Header */}
@@ -244,8 +229,8 @@ export const LetterView = () => {
                 <div>
                   <label className="text-sm text-muted-foreground mb-1 block">Отримувач UA</label>
                   <Input
-                    value={editedLetter.recipient_ua}
-                    onChange={(e) => setEditedLetter({ ...editedLetter, recipient_ua: e.target.value })}
+                    value={editedLetter.recipient_uk}
+                    onChange={(e) => setEditedLetter({ ...editedLetter, recipient_uk: e.target.value })}
                     className="text-lg font-bold"
                   />
                 </div>
@@ -262,8 +247,8 @@ export const LetterView = () => {
                 <div>
                   <label className="text-sm text-muted-foreground mb-1 block">Локація UA</label>
                   <Input
-                    value={editedLetter.location_ua}
-                    onChange={(e) => setEditedLetter({ ...editedLetter, location_ua: e.target.value })}
+                    value={editedLetter.location_uk}
+                    onChange={(e) => setEditedLetter({ ...editedLetter, location_uk: e.target.value })}
                   />
                 </div>
                 <div>
@@ -277,11 +262,12 @@ export const LetterView = () => {
               <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
-                  {new Date(letter.letter_date).toLocaleDateString("uk-UA", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
+                  <Input
+                    type="date"
+                    value={editedLetter.letter_date}
+                    onChange={(e) => setEditedLetter({ ...editedLetter, letter_date: e.target.value })}
+                    className="w-auto"
+                  />
                 </div>
               </div>
             </div>
@@ -339,7 +325,7 @@ export const LetterView = () => {
                 <label className="text-sm text-muted-foreground mb-2 block">Текст UA</label>
                 <EnhancedInlineEditor
                   content={editedLetter.content_uk}
-                  onChange={(html) => setEditedLetter({ ...editedLetter, content_ua: html })}
+                  onChange={(html) => setEditedLetter({ ...editedLetter, content_uk: html })}
                   label="Редагувати текст UA"
                 />
               </div>

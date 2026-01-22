@@ -19,9 +19,9 @@ const AddEditCanto = () => {
   const queryClient = useQueryClient();
 
   const [cantoNumber, setCantoNumber] = useState<string>("");
-  const [titleUa, setTitleUa] = useState("");
+  const [titleUk, setTitleUk] = useState("");
   const [titleEn, setTitleEn] = useState("");
-  const [descriptionUa, setDescriptionUa] = useState("");
+  const [descriptionUk, setDescriptionUk] = useState("");
   const [descriptionEn, setDescriptionEn] = useState("");
   const [coverImageUrl, setCoverImageUrl] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -48,9 +48,9 @@ const AddEditCanto = () => {
   useEffect(() => {
     if (!canto) return;
     setCantoNumber(String(canto.canto_number ?? ""));
-    setTitleUa(canto.title_uk ?? "");
+    setTitleUk(canto.title_uk ?? "");
     setTitleEn(canto.title_en ?? "");
-    setDescriptionUa(canto.description_uk ?? "");
+    setDescriptionUk(canto.description_uk ?? "");
     setDescriptionEn(canto.description_en ?? "");
     setCoverImageUrl(canto.cover_image_url ?? "");
   }, [canto]);
@@ -63,17 +63,17 @@ const AddEditCanto = () => {
       if (!Number.isInteger(num) || num <= 0) {
         throw new Error("Номер пісні має бути додатнім цілим числом.");
       }
-      const _titleUa = titleUa.trim();
+      const _titleUk = titleUk.trim();
       const _titleEn = titleEn.trim();
-      if (!_titleUa || !_titleEn) {
-        throw new Error("Заповніть обов'язкові поля: Назва (UA) та Title (EN).");
+      if (!_titleUk || !_titleEn) {
+        throw new Error("Заповніть обов'язкові поля: Назва (UK) та Title (EN).");
       }
 
       const payload = {
         canto_number: num,
-        title_ua: _titleUa,
+        title_uk: _titleUk,
         title_en: _titleEn,
-        description_ua: descriptionUa.trim() || null,
+        description_uk: descriptionUk.trim() || null,
         description_en: descriptionEn.trim() || null,
         cover_image_url: coverImageUrl.trim() || null,
       };
@@ -240,21 +240,21 @@ const AddEditCanto = () => {
                 <div className="space-y-4">
                   <h3 className="font-semibold text-lg border-b pb-2">Українська</h3>
                   <div className="space-y-2">
-                    <Label htmlFor="titleUa">Назва *</Label>
+                    <Label htmlFor="titleUk">Назва *</Label>
                     <Input
-                      id="titleUa"
-                      value={titleUa}
-                      onChange={(e) => setTitleUa(e.target.value)}
+                      id="titleUk"
+                      value={titleUk}
+                      onChange={(e) => setTitleUk(e.target.value)}
                       placeholder="Перша пісня"
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="descriptionUa">Опис</Label>
+                    <Label htmlFor="descriptionUk">Опис</Label>
                     <Textarea
-                      id="descriptionUa"
-                      value={descriptionUa}
-                      onChange={(e) => setDescriptionUa(e.target.value)}
+                      id="descriptionUk"
+                      value={descriptionUk}
+                      onChange={(e) => setDescriptionUk(e.target.value)}
                       placeholder="Опис canto українською"
                       rows={4}
                     />

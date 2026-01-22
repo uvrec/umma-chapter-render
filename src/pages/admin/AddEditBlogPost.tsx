@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,18 +26,26 @@ const telegramSchema = z.string().refine(isValidTelegramUrlOrEmpty, {
 });
 
 export default function AddEditBlogPost() {
+  const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = !!id;
 
+  // Auth guard
+  useEffect(() => {
+    if (!user || !isAdmin) {
+      navigate("/auth");
+    }
+  }, [user, isAdmin, navigate]);
+
   // ——— основні стани
-  const [titleUa, setTitleUa] = useState("");
+  const [titleUk, setTitleUk] = useState("");
   const [titleEn, setTitleEn] = useState("");
   const [slug, setSlug] = useState("");
   const [contentMode, setContentMode] = useState<"text" | "poetry">("text");
-  const [contentUa, setContentUa] = useState("");
+  const [contentUk, setContentUk] = useState("");
   const [contentEn, setContentEn] = useState("");
-  const [excerptUa, setExcerptUa] = useState("");
+  const [excerptUk, setExcerptUk] = useState("");
   const [excerptEn, setExcerptEn] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [isPublished, setIsPublished] = useState(false);
@@ -47,23 +56,23 @@ export default function AddEditBlogPost() {
   const [instagramUrl, setInstagramUrl] = useState("");
   const [telegramUrl, setTelegramUrl] = useState("");
   const [substackUrl, setSubstackUrl] = useState("");
-  const [metaDescUa, setMetaDescUa] = useState("");
+  const [metaDescUk, setMetaDescUk] = useState("");
   const [metaDescEn, setMetaDescEn] = useState("");
 
   // ——— поля для режиму поезії
   const [sanskrit, setSanskrit] = useState("");
   const [transliteration, setTransliteration] = useState("");
-  const [synonymsUa, setSynonymsUa] = useState("");
+  const [synonymsUk, setSynonymsUk] = useState("");
   const [synonymsEn, setSynonymsEn] = useState("");
-  const [poetryTranslationUa, setPoetryTranslationUa] = useState("");
+  const [poetryTranslationUk, setPoetryTranslationUk] = useState("");
   const [poetryTranslationEn, setPoetryTranslationEn] = useState("");
 
   // ——— аудіо URL для кожної секції в режимі поезії
   const [audioSanskritUrl, setAudioSanskritUrl] = useState("");
   const [audioTransliterationUrl, setAudioTransliterationUrl] = useState("");
-  const [audioPoetryTranslationUaUrl, setAudioPoetryTranslationUaUrl] = useState("");
+  const [audioPoetryTranslationUkUrl, setAudioPoetryTranslationUkUrl] = useState("");
   const [audioPoetryTranslationEnUrl, setAudioPoetryTranslationEnUrl] = useState("");
-  const [audioCommentaryUaUrl, setAudioCommentaryUaUrl] = useState("");
+  const [audioCommentaryUkUrl, setAudioCommentaryUkUrl] = useState("");
   const [audioCommentaryEnUrl, setAudioCommentaryEnUrl] = useState("");
 
   // ——— автор
@@ -78,7 +87,7 @@ export default function AddEditBlogPost() {
   const { data: categories } = useQuery({
     queryKey: ["blog-categories"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("blog_categories").select("*").order("name_ua");
+      const { data, error } = await supabase.from("blog_categories").select("*").order("name_uk");
       if (error) throw error;
       return data;
     },
@@ -98,13 +107,13 @@ export default function AddEditBlogPost() {
 
   useEffect(() => {
     if (post) {
-      setTitleUa(post.title_uk || "");
+      setTitleUk(post.title_uk || "");
       setTitleEn(post.title_en || "");
       setSlug(post.slug || "");
       setContentMode((post.content_mode as "text" | "poetry") || "text");
-      setContentUa(post.content_uk || "");
+      setContentUk(post.content_uk || "");
       setContentEn(post.content_en || "");
-      setExcerptUa(post.excerpt_uk || "");
+      setExcerptUk(post.excerpt_uk || "");
       setExcerptEn(post.excerpt_en || "");
       setCategoryId(post.category_id || "");
       setIsPublished(post.is_published || false);
@@ -115,33 +124,33 @@ export default function AddEditBlogPost() {
       setInstagramUrl(post.instagram_embed_url || "");
       setTelegramUrl(post.telegram_embed_url || "");
       setSubstackUrl(post.substack_embed_url || "");
-      setMetaDescUa(post.meta_description_uk || "");
+      setMetaDescUk(post.meta_description_uk || "");
       setMetaDescEn(post.meta_description_en || "");
       setAuthorName(post.author_name || "Аніруддга дас");
 
       // Poetry mode fields
       setSanskrit(post.sanskrit || "");
       setTransliteration(post.transliteration || "");
-      setSynonymsUa(post.synonyms_uk || "");
+      setSynonymsUk(post.synonyms_uk || "");
       setSynonymsEn(post.synonyms_en || "");
-      setPoetryTranslationUa(post.poetry_translation_uk || "");
+      setPoetryTranslationUk(post.poetry_translation_uk || "");
       setPoetryTranslationEn(post.poetry_translation_en || "");
 
       // Poetry audio URLs
       setAudioSanskritUrl(post.audio_sanskrit_url || "");
       setAudioTransliterationUrl(post.audio_transliteration_url || "");
-      setAudioPoetryTranslationUaUrl(post.audio_poetry_translation_ua_url || "");
+      setAudioPoetryTranslationUkUrl(post.audio_poetry_translation_ua_url || "");
       setAudioPoetryTranslationEnUrl(post.audio_poetry_translation_en_url || "");
-      setAudioCommentaryUaUrl(post.audio_commentary_ua_url || "");
+      setAudioCommentaryUkUrl(post.audio_commentary_ua_url || "");
       setAudioCommentaryEnUrl(post.audio_commentary_en_url || "");
     }
   }, [post]);
 
   useEffect(() => {
-    if (titleUa && !slug && !isEdit) {
-      setSlug(generateSlug(titleUa));
+    if (titleUk && !slug && !isEdit) {
+      setSlug(generateSlug(titleUk));
     }
-  }, [titleUa, isEdit, slug]);
+  }, [titleUk, isEdit, slug]);
 
   // ——— автозбереження
   const autoSave = useCallback(async () => {
@@ -149,15 +158,15 @@ export default function AddEditBlogPost() {
 
     setIsSaving(true);
     try {
-      const readTime = calculateReadTime(contentUa + contentEn);
+      const readTime = calculateReadTime(contentUk + contentEn);
       const postData = {
-        title_ua: titleUa,
+        title_uk: titleUk,
         title_en: titleEn,
         slug,
         content_mode: contentMode,
-        content_ua: contentUa,
+        content_uk: contentUk,
         content_en: contentEn,
-        excerpt_ua: excerptUa,
+        excerpt_uk: excerptUk,
         excerpt_en: excerptEn,
         category_id: categoryId,
         is_published: isPublished,
@@ -168,7 +177,7 @@ export default function AddEditBlogPost() {
         instagram_embed_url: instagramUrl,
         telegram_embed_url: telegramUrl,
         substack_embed_url: substackUrl,
-        meta_description_ua: metaDescUa,
+        meta_description_uk: metaDescUk,
         meta_description_en: metaDescEn,
         read_time: readTime,
         author_name: authorName || "Аніруддга дас",
@@ -176,16 +185,16 @@ export default function AddEditBlogPost() {
         // Poetry fields
         sanskrit,
         transliteration,
-        synonyms_ua: synonymsUa,
+        synonyms_uk: synonymsUk,
         synonyms_en: synonymsEn,
-        poetry_translation_ua: poetryTranslationUa,
+        poetry_translation_uk: poetryTranslationUk,
         poetry_translation_en: poetryTranslationEn,
         // Poetry audio URLs
         audio_sanskrit_url: audioSanskritUrl,
         audio_transliteration_url: audioTransliterationUrl,
-        audio_poetry_translation_ua_url: audioPoetryTranslationUaUrl,
+        audio_poetry_translation_ua_url: audioPoetryTranslationUkUrl,
         audio_poetry_translation_en_url: audioPoetryTranslationEnUrl,
-        audio_commentary_ua_url: audioCommentaryUaUrl,
+        audio_commentary_ua_url: audioCommentaryUkUrl,
         audio_commentary_en_url: audioCommentaryEnUrl,
       };
 
@@ -199,13 +208,13 @@ export default function AddEditBlogPost() {
   }, [
     isEdit,
     id,
-    titleUa,
+    titleUk,
     titleEn,
     slug,
     contentMode,
-    contentUa,
+    contentUk,
     contentEn,
-    excerptUa,
+    excerptUk,
     excerptEn,
     categoryId,
     isPublished,
@@ -216,20 +225,20 @@ export default function AddEditBlogPost() {
     instagramUrl,
     telegramUrl,
     substackUrl,
-    metaDescUa,
+    metaDescUk,
     metaDescEn,
     authorName,
     sanskrit,
     transliteration,
-    synonymsUa,
+    synonymsUk,
     synonymsEn,
-    poetryTranslationUa,
+    poetryTranslationUk,
     poetryTranslationEn,
     audioSanskritUrl,
     audioTransliterationUrl,
-    audioPoetryTranslationUaUrl,
+    audioPoetryTranslationUkUrl,
     audioPoetryTranslationEnUrl,
-    audioCommentaryUaUrl,
+    audioCommentaryUkUrl,
     audioCommentaryEnUrl,
   ]);
 
@@ -251,13 +260,13 @@ export default function AddEditBlogPost() {
       }
     };
   }, [
-    contentUa,
+    contentUk,
     contentEn,
-    titleUa,
+    titleUk,
     titleEn,
-    excerptUa,
+    excerptUk,
     excerptEn,
-    metaDescUa,
+    metaDescUk,
     metaDescEn,
     autoSave,
     isEdit,
@@ -329,16 +338,16 @@ export default function AddEditBlogPost() {
       }
     }
 
-    const readTime = calculateReadTime(contentUa + contentEn);
+    const readTime = calculateReadTime(contentUk + contentEn);
 
     const postData: any = {
-      title_ua: titleUa,
+      title_uk: titleUk,
       title_en: titleEn,
       slug,
       content_mode: contentMode,
-      content_ua: contentUa,
+      content_uk: contentUk,
       content_en: contentEn,
-      excerpt_ua: excerptUa,
+      excerpt_uk: excerptUk,
       excerpt_en: excerptEn,
       category_id: categoryId,
       is_published: isPublished,
@@ -350,7 +359,7 @@ export default function AddEditBlogPost() {
       instagram_embed_url: instagramUrl,
       telegram_embed_url: telegramUrl,
       substack_embed_url: substackUrl,
-      meta_description_ua: metaDescUa,
+      meta_description_uk: metaDescUk,
       meta_description_en: metaDescEn,
       read_time: readTime,
       author_name: authorName || "Аніруддга дас",
@@ -358,16 +367,16 @@ export default function AddEditBlogPost() {
       // Poetry fields
       sanskrit,
       transliteration,
-      synonyms_ua: synonymsUa,
+      synonyms_uk: synonymsUk,
       synonyms_en: synonymsEn,
-      poetry_translation_ua: poetryTranslationUa,
+      poetry_translation_uk: poetryTranslationUk,
       poetry_translation_en: poetryTranslationEn,
       // Poetry audio URLs
       audio_sanskrit_url: audioSanskritUrl,
       audio_transliteration_url: audioTransliterationUrl,
-      audio_poetry_translation_ua_url: audioPoetryTranslationUaUrl,
+      audio_poetry_translation_ua_url: audioPoetryTranslationUkUrl,
       audio_poetry_translation_en_url: audioPoetryTranslationEnUrl,
-      audio_commentary_ua_url: audioCommentaryUaUrl,
+      audio_commentary_ua_url: audioCommentaryUkUrl,
       audio_commentary_en_url: audioCommentaryEnUrl,
     };
 
@@ -387,6 +396,9 @@ export default function AddEditBlogPost() {
       toast({ title: "Помилка збереження", variant: "destructive" });
     }
   };
+
+  // Early return for unauthorized users
+  if (!user || !isAdmin) return null;
 
   return (
     <div className="container mx-auto py-8">
@@ -460,27 +472,27 @@ export default function AddEditBlogPost() {
             </div>
           )}
 
-          <Tabs defaultValue="ua" className="w-full">
+          <Tabs defaultValue="uk" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="ua">Українська</TabsTrigger>
+              <TabsTrigger value="uk">Українська</TabsTrigger>
               <TabsTrigger value="en">English</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="ua" className="space-y-4">
+            <TabsContent value="uk" className="space-y-4">
               <div>
                 <Label htmlFor="title-ua">Заголовок *</Label>
-                <Input id="title-ua" value={titleUa} onChange={(e) => setTitleUa(e.target.value)} required />
+                <Input id="title-ua" value={titleUk} onChange={(e) => setTitleUk(e.target.value)} required />
               </div>
 
               <div>
                 <Label htmlFor="excerpt-ua">Короткий опис</Label>
-                <Textarea id="excerpt-ua" value={excerptUa} onChange={(e) => setExcerptUa(e.target.value)} rows={3} />
+                <Textarea id="excerpt-ua" value={excerptUk} onChange={(e) => setExcerptUk(e.target.value)} rows={3} />
               </div>
 
               {contentMode === "text" ? (
                 <div>
                   <Label>Контент *</Label>
-                  <TiptapEditor content={contentUa} onChange={setContentUa} placeholder="Почніть писати українською..." />
+                  <TiptapEditor content={contentUk} onChange={setContentUk} placeholder="Почніть писати українською..." />
                 </div>
               ) : (
                 <>
@@ -488,8 +500,8 @@ export default function AddEditBlogPost() {
                     <Label htmlFor="synonyms-ua">Послівний переклад (формат: "слово1 — значення1; слово2 — значення2")</Label>
                     <Textarea
                       id="synonyms-ua"
-                      value={synonymsUa}
-                      onChange={(e) => setSynonymsUa(e.target.value)}
+                      value={synonymsUk}
+                      onChange={(e) => setSynonymsUk(e.target.value)}
                       rows={4}
                       placeholder="мадхура — солодкий; према — любов..."
                       className="font-mono text-sm"
@@ -500,8 +512,8 @@ export default function AddEditBlogPost() {
                     <Label htmlFor="poetry-translation-ua">Літературний переклад вірша</Label>
                     <Textarea
                       id="poetry-translation-ua"
-                      value={poetryTranslationUa}
-                      onChange={(e) => setPoetryTranslationUa(e.target.value)}
+                      value={poetryTranslationUk}
+                      onChange={(e) => setPoetryTranslationUk(e.target.value)}
                       rows={3}
                       placeholder="Український літературний переклад вірша..."
                     />
@@ -509,15 +521,15 @@ export default function AddEditBlogPost() {
 
                   <div>
                     <Label>Пояснення (Commentary/Purport)</Label>
-                    <TiptapEditor content={contentUa} onChange={setContentUa} placeholder="Пояснення та коментарі українською..." />
+                    <TiptapEditor content={contentUk} onChange={setContentUk} placeholder="Пояснення та коментарі українською..." />
                   </div>
 
                   <div>
                     <Label htmlFor="audio-poetry-translation-ua">Аудіо URL для літературного перекладу</Label>
                     <Input
                       id="audio-poetry-translation-ua"
-                      value={audioPoetryTranslationUaUrl}
-                      onChange={(e) => setAudioPoetryTranslationUaUrl(e.target.value)}
+                      value={audioPoetryTranslationUkUrl}
+                      onChange={(e) => setAudioPoetryTranslationUkUrl(e.target.value)}
                       placeholder="https://..."
                     />
                   </div>
@@ -526,8 +538,8 @@ export default function AddEditBlogPost() {
                     <Label htmlFor="audio-commentary-ua">Аудіо URL для пояснення</Label>
                     <Input
                       id="audio-commentary-ua"
-                      value={audioCommentaryUaUrl}
-                      onChange={(e) => setAudioCommentaryUaUrl(e.target.value)}
+                      value={audioCommentaryUkUrl}
+                      onChange={(e) => setAudioCommentaryUkUrl(e.target.value)}
                       placeholder="https://..."
                     />
                   </div>
@@ -538,12 +550,12 @@ export default function AddEditBlogPost() {
                 <Label htmlFor="meta-desc-ua">Meta опис (SEO)</Label>
                 <Textarea
                   id="meta-desc-ua"
-                  value={metaDescUa}
-                  onChange={(e) => setMetaDescUa(e.target.value)}
+                  value={metaDescUk}
+                  onChange={(e) => setMetaDescUk(e.target.value)}
                   maxLength={160}
                   rows={2}
                 />
-                <p className="text-xs text-muted-foreground mt-1">{metaDescUa.length}/160 символів</p>
+                <p className="text-xs text-muted-foreground mt-1">{metaDescUk.length}/160 символів</p>
               </div>
             </TabsContent>
 

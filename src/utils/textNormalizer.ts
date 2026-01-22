@@ -412,10 +412,42 @@ export function convertIASTtoUkrainian(text: string): string {
 // ============================================================================
 
 /**
- * Конвертує Деванагарі в IAST
+ * Опції для транслітерації Sanscript
  */
-export function devanagariToIAST(text: string): string {
-  return Sanscript.t(text, "devanagari", "iast");
+export interface TransliterationOptions {
+  /** Пропускати SGML/HTML теги (за замовчуванням: true) */
+  skipSgml?: boolean;
+  /** Використовувати хінді-стиль (syncope) транслітерації */
+  syncope?: boolean;
+}
+
+const DEFAULT_OPTIONS: TransliterationOptions = {
+  skipSgml: true,
+  syncope: false,
+};
+
+/**
+ * Конвертує Деванагарі в IAST
+ * @param text - текст деванагарі
+ * @param options - опції транслітерації
+ * @returns IAST транслітерація
+ *
+ * @example
+ * devanagariToIAST("धर्मक्षेत्रे कुरुक्षेत्रे") // → "dharmakṣetre kurukṣetre"
+ * devanagariToIAST("कृष्ण") // → "kṛṣṇa"
+ */
+export function devanagariToIAST(text: string, options?: TransliterationOptions): string {
+  if (!text) return text;
+
+  const opts = { ...DEFAULT_OPTIONS, ...options };
+
+  // Нормалізуємо Unicode перед конвертацією
+  const normalized = text.normalize("NFC");
+
+  return Sanscript.t(normalized, "devanagari", "iast", {
+    skip_sgml: opts.skipSgml,
+    syncope: opts.syncope,
+  });
 }
 
 // ============================================================================
@@ -423,10 +455,181 @@ export function devanagariToIAST(text: string): string {
 // ============================================================================
 
 /**
- * Конвертує Бенгалі в IAST
+ * Словник виправлень для бенгалі "lossy" проблеми
+ * Бенгалі використовує ব для обох "ba" і "va" - це "lossy scheme"
+ * Контекстні виправлення для відомих санскритських слів
  */
-export function bengaliToIAST(text: string): string {
-  return Sanscript.t(text, "bengali", "iast");
+const BENGALI_VA_WORDS: Record<string, string> = {
+  // Слова де ব = va (не ba)
+  "bande": "vande",           // বন্দে → vande (не bande)
+  "bandana": "vandana",       // বন্দনা → vandana
+  "baikuntha": "vaikuṇṭha",   // বৈকুণ্ঠ → vaikuṇṭha
+  "baisnaba": "vaiṣṇava",     // বৈষ্ণব → vaiṣṇava
+  "baishya": "vaiśya",        // বৈশ্য → vaiśya
+  "beda": "veda",             // বেদ → veda
+  "bedanta": "vedānta",       // বেদান্ত → vedānta
+  "bisnu": "viṣṇu",           // বিষ্ণু → viṣṇu
+  "bisnupriya": "viṣṇupriyā", // বিষ্ণুপ্রিয়া
+  "brindaban": "vṛndāvana",   // বৃন্দাবন → vṛndāvana
+  "braja": "vraja",           // ব্রজ → vraja
+  "brata": "vrata",           // ব্রত → vrata
+  "byasa": "vyāsa",           // ব্যাস → vyāsa
+  "babhrubahana": "vabhru­vāhana",
+  "basudeb": "vāsudeva",      // বাসুদেব → vāsudeva
+  "basudeba": "vāsudeva",
+};
+
+/**
+ * Постобробка IAST для виправлення бенгалі "lossy" проблеми
+ */
+function fixBengaliLossyScheme(iast: string): string {
+  let result = iast;
+
+  // Застосовуємо контекстні виправлення
+  for (const [wrong, correct] of Object.entries(BENGALI_VA_WORDS)) {
+    // Case-insensitive заміна на початку слова
+    const regex = new RegExp(`\\b${wrong}`, "gi");
+    result = result.replace(regex, (match) => {
+      // Зберігаємо регістр першої літери
+      if (match[0] === match[0].toUpperCase()) {
+        return correct.charAt(0).toUpperCase() + correct.slice(1);
+      }
+      return correct;
+    });
+  }
+
+  return result;
+}
+
+/**
+ * Конвертує Бенгалі в IAST
+ *
+ * УВАГА: Бенгалі є "lossy scheme" - символ ব використовується
+ * і для "ba", і для "va". Функція намагається виправити відомі
+ * санскритські слова автоматично.
+ *
+ * @param text - текст бенгалі
+ * @param options - опції транслітерації
+ * @returns IAST транслітерація
+ *
+ * @example
+ * bengaliToIAST("বন্দে গুরূন্") // → "vande gurūn" (виправлено з "bande")
+ * bengaliToIAST("কৃষ্ণ") // → "kṛṣṇa"
+ */
+export function bengaliToIAST(text: string, options?: TransliterationOptions): string {
+  if (!text) return text;
+
+  const opts = { ...DEFAULT_OPTIONS, ...options };
+
+  // Нормалізуємо Unicode перед конвертацією
+  const normalized = text.normalize("NFC");
+
+  let result = Sanscript.t(normalized, "bengali", "iast", {
+    skip_sgml: opts.skipSgml,
+    syncope: opts.syncope,
+  });
+
+  // Виправляємо "lossy" проблему бенгалі (b/v)
+  result = fixBengaliLossyScheme(result);
+
+  return result;
+}
+
+// ============================================================================
+// 8. Додаткові скрипти → IAST
+// ============================================================================
+
+/**
+ * Підтримувані індійські скрипти
+ */
+export type IndicScript =
+  | "devanagari"
+  | "bengali"
+  | "gujarati"
+  | "gurmukhi"
+  | "kannada"
+  | "malayalam"
+  | "oriya"
+  | "tamil"
+  | "telugu"
+  | "grantha";
+
+/**
+ * Універсальна функція конвертації будь-якого індійського скрипта в IAST
+ *
+ * @param text - текст індійським письмом
+ * @param script - тип скрипта
+ * @param options - опції транслітерації
+ * @returns IAST транслітерація
+ *
+ * @example
+ * indicToIAST("कृष्ण", "devanagari") // → "kṛṣṇa"
+ * indicToIAST("કૃષ્ણ", "gujarati") // → "kṛṣṇa"
+ */
+export function indicToIAST(
+  text: string,
+  script: IndicScript,
+  options?: TransliterationOptions
+): string {
+  if (!text) return text;
+
+  const opts = { ...DEFAULT_OPTIONS, ...options };
+  const normalized = text.normalize("NFC");
+
+  let result = Sanscript.t(normalized, script, "iast", {
+    skip_sgml: opts.skipSgml,
+    syncope: opts.syncope,
+  });
+
+  // Виправлення для lossy схем
+  if (script === "bengali") {
+    result = fixBengaliLossyScheme(result);
+  }
+
+  return result;
+}
+
+/**
+ * Автоматично визначає скрипт тексту
+ * @param text - текст для аналізу
+ * @returns визначений скрипт або null
+ */
+export function detectScript(text: string): IndicScript | null {
+  if (!text) return null;
+
+  // Unicode діапазони для індійських скриптів
+  const scriptRanges: Array<[IndicScript, RegExp]> = [
+    ["devanagari", /[\u0900-\u097F]/],
+    ["bengali", /[\u0980-\u09FF]/],
+    ["gujarati", /[\u0A80-\u0AFF]/],
+    ["gurmukhi", /[\u0A00-\u0A7F]/],
+    ["oriya", /[\u0B00-\u0B7F]/],
+    ["tamil", /[\u0B80-\u0BFF]/],
+    ["telugu", /[\u0C00-\u0C7F]/],
+    ["kannada", /[\u0C80-\u0CFF]/],
+    ["malayalam", /[\u0D00-\u0D7F]/],
+    ["grantha", /[\u11300-\u1137F]/],
+  ];
+
+  for (const [script, regex] of scriptRanges) {
+    if (regex.test(text)) {
+      return script;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Автоматично конвертує текст в IAST, визначаючи скрипт
+ * @param text - текст будь-яким індійським письмом
+ * @param options - опції транслітерації
+ * @returns IAST транслітерація або оригінальний текст якщо скрипт не визначено
+ */
+export function autoToIAST(text: string, options?: TransliterationOptions): string {
+  const script = detectScript(text);
+  if (!script) return text;
+  return indicToIAST(text, script, options);
 }
 
 // ============================================================================
@@ -566,11 +769,11 @@ export function normalizeVerse(verse: any): any {
     sanskrit: normalizeVerseField(verse.sanskrit || "", "sanskrit"),
     transliteration: normalizeVerseField(verse.transliteration || "", "transliteration"),
     synonyms_en: normalizeVerseField(verse.synonyms_en || "", "synonyms"),
-    synonyms_ua: normalizeVerseField(verse.synonyms_uk || "", "synonyms"),
+    synonyms_uk: normalizeVerseField(verse.synonyms_uk || "", "synonyms"),
     translation_en: normalizeVerseField(verse.translation_en || "", "translation"),
-    translation_ua: normalizeVerseField(verse.translation_uk || "", "translation"),
+    translation_uk: normalizeVerseField(verse.translation_uk || "", "translation"),
     commentary_en: normalizeVerseField(verse.commentary_en || "", "commentary"),
-    commentary_ua: normalizeVerseField(verse.commentary_ua || "", "commentary"),
+    commentary_uk: normalizeVerseField(verse.commentary_uk || "", "commentary"),
   };
 }
 

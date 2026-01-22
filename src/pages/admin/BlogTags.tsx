@@ -1,5 +1,7 @@
 // src/pages/admin/BlogTags.tsx
 import { useMemo, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -13,18 +15,27 @@ import { generateSlug } from "@/utils/blogHelpers";
 
 type BlogTag = {
   id: string;
-  name_ua: string;
+  name_uk: string;
   name_en: string;
   slug: string;
   post_count?: number | null;
 };
 
 export default function BlogTags() {
+  const { user, isAdmin } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user || !isAdmin) {
+      navigate("/auth");
+    }
+  }, [user, isAdmin, navigate]);
+
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
 
   // форма
-  const [nameUa, setNameUa] = useState("");
+  const [nameUk, setNameUk] = useState("");
   const [nameEn, setNameEn] = useState("");
   const [slug, setSlug] = useState("");
   const [autoSlug, setAutoSlug] = useState(true); // якщо користувач сам змінить slug — вимикаємо автогенерацію
@@ -46,7 +57,7 @@ export default function BlogTags() {
   } = useQuery({
     queryKey: ["blog-tags-admin"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("blog_tags").select("*").order("name_ua");
+      const { data, error } = await supabase.from("blog_tags").select("*").order("name_uk");
       if (error) throw error;
       return data as BlogTag[];
     },
@@ -54,7 +65,7 @@ export default function BlogTags() {
 
   const handleEdit = (tag: BlogTag) => {
     setEditId(tag.id);
-    setNameUa(tag.name_uk);
+    setNameUk(tag.name_uk);
     setNameEn(tag.name_en);
     setSlug(tag.slug);
     setAutoSlug(false); // при редагуванні існуючого — не чіпаємо slug автоматично
@@ -63,7 +74,7 @@ export default function BlogTags() {
 
   const handleReset = () => {
     setEditId(null);
-    setNameUa("");
+    setNameUk("");
     setNameEn("");
     setSlug("");
     setAutoSlug(true);
@@ -72,13 +83,13 @@ export default function BlogTags() {
   // автогенерація slug з української назви (лише якщо користувач сам не правив slug)
   useEffect(() => {
     if (autoSlug) {
-      setSlug(generateSlug(nameUa));
+      setSlug(generateSlug(nameUk));
     }
-  }, [nameUa, autoSlug]);
+  }, [nameUk, autoSlug]);
 
   const handleSlugManualChange = (v: string) => {
     setSlug(v);
-    if (v !== generateSlug(nameUa)) {
+    if (v !== generateSlug(nameUk)) {
       setAutoSlug(false);
     } else if (!editId) {
       setAutoSlug(true);
@@ -88,15 +99,15 @@ export default function BlogTags() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!nameUa || !nameEn) {
+    if (!nameUk || !nameEn) {
       toast({ title: "Заповніть назви українською та англійською", variant: "destructive" });
       return;
     }
 
     const tagData = {
-      name_ua: nameUa,
+      name_uk: nameUk,
       name_en: nameEn,
-      slug: slug || generateSlug(nameUa),
+      slug: slug || generateSlug(nameUk),
     };
 
     try {
@@ -146,6 +157,8 @@ export default function BlogTags() {
     });
   }, [tags, debouncedSearch]);
 
+  if (!user || !isAdmin) return null;
+
   return (
     <div className="container mx-auto py-8">
       {/* Хедер дій */}
@@ -171,8 +184,8 @@ export default function BlogTags() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="name-ua">Назва (UA)</Label>
-                  <Input id="name-ua" value={nameUa} onChange={(e) => setNameUa(e.target.value)} required />
+                  <Label htmlFor="name-ua">Назва (UK)</Label>
+                  <Input id="name-ua" value={nameUk} onChange={(e) => setNameUk(e.target.value)} required />
                 </div>
                 <div>
                   <Label htmlFor="name-en">Name (EN)</Label>
@@ -189,7 +202,7 @@ export default function BlogTags() {
                   placeholder="Згенерується автоматично"
                 />
                 {autoSlug ? (
-                  <p className="mt-1 text-xs text-muted-foreground">Slug генерується автоматично з назви (UA)</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Slug генерується автоматично з назви (UK)</p>
                 ) : (
                   <p className="mt-1 text-xs text-muted-foreground">Автогенерацію вимкнено (вручну відредаговано)</p>
                 )}
@@ -219,7 +232,7 @@ export default function BlogTags() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Назва (UA)</TableHead>
+              <TableHead>Назва (UK)</TableHead>
               <TableHead>Name (EN)</TableHead>
               <TableHead>Slug</TableHead>
               <TableHead>Постів</TableHead>

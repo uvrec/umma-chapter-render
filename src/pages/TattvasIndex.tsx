@@ -25,32 +25,32 @@ import { cn } from "@/lib/utils";
 // Категорії самбандга/абгідгея/праойджана
 const CATEGORY_INFO = {
   sambandha: {
-    ua: "Самбандга",
+    uk: "Самбандга",
     en: "Sambandha",
-    descUa: "Взаємозв'язок — хто Бог, хто ми, і як ми пов'язані",
+    descUk: "Взаємозв'язок — хто Бог, хто ми, і як ми пов'язані",
     descEn: "Relationship — who is God, who are we, and how are we connected",
   },
   abhidheya: {
-    ua: "Абгідгея",
+    uk: "Абгідгея",
     en: "Abhidheya",
-    descUa: "Процес — як досягти мети життя",
+    descUk: "Процес — як досягти мети життя",
     descEn: "Process — how to achieve the goal of life",
   },
   prayojana: {
-    ua: "Прайоджана",
+    uk: "Прайоджана",
     en: "Prayojana",
-    descUa: "Мета — кінцева ціль духовного життя",
+    descUk: "Мета — кінцева ціль духовного життя",
     descEn: "Goal — the ultimate objective of spiritual life",
   },
 };
 
 function TattvaRow({ tattva, depth = 0 }: { tattva: Tattva; depth?: number }) {
-  const { language, t } = useLanguage();
+  const { language, t, getLocalizedPath } = useLanguage();
   const name = language === "uk" ? tattva.name_uk : tattva.name_en;
 
   return (
     <Link
-      to={`/tattva/${tattva.slug}`}
+      to={getLocalizedPath(`/tattva/${tattva.slug}`)}
       className={cn(
         "flex items-center justify-between py-3 px-4 -mx-4",
         "hover:bg-muted/50 transition-colors group",
@@ -89,10 +89,10 @@ function CategorySection({
     <section className="mb-8">
       <div className="mb-4">
         <h2 className="text-lg font-medium text-foreground">
-          {language === "uk" ? info.ua : info.en}
+          {language === "uk" ? info.uk : info.en}
         </h2>
         <p className="text-sm text-muted-foreground">
-          {language === "uk" ? info.descUa : info.descEn}
+          {language === "uk" ? info.descUk : info.descEn}
         </p>
       </div>
       <div className="divide-y divide-border/50">
@@ -136,7 +136,7 @@ function SearchResults({ query }: { query: string }) {
 }
 
 export function TattvasIndex() {
-  const { language, t } = useLanguage();
+  const { language, t, getLocalizedPath } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const { data: tattvas, isLoading } = useRootTattvas();
 
@@ -145,9 +145,9 @@ export function TattvasIndex() {
   return (
     <>
       <PageMeta
-        titleUa="Таттви — Філософські категорії | Vedavoice"
+        titleUk="Таттви — Філософські категорії | Vedavoice"
         titleEn="Tattvas — Philosophical Categories | Vedavoice"
-        metaDescriptionUa="Систематизовані філософські категорії вчення Шріли Прабгупади"
+        metaDescriptionUk="Систематизовані філософські категорії вчення Шріли Прабгупади"
         metaDescriptionEn="Systematized philosophical categories of Srila Prabhupada's teachings"
         language={language}
       />
@@ -157,14 +157,14 @@ export function TattvasIndex() {
         <header className="border-b sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
-              <Link to="/">
+              <Link to={getLocalizedPath("/")}>
                 <Button variant="ghost" size="sm" className="gap-2">
                   <ArrowLeft className="h-4 w-4" />
                   {t("Головна", "Home")}
                 </Button>
               </Link>
 
-              <Link to="/library">
+              <Link to={getLocalizedPath("/library")}>
                 <Button variant="ghost" size="sm" className="gap-2">
                   <BookOpen className="h-4 w-4" />
                   {t("Бібліотека", "Library")}
