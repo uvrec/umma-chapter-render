@@ -539,7 +539,7 @@ export const ChapterVersesList = () => {
       <Header />
       <main className="flex-1 bg-background pb-4 sm:pb-8">
         <div className="container mx-auto max-w-6xl px-3 sm:px-4">
-          <div className="mb-2 sm:mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-2">
+          <div className="mb-2 sm:mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-2 sticky top-0 z-40 bg-background/95 backdrop-blur-sm py-2 -mx-3 px-3 sm:-mx-4 sm:px-4">
             {/* Back button - hidden on mobile (swipe to go back) */}
             {!isMobile && (
               <Button variant="ghost" onClick={handleBack} className="gap-2" size="sm">
