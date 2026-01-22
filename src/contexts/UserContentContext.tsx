@@ -25,6 +25,7 @@ export interface Note {
   verseNumber: string;
   verseRef: string;
   content: string;
+  tags: string[]; // Теги для організації нотаток
   createdAt: string;
   updatedAt: string;
 }
@@ -59,6 +60,7 @@ const STORAGE_KEYS = {
   bookmarks: "vv_user_bookmarks",
   notes: "vv_user_notes",
   highlights: "vv_user_highlights",
+  noteTags: "vv_user_note_tags", // Список всіх тегів
 };
 
 // Helper to generate unique IDs
@@ -90,11 +92,18 @@ interface UserContentContextType {
 
   // Notes
   notes: Note[];
-  addNote: (note: Omit<Note, "id" | "createdAt" | "updatedAt">) => Note;
-  updateNote: (id: string, content: string) => void;
+  addNote: (note: Omit<Note, "id" | "createdAt" | "updatedAt" | "tags"> & { tags?: string[] }) => Note;
+  updateNote: (id: string, content: string, tags?: string[]) => void;
   removeNote: (id: string) => void;
   getNotesForVerse: (bookSlug: string, cantoNumber: number | undefined, chapterNumber: number, verseNumber: string) => Note[];
   getNotesForBook: (bookSlug: string) => Note[];
+  getNotesWithTag: (tag: string) => Note[];
+
+  // Note Tags
+  noteTags: string[];
+  addNoteTag: (tag: string) => void;
+  removeNoteTag: (tag: string) => void;
+  getAllNoteTags: () => string[];
 
   // Highlights
   highlights: Highlight[];
@@ -132,12 +141,20 @@ export const UserContentProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [highlights, setHighlights] = useState<Highlight[]>([]);
+  const [noteTags, setNoteTags] = useState<string[]>([]);
 
   // Load data on mount
   useEffect(() => {
     setBookmarks(loadFromStorage<Bookmark>(STORAGE_KEYS.bookmarks));
-    setNotes(loadFromStorage<Note>(STORAGE_KEYS.notes));
+    // Migrate old notes without tags field
+    const loadedNotes = loadFromStorage<Note>(STORAGE_KEYS.notes);
+    const migratedNotes = loadedNotes.map(note => ({
+      ...note,
+      tags: note.tags || [], // Ensure tags array exists
+    }));
+    setNotes(migratedNotes);
     setHighlights(loadFromStorage<Highlight>(STORAGE_KEYS.highlights));
+    setNoteTags(loadFromStorage<string>(STORAGE_KEYS.noteTags));
   }, []);
 
   // Save bookmarks
@@ -160,6 +177,13 @@ export const UserContentProvider: React.FC<{ children: React.ReactNode }> = ({ c
       saveToStorage(STORAGE_KEYS.highlights, highlights);
     }
   }, [highlights]);
+
+  // Save note tags
+  useEffect(() => {
+    if (noteTags.length > 0 || localStorage.getItem(STORAGE_KEYS.noteTags)) {
+      saveToStorage(STORAGE_KEYS.noteTags, noteTags);
+    }
+  }, [noteTags]);
 
   // Bookmark functions
   const addBookmark = useCallback((bookmark: Omit<Bookmark, "id" | "createdAt">): Bookmark => {
@@ -210,10 +234,11 @@ export const UserContentProvider: React.FC<{ children: React.ReactNode }> = ({ c
   );
 
   // Note functions
-  const addNote = useCallback((note: Omit<Note, "id" | "createdAt" | "updatedAt">): Note => {
+  const addNote = useCallback((note: Omit<Note, "id" | "createdAt" | "updatedAt" | "tags"> & { tags?: string[] }): Note => {
     const now = new Date().toISOString();
     const newNote: Note = {
       ...note,
+      tags: note.tags || [],
       id: generateId(),
       createdAt: now,
       updatedAt: now,
@@ -222,10 +247,17 @@ export const UserContentProvider: React.FC<{ children: React.ReactNode }> = ({ c
     return newNote;
   }, []);
 
-  const updateNote = useCallback((id: string, content: string) => {
+  const updateNote = useCallback((id: string, content: string, tags?: string[]) => {
     setNotes((prev) =>
       prev.map((n) =>
-        n.id === id ? { ...n, content, updatedAt: new Date().toISOString() } : n
+        n.id === id
+          ? {
+              ...n,
+              content,
+              tags: tags !== undefined ? tags : n.tags,
+              updatedAt: new Date().toISOString()
+            }
+          : n
       )
     );
   }, []);
@@ -253,6 +285,32 @@ export const UserContentProvider: React.FC<{ children: React.ReactNode }> = ({ c
     },
     [notes]
   );
+
+  const getNotesWithTag = useCallback(
+    (tag: string) => {
+      return notes.filter((n) => n.tags?.includes(tag));
+    },
+    [notes]
+  );
+
+  // Note Tag functions
+  const addNoteTag = useCallback((tag: string) => {
+    const normalizedTag = tag.trim().toLowerCase();
+    if (normalizedTag && !noteTags.includes(normalizedTag)) {
+      setNoteTags((prev) => [...prev, normalizedTag].sort());
+    }
+  }, [noteTags]);
+
+  const removeNoteTag = useCallback((tag: string) => {
+    setNoteTags((prev) => prev.filter((t) => t !== tag));
+  }, []);
+
+  const getAllNoteTags = useCallback(() => {
+    // Combine saved tags with tags used in notes
+    const tagsFromNotes = notes.flatMap((n) => n.tags || []);
+    const allTags = new Set([...noteTags, ...tagsFromNotes]);
+    return Array.from(allTags).sort();
+  }, [noteTags, notes]);
 
   // Highlight functions
   const addHighlight = useCallback((highlight: Omit<Highlight, "id" | "createdAt">): Highlight => {
@@ -323,6 +381,11 @@ export const UserContentProvider: React.FC<{ children: React.ReactNode }> = ({ c
         removeNote,
         getNotesForVerse,
         getNotesForBook,
+        getNotesWithTag,
+        noteTags,
+        addNoteTag,
+        removeNoteTag,
+        getAllNoteTags,
         highlights,
         addHighlight,
         removeHighlight,

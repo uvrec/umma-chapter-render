@@ -13,6 +13,9 @@ import {
   Edit2,
   ExternalLink,
   ChevronRight,
+  Tag,
+  X,
+  Plus,
 } from "lucide-react";
 import { BookReaderHeader } from "@/components/BookReaderHeader";
 import { Button } from "@/components/ui/button";
@@ -27,6 +30,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -64,26 +68,26 @@ const formatDate = (dateString: string, language: string) => {
   });
 };
 
-// Build verse URL
-const buildVerseUrl = (
-  bookSlug: string,
-  cantoNumber: number | undefined,
-  chapterNumber: number,
-  verseNumber: string
-) => {
-  if (cantoNumber) {
-    return `/veda-reader/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/${verseNumber}`;
-  }
-  return `/veda-reader/${bookSlug}/${chapterNumber}/${verseNumber}`;
-};
-
 export const UserContentPage = ({
   bookTitle,
   bookSlug,
   cantoNumber,
   initialTab = "bookmarks",
 }: UserContentPageProps) => {
-  const { language, t } = useLanguage();
+  const { language, t, getLocalizedPath } = useLanguage();
+
+  // Build verse URL
+  const buildVerseUrl = (
+    bookSlugParam: string,
+    cantoNum: number | undefined,
+    chapterNumber: number,
+    verseNumber: string
+  ) => {
+    if (cantoNum) {
+      return getLocalizedPath(`/lib/${bookSlugParam}/${cantoNum}/${chapterNumber}/${verseNumber}`);
+    }
+    return getLocalizedPath(`/lib/${bookSlugParam}/${chapterNumber}/${verseNumber}`);
+  };
   const {
     getBookmarksForBook,
     removeBookmark,
@@ -93,11 +97,16 @@ export const UserContentPage = ({
     getHighlightsForBook,
     removeHighlight,
     getStats,
+    getAllNoteTags,
+    addNoteTag,
   } = useUserContent();
 
   // State
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [noteContent, setNoteContent] = useState("");
+  const [noteTags, setNoteTags] = useState<string[]>([]);
+  const [newTagInput, setNewTagInput] = useState("");
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{
     type: "bookmark" | "note" | "highlight";
     id: string;
@@ -110,18 +119,42 @@ export const UserContentPage = ({
   const highlights = getHighlightsForBook(bookSlug);
   const stats = getStats(bookSlug);
 
+  // Get all available tags
+  const allTags = getAllNoteTags();
+
+  // Filter notes by selected tag
+  const filteredNotes = selectedTag
+    ? notes.filter((n) => n.tags?.includes(selectedTag))
+    : notes;
+
   // Handle note edit
   const handleEditNote = (note: Note) => {
     setEditingNote(note);
     setNoteContent(note.content);
+    setNoteTags(note.tags || []);
   };
 
   const handleSaveNote = () => {
     if (editingNote) {
-      updateNote(editingNote.id, noteContent);
+      updateNote(editingNote.id, noteContent, noteTags);
       setEditingNote(null);
       setNoteContent("");
+      setNoteTags([]);
     }
+  };
+
+  // Handle adding tag to note
+  const handleAddTagToNote = () => {
+    const tag = newTagInput.trim().toLowerCase();
+    if (tag && !noteTags.includes(tag)) {
+      setNoteTags([...noteTags, tag]);
+      addNoteTag(tag); // Also save to global tags list
+    }
+    setNewTagInput("");
+  };
+
+  const handleRemoveTagFromNote = (tag: string) => {
+    setNoteTags(noteTags.filter((t) => t !== tag));
   };
 
   // Handle delete
@@ -267,18 +300,53 @@ export const UserContentPage = ({
 
           {/* Notes Tab */}
           <TabsContent value="notes">
-            {notes.length === 0 ? (
+            {/* Tag filter */}
+            {allTags.length > 0 && (
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Tag className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">
+                    {t("Фільтр по тегам:", "Filter by tags:")}
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Badge
+                    variant={selectedTag === null ? "default" : "outline"}
+                    className="cursor-pointer"
+                    onClick={() => setSelectedTag(null)}
+                  >
+                    {t("Всі", "All")} ({notes.length})
+                  </Badge>
+                  {allTags.map((tag) => {
+                    const count = notes.filter((n) => n.tags?.includes(tag)).length;
+                    if (count === 0) return null;
+                    return (
+                      <Badge
+                        key={tag}
+                        variant={selectedTag === tag ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => setSelectedTag(tag === selectedTag ? null : tag)}
+                      >
+                        #{tag} ({count})
+                      </Badge>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {filteredNotes.length === 0 ? (
               <EmptyState
                 icon={StickyNote}
-                title={t("Немає нотаток", "No Notes")}
-                description={t(
-                  "Створюйте нотатки до віршів, щоб зберегти свої думки та роздуми.",
-                  "Create notes for verses to save your thoughts and reflections."
-                )}
+                title={selectedTag ? t("Немає нотаток з цим тегом", "No notes with this tag") : t("Немає нотаток", "No Notes")}
+                description={selectedTag
+                  ? t("Спробуйте вибрати інший тег або зняти фільтр.", "Try selecting a different tag or removing the filter.")
+                  : t("Створюйте нотатки до віршів, щоб зберегти свої думки та роздуми.", "Create notes for verses to save your thoughts and reflections.")
+                }
               />
             ) : (
               <div className="space-y-3">
-                {notes.map((note) => (
+                {filteredNotes.map((note) => (
                   <div key={note.id} className="p-4 bg-card rounded-lg border">
                     <div className="flex items-start justify-between mb-2">
                       <Link
@@ -324,6 +392,21 @@ export const UserContentPage = ({
                     <p className="text-sm text-foreground whitespace-pre-wrap pl-6">
                       {note.content}
                     </p>
+                    {/* Tags display */}
+                    {note.tags && note.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2 pl-6">
+                        {note.tags.map((tag) => (
+                          <Badge
+                            key={tag}
+                            variant="secondary"
+                            className="text-xs cursor-pointer hover:bg-secondary/80"
+                            onClick={() => setSelectedTag(tag)}
+                          >
+                            #{tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
                     <p className="text-xs text-muted-foreground mt-2 pl-6">
                       {t("Оновлено", "Updated")}: {formatDate(note.updatedAt, language)}
                     </p>
@@ -404,22 +487,113 @@ export const UserContentPage = ({
       </main>
 
       {/* Edit Note Dialog */}
-      <Dialog open={!!editingNote} onOpenChange={() => setEditingNote(null)}>
-        <DialogContent>
+      <Dialog open={!!editingNote} onOpenChange={() => {
+        setEditingNote(null);
+        setNoteTags([]);
+        setNewTagInput("");
+      }}>
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>{t("Редагувати нотатку", "Edit Note")}</DialogTitle>
             <DialogDescription>
               {editingNote?.verseRef}
             </DialogDescription>
           </DialogHeader>
-          <Textarea
-            value={noteContent}
-            onChange={(e) => setNoteContent(e.target.value)}
-            placeholder={t("Ваша нотатка...", "Your note...")}
-            rows={5}
-          />
+          <div className="space-y-4">
+            <Textarea
+              value={noteContent}
+              onChange={(e) => setNoteContent(e.target.value)}
+              placeholder={t("Ваша нотатка...", "Your note...")}
+              rows={5}
+            />
+
+            {/* Tags section */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium flex items-center gap-2">
+                <Tag className="h-4 w-4" />
+                {t("Теги", "Tags")}
+              </label>
+
+              {/* Current tags */}
+              {noteTags.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {noteTags.map((tag) => (
+                    <Badge
+                      key={tag}
+                      variant="secondary"
+                      className="gap-1 pr-1"
+                    >
+                      #{tag}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTagFromNote(tag)}
+                        className="ml-1 rounded-full hover:bg-destructive/20 p-0.5"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+
+              {/* Add new tag */}
+              <div className="flex gap-2">
+                <Input
+                  value={newTagInput}
+                  onChange={(e) => setNewTagInput(e.target.value)}
+                  placeholder={t("Новий тег...", "New tag...")}
+                  className="flex-1"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddTagToNote();
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={handleAddTagToNote}
+                  disabled={!newTagInput.trim()}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {/* Suggested tags */}
+              {allTags.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  <span className="text-xs text-muted-foreground mr-1">
+                    {t("Швидкий вибір:", "Quick select:")}
+                  </span>
+                  {allTags
+                    .filter((tag) => !noteTags.includes(tag))
+                    .slice(0, 10)
+                    .map((tag) => (
+                      <Badge
+                        key={tag}
+                        variant="outline"
+                        className="cursor-pointer text-xs hover:bg-secondary"
+                        onClick={() => {
+                          if (!noteTags.includes(tag)) {
+                            setNoteTags([...noteTags, tag]);
+                          }
+                        }}
+                      >
+                        #{tag}
+                      </Badge>
+                    ))}
+                </div>
+              )}
+            </div>
+          </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingNote(null)}>
+            <Button variant="outline" onClick={() => {
+              setEditingNote(null);
+              setNoteTags([]);
+              setNewTagInput("");
+            }}>
               {t("Скасувати", "Cancel")}
             </Button>
             <Button onClick={handleSaveNote}>{t("Зберегти", "Save")}</Button>

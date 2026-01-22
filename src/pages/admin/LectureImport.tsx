@@ -6,7 +6,9 @@
  * ВАЖЛИВО: Потрібна міграція 20251107000001_create_lectures_tables.sql
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -30,7 +32,16 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function LectureImport() {
+  const { user, isAdmin } = useAuth();
+  const { getLocalizedPath } = useLanguage();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user || !isAdmin) {
+      navigate("/auth");
+    }
+  }, [user, isAdmin, navigate]);
+
   const [activeTab, setActiveTab] = useState("import");
 
   // Статистика лекцій (після міграції)
@@ -74,6 +85,8 @@ export default function LectureImport() {
     retry: false,
   });
 
+  if (!user || !isAdmin) return null;
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -87,7 +100,7 @@ export default function LectureImport() {
 
           <Button
             variant="outline"
-            onClick={() => navigate("/library/lectures")}
+            onClick={() => navigate(getLocalizedPath("/library/lectures"))}
           >
             <BookOpen className="w-4 h-4 mr-2" />
             Переглянути лекції
@@ -382,10 +395,10 @@ done`}
                         metadata: {
                           slug: "660307bg-new-york",
                           title_en: "Bhagavad-gītā 2.12",
-                          title_ua: "Бгаґавад-ґіта 2.12",
+                          title_uk: "Бгаґавад-ґіта 2.12",
                           lecture_date: "1966-03-07",
                           location_en: "New York",
-                          location_ua: "Нью-Йорк",
+                          location_uk: "Нью-Йорк",
                           lecture_type: "Bhagavad-gita",
                           audio_url: "https://...",
                           book_slug: "bg",
@@ -396,7 +409,7 @@ done`}
                           {
                             paragraph_number: 1,
                             content_en: "Prabhupāda: ...",
-                            content_ua: "Прабгупада: ...",
+                            content_uk: "Прабгупада: ...",
                             audio_timecode: 0,
                           },
                         ],

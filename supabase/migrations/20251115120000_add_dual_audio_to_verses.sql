@@ -6,7 +6,7 @@
 ALTER TABLE verses
 ADD COLUMN full_verse_audio_url TEXT,         -- PRIMARY: Complete verse recording (95% use case)
 ADD COLUMN recitation_audio_url TEXT,          -- Sanskrit/Bengali + Transliteration recitation
-ADD COLUMN explanation_ua_audio_url TEXT,      -- Ukrainian: Synonyms + Translation + Commentary
+ADD COLUMN explanation_uk_audio_url TEXT,      -- Ukrainian: Synonyms + Translation + Commentary
 ADD COLUMN explanation_en_audio_url TEXT,      -- English: Synonyms + Translation + Commentary
 ADD COLUMN audio_metadata JSONB;                -- Duration, file size, format, timestamps, etc.
 
@@ -20,7 +20,7 @@ WHERE audio_url IS NOT NULL
 -- Add column comments for documentation
 COMMENT ON COLUMN verses.full_verse_audio_url IS 'Primary audio: complete verse recording/lecture (most common use case)';
 COMMENT ON COLUMN verses.recitation_audio_url IS 'Audio of sanskrit/bengali text and transliteration only';
-COMMENT ON COLUMN verses.explanation_ua_audio_url IS 'Ukrainian: word-by-word, translation, and commentary combined';
+COMMENT ON COLUMN verses.explanation_uk_audio_url IS 'Ukrainian: word-by-word, translation, and commentary combined';
 COMMENT ON COLUMN verses.explanation_en_audio_url IS 'English: word-by-word, translation, and commentary combined';
 COMMENT ON COLUMN verses.audio_metadata IS 'JSONB metadata: {duration, file_size, format, uploaded_at, etc.}';
 COMMENT ON COLUMN verses.audio_url IS 'LEGACY: kept for backward compatibility, use full_verse_audio_url instead';

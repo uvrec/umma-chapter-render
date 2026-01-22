@@ -6,7 +6,9 @@
  * ВАЖЛИВО: Потрібна міграція 20251107000002_create_letters_tables.sql
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -30,7 +32,16 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function LetterImport() {
+  const { user, isAdmin } = useAuth();
+  const { getLocalizedPath } = useLanguage();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user || !isAdmin) {
+      navigate("/auth");
+    }
+  }, [user, isAdmin, navigate]);
+
   const [activeTab, setActiveTab] = useState("import");
 
   // Статистика листів (після міграції)
@@ -81,6 +92,8 @@ export default function LetterImport() {
     retry: false,
   });
 
+  if (!user || !isAdmin) return null;
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -94,7 +107,7 @@ export default function LetterImport() {
 
           <Button
             variant="outline"
-            onClick={() => navigate("/library/letters")}
+            onClick={() => navigate(getLocalizedPath("/library/letters"))}
           >
             <Mail className="w-4 h-4 mr-2" />
             Переглянути листи
@@ -377,15 +390,15 @@ done`}
                         metadata: {
                           slug: "letter-to-mahatma-gandhi",
                           recipient_en: "Mahatma Gandhi",
-                          recipient_ua: "Махатма Ґанді",
+                          recipient_uk: "Махатма Ґанді",
                           letter_date: "1947-07-12",
                           location_en: "Cawnpore",
-                          location_ua: "Канпур",
+                          location_uk: "Канпур",
                           reference: "47-07-12",
                           address_block: "Mahatma Gandhijee\nBhangi Colony\nNew Delhi.",
                         },
                         content_en: "Dear Friend Mahatmajee, ...",
-                        content_ua: "Шановний друже Махатмаджі, ...",
+                        content_uk: "Шановний друже Махатмаджі, ...",
                         sanskrit_terms: ["Bhagavad-gītā", "dharma"],
                       },
                       null,

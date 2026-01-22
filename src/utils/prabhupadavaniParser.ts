@@ -297,18 +297,18 @@ export function buildTDIntroUrl(volumeNum: number, slug: string): string {
 export function tdChapterToStandardChapter(chapter: TDChapter): {
   chapter_number: number;
   chapter_type: "text";
-  title_ua: string;
+  title_uk: string;
   title_en: string;
-  content_ua: string;
+  content_uk: string;
   content_en: string;
   verses: [];
 } {
   return {
     chapter_number: chapter.chapter_number,
     chapter_type: "text",
-    title_ua: "", // Українська версія поки відсутня
+    title_uk: "", // Українська версія поки відсутня
     title_en: chapter.title_en,
-    content_ua: "", // Українська версія поки відсутня
+    content_uk: "", // Українська версія поки відсутня
     content_en: chapter.content_en,
     verses: [],
   };

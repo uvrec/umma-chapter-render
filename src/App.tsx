@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { queryClient } from "@/lib/queryClient";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { RouteErrorBoundary } from "@/components/RouteErrorBoundary";
+import { lazy, Suspense } from "react";
+import { LoadingFallback } from "@/components/LoadingFallback";
 
 import SiteBanners from "@/components/SiteBanners";
 import { ChapterVersesList } from "@/pages/ChapterVersesList";
@@ -13,18 +15,82 @@ import { ChapterVersesList } from "@/pages/ChapterVersesList";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { BooksProvider } from "@/contexts/BooksContext";
 
 import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 import { AudioProvider as ModernAudioProvider } from "@/contexts/ModernAudioContext";
 import { ModernGlobalPlayer } from "@/components/ModernGlobalPlayer";
 
-import AdminBanners from "@/pages/admin/AdminBanners";
-import AdminAudiobooks from "@/pages/admin/AdminAudiobooks";
-import LectureImport from "@/pages/admin/LectureImport";
-import LetterImport from "@/pages/admin/LetterImport";
-import LecturesManager from "@/pages/admin/LecturesManager";
-import LettersManager from "@/pages/admin/LettersManager";
+// ============================================================
+// LAZY LOADED ADMIN PAGES (завантажуються тільки при потребі)
+// ============================================================
+const AdminBanners = lazy(() => import("@/pages/admin/AdminBanners"));
+const AdminAudiobooks = lazy(() => import("@/pages/admin/AdminAudiobooks"));
+const LectureImport = lazy(() => import("@/pages/admin/LectureImport"));
+const LetterImport = lazy(() => import("@/pages/admin/LetterImport"));
+const LecturesManager = lazy(() => import("@/pages/admin/LecturesManager"));
+const LettersManager = lazy(() => import("@/pages/admin/LettersManager"));
+const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
+const NormalizeTexts = lazy(() => import("./pages/admin/NormalizeTexts"));
+const Books = lazy(() => import("./pages/admin/Books"));
+const ScriptureManager = lazy(() => import("./pages/admin/ScriptureManager"));
+const Chapters = lazy(() => import("./pages/admin/Chapters"));
+const AddEditBook = lazy(() => import("./pages/admin/AddEditBook"));
+const AddEditVerse = lazy(() => import("./pages/admin/AddEditVerse"));
+const Cantos = lazy(() => import("./pages/admin/Cantos"));
+const AddEditCanto = lazy(() => import("./pages/admin/AddEditCanto"));
+const IntroChapters = lazy(() => import("./pages/admin/IntroChapters"));
+const AddEditIntroChapter = lazy(() => import("./pages/admin/AddEditIntroChapter"));
+const BlogPosts = lazy(() => import("./pages/admin/BlogPosts"));
+const AddEditBlogPost = lazy(() => import("./pages/admin/AddEditBlogPost"));
+const BlogCategories = lazy(() => import("./pages/admin/BlogCategories"));
+const BlogTags = lazy(() => import("./pages/admin/BlogTags"));
+const AudioCategories = lazy(() => import("./pages/admin/AudioCategories"));
+const AudioPlaylists = lazy(() => import("./pages/admin/AudioPlaylists"));
+const AudioPlaylistEdit = lazy(() => import("./pages/admin/AudioPlaylistEdit"));
+const UniversalImportFixed = lazy(() => import("./pages/admin/UniversalImportFixed"));
+const BBTImport = lazy(() => import("./pages/admin/BBTImportUniversal"));
+const FixRLSPolicies = lazy(() => import("./pages/admin/FixRLSPoliciesNew"));
+const Pages = lazy(() => import("./pages/admin/Pages"));
+const EditPage = lazy(() => import("./pages/admin/EditPage"));
+const StaticPages = lazy(() => import("./pages/admin/StaticPages"));
+const LRCEditorPage = lazy(() => import("./pages/admin/LRCEditorPage"));
+const BookExport = lazy(() => import("./pages/admin/BookExport"));
+const MergeNoiChapters = lazy(() => import("./pages/admin/MergeNoiChapters"));
+const Highlights = lazy(() => import("./pages/admin/Highlights"));
+const NumCal = lazy(() => import("./pages/admin/NumCal"));
 
+// ============================================================
+// LAZY LOADED HEAVY PAGES (великі сторінки)
+// ============================================================
+const Chat = lazy(() => import("./pages/Chat"));
+const LocalChat = lazy(() => import("./pages/LocalChat"));
+const KnowledgeCompiler = lazy(() => import("./pages/KnowledgeCompiler"));
+const TransliterationTool = lazy(() => import("./pages/TransliterationTool"));
+const JyotishCalculator = lazy(() => import("./pages/tools/JyotishCalculator"));
+const RagaExplorer = lazy(() => import("./pages/tools/RagaExplorer"));
+const VaishnavCalendar = lazy(() => import("./pages/VaishnavCalendar"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
+const GlossaryDB = lazy(() => import("./pages/GlossaryDB"));
+const SynonymsSearch = lazy(() => import("./pages/SynonymsSearch"));
+const SanskritDictionary = lazy(() => import("./pages/SanskritDictionary"));
+const Numerology = lazy(() => import("./pages/tools/Numerology"));
+const ScriptLearning = lazy(() => import("./pages/tools/ScriptLearning"));
+const TextNormalization = lazy(() => import("./pages/tools/TextNormalization"));
+const TimelinePage = lazy(() => import("./pages/TimelinePage"));
+const GVReferences = lazy(() => import("./pages/GVReferences"));
+const EkadashiList = lazy(() => import("./pages/EkadashiList"));
+const EkadashiDetail = lazy(() => import("./pages/EkadashiDetail"));
+const TattvasIndex = lazy(() => import("./pages/TattvasIndex"));
+const TattvaPage = lazy(() => import("./pages/TattvaPage"));
+const ReadingStatsPage = lazy(() => import("./pages/ReadingStatsPage"));
+const BookSearch = lazy(() => import("./pages/BookSearch"));
+const Quotes = lazy(() => import("./pages/Quotes"));
+const SadhanaTracker = lazy(() => import("./pages/SadhanaTracker"));
+
+// ============================================================
+// STATIC IMPORTS (критичні сторінки, завантажуються одразу)
+// ============================================================
 import { NewHome } from "./pages/NewHome";
 import NotFound from "./pages/NotFound";
 import { Library } from "./pages/Library";
@@ -38,57 +104,29 @@ import { Audio } from "./pages/Audio";
 import { Podcasts } from "./pages/audio/Podcasts";
 import { CardPayment } from "./pages/payment/CardPayment";
 import { BankTransfer } from "./pages/payment/BankTransfer";
-// Glossary.tsx removed - using GlossaryDB instead
+import { PaymentSuccess } from "./pages/payment/PaymentSuccess";
 import { Contact } from "./pages/Contact";
 import { Blog } from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
 import { Lectures } from "./pages/audio/Lectures";
 import { Music } from "./pages/audio/Music";
 import { Audiobooks } from "./pages/audio/Audiobooks";
 import { AudiobookView } from "./pages/audio/AudiobookView";
 import Auth from "./pages/Auth";
-import TransliterationTool from "./pages/TransliterationTool";
-import Numerology from "./pages/tools/Numerology";
-import ScriptLearning from "./pages/tools/ScriptLearning";
-import TextNormalization from "./pages/tools/TextNormalization";
-import JyotishCalculator from "./pages/tools/JyotishCalculator";
-import KnowledgeCompiler from "./pages/KnowledgeCompiler";
-import SynonymsSearch from "./pages/SynonymsSearch";
-import SanskritDictionary from "./pages/SanskritDictionary";
-import Dashboard from "./pages/admin/Dashboard";
-import NormalizeTexts from "./pages/admin/NormalizeTexts";
-import Books from "./pages/admin/Books";
-import ScriptureManager from "./pages/admin/ScriptureManager";
-import Chapters from "./pages/admin/Chapters";
-import AddEditBook from "./pages/admin/AddEditBook";
-import AddEditVerse from "./pages/admin/AddEditVerse";
-import DataMigration from "./pages/admin/DataMigration";
 import { VedaReaderDB } from "./components/VedaReaderDB";
-import GlossaryDB from "./pages/GlossaryDB";
 import { BookOverview } from "./pages/BookOverview";
 import CantoOverview from "./pages/CantoOverview";
 import { IntroChapter } from "./pages/IntroChapter";
-import Cantos from "./pages/admin/Cantos";
-import AddEditCanto from "./pages/admin/AddEditCanto";
-import IntroChapters from "./pages/admin/IntroChapters";
-import AddEditIntroChapter from "./pages/admin/AddEditIntroChapter";
-import BlogPosts from "./pages/admin/BlogPosts";
-import AddEditBlogPost from "./pages/admin/AddEditBlogPost";
-import BlogCategories from "./pages/admin/BlogCategories";
-import BlogTags from "./pages/admin/BlogTags";
-import AudioCategories from "./pages/admin/AudioCategories";
-import AudioPlaylists from "./pages/admin/AudioPlaylists";
-import AudioPlaylistEdit from "./pages/admin/AudioPlaylistEdit";
-import ImportWizard from "./pages/admin/ImportWizard";
-import UniversalImportFixed from "./pages/admin/UniversalImportFixed";
-import BBTImport from "./pages/admin/BBTImportUniversal";
-import FixVerseLineBreaks from "./pages/admin/FixVerseLineBreaks";
-import FixRLSPolicies from "./pages/admin/FixRLSPoliciesNew";
-import Pages from "./pages/admin/Pages";
-import EditPage from "./pages/admin/EditPage";
-import StaticPages from "./pages/admin/StaticPages";
 import { NoIRedirect } from "./pages/NoIRedirect";
-import MergeNoiChapters from "./pages/admin/MergeNoiChapters";
+import { LibOneParamRouter, LibTwoParamRouter, LibThreeParamRouter } from "./components/LibRouter";
+import { LanguageWrapper, LanguageRedirect } from "./components/LanguageWrapper";
+import {
+  VedaReaderBookRedirect,
+  VedaReaderChapterRedirect,
+  VedaReaderVerseRedirect,
+  VedaReaderCantoRedirect,
+  VedaReaderCantoChapterRedirect,
+  VedaReaderCantoVerseRedirect,
+} from "./components/VedaReaderRedirects";
 import { PageView } from "./pages/PageView";
 import { BookAuthorPage } from "./pages/book/BookAuthorPage";
 import { BookPronunciationPage } from "./pages/book/BookPronunciationPage";
@@ -99,43 +137,165 @@ import { BookSettingsRoutePage } from "./pages/book/BookSettingsRoutePage";
 import { BookUserContentPage } from "./pages/book/BookUserContentPage";
 import { BookGalleriesPage } from "./pages/book/BookGalleriesPage";
 import { UserContentProvider } from "./contexts/UserContentContext";
-import Highlights from "./pages/admin/Highlights";
-import NumCal from "./pages/admin/NumCal";
+import { SpineThemeProvider } from "./contexts/SpineThemeContext";
 import Install from "./pages/Install";
-import BookSearch from "./pages/BookSearch";
-import Chat from "./pages/Chat";
-import LocalChat from "./pages/LocalChat";
-import Quotes from "./pages/Quotes";
-import TattvasIndex from "./pages/TattvasIndex";
-import TattvaPage from "./pages/TattvaPage";
-import ReadingStatsPage from "./pages/ReadingStatsPage";
-import GVReferences from "./pages/GVReferences";
-import VaishnavCalendar from "./pages/VaishnavCalendar";
-import EkadashiList from "./pages/EkadashiList";
-import EkadashiDetail from "./pages/EkadashiDetail";
 import { OfflineIndicator } from "./components/OfflineIndicator";
 import { PWAUpdatePrompt } from "./components/PWAUpdatePrompt";
 import { UnifiedSearch, useUnifiedSearch } from "./components/UnifiedSearch";
 import { MobileLayout } from "./components/mobile";
+import { ReadingModeExitButton } from "./components/ReadingModeExitButton";
+import { useEffect } from "react";
 
 // Внутрішній компонент з доступом до hooks
 function AppContent() {
   const { open: searchOpen, setOpen: setSearchOpen } = useUnifiedSearch();
 
+  // Очищаємо режими читання при завантаженні застосунку
+  // щоб вони не впливали на сторінки поза читачем
+  useEffect(() => {
+    document.documentElement.setAttribute('data-fullscreen-reading', 'false');
+    document.documentElement.setAttribute('data-zen-mode', 'false');
+    document.documentElement.setAttribute('data-presentation-mode', 'false');
+  }, []);
+
   return (
     <>
       <BrowserRouter>
         <MobileLayout>
+        <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/" element={<NewHome />} />
+          {/* ============================================================
+              ROOT → LANGUAGE REDIRECT
+              Redirects / to /uk/ or /en/ based on saved preference
+              ============================================================ */}
+          <Route path="/" element={<LanguageRedirect />} />
 
-          {/* ВИДАЛЕНО: Старий роут /verses/:bookId/:verseNumber - використовуйте /veda-reader/ */}
+          {/* ============================================================
+              LANGUAGE-PREFIXED ROUTES (/:lang/...)
+              All public routes wrapped with language prefix
+              ============================================================ */}
+          <Route path="/:lang" element={<LanguageWrapper />}>
+            <Route index element={<NewHome />} />
 
-          {/* Нові маршрути читання БД */}
-          <Route path="/veda-reader/:bookId" element={<BookOverview />} />
+            {/* /lib/ - ОСНОВНІ МАРШРУТИ (короткі URL) */}
+            <Route path="lib/:bookId/:p1/:p2/:p3" element={<LibThreeParamRouter />} />
+            <Route path="lib/:bookId/:p1/:p2" element={<LibTwoParamRouter />} />
+            <Route path="lib/:bookId/:p1" element={<LibOneParamRouter />} />
+            <Route path="lib/:bookId" element={<BookOverview />} />
+            <Route path="lib" element={<Navigate to="library" replace />} />
+
+            {/* /veda-reader/ - РЕДІРЕКТИ на /lib/ (для зворотної сумісності) */}
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseId" element={<VedaReaderCantoVerseRedirect />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseNumber" element={<VedaReaderCantoVerseRedirect />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber" element={<VedaReaderCantoChapterRedirect />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber" element={<VedaReaderCantoRedirect />} />
+            <Route path="veda-reader/:bookId/:chapterNumber/:verseNumber" element={<VedaReaderVerseRedirect />} />
+            <Route path="veda-reader/:bookId/:chapterNumber" element={<VedaReaderChapterRedirect />} />
+            <Route path="veda-reader/noi/:verseNumber" element={<NoIRedirect />} />
+
+            {/* Book resources pages */}
+            <Route path="veda-reader/:bookId/intro/:slug" element={<IntroChapter />} />
+            <Route path="veda-reader/:bookId/author" element={<BookAuthorPage />} />
+            <Route path="veda-reader/:bookId/pronunciation" element={<BookPronunciationPage />} />
+            <Route path="veda-reader/:bookId/glossary" element={<BookGlossaryPage />} />
+            <Route path="veda-reader/:bookId/dedication" element={<BookDedicationPage />} />
+            <Route path="veda-reader/:bookId/disciplic-succession" element={<BookDisciplicSuccessionPage />} />
+            <Route path="veda-reader/:bookId/settings" element={<BookSettingsRoutePage />} />
+            <Route path="veda-reader/:bookId/bookmarks" element={<BookUserContentPage />} />
+            <Route path="veda-reader/:bookId/notes" element={<BookUserContentPage />} />
+            <Route path="veda-reader/:bookId/highlights" element={<BookUserContentPage />} />
+            <Route path="veda-reader/:bookId/galleries" element={<BookGalleriesPage />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/author" element={<BookAuthorPage />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/pronunciation" element={<BookPronunciationPage />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/glossary" element={<BookGlossaryPage />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/dedication" element={<BookDedicationPage />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/disciplic-succession" element={<BookDisciplicSuccessionPage />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/settings" element={<BookSettingsRoutePage />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/bookmarks" element={<BookUserContentPage />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/notes" element={<BookUserContentPage />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/highlights" element={<BookUserContentPage />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/galleries" element={<BookGalleriesPage />} />
+            <Route path="veda-reader/:bookId" element={<VedaReaderBookRedirect />} />
+            <Route path="veda-reader/bhagavad-gita/*" element={<Navigate to="lib/bg/1" replace />} />
+            <Route path="veda-reader/gita/*" element={<Navigate to="lib/bg/1" replace />} />
+            <Route path="veda-reader/sri-isopanishad/*" element={<Navigate to="lib/iso/1" replace />} />
+            <Route path="veda-reader/srimad-bhagavatam/*" element={<Navigate to="lib/sb" replace />} />
+            <Route path="veda-reader/bhagavatam/*" element={<Navigate to="lib/sb" replace />} />
+
+            {/* Бібліотека */}
+            <Route path="library" element={<Library />} />
+            <Route path="library/references" element={<GVReferences />} />
+            <Route path="library/lectures" element={<LecturesLibrary />} />
+            <Route path="library/lectures/:slug" element={<LectureView />} />
+            <Route path="library/letters" element={<LettersLibrary />} />
+            <Route path="library/letters/:slug" element={<LetterView />} />
+            <Route path="library/:slug" element={<BookOverview />} />
+            <Route path="library/prabhupada" element={<Navigate to="library" replace />} />
+            <Route path="library/acharyas" element={<Navigate to="library" replace />} />
+
+            {/* Аудіо */}
+            <Route path="audio" element={<Audio />} />
+            <Route path="audiobooks" element={<Audiobooks />} />
+            <Route path="audiobooks/:id" element={<AudiobookView />} />
+            <Route path="audio/lectures" element={<Lectures />} />
+            <Route path="audio/music" element={<Music />} />
+
+            {/* Блог/інше */}
+            <Route path="blog" element={<Blog />} />
+            <Route path="blog/:slug" element={<BlogPost />} />
+            <Route path="audio/podcasts" element={<Podcasts />} />
+            <Route path="glossary" element={<GlossaryDB />} />
+            <Route path="tools/transliteration" element={<TransliterationTool />} />
+            <Route path="tools/numerology" element={<Numerology />} />
+            <Route path="tools/jyotish" element={<JyotishCalculator />} />
+            <Route path="tools/ragas" element={<RagaExplorer />} />
+            <Route path="tools/learning" element={<ScriptLearning />} />
+            <Route path="tools/normalization" element={<TextNormalization />} />
+            <Route path="tools/compiler" element={<KnowledgeCompiler />} />
+            <Route path="tools/synonyms" element={<SynonymsSearch />} />
+            <Route path="tools/dictionary" element={<SanskritDictionary />} />
+            <Route path="install" element={<Install />} />
+            <Route path="search" element={<BookSearch />} />
+            <Route path="chat" element={<Chat />} />
+            <Route path="chat/local" element={<LocalChat />} />
+            <Route path="quotes" element={<Quotes />} />
+            <Route path="tattvas" element={<TattvasIndex />} />
+            <Route path="tattva/:slug" element={<TattvaPage />} />
+            <Route path="stats" element={<ReadingStatsPage />} />
+            <Route path="timeline" element={<TimelinePage />} />
+            <Route path="sadhana" element={<SadhanaTracker />} />
+
+            {/* Вайшнавський календар */}
+            <Route path="calendar" element={<VaishnavCalendar />} />
+            <Route path="calendar/ekadashi" element={<EkadashiList />} />
+            <Route path="calendar/ekadashi/:slug" element={<EkadashiDetail />} />
+            <Route path="contact" element={<Contact />} />
+
+            {/* Платежі */}
+            <Route path="payment/card" element={<CardPayment />} />
+            <Route path="payment/bank" element={<BankTransfer />} />
+            <Route path="payment/success" element={<PaymentSuccess />} />
+
+            {/* CMS сторінки - catch-all для невідомих шляхів в межах мови */}
+            <Route path=":slug" element={<PageView />} />
+          </Route>
+
+          {/* ============================================================
+              NON-LOCALIZED ROUTES (без мовного префіксу)
+              ============================================================ */}
+          {/* Основні читацькі маршрути → редірект на /lib/ */}
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseId" element={<VedaReaderCantoVerseRedirect />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseNumber" element={<VedaReaderCantoVerseRedirect />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber" element={<VedaReaderCantoChapterRedirect />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber" element={<VedaReaderCantoRedirect />} />
+          <Route path="/veda-reader/:bookId/:chapterNumber/:verseNumber" element={<VedaReaderVerseRedirect />} />
+          <Route path="/veda-reader/:bookId/:chapterNumber" element={<VedaReaderChapterRedirect />} />
+
+          {/* Special route for NoI: redirect to /lib/ */}
+          <Route path="/veda-reader/noi/:verseNumber" element={<NoIRedirect />} />
+
+          {/* Book resources pages - залишаються під /veda-reader/ (не мають числових параметрів) */}
           <Route path="/veda-reader/:bookId/intro/:slug" element={<IntroChapter />} />
-
-          {/* Book resources pages */}
           <Route path="/veda-reader/:bookId/author" element={<BookAuthorPage />} />
           <Route path="/veda-reader/:bookId/pronunciation" element={<BookPronunciationPage />} />
           <Route path="/veda-reader/:bookId/glossary" element={<BookGlossaryPage />} />
@@ -156,32 +316,16 @@ function AppContent() {
           <Route path="/veda-reader/:bookId/canto/:cantoNumber/notes" element={<BookUserContentPage />} />
           <Route path="/veda-reader/:bookId/canto/:cantoNumber/highlights" element={<BookUserContentPage />} />
           <Route path="/veda-reader/:bookId/canto/:cantoNumber/galleries" element={<BookGalleriesPage />} />
-          <Route path="/veda-reader/:bookId/canto/:cantoNumber" element={<CantoOverview />} />
-          <Route
-            path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseId"
-            element={<RouteErrorBoundary routeName="VedaReader"><VedaReaderDB /></RouteErrorBoundary>}
-          />
 
-          {/* Special route for NoI: redirect to explicit chapter 1 */}
-          <Route path="/veda-reader/noi/:verseNumber" element={<NoIRedirect />} />
+          {/* /veda-reader/:bookId → /lib/:bookId (останнє - найменш специфічне) */}
+          <Route path="/veda-reader/:bookId" element={<VedaReaderBookRedirect />} />
 
-          <Route path="/veda-reader/:bookId/:chapterNumber" element={<ChapterVersesList />} />
-          <Route path="/veda-reader/:bookId/:chapterNumber/:verseNumber" element={<RouteErrorBoundary routeName="VedaReader"><VedaReaderDB /></RouteErrorBoundary>} />
-          <Route
-            path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber"
-            element={<ChapterVersesList />}
-          />
-          <Route
-            path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseNumber"
-            element={<RouteErrorBoundary routeName="VedaReader"><VedaReaderDB /></RouteErrorBoundary>}
-          />
-
-          {/* Alias/redirects */}
-          <Route path="/veda-reader/bhagavad-gita/*" element={<Navigate to="/veda-reader/bg/1" replace />} />
-          <Route path="/veda-reader/gita/*" element={<Navigate to="/veda-reader/bg/1" replace />} />
-          <Route path="/veda-reader/sri-isopanishad/*" element={<Navigate to="/veda-reader/iso/1" replace />} />
-          <Route path="/veda-reader/srimad-bhagavatam/*" element={<Navigate to="/veda-reader/sb" replace />} />
-          <Route path="/veda-reader/bhagavatam/*" element={<Navigate to="/veda-reader/sb" replace />} />
+          {/* Alias/redirects для довгих назв */}
+          <Route path="/veda-reader/bhagavad-gita/*" element={<Navigate to="/lib/bg/1" replace />} />
+          <Route path="/veda-reader/gita/*" element={<Navigate to="/lib/bg/1" replace />} />
+          <Route path="/veda-reader/sri-isopanishad/*" element={<Navigate to="/lib/iso/1" replace />} />
+          <Route path="/veda-reader/srimad-bhagavatam/*" element={<Navigate to="/lib/sb" replace />} />
+          <Route path="/veda-reader/bhagavatam/*" element={<Navigate to="/lib/sb" replace />} />
 
           {/* Бібліотека */}
           <Route path="/library" element={<Library />} />
@@ -209,6 +353,7 @@ function AppContent() {
           <Route path="/tools/transliteration" element={<TransliterationTool />} />
           <Route path="/tools/numerology" element={<Numerology />} />
           <Route path="/tools/jyotish" element={<JyotishCalculator />} />
+          <Route path="/tools/ragas" element={<RagaExplorer />} />
           <Route path="/tools/learning" element={<ScriptLearning />} />
           <Route path="/tools/normalization" element={<TextNormalization />} />
           <Route path="/tools/compiler" element={<KnowledgeCompiler />} />
@@ -222,6 +367,8 @@ function AppContent() {
           <Route path="/tattvas" element={<TattvasIndex />} />
           <Route path="/tattva/:slug" element={<TattvaPage />} />
           <Route path="/stats" element={<ReadingStatsPage />} />
+          <Route path="/timeline" element={<TimelinePage />} />
+          <Route path="/sadhana" element={<SadhanaTracker />} />
 
           {/* Вайшнавський календар */}
           <Route path="/calendar" element={<VaishnavCalendar />} />
@@ -232,6 +379,7 @@ function AppContent() {
           {/* Платежі */}
           <Route path="/payment/card" element={<CardPayment />} />
           <Route path="/payment/bank" element={<BankTransfer />} />
+          <Route path="/payment/success" element={<PaymentSuccess />} />
 
           {/* Auth */}
           <Route path="/auth" element={<Auth />} />
@@ -255,11 +403,8 @@ function AppContent() {
           <Route path="/admin/verses/new" element={<AddEditVerse />} />
           <Route path="/admin/verses/:id/edit" element={<AddEditVerse />} />
           <Route path="/admin/scripture" element={<ScriptureManager />} />
-          <Route path="/admin/data-migration" element={<DataMigration />} />
-          <Route path="/admin/import-wizard" element={<ImportWizard />} />
           <Route path="/admin/universal-import" element={<UniversalImportFixed />} />
           <Route path="/admin/bbt-import" element={<BBTImport />} />
-          <Route path="/admin/fix-verse-linebreaks" element={<FixVerseLineBreaks />} />
           <Route path="/admin/fix-rls-policies" element={<FixRLSPolicies />} />
           <Route path="/admin/blog-posts" element={<BlogPosts />} />
           <Route path="/admin/blog-posts/new" element={<AddEditBlogPost />} />
@@ -280,26 +425,24 @@ function AppContent() {
           <Route path="/admin/lectures" element={<LecturesManager />} />
           <Route path="/admin/letters" element={<LettersManager />} />
           <Route path="/admin/numcal" element={<NumCal />} />
-          {/* Redirect /admin to dashboard */}
+          <Route path="/admin/lrc-editor" element={<LRCEditorPage />} />
+          <Route path="/admin/book-export" element={<BookExport />} />
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
 
-          {/* Explicit /404 route to prevent CMS catch-all loop */}
-          <Route path="/404" element={<NotFound />} />
-
-          {/* Сторінки з CMS */}
-          <Route path="/:slug" element={<PageView />} />
-
           {/* 404 */}
+          <Route path="/404" element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </Suspense>
         </MobileLayout>
 
         {/* Глобальні компоненти */}
         <OfflineIndicator />
         <PWAUpdatePrompt />
         <ModernGlobalPlayer />
-        <GlobalSettingsPanel />
+        <GlobalSettingsPanel showFloatingButton={false} />
         <UnifiedSearch open={searchOpen} onOpenChange={setSearchOpen} />
+        <ReadingModeExitButton />
       </BrowserRouter>
     </>
   );
@@ -312,15 +455,19 @@ const App = () => (
       <ThemeProvider defaultTheme="craft" storageKey="veda-ui-theme">
         <LanguageProvider>
           <AuthProvider>
+          <BooksProvider>
             <TooltipProvider>
               <ModernAudioProvider>
                 <UserContentProvider>
-                  <Toaster />
-                  <Sonner />
-                  <AppContent />
+                  <SpineThemeProvider>
+                    <Toaster />
+                    <Sonner />
+                    <AppContent />
+                  </SpineThemeProvider>
                 </UserContentProvider>
               </ModernAudioProvider>
             </TooltipProvider>
+          </BooksProvider>
           </AuthProvider>
         </LanguageProvider>
       </ThemeProvider>

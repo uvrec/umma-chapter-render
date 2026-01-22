@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -24,6 +26,15 @@ import { toast } from "sonner";
 import { Highlight } from "@/hooks/useHighlights";
 
 export default function Highlights() {
+  const { user, isAdmin } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user || !isAdmin) {
+      navigate("/auth");
+    }
+  }, [user, isAdmin, navigate]);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedHighlight, setSelectedHighlight] = useState<Highlight | null>(null);
 
@@ -34,8 +45,8 @@ export default function Highlights() {
         .from("highlights")
         .select(`
           *,
-          books:book_id (title_ua, title_en, slug),
-          chapters:chapter_id (chapter_number, title_ua, title_en)
+          books:book_id (title_uk, title_en, slug),
+          chapters:chapter_id (chapter_number, title_uk, title_en)
         `)
         .order("created_at", { ascending: false });
 
@@ -153,6 +164,8 @@ export default function Highlights() {
 
     toast.success("Експорт завершено");
   };
+
+  if (!user || !isAdmin) return null;
 
   if (isLoading) {
     return <div className="p-8">Завантаження...</div>;

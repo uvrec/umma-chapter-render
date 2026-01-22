@@ -33,6 +33,7 @@ const LS = {
   showVerseContour: "vv_reader_showVerseContour",
   fullscreenMode: "vv_reader_fullscreenMode",
   zenMode: "vv_reader_zenMode",
+  presentationMode: "vv_reader_presentationMode",
 };
 
 // Перевірка доступності localStorage (Firefox private mode, Enhanced Tracking Protection)
@@ -139,6 +140,7 @@ export function useReaderSettings() {
   const [showVerseContour, setShowVerseContour] = useState<boolean>(() => readBool(LS.showVerseContour, true));
   const [fullscreenMode, setFullscreenMode] = useState<boolean>(() => readBool(LS.fullscreenMode, false));
   const [zenMode, setZenMode] = useState<boolean>(() => readBool(LS.zenMode, false));
+  const [presentationMode, setPresentationMode] = useState<boolean>(() => readBool(LS.presentationMode, false));
 
   const rootRef = useRef<HTMLElement | null>(null);
 
@@ -155,6 +157,7 @@ export function useReaderSettings() {
     showVerseContour,
     fullscreenMode,
     zenMode,
+    presentationMode,
   });
 
   // Оновлюємо refs при кожній зміні
@@ -171,8 +174,9 @@ export function useReaderSettings() {
       showVerseContour,
       fullscreenMode,
       zenMode,
+      presentationMode,
     };
-  }, [fontSizeAdjustment, lineHeight, dualLanguageMode, textDisplaySettings, continuousReadingSettings, showNumbers, flowMode, mobileSafeMode, showVerseContour, fullscreenMode, zenMode]);
+  }, [fontSizeAdjustment, lineHeight, dualLanguageMode, textDisplaySettings, continuousReadingSettings, showNumbers, flowMode, mobileSafeMode, showVerseContour, fullscreenMode, zenMode, presentationMode]);
 
   const dispatchPrefs = useCallback(() => {
     window.dispatchEvent(new Event("vv-reader-prefs-changed"));
@@ -263,18 +267,68 @@ export function useReaderSettings() {
     // Додаємо/видаляємо data-атрибут для CSS
     document.documentElement.setAttribute('data-fullscreen-reading', String(fullscreenMode));
     dispatchPrefs();
+
+    // Cleanup: reset to false when reader unmounts
+    return () => {
+      document.documentElement.setAttribute('data-fullscreen-reading', 'false');
+    };
   }, [fullscreenMode, dispatchPrefs]);
+
+  // Зберігаємо попередній стан zen для відстеження виходу
+  const prevZenMode = useRef(zenMode);
 
   useEffect(() => {
     safeSetItem(LS.zenMode, String(zenMode));
     // Zen Mode атрибут для CSS - ховає ВСЕ окрім тексту
     document.documentElement.setAttribute('data-zen-mode', String(zenMode));
+
     // Zen mode автоматично вмикає fullscreen
     if (zenMode && !fullscreenMode) {
       setFullscreenMode(true);
     }
+    // Вимикаємо fullscreen коли виходимо з zen mode
+    if (!zenMode && prevZenMode.current && fullscreenMode) {
+      setFullscreenMode(false);
+    }
+
+    prevZenMode.current = zenMode;
     dispatchPrefs();
+
+    // Cleanup: reset to false when reader unmounts
+    return () => {
+      document.documentElement.setAttribute('data-zen-mode', 'false');
+    };
   }, [zenMode, fullscreenMode, dispatchPrefs]);
+
+  // Зберігаємо попередній стан презентації для відстеження виходу
+  const prevPresentationMode = useRef(presentationMode);
+
+  useEffect(() => {
+    safeSetItem(LS.presentationMode, String(presentationMode));
+    // Presentation Mode атрибут для CSS - великий шрифт для проектора
+    document.documentElement.setAttribute('data-presentation-mode', String(presentationMode));
+
+    // Presentation mode автоматично вмикає fullscreen
+    if (presentationMode && !fullscreenMode) {
+      setFullscreenMode(true);
+    }
+    // Вимикаємо fullscreen коли виходимо з presentation mode
+    if (!presentationMode && prevPresentationMode.current && fullscreenMode) {
+      setFullscreenMode(false);
+    }
+    // Вимикаємо zen mode якщо вмикаємо presentation
+    if (presentationMode && zenMode) {
+      setZenMode(false);
+    }
+
+    prevPresentationMode.current = presentationMode;
+    dispatchPrefs();
+
+    // Cleanup: reset to false when reader unmounts
+    return () => {
+      document.documentElement.setAttribute('data-presentation-mode', 'false');
+    };
+  }, [presentationMode, fullscreenMode, zenMode, dispatchPrefs]);
 
   // синхронізація між вкладками
   useEffect(() => {
@@ -291,6 +345,7 @@ export function useReaderSettings() {
       if (e.key === LS.showVerseContour) setShowVerseContour(readBool(LS.showVerseContour, true));
       if (e.key === LS.fullscreenMode) setFullscreenMode(readBool(LS.fullscreenMode, false));
       if (e.key === LS.zenMode) setZenMode(readBool(LS.zenMode, false));
+      if (e.key === LS.presentationMode) setPresentationMode(readBool(LS.presentationMode, false));
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
@@ -312,6 +367,7 @@ export function useReaderSettings() {
       const newShowVerseContour = readBool(LS.showVerseContour, true);
       const newFullscreenMode = readBool(LS.fullscreenMode, false);
       const newZenMode = readBool(LS.zenMode, false);
+      const newPresentationMode = readBool(LS.presentationMode, false);
 
       // Порівнюємо з поточними значеннями через refs (уникаємо циклу)
       const current = stateRefs.current;
@@ -327,6 +383,7 @@ export function useReaderSettings() {
       if (newShowVerseContour !== current.showVerseContour) setShowVerseContour(newShowVerseContour);
       if (newFullscreenMode !== current.fullscreenMode) setFullscreenMode(newFullscreenMode);
       if (newZenMode !== current.zenMode) setZenMode(newZenMode);
+      if (newPresentationMode !== current.presentationMode) setPresentationMode(newPresentationMode);
     };
 
     window.addEventListener("vv-reader-prefs-changed", handlePrefsChanged);
@@ -389,6 +446,8 @@ export function useReaderSettings() {
     setFullscreenMode,
     zenMode,
     setZenMode,
+    presentationMode,
+    setPresentationMode,
     multipliers,
   };
 }

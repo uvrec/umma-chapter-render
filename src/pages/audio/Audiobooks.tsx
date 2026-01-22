@@ -12,8 +12,8 @@ import { UniversalCoverEditor } from "@/components/UniversalCoverEditor";
 
 type PlaylistRow = {
   id: string;
-  title_ua?: string | null;
-  description_ua?: string | null;
+  title_uk?: string | null;
+  description_uk?: string | null;
   cover_image_url?: string | null;
   
   year?: number | null;
@@ -68,8 +68,8 @@ export const Audiobooks = () => {
         .select(
           `
             id,
-            title_ua,
-            description_ua,
+            title_uk,
+            description_uk,
             cover_image_url,
             year,
             is_published,
@@ -79,7 +79,7 @@ export const Audiobooks = () => {
         .eq("category_id", category!.id)
         .eq("is_published", true)
         .order("display_order", { ascending: true, nullsFirst: false })
-        .order("title_ua", { ascending: true });
+        .order("title_uk", { ascending: true });
       if (error) throw error;
       return (data || []) as PlaylistRow[];
     },

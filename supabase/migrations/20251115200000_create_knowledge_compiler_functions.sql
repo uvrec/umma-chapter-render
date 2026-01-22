@@ -4,6 +4,13 @@
 -- This migration creates functions for full-text search
 -- and intelligent compilation of spiritual knowledge.
 
+-- =====================================================
+-- DROP EXISTING FUNCTIONS (required when return types change)
+-- =====================================================
+DROP FUNCTION IF EXISTS public.search_verses_fulltext(TEXT, TEXT, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, UUID[], INTEGER);
+DROP FUNCTION IF EXISTS public.find_related_verses(UUID, TEXT, REAL, INTEGER);
+DROP FUNCTION IF EXISTS public.get_topic_statistics(TEXT, TEXT);
+
 -- Function 1: Search verses with full-text search
 -- =====================================================
 -- Searches verses using PostgreSQL full-text search capabilities
@@ -70,40 +77,40 @@ BEGIN
     c.chapter_number,
     CASE
       WHEN language_code = 'en' THEN c.title_en
-      ELSE c.title_ua
+      ELSE c.title_uk
     END AS chapter_title,
     b.id AS book_id,
     CASE
       WHEN language_code = 'en' THEN b.title_en
-      ELSE b.title_ua
+      ELSE b.title_uk
     END AS book_title,
     b.slug AS book_slug,
     ca.id AS canto_id,
     ca.canto_number,
     CASE
       WHEN language_code = 'en' THEN ca.title_en
-      ELSE ca.title_ua
+      ELSE ca.title_uk
     END AS canto_title,
     -- Verse content (return based on language preference)
     COALESCE(
-      CASE WHEN language_code = 'en' THEN v.sanskrit_en ELSE v.sanskrit_ua END,
+      CASE WHEN language_code = 'en' THEN v.sanskrit_en ELSE v.sanskrit_uk END,
       v.sanskrit
     ) AS sanskrit,
     COALESCE(
-      CASE WHEN language_code = 'en' THEN v.transliteration_en ELSE v.transliteration_ua END,
+      CASE WHEN language_code = 'en' THEN v.transliteration_en ELSE v.transliteration_uk END,
       v.transliteration
     ) AS transliteration,
     CASE
       WHEN language_code = 'en' THEN v.synonyms_en
-      ELSE v.synonyms_ua
+      ELSE v.synonyms_uk
     END AS synonyms,
     CASE
       WHEN language_code = 'en' THEN v.translation_en
-      ELSE v.translation_ua
+      ELSE v.translation_uk
     END AS translation,
     CASE
       WHEN language_code = 'en' THEN v.commentary_en
-      ELSE v.commentary_ua
+      ELSE v.commentary_uk
     END AS commentary,
     -- Relevance ranking using ts_rank
     ts_rank(v.search_vector, ts_query) AS relevance_rank,
@@ -122,7 +129,7 @@ BEGIN
       COALESCE(
         CASE
           WHEN language_code = 'en' THEN v.translation_en
-          ELSE v.translation_ua
+          ELSE v.translation_uk
         END,
         ''
       ),
@@ -196,15 +203,15 @@ BEGIN
     v.verse_number,
     CASE
       WHEN language_code = 'en' THEN c.title_en
-      ELSE c.title_ua
+      ELSE c.title_uk
     END AS chapter_title,
     CASE
       WHEN language_code = 'en' THEN b.title_en
-      ELSE b.title_ua
+      ELSE b.title_uk
     END AS book_title,
     CASE
       WHEN language_code = 'en' THEN v.translation_en
-      ELSE v.translation_ua
+      ELSE v.translation_uk
     END AS translation,
     -- Calculate similarity using ts_rank with source verse vector
     ts_rank(v.search_vector, (SELECT search_vector::text::tsquery FROM source_verse)) AS similarity_score
@@ -270,7 +277,7 @@ BEGIN
     b.id AS book_id,
     CASE
       WHEN language_code = 'en' THEN b.title_en
-      ELSE b.title_ua
+      ELSE b.title_uk
     END AS book_title,
     b.slug AS book_slug,
     COUNT(v.id) AS verse_count,
@@ -287,7 +294,7 @@ BEGIN
     AND v.is_published = TRUE
     AND b.is_published = TRUE
   GROUP BY
-    b.id, b.title_en, b.title_ua, b.slug, b.display_order
+    b.id, b.title_en, b.title_uk, b.slug, b.display_order
   HAVING
     COUNT(v.id) > 0
   ORDER BY
@@ -328,14 +335,14 @@ BEGIN
   -- Build search vector from Ukrainian and English content
   -- Weight: A = most important (translation), B = important (commentary), C = synonyms
   NEW.search_vector :=
-    setweight(to_tsvector('simple', COALESCE(NEW.translation_ua, '')), 'A') ||
+    setweight(to_tsvector('simple', COALESCE(NEW.translation_uk, '')), 'A') ||
     setweight(to_tsvector('simple', COALESCE(NEW.translation_en, '')), 'A') ||
-    setweight(to_tsvector('simple', COALESCE(NEW.commentary_ua, '')), 'B') ||
+    setweight(to_tsvector('simple', COALESCE(NEW.commentary_uk, '')), 'B') ||
     setweight(to_tsvector('simple', COALESCE(NEW.commentary_en, '')), 'B') ||
-    setweight(to_tsvector('simple', COALESCE(NEW.synonyms_ua, '')), 'C') ||
+    setweight(to_tsvector('simple', COALESCE(NEW.synonyms_uk, '')), 'C') ||
     setweight(to_tsvector('simple', COALESCE(NEW.synonyms_en, '')), 'C') ||
     setweight(to_tsvector('simple', COALESCE(NEW.transliteration, '')), 'C') ||
-    setweight(to_tsvector('simple', COALESCE(NEW.transliteration_ua, '')), 'C') ||
+    setweight(to_tsvector('simple', COALESCE(NEW.transliteration_uk, '')), 'C') ||
     setweight(to_tsvector('simple', COALESCE(NEW.transliteration_en, '')), 'C');
 
   RETURN NEW;
@@ -347,10 +354,10 @@ DROP TRIGGER IF EXISTS verses_search_vector_update ON public.verses;
 
 CREATE TRIGGER verses_search_vector_update
   BEFORE INSERT OR UPDATE OF
-    translation_ua, translation_en,
-    commentary_ua, commentary_en,
-    synonyms_ua, synonyms_en,
-    transliteration, transliteration_ua, transliteration_en
+    translation_uk, translation_en,
+    commentary_uk, commentary_en,
+    synonyms_uk, synonyms_en,
+    transliteration, transliteration_uk, transliteration_en
   ON public.verses
   FOR EACH ROW
   EXECUTE FUNCTION public.update_verse_search_vector();
@@ -359,14 +366,14 @@ CREATE TRIGGER verses_search_vector_update
 -- This may take a while for large datasets
 UPDATE public.verses
 SET search_vector =
-  setweight(to_tsvector('simple', COALESCE(translation_ua, '')), 'A') ||
+  setweight(to_tsvector('simple', COALESCE(translation_uk, '')), 'A') ||
   setweight(to_tsvector('simple', COALESCE(translation_en, '')), 'A') ||
-  setweight(to_tsvector('simple', COALESCE(commentary_ua, '')), 'B') ||
+  setweight(to_tsvector('simple', COALESCE(commentary_uk, '')), 'B') ||
   setweight(to_tsvector('simple', COALESCE(commentary_en, '')), 'B') ||
-  setweight(to_tsvector('simple', COALESCE(synonyms_ua, '')), 'C') ||
+  setweight(to_tsvector('simple', COALESCE(synonyms_uk, '')), 'C') ||
   setweight(to_tsvector('simple', COALESCE(synonyms_en, '')), 'C') ||
   setweight(to_tsvector('simple', COALESCE(transliteration, '')), 'C') ||
-  setweight(to_tsvector('simple', COALESCE(transliteration_ua, '')), 'C') ||
+  setweight(to_tsvector('simple', COALESCE(transliteration_uk, '')), 'C') ||
   setweight(to_tsvector('simple', COALESCE(transliteration_en, '')), 'C')
 WHERE search_vector IS NULL OR search_vector = to_tsvector('simple', '');
 

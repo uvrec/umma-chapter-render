@@ -3,3 +3,13 @@
 
 export { MobileTabBar } from "./MobileTabBar";
 export { MobileLayout } from "./MobileLayout";
+export { MobileLibraryList } from "./MobileLibraryList";
+
+// Spine Navigation (Neu Bible-style)
+export { SpineNavigation } from "./SpineNavigation";
+export { SpineTypographyPanel } from "./SpineTypographyPanel";
+export { SpineSearchOverlay } from "./SpineSearchOverlay";
+export { SpineSettingsPanel } from "./SpineSettingsPanel";
+export { SpineTocPanel } from "./SpineTocPanel";
+export { SpineHighlightsPanel } from "./SpineHighlightsPanel";
+export { VerseNavigator } from "./VerseNavigator";

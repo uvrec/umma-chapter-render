@@ -29,7 +29,7 @@ import {
 import { QuoteCard } from "@/components/quotes";
 
 export function Quotes() {
-  const { language, t } = useLanguage();
+  const { language, t, getLocalizedPath } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -49,9 +49,9 @@ export function Quotes() {
   return (
     <>
       <PageMeta
-        titleUa="Цитати Прабгупади | Vedavoice"
+        titleUk="Цитати Прабгупади | Vedavoice"
         titleEn="Prabhupada Quotes | Vedavoice"
-        metaDescriptionUa="Тематичні цитати Шріли Прабгупади з книг, лекцій та листів"
+        metaDescriptionUk="Тематичні цитати Шріли Прабгупади з книг, лекцій та листів"
         metaDescriptionEn="Thematic quotes from Srila Prabhupada's books, lectures, and letters"
         language={language}
       />
@@ -63,7 +63,7 @@ export function Quotes() {
         <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-40">
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
-              <Link to="/">
+              <Link to={getLocalizedPath("/")}>
                 <Button variant="ghost" size="sm" className="gap-2">
                   <ArrowLeft className="h-4 w-4" />
                   {t("На головну", "Home")}
@@ -71,7 +71,7 @@ export function Quotes() {
               </Link>
 
               <div className="flex items-center gap-2">
-                <Link to="/library">
+                <Link to={getLocalizedPath("/library")}>
                   <Button variant="ghost" size="sm" className="gap-2">
                     <BookOpen className="h-4 w-4" />
                     {t("Бібліотека", "Library")}

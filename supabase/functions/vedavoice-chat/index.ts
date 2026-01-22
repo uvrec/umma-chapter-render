@@ -91,6 +91,12 @@ interface AuthResult {
   supabaseClient: any;  // Type simplified - client only used for auth.getUser()
 }
 
+// Type for chat message rows from database
+interface ChatMessageRow {
+  role: string;
+  content: string | null;
+}
+
 // ============================================================================
 // AUTHENTICATION
 // ============================================================================
@@ -317,15 +323,16 @@ function formatReference(result: SearchResult, language: 'uk' | 'en'): string {
 
 /**
  * Create internal path for verse navigation
- * Format: /veda-reader/bg/2/2 or /veda-reader/sb/canto/1/chapter/1/1
+ * Format: /lib/bg/2/2 or /lib/sb/1/1/1 (canto/chapter/verse)
  */
 function createVerseUrl(result: SearchResult): string {
-  // SB uses canto structure
-  if (result.book_slug === 'sb' && result.canto_number) {
-    return `/veda-reader/sb/canto/${result.canto_number}/chapter/${result.chapter_number}/${result.verse_number}`;
+  // Books with canto/volume structure: SB, CC, Saranagati, TD, SCB
+  const cantoBooks = ['sb', 'cc', 'scc', 'saranagati', 'td', 'scb'];
+  if (cantoBooks.includes(result.book_slug) && result.canto_number) {
+    return `/lib/${result.book_slug}/${result.canto_number}/${result.chapter_number}/${result.verse_number}`;
   }
   // Other books use simple structure
-  return `/veda-reader/${result.book_slug}/${result.chapter_number}/${result.verse_number}`;
+  return `/lib/${result.book_slug}/${result.chapter_number}/${result.verse_number}`;
 }
 
 /**
@@ -613,9 +620,9 @@ Deno.serve(async (req) => {
         .limit(10);
 
       if (existingMessages) {
-        conversationHistory = existingMessages
-          .filter(m => m.role !== 'system')
-          .map(m => ({ role: m.role, content: m.content }));
+        conversationHistory = (existingMessages as ChatMessageRow[])
+          .filter((m: ChatMessageRow) => m.role !== 'system')
+          .map((m: ChatMessageRow) => ({ role: m.role, content: m.content ?? '' }));
       }
     } else {
       // Create new session with user_id

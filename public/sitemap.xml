@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- Homepage -->
+  <url>
+    <loc>https://vedavoice.org/uk</loc>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://vedavoice.org/uk" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://vedavoice.org/en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vedavoice.org/uk" />
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://vedavoice.org/en</loc>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://vedavoice.org/uk" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://vedavoice.org/en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vedavoice.org/uk" />
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Library -->
+  <url>
+    <loc>https://vedavoice.org/uk/library</loc>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://vedavoice.org/uk/library" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://vedavoice.org/en/library" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vedavoice.org/uk/library" />
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://vedavoice.org/en/library</loc>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://vedavoice.org/uk/library" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://vedavoice.org/en/library" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vedavoice.org/uk/library" />
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Blog -->
+  <url>
+    <loc>https://vedavoice.org/uk/blog</loc>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://vedavoice.org/uk/blog" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://vedavoice.org/en/blog" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vedavoice.org/uk/blog" />
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://vedavoice.org/en/blog</loc>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://vedavoice.org/uk/blog" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://vedavoice.org/en/blog" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vedavoice.org/uk/blog" />
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Library - Lectures -->
+  <url>
+    <loc>https://vedavoice.org/uk/library/lectures</loc>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://vedavoice.org/uk/library/lectures" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://vedavoice.org/en/library/lectures" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vedavoice.org/uk/library/lectures" />
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://vedavoice.org/en/library/lectures</loc>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://vedavoice.org/uk/library/lectures" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://vedavoice.org/en/library/lectures" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vedavoice.org/uk/library/lectures" />
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Library - Letters -->
+  <url>
+    <loc>https://vedavoice.org/uk/library/letters</loc>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://vedavoice.org/uk/library/letters" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://vedavoice.org/en/library/letters" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vedavoice.org/uk/library/letters" />
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://vedavoice.org/en/library/letters</loc>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://vedavoice.org/uk/library/letters" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://vedavoice.org/en/library/letters" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vedavoice.org/uk/library/letters" />
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Books - Bhagavad Gita -->
+  <url>
+    <loc>https://vedavoice.org/uk/lib/bg</loc>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://vedavoice.org/uk/lib/bg" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://vedavoice.org/en/lib/bg" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vedavoice.org/uk/lib/bg" />
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://vedavoice.org/en/lib/bg</loc>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://vedavoice.org/uk/lib/bg" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://vedavoice.org/en/lib/bg" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vedavoice.org/uk/lib/bg" />
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Books - Srimad Bhagavatam -->
+  <url>
+    <loc>https://vedavoice.org/uk/lib/sb</loc>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://vedavoice.org/uk/lib/sb" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://vedavoice.org/en/lib/sb" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vedavoice.org/uk/lib/sb" />
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://vedavoice.org/en/lib/sb</loc>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://vedavoice.org/uk/lib/sb" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://vedavoice.org/en/lib/sb" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vedavoice.org/uk/lib/sb" />
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- About -->
+  <url>
+    <loc>https://vedavoice.org/uk/about</loc>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://vedavoice.org/uk/about" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://vedavoice.org/en/about" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vedavoice.org/uk/about" />
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://vedavoice.org/en/about</loc>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://vedavoice.org/uk/about" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://vedavoice.org/en/about" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vedavoice.org/uk/about" />
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+</urlset>

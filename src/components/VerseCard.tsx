@@ -6,7 +6,7 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Edit, Save, X, Volume2, GraduationCap, Play, Pause, ChevronLeft, ChevronRight } from "lucide-react";
+import { Edit, Save, X, Volume2, GraduationCap, Play, Pause, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
@@ -15,9 +15,10 @@ import { VerseNumberEditor } from "@/components/VerseNumberEditor";
 import { addLearningWord, isWordInLearningList } from "@/utils/learningWords";
 import { toast } from "sonner";
 import DOMPurify from "dompurify";
-import { stripParagraphTags } from "@/utils/import/normalizers";
+import { stripParagraphTags, sanitizeForRender } from "@/utils/import/normalizers";
 import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
 import { parseSynonymPairs } from "@/utils/glossaryParser";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { applyDropCap } from "@/utils/text/dropCap";
 import { useAudioSyncSimple } from "@/hooks/useAudioSync";
 
@@ -67,6 +68,7 @@ interface VerseCardProps {
       commentary: string;
     },
   ) => void;
+  onVerseDelete?: (verseId: string) => void;
   onVerseNumberUpdate?: () => void; // коллбек після зміни номера
   language?: "uk" | "en"; // ✅ НОВЕ: мова інтерфейсу
   // Навігація між віршами
@@ -76,7 +78,23 @@ interface VerseCardProps {
   isNextDisabled?: boolean;
   prevLabel?: string;
   nextLabel?: string;
+  bookSlug?: string; // для визначення префіксу (ШБ, БҐ, etc.)
 }
+
+/* =========================
+   Префікси книг
+   ========================= */
+const getBookPrefix = (slug: string | undefined): string => {
+  const prefixes: Record<string, string> = {
+    sb: "ШБ",
+    bg: "БҐ",
+    cc: "ЧЧ",
+    noi: "НВ",
+    iso: "Ішо",
+    nod: "НВ",
+  };
+  return slug ? prefixes[slug] || slug.toUpperCase() : "";
+};
 
 /* =========================
    Компонент
@@ -85,6 +103,7 @@ export const VerseCard = ({
   verseId,
   verseNumber,
   bookName,
+  bookSlug,
   sanskritText,
   transliteration = "",
   synonyms = "",
@@ -113,8 +132,9 @@ export const VerseCard = ({
   showVerseContour = true,
   isAdmin = false,
   onVerseUpdate,
+  onVerseDelete,
   onVerseNumberUpdate,
-  language = "ua",
+  language = "uk",
   onPrevVerse,
   onNextVerse,
   isPrevDisabled,
@@ -123,6 +143,7 @@ export const VerseCard = ({
   nextLabel,
 }: VerseCardProps) => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   // Ref для запобігання подвійному спрацюванню на мобільних (touch + click)
   const glossaryNavigationRef = useRef<boolean>(false);
@@ -144,7 +165,7 @@ export const VerseCard = ({
 
   // ✅ Назви блоків залежно від мови
   const blockLabels = {
-    ua: {
+    uk: {
       synonyms: "Послівний переклад",
       translation: "Літературний переклад",
       commentary: "Пояснення",
@@ -155,7 +176,7 @@ export const VerseCard = ({
       commentary: "Purport",
     },
   };
-  const labels = blockLabels[language];
+  const labels = blockLabels[language] || blockLabels.uk;
   const { playVerseWithChapterContext, currentTrack, togglePlay, isPlaying } = useAudio();
 
   // Check if this verse is currently playing
@@ -191,6 +212,16 @@ export const VerseCard = ({
   }, [isNowPlaying]);
 
   const [isEditing, setIsEditing] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Видалення вірша
+  const handleDelete = useCallback(() => {
+    if (verseId && onVerseDelete) {
+      onVerseDelete(verseId);
+      setShowDeleteConfirm(false);
+    }
+  }, [verseId, onVerseDelete]);
+
   const [edited, setEdited] = useState({
     sanskrit: sanskritText,
     transliteration: transliteration || "",
@@ -273,10 +304,10 @@ export const VerseCard = ({
   // Парсинг синонімів - використовуємо єдиний парсер з glossaryParser.ts
   const synonymPairs = parseSynonymPairs(isEditing ? edited.synonyms : synonyms);
 
-  // Визначаємо класи для контуру
+  // Визначаємо класи для контуру (не показуємо на мобільних для мінімалістичного дизайну)
   const contourClasses = isNowPlaying
     ? 'ring-2 ring-primary ring-offset-2 ring-offset-background now-playing'
-    : showVerseContour
+    : showVerseContour && !isMobile
       ? 'ring-1 ring-primary/30 ring-offset-1 ring-offset-background verse-contour'
       : '';
 
@@ -286,7 +317,7 @@ export const VerseCard = ({
       className={`verse-surface w-full animate-fade-in ${contourClasses}`}
     >
       <div
-        className="py-6"
+        className="pb-6"
         style={{
           fontSize: `${fontSize}px`,
           lineHeight,
@@ -294,25 +325,36 @@ export const VerseCard = ({
       >
         {/* НОМЕР ВІРША - відцентрований */}
         {showNumbers && (
-          <div className="flex flex-col items-center justify-center gap-2 mb-4">
+          <div className="flex flex-col items-center justify-center gap-2 mb-6 verse-number-block">
             {isAdmin && verseId ? (
-              <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} />
+              <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} bookSlug={bookSlug} />
             ) : (
-              <span className="font-semibold text-5xl" style={{ color: "rgb(188, 115, 26)" }}>
-                ВІРШ {verseNumber}
-              </span>
+              <>
+                {/* Mobile: book prefix + verse number (ШБ 4.20.1) - tap to play audio */}
+                <button
+                  onClick={() => (audioUrl || audioSanskrit || audioTranslation || audioCommentary) && playSection("Вірш", audioUrl || audioSanskrit || audioTranslation || audioCommentary)}
+                  className={`verse-number-clean md:hidden font-bold text-2xl whitespace-nowrap transition-colors ${isNowPlaying ? 'text-primary' : 'text-foreground'}`}
+                  disabled={!audioUrl && !audioSanskrit && !audioTranslation && !audioCommentary}
+                >
+                  {getBookPrefix(bookSlug)} {verseNumber}
+                </button>
+                {/* Desktop: book prefix + verse number (ШБ 4.20.1) */}
+                <span className="hidden md:inline font-semibold text-5xl whitespace-nowrap" style={{ color: "rgb(188, 115, 26)" }}>
+                  {getBookPrefix(bookSlug)} {verseNumber}
+                </span>
+              </>
             )}
-            {/* Назва глави - відцентрована під номером вірша */}
+            {/* Назва глави - відцентрована під номером вірша (hidden on mobile) */}
             {bookName && (
-              <span className="text-sm text-muted-foreground text-center">{bookName}</span>
+              <span className="hidden md:block text-sm text-muted-foreground text-center verse-book-name">{bookName}</span>
             )}
 
-            {/* Tap-to-jump: кнопка відтворення всього вірша */}
+            {/* Tap-to-jump: кнопка відтворення всього вірша (hidden on mobile) */}
             {(audioUrl || audioSanskrit || audioTranslation || audioCommentary) && (
               <button
                 onClick={() => playSection("Вірш", audioUrl || audioSanskrit || audioTranslation || audioCommentary)}
                 className={`
-                  mt-2 flex items-center gap-2 px-4 py-2 rounded-full
+                  verse-play-btn mt-2 hidden md:flex items-center gap-2 px-4 py-2 rounded-full
                   transition-all duration-200
                   ${isNowPlaying
                     ? 'bg-primary text-primary-foreground shadow-lg'
@@ -344,9 +386,9 @@ export const VerseCard = ({
           </div>
         )}
 
-        {/* КНОПКА РЕДАГУВАННЯ - по центру під номером вірша */}
+        {/* КНОПКА РЕДАГУВАННЯ - по центру під номером вірша (hidden on mobile) */}
         {isAdmin && (
-          <div className="flex justify-center mb-4">
+          <div className="hidden md:flex justify-center mb-4">
             {isEditing ? (
               <div className="flex gap-2">
                 <Button variant="default" size="sm" onClick={saveEdit}>
@@ -358,17 +400,40 @@ export const VerseCard = ({
                   Скасувати
                 </Button>
               </div>
+            ) : showDeleteConfirm ? (
+              <div className="flex items-center gap-2 bg-destructive/10 rounded-lg px-4 py-2">
+                <span className="text-sm text-destructive">Видалити цей вірш?</span>
+                <Button variant="destructive" size="sm" onClick={handleDelete}>
+                  Так, видалити
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setShowDeleteConfirm(false)}>
+                  Скасувати
+                </Button>
+              </div>
             ) : (
-              <Button variant="ghost" size="sm" onClick={startEdit}>
-                <Edit className="mr-2 h-4 w-4" />
-                Редагувати
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="ghost" size="sm" onClick={startEdit}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Редагувати
+                </Button>
+                {onVerseDelete && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Видалити
+                  </Button>
+                )}
+              </div>
             )}
           </div>
         )}
 
-        {/* НАВІГАЦІЯ МІЖ ВІРШАМИ */}
-        {onPrevVerse && onNextVerse && (
+        {/* НАВІГАЦІЯ МІЖ ВІРШАМИ - приховано на мобільних (є свайп) */}
+        {onPrevVerse && onNextVerse && !isMobile && (
           <div className="flex items-center justify-between mb-8">
             <Button variant="outline" onClick={onPrevVerse} disabled={isPrevDisabled}>
               <ChevronLeft className="mr-2 h-4 w-4" />
@@ -403,8 +468,8 @@ export const VerseCard = ({
         {/* Деванагарі з окремою кнопкою Volume2 */}
         {textDisplaySettings.showSanskrit && (isEditing || sanskritText) && (
           <div className={`mb-10 synced-section transition-all duration-300 ${getSectionHighlightClass('sanskrit')}`} data-synced-section="sanskrit">
-            {/* Кнопка Volume2 для Санскриту */}
-            <div className="mb-4 flex justify-center">
+            {/* Кнопка Volume2 для Санскриту - hidden on mobile (tap verse number to play) */}
+            <div className="mb-4 hidden md:flex justify-center">
               <button
                 onClick={() => playSection("Санскрит", audioSanskrit)}
                 disabled={!audioSanskrit && !audioUrl}
@@ -464,8 +529,8 @@ export const VerseCard = ({
         {/* Послівний переклад з окремою кнопкою Volume2 */}
         {textDisplaySettings.showSynonyms && (isEditing || synonyms) && (
           <div className={`mb-6 synced-section transition-all duration-300 ${getSectionHighlightClass('synonyms')}`} data-synced-section="synonyms">
-            {/* Заголовок + кнопка Volume2 */}
-            <div className="section-header flex items-center justify-center gap-4 mb-8">
+            {/* Заголовок + кнопка Volume2 (hidden on mobile via CSS for clean reading) */}
+            <div className="section-header hidden md:flex items-center justify-center gap-4 mb-8">
               <h4 className="text-foreground">{labels.synonyms}</h4>
               <button
                 onClick={() => playSection("Послівний переклад", audioSynonyms)}
@@ -541,6 +606,7 @@ export const VerseCard = ({
                           </span>
                         ))}
                         {pair.meaning && <span> — {pair.meaning}</span>}
+                        {/* Learning button - hidden on mobile via CSS for clean reading */}
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -548,7 +614,7 @@ export const VerseCard = ({
                           }}
                           title="Додати до вивчення"
                           aria-label={`Додати "${pair.term}" до вивчення`}
-                          className="inline-flex items-center justify-center ml-1 p-1 rounded-md hover:bg-primary/10 transition-colors group text-sm"
+                          className="hidden md:inline-flex items-center justify-center ml-1 p-1 rounded-md hover:bg-primary/10 transition-colors group text-sm"
                         >
                           <GraduationCap
                             className={`h-4 w-4 ${isWordInLearningList(pair.term) ? "text-green-600" : "text-muted-foreground group-hover:text-primary"}`}
@@ -566,8 +632,8 @@ export const VerseCard = ({
         {/* Літературний переклад з окремою кнопкою Volume2 */}
         {textDisplaySettings.showTranslation && (isEditing || translation) && (
           <div className={`mb-6 synced-section transition-all duration-300 ${getSectionHighlightClass('translation')}`} data-synced-section="translation">
-            {/* Заголовок + кнопка Volume2 */}
-            <div className="section-header flex items-center justify-center gap-4 mb-8">
+            {/* Заголовок + кнопка Volume2 (hidden on mobile via CSS for clean reading) */}
+            <div className="section-header hidden md:flex items-center justify-center gap-4 mb-8">
               <h4 className="text-foreground font-serif">{labels.translation}</h4>
               <button
                 onClick={() => playSection("Літературний переклад", audioTranslation)}
@@ -606,8 +672,8 @@ export const VerseCard = ({
         {/* Пояснення з окремою кнопкою Volume2 */}
         {textDisplaySettings.showCommentary && (isEditing || commentary) && (
           <div className={`synced-section transition-all duration-300 ${getSectionHighlightClass('commentary')}`} data-synced-section="commentary">
-            {/* Заголовок + кнопка Volume2 */}
-            <div className="section-header flex items-center justify-center gap-4 mb-8">
+            {/* Заголовок + кнопка Volume2 (hidden on mobile via CSS for clean reading) */}
+            <div className="section-header hidden md:flex items-center justify-center gap-4 mb-8">
               <h4 className="text-foreground font-serif">{labels.commentary}</h4>
               <button
                 onClick={() => playSection("Пояснення", audioCommentary)}
@@ -636,7 +702,7 @@ export const VerseCard = ({
               <div
                 className="text-foreground text-justify purport first"
                 style={{ fontSize: `${fontSize}px`, lineHeight }}
-                dangerouslySetInnerHTML={{ __html: applyDropCap(DOMPurify.sanitize(commentary || "")) }}
+                dangerouslySetInnerHTML={{ __html: applyDropCap(sanitizeForRender(commentary || "")) }}
               />
             )}
           </div>

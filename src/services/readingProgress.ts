@@ -119,13 +119,13 @@ export function updateReadingPercent(
  * Отримати URL для продовження читання
  */
 export function getReadingUrl(position: ReadingPosition): string {
-  const base = `/veda-reader/${position.bookSlug}`;
-  
+  const base = `/lib/${position.bookSlug}`;
+
   if (position.cantoNumber) {
-    const url = `${base}/canto/${position.cantoNumber}/chapter/${position.chapterNumber}`;
+    const url = `${base}/${position.cantoNumber}/${position.chapterNumber}`;
     return position.verseNumber ? `${url}/${position.verseNumber}` : url;
   }
-  
+
   const url = `${base}/${position.chapterNumber}`;
   return position.verseNumber ? `${url}/${position.verseNumber}` : url;
 }

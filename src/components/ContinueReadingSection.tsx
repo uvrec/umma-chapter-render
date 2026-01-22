@@ -21,7 +21,7 @@ interface ContinueReadingSectionProps {
 }
 
 export function ContinueReadingSection({ className, maxItems = 3 }: ContinueReadingSectionProps) {
-  const { t } = useLanguage();
+  const { t, getLocalizedPath } = useLanguage();
   const [positions, setPositions] = useState<ReadingPosition[]>([]);
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export function ContinueReadingSection({ className, maxItems = 3 }: ContinueRead
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {positions.map((position, idx) => (
-          <Link key={idx} to={getReadingUrl(position)} className="group block py-3 hover:bg-muted/30 transition-colors relative">
+          <Link key={idx} to={getLocalizedPath(getReadingUrl(position))} className="group block py-3 hover:bg-muted/30 transition-colors relative">
             {/* Remove button */}
             <Button
               variant="ghost"

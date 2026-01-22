@@ -6,14 +6,14 @@ export interface Letter {
   id: string;
   slug: string; // 'letter-to-mahatma-gandhi'
   recipient_en: string;
-  recipient_ua: string | null;
+  recipient_uk: string | null;
   letter_date: string; // ISO date (YYYY-MM-DD)
   location_en: string;
-  location_ua: string | null;
+  location_uk: string | null;
   reference: string | null; // '47-07-12'
   address_block: string | null;
   content_en: string;
-  content_ua: string | null;
+  content_uk: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -43,14 +43,14 @@ export interface LetterImportData {
   metadata: {
     slug: string;
     recipient_en: string;
-    recipient_ua: string;
+    recipient_uk: string;
     letter_date: string;
     location_en: string;
-    location_ua: string;
+    location_uk: string;
     reference?: string;
     address_block?: string;
   };
   content_en: string;
-  content_ua?: string;
+  content_uk?: string;
   sanskrit_terms?: string[];
 }

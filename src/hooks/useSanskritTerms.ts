@@ -6,18 +6,18 @@ import { extractAllTerms, normalizeSanskritText, GlossaryTerm } from "@/utils/gl
 type VerseRow = {
   id: string;
   verse_number: string;
-  synonyms_ua: string | null;
+  synonyms_uk: string | null;
   synonyms_en: string | null;
   chapters: {
     chapter_number: number;
     title_en: string | null;
-    title_ua: string | null;
-    books: { title_en: string | null; title_ua: string | null; slug: string } | null;
+    title_uk: string | null;
+    books: { title_en: string | null; title_uk: string | null; slug: string } | null;
     cantos: {
       canto_number: number;
       title_en: string | null;
-      title_ua: string | null;
-      books: { title_en: string | null; title_ua: string | null; slug: string } | null;
+      title_uk: string | null;
+      books: { title_en: string | null; title_uk: string | null; slug: string } | null;
     } | null;
   };
 };
@@ -45,24 +45,24 @@ export const useSanskritTerms = (opts: Options = {}) => {
           `
           id,
           verse_number,
-          synonyms_ua,
+          synonyms_uk,
           synonyms_en,
           chapters!inner(
             chapter_number,
             title_en,
-            title_ua,
+            title_uk,
             books(
               title_en,
-              title_ua,
+              title_uk,
               slug
             ),
             cantos(
               canto_number,
               title_en,
-              title_ua,
+              title_uk,
               books(
                 title_en,
-                title_ua,
+                title_uk,
                 slug
               )
             )
@@ -102,10 +102,10 @@ export const useSanskritTerms = (opts: Options = {}) => {
       let verseLink = "";
       if (cantoNumber) {
         // Srimad-Bhagavatam structure with cantos
-        verseLink = `/veda-reader/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/${verse.verse_number}`;
+        verseLink = `/lib/${bookSlug}/${cantoNumber}/${chapterNumber}/${verse.verse_number}`;
       } else if (bookSlug && chapterNumber) {
         // Direct book-chapter structure
-        verseLink = `/veda-reader/${bookSlug}/${chapterNumber}/${verse.verse_number}`;
+        verseLink = `/lib/${bookSlug}/${chapterNumber}/${verse.verse_number}`;
       }
 
       return {

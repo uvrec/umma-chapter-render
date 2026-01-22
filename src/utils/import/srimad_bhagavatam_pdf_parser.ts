@@ -2,7 +2,7 @@
  * Парсер для українського PDF Шрімад-Бхаґаватам (Пісня 3)
  * Структура: ВІРШ N → Sanskrit → IAST (skip) → UA translit (skip) → synonyms (skip) → translation → ПОЯСНЕННЯ
  *
- * ВАЖЛИВО: Цей парсер витягує тільки Sanskrit, Translation_UA та Commentary_UA з PDF
+ * ВАЖЛИВО: Цей парсер витягує тільки Sanskrit, Translation_UK та Commentary_UK з PDF
  * Всі інші поля (transliteration_en, synonyms_en, etc.) повинні бути з Vedabase
  */
 
@@ -12,19 +12,19 @@ export interface ParsedVerse {
   verse_number: string;
   sanskrit: string; // З PDF (Devanagari)
   transliteration_en: string; // З Vedabase (IAST)
-  transliteration_ua: string; // Генерується з transliteration_en через convertIASTtoUkrainian
+  transliteration_uk: string; // Генерується з transliteration_en через convertIASTtoUkrainian
   synonyms_en: string; // З Vedabase (IAST)
-  synonyms_ua: string; // Генерується з synonyms_en через convertIASTtoUkrainian
-  translation_ua: string; // З PDF
+  synonyms_uk: string; // Генерується з synonyms_en через convertIASTtoUkrainian
+  translation_uk: string; // З PDF
   translation_en: string; // З Vedabase
-  commentary_ua: string; // З PDF
+  commentary_uk: string; // З PDF
   commentary_en: string; // З Vedabase
 }
 
 export interface ParsedChapter {
   canto_number: number;
   chapter_number: number;
-  title_ua: string;
+  title_uk: string;
   title_en: string;
   verses: ParsedVerse[];
 }
@@ -32,7 +32,7 @@ export interface ParsedChapter {
 /**
  * Витягує номер глави з заголовка типу "ГЛАВА ВІСІМНАДЦЯТА"
  */
-const CHAPTER_NAMES_UA: Record<string, number> = {
+const CHAPTER_NAMES_UK: Record<string, number> = {
   'перша': 1,
   'друга': 2,
   'третя': 3,
@@ -73,7 +73,7 @@ function extractChapterNumber(title: string): number {
 
   // Sort by length DESC to match longer names first
   // Це важливо бо "вісімнадцята" містить "сімнадцята" як підрядок
-  const sortedEntries = Object.entries(CHAPTER_NAMES_UA).sort(
+  const sortedEntries = Object.entries(CHAPTER_NAMES_UK).sort(
     (a, b) => b[0].length - a[0].length
   );
 
@@ -140,7 +140,7 @@ function splitIntoVerses(
 
 /**
  * Парсить один вірш з українського PDF
- * ВАЖЛИВО: Тільки Sanskrit, Translation_UA та Commentary_UA з PDF
+ * ВАЖЛИВО: Тільки Sanskrit, Translation_UK та Commentary_UK з PDF
  * Все інше (IAST, synonyms_en, translation_en, commentary_en) буде з Vedabase
  *
  * Структура PDF:
@@ -158,8 +158,8 @@ function parseVerse(number: string, content: string): ParsedVerse {
     .filter((l) => l.length > 0);
 
   let sanskrit = '';
-  let translation_ua = '';
-  let commentary_ua = '';
+  let translation_uk = '';
+  let commentary_uk = '';
 
   let inSanskrit = true;
   let inTranslation = false;
@@ -197,27 +197,27 @@ function parseVerse(number: string, content: string): ParsedVerse {
 
     // Збирання тексту
     if (inTranslation) {
-      translation_ua += (translation_ua ? ' ' : '') + line;
+      translation_uk += (translation_uk ? ' ' : '') + line;
     } else if (inCommentary) {
-      commentary_ua += (commentary_ua ? ' ' : '') + line;
+      commentary_uk += (commentary_uk ? ' ' : '') + line;
     }
   }
 
   // Нормалізація тільки того, що парсили з PDF
   sanskrit = normalizeVerseField(sanskrit, 'sanskrit');
-  translation_ua = normalizeVerseField(translation_ua, 'translation');
-  commentary_ua = normalizeVerseField(commentary_ua, 'commentary');
+  translation_uk = normalizeVerseField(translation_uk, 'translation');
+  commentary_uk = normalizeVerseField(commentary_uk, 'commentary');
 
   return {
     verse_number: number,
     sanskrit,
     transliteration_en: '', // Буде з Vedabase
-    transliteration_ua: '', // Буде згенеровано з transliteration_en
+    transliteration_uk: '', // Буде згенеровано з transliteration_en
     synonyms_en: '', // Буде з Vedabase
-    synonyms_ua: '', // Буде згенеровано з synonyms_en
-    translation_ua,
+    synonyms_uk: '', // Буде згенеровано з synonyms_en
+    translation_uk,
     translation_en: '', // Буде з Vedabase
-    commentary_ua,
+    commentary_uk,
     commentary_en: '', // Буде з Vedabase
   };
 }
@@ -267,7 +267,7 @@ export function parseChapterFromPDF(
   return {
     canto_number: cantoNumber,
     chapter_number: chapterNumber,
-    title_ua: chapterTitle,
+    title_uk: chapterTitle,
     title_en: '', // Заповниться з Vedabase
     verses,
   };

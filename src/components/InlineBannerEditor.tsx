@@ -19,11 +19,11 @@ import { Edit2, Upload, Save, X } from "lucide-react";
 type HeroSettings = {
   background_image: string;
   logo_image: string;
-  subtitle_ua: string;
+  subtitle_uk: string;
   subtitle_en: string;
-  quote_ua: string;
+  quote_uk: string;
   quote_en: string;
-  quote_author_ua: string;
+  quote_author_uk: string;
   quote_author_en: string;
 };
 
@@ -115,11 +115,11 @@ export function InlineBannerEditor({ settings, onUpdate }: InlineBannerEditorPro
 
   return (
     <>
-      {/* Floating Edit Button */}
+      {/* Floating Edit Button - hidden on mobile */}
       <Button
         onClick={handleOpen}
         size="sm"
-        className="fixed top-20 right-4 z-50 shadow-lg"
+        className="hidden md:flex fixed top-20 right-4 z-50 shadow-lg"
         variant="secondary"
       >
         <Edit2 className="w-4 h-4 mr-2" />
@@ -207,9 +207,9 @@ export function InlineBannerEditor({ settings, onUpdate }: InlineBannerEditorPro
               <div className="space-y-2">
                 <Label>Підзаголовок (Українська)</Label>
                 <Input
-                  value={editedSettings.subtitle_ua}
+                  value={editedSettings.subtitle_uk}
                   onChange={(e) =>
-                    setEditedSettings({ ...editedSettings, subtitle_ua: e.target.value })
+                    setEditedSettings({ ...editedSettings, subtitle_uk: e.target.value })
                   }
                   placeholder="Бібліотека ведичних аудіокниг"
                 />
@@ -231,9 +231,9 @@ export function InlineBannerEditor({ settings, onUpdate }: InlineBannerEditorPro
               <div className="space-y-2">
                 <Label>Цитата (Українська)</Label>
                 <Textarea
-                  value={editedSettings.quote_ua}
+                  value={editedSettings.quote_uk}
                   onChange={(e) =>
-                    setEditedSettings({ ...editedSettings, quote_ua: e.target.value })
+                    setEditedSettings({ ...editedSettings, quote_uk: e.target.value })
                   }
                   rows={3}
                   placeholder="Введіть цитату..."
@@ -255,9 +255,9 @@ export function InlineBannerEditor({ settings, onUpdate }: InlineBannerEditorPro
               <div className="space-y-2">
                 <Label>Автор (Українська)</Label>
                 <Input
-                  value={editedSettings.quote_author_ua}
+                  value={editedSettings.quote_author_uk}
                   onChange={(e) =>
-                    setEditedSettings({ ...editedSettings, quote_author_ua: e.target.value })
+                    setEditedSettings({ ...editedSettings, quote_author_uk: e.target.value })
                   }
                   placeholder="Шріла Прабгупада"
                 />

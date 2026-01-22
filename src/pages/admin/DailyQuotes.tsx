@@ -23,11 +23,11 @@ import { supabase } from "@/integrations/supabase/client";
 type QuoteFormData = {
   quote_type: 'verse' | 'custom';
   verse_id?: string;
-  quote_ua?: string;
+  quote_uk?: string;
   quote_en?: string;
-  author_ua?: string;
+  author_uk?: string;
   author_en?: string;
-  source_ua?: string;
+  source_uk?: string;
   source_en?: string;
   priority: number;
   is_active: boolean;
@@ -93,7 +93,7 @@ export default function DailyQuotes() {
 
     // Валідація
     if (formData.quote_type === 'custom') {
-      if (!formData.quote_ua?.trim() || !formData.quote_en?.trim()) {
+      if (!formData.quote_uk?.trim() || !formData.quote_en?.trim()) {
         toast({
           title: "Помилка",
           description: "Введіть цитати українською та англійською",
@@ -152,11 +152,11 @@ export default function DailyQuotes() {
     setFormData({
       quote_type: quote.quote_type,
       verse_id: quote.verse_id,
-      quote_ua: quote.quote_ua,
+      quote_uk: quote.quote_uk,
       quote_en: quote.quote_en,
-      author_ua: quote.author_ua,
+      author_uk: quote.author_uk,
       author_en: quote.author_en,
-      source_ua: quote.source_ua,
+      source_uk: quote.source_uk,
       source_en: quote.source_en,
       priority: quote.priority,
       is_active: quote.is_active,
@@ -355,11 +355,11 @@ export default function DailyQuotes() {
                   <>
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="quote_ua">Цитата (українською) *</Label>
+                        <Label htmlFor="quote_uk">Цитата (українською) *</Label>
                         <Textarea
-                          id="quote_ua"
-                          value={formData.quote_ua || ''}
-                          onChange={(e) => setFormData({ ...formData, quote_ua: e.target.value })}
+                          id="quote_uk"
+                          value={formData.quote_uk || ''}
+                          onChange={(e) => setFormData({ ...formData, quote_uk: e.target.value })}
                           rows={4}
                           required
                         />
@@ -378,11 +378,11 @@ export default function DailyQuotes() {
 
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="author_ua">Автор (українською)</Label>
+                        <Label htmlFor="author_uk">Автор (українською)</Label>
                         <Input
-                          id="author_ua"
-                          value={formData.author_ua || ''}
-                          onChange={(e) => setFormData({ ...formData, author_ua: e.target.value })}
+                          id="author_uk"
+                          value={formData.author_uk || ''}
+                          onChange={(e) => setFormData({ ...formData, author_uk: e.target.value })}
                           placeholder="Шріла Прабгупада"
                         />
                       </div>
@@ -399,11 +399,11 @@ export default function DailyQuotes() {
 
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="source_ua">Джерело (українською)</Label>
+                        <Label htmlFor="source_uk">Джерело (українською)</Label>
                         <Input
-                          id="source_ua"
-                          value={formData.source_ua || ''}
-                          onChange={(e) => setFormData({ ...formData, source_ua: e.target.value })}
+                          id="source_uk"
+                          value={formData.source_uk || ''}
+                          onChange={(e) => setFormData({ ...formData, source_uk: e.target.value })}
                           placeholder="Лист, Лекція, тощо"
                         />
                       </div>
@@ -499,7 +499,7 @@ export default function DailyQuotes() {
                           ) : (
                             <span className="flex items-center gap-2">
                               <Quote className="w-5 h-5" />
-                              {quote.author_ua || "Кастомна цитата"}
+                              {quote.author_uk || "Кастомна цитата"}
                             </span>
                           )}
                         </CardTitle>
@@ -534,7 +534,7 @@ export default function DailyQuotes() {
                     </blockquote>
                   ) : (
                     <blockquote className="border-l-4 border-primary pl-4 italic">
-                      {quote.quote_ua}
+                      {quote.quote_uk}
                     </blockquote>
                   )}
                 </CardContent>

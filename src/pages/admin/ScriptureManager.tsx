@@ -73,7 +73,7 @@ export default function ScriptureManager() {
   const { data: books } = useQuery({
     queryKey: ["admin-books"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("books").select("*").order("title_ua");
+      const { data, error } = await supabase.from("books").select("*").order("title_uk");
       if (error) throw error;
       return data;
     },
@@ -95,7 +95,7 @@ export default function ScriptureManager() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("chapters")
-        .select("*, books(title_ua), cantos(title_ua, canto_number)")
+        .select("*, books(title_uk), cantos(title_uk, canto_number)")
         .order("chapter_number");
       if (error) throw error;
       return data;

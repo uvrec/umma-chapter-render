@@ -8,9 +8,9 @@ import { errorLogger } from "@/utils/errorLogger";
 /**
  * Очікувана структура таблиці `site_banners` (мінімум):
  * id: string (uuid)
- * title_ua: string | null
+ * title_uk: string | null
  * title_en: string | null
- * description_ua: string | null
+ * description_uk: string | null
  * description_en: string | null
  * link_url: string | null
  * image_url: string | null
@@ -22,9 +22,9 @@ import { errorLogger } from "@/utils/errorLogger";
 
 type Banner = {
   id: string;
-  title_ua?: string | null;
+  title_uk?: string | null;
   title_en?: string | null;
-  description_ua?: string | null;
+  description_uk?: string | null;
   description_en?: string | null;
   link_url?: string | null;
   image_url?: string | null;
@@ -55,7 +55,7 @@ export default function SiteBanners() {
       const { data, error } = await (supabase as any)
         .from("site_banners")
         .select(
-          "id,title_ua,title_en,description_ua,description_en,link_url,image_url,is_active,start_at,end_at,priority"
+          "id,title_uk,title_en,description_uk,description_en,link_url,image_url,is_active,start_at,end_at,priority"
         )
         .eq("is_active", true)
         .order("priority", { ascending: true })

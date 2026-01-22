@@ -24,29 +24,29 @@ interface CalendarMonthViewProps {
 }
 
 // Paksha display helpers
-const pakshaLabels: Record<Paksha, { ua: string; en: string; symbol: string }> = {
-  shukla: { ua: "Шукла", en: "Shukla", symbol: "☽" },
-  krishna: { ua: "Крішна", en: "Krishna", symbol: "☾" },
+const pakshaLabels: Record<Paksha, { uk: string; en: string; symbol: string }> = {
+  shukla: { uk: "Шукла", en: "Shukla", symbol: "☽" },
+  krishna: { uk: "Крішна", en: "Krishna", symbol: "☾" },
 };
 
 // Tithi names
-const tithiNames: Record<number, { ua: string; en: string }> = {
-  1: { ua: "Пратіпада", en: "Pratipada" },
-  2: { ua: "Двітія", en: "Dvitiya" },
-  3: { ua: "Трітія", en: "Tritiya" },
-  4: { ua: "Чатуртхі", en: "Chaturthi" },
-  5: { ua: "Панчамі", en: "Panchami" },
-  6: { ua: "Шаштхі", en: "Shashthi" },
-  7: { ua: "Саптамі", en: "Saptami" },
-  8: { ua: "Аштамі", en: "Ashtami" },
-  9: { ua: "Навамі", en: "Navami" },
-  10: { ua: "Дашамі", en: "Dashami" },
-  11: { ua: "Екадаші", en: "Ekadashi" },
-  12: { ua: "Двадаші", en: "Dvadashi" },
-  13: { ua: "Трайодаші", en: "Trayodashi" },
-  14: { ua: "Чатурдаші", en: "Chaturdashi" },
-  15: { ua: "Пурніма", en: "Purnima" }, // Full moon (shukla)
-  30: { ua: "Амавас'я", en: "Amavasya" }, // New moon (krishna 15)
+const tithiNames: Record<number, { uk: string; en: string }> = {
+  1: { uk: "Пратіпада", en: "Pratipada" },
+  2: { uk: "Двітія", en: "Dvitiya" },
+  3: { uk: "Трітія", en: "Tritiya" },
+  4: { uk: "Чатуртхі", en: "Chaturthi" },
+  5: { uk: "Панчамі", en: "Panchami" },
+  6: { uk: "Шаштхі", en: "Shashthi" },
+  7: { uk: "Саптамі", en: "Saptami" },
+  8: { uk: "Аштамі", en: "Ashtami" },
+  9: { uk: "Навамі", en: "Navami" },
+  10: { uk: "Дашамі", en: "Dashami" },
+  11: { uk: "Екадаші", en: "Ekadashi" },
+  12: { uk: "Двадаші", en: "Dvadashi" },
+  13: { uk: "Трайодаші", en: "Trayodashi" },
+  14: { uk: "Чатурдаші", en: "Chaturdashi" },
+  15: { uk: "Пурніма", en: "Purnima" }, // Full moon (shukla)
+  30: { uk: "Амавас'я", en: "Amavasya" }, // New moon (krishna 15)
 };
 
 // Get tithi name with paksha

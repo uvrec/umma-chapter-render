@@ -48,7 +48,7 @@ export default function BlogPostsInfinite() {
       .select(
         `
         *,
-        category:blog_categories(name_ua, name_en)
+        category:blog_categories(name_uk, name_en)
       `,
       )
       .order("created_at", { ascending: false })
@@ -66,7 +66,7 @@ export default function BlogPostsInfinite() {
     // пошук
     if (debouncedSearch) {
       const term = escapeLike(debouncedSearch);
-      query = query.or(`title_ua.ilike.%${term}%,title_en.ilike.%${term}%`);
+      query = query.or(`title_uk.ilike.%${term}%,title_en.ilike.%${term}%`);
     }
 
     const { data, error } = await query;

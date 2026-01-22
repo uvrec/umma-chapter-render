@@ -129,7 +129,7 @@ export const BookDrawer = ({
   hasDisciplicSuccession = true,
 }: BookDrawerProps) => {
   const [open, setOpen] = useState(false);
-  const { t } = useLanguage();
+  const { t, getLocalizedPath } = useLanguage();
   const navigate = useNavigate();
 
   const handleClose = () => {
@@ -138,13 +138,13 @@ export const BookDrawer = ({
   };
 
   const handleNavigate = (path: string) => {
-    navigate(path);
+    navigate(getLocalizedPath(path));
     handleClose();
   };
 
   // Build base path for the book
-  const bookBasePath = `/veda-reader/${bookSlug}`;
-  const cantoPath = cantoNumber ? `${bookBasePath}/canto/${cantoNumber}` : bookBasePath;
+  const bookBasePath = getLocalizedPath(`/lib/${bookSlug}`);
+  const cantoPath = cantoNumber ? getLocalizedPath(`/lib/${bookSlug}/${cantoNumber}`) : bookBasePath;
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -320,7 +320,7 @@ export const BookDrawer = ({
               © 1966–{new Date().getFullYear()} The Bhaktivedanta Book Trust
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              VedaVOICE.ua
+              vedavoice.org
             </p>
           </div>
         </div>

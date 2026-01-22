@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,8 +8,16 @@ import { toast } from "@/hooks/use-toast";
 import { Loader2, CheckCircle2 } from "lucide-react";
 
 export default function MergeNoiChapters() {
+  const navigate = useNavigate();
+  const { user, isAdmin } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [log, setLog] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!user || !isAdmin) {
+      navigate("/auth");
+    }
+  }, [user, isAdmin, navigate]);
 
   const addLog = (message: string) => {
     setLog(prev => [...prev, `${new Date().toLocaleTimeString()}: ${message}`]);
@@ -144,7 +154,7 @@ export default function MergeNoiChapters() {
         .from("chapters")
         .update({
           title_en: "The Nectar of Instruction",
-          title_ua: "Нектар настанов"
+          title_uk: "Нектар настанов"
         })
         .eq("id", chapter1?.id);
       
@@ -171,6 +181,8 @@ export default function MergeNoiChapters() {
       setIsProcessing(false);
     }
   };
+
+  if (!user || !isAdmin) return null;
 
   return (
     <div className="container mx-auto p-8">

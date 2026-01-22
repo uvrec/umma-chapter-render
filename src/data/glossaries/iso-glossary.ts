@@ -8,7 +8,7 @@ export interface GlossaryTermData {
   definition: string;
 }
 
-export const ISO_GLOSSARY_UA: GlossaryTermData[] = [
+export const ISO_GLOSSARY_UK: GlossaryTermData[] = [
   { term: "Авідья", definition: "невігластво." },
   { term: "Авʼякта", definition: "непроявлений стан творіння." },
   { term: "Адгіра", definition: "той, кого турбує матеріальна ілюзія." },

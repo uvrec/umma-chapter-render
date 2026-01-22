@@ -4,16 +4,16 @@ export type ChapterType = "verses" | "text";
 export interface ParsedVerse {
   verse_number: string;
   sanskrit?: string;
-  sanskrit_ua?: string;
+  sanskrit_uk?: string;
   sanskrit_en?: string;
   transliteration?: string; // deprecated, для backward compatibility
   transliteration_en?: string; // оригінальний IAST з Vedabase
-  transliteration_ua?: string; // українська транслітерація з діакритикою
-  synonyms_ua?: string;
+  transliteration_uk?: string; // українська транслітерація з діакритикою
+  synonyms_uk?: string;
   synonyms_en?: string;
-  translation_ua?: string;
+  translation_uk?: string;
   translation_en?: string;
-  commentary_ua?: string;
+  commentary_uk?: string;
   commentary_en?: string;
   /** клієнтські дані часто приходять як audioUrl */
   audioUrl?: string;
@@ -24,17 +24,17 @@ export interface ParsedVerse {
 export interface ParsedChapter {
   chapter_number: number;
   chapter_type: ChapterType;
-  title_ua: string;
+  title_uk: string;
   title_en?: string;
   verses: ParsedVerse[];
-  content_ua?: string;
+  content_uk?: string;
   content_en?: string;
 }
 
 export interface ParsedBook {
-  title_ua: string;
+  title_uk: string;
   title_en?: string;
-  description_ua?: string;
+  description_uk?: string;
   description_en?: string;
   chapters: ParsedChapter[];
   metadata?: BookMetadata;

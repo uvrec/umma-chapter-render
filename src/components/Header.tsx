@@ -1,4 +1,4 @@
-import { Menu, LogIn, Home, BookOpen, Book, MessageCircle, Heart, Languages, ChevronDown, ChevronRight, FileText, User, Plus, GraduationCap, BookMarked, Wand2, Wrench, Hash, Bot } from "lucide-react";
+import { Menu, LogIn, Home, BookOpen, Book, MessageCircle, Languages, ChevronDown, ChevronRight, FileText, User, Plus, GraduationCap, BookMarked, Wand2, Wrench, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -9,13 +9,27 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import { RefreshFeedButton } from "@/components/admin/RefreshFeedButton";
+import { useIsMobile } from "@/hooks/use-mobile";
+
+// Wrapper component - only uses useIsMobile hook
 export const Header = () => {
+  const isMobile = useIsMobile();
+
+  // На мобільних не показуємо хедер - використовуємо Spine навігацію
+  if (isMobile) {
+    return null;
+  }
+
+  return <DesktopHeader />;
+};
+
+// Desktop header component - contains all other hooks
+function DesktopHeader() {
   const [open, setOpen] = useState(false);
-  const [translationsOpen, setTranslationsOpen] = useState(false);
-  const [prabhupadaOpen, setPrabhupadaOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
   const {
-    t
+    t,
+    getLocalizedPath
   } = useLanguage();
   const {
     user,
@@ -35,21 +49,21 @@ export const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden items-center space-x-1 md:flex">
             <Button variant="ghost" size="sm" asChild className={navBtn}>
-              <Link to="/" aria-label="Головна">
+              <Link to={getLocalizedPath("/")} aria-label="Головна">
                 <Home className="mr-2 h-4 w-4" />
                 Головна
               </Link>
             </Button>
 
             <Button variant="ghost" size="sm" asChild className={navBtn}>
-              <Link to="/library" aria-label="Бібліотека">
+              <Link to={getLocalizedPath("/library")} aria-label="Бібліотека">
                 <BookOpen className="mr-2 h-4 w-4" />
                 Бібліотека
               </Link>
             </Button>
 
             <Button variant="ghost" size="sm" asChild className={navBtn}>
-              <Link to="/glossary" aria-label="Глосарій">
+              <Link to={getLocalizedPath("/glossary")} aria-label="Глосарій">
                 <Book className="mr-2 h-4 w-4" />
                 Глосарій
               </Link>
@@ -65,31 +79,25 @@ export const Header = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
                 <DropdownMenuItem asChild>
-                  <Link to="/tools/transliteration" className="flex items-center cursor-pointer">
+                  <Link to={getLocalizedPath("/tools/transliteration")} className="flex items-center cursor-pointer">
                     <Languages className="mr-2 h-4 w-4" />
                     Транслітерація
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/tools/normalization" className="flex items-center cursor-pointer">
+                  <Link to={getLocalizedPath("/tools/normalization")} className="flex items-center cursor-pointer">
                     <Wand2 className="mr-2 h-4 w-4" />
                     Нормалізація
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/tools/learning" className="flex items-center cursor-pointer">
+                  <Link to={getLocalizedPath("/tools/learning")} className="flex items-center cursor-pointer">
                     <GraduationCap className="mr-2 h-4 w-4" />
                     Вивчення
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/tools/numerology" className="flex items-center cursor-pointer">
-                    <Hash className="mr-2 h-4 w-4" />
-                    Нумерологія
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/chat" className="flex items-center cursor-pointer">
+                  <Link to={getLocalizedPath("/chat")} className="flex items-center cursor-pointer">
                     <Bot className="mr-2 h-4 w-4" />
                     VedaVOICE
                   </Link>
@@ -98,7 +106,7 @@ export const Header = () => {
             </DropdownMenu>
 
             <Button variant="ghost" size="sm" asChild className={navBtn}>
-              <Link to="/blog" aria-label="Блог">
+              <Link to={getLocalizedPath("/blog")} aria-label="Блог">
                 <FileText className="mr-2 h-4 w-4" />
                 Блог
               </Link>
@@ -137,59 +145,17 @@ export const Header = () => {
               </SheetHeader>
 
               <div className="mt-6 space-y-4">
-                <Link to="/" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                <Link to={getLocalizedPath("/")} className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                   <Home className="h-5 w-5" />
                   <span>Головна</span>
                 </Link>
 
-                <Link to="/library" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                <Link to={getLocalizedPath("/library")} className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                   <BookOpen className="h-5 w-5" />
                   <span>Бібліотека</span>
                 </Link>
 
-                <Collapsible open={translationsOpen} onOpenChange={setTranslationsOpen}>
-                  <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20">
-                    <div className="flex items-center space-x-3">
-                      <Languages className="h-5 w-5" />
-                      <span>Переклади</span>
-                    </div>
-                    {translationsOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                  </CollapsibleTrigger>
-
-                  <CollapsibleContent className="ml-6 mt-2 space-y-2">
-                    <Collapsible open={prabhupadaOpen} onOpenChange={setPrabhupadaOpen}>
-                      <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20">
-                        <span>Прабгупада</span>
-                        {prabhupadaOpen ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-                      </CollapsibleTrigger>
-
-                      <CollapsibleContent className="ml-4 mt-1 space-y-1">
-                        <Link to="/translations/prabhupada/letters" className="flex items-center space-x-3 rounded-md px-3 py-1 text-xs transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
-                          <span>Листи</span>
-                        </Link>
-                        <Link to="/translations/prabhupada/lectures" className="flex items-center space-x-3 rounded-md px-3 py-1 text-xs transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
-                          <span>Лекції</span>
-                        </Link>
-                        <Link to="/translations/prabhupada/books" className="flex items-center space-x-3 rounded-md px-3 py-1 text-xs transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
-                          <span>Книги</span>
-                        </Link>
-                        <Link to="/translations/prabhupada/photos" className="flex items-center space-x-3 rounded-md px-3 py-1 text-xs transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
-                          <span>Фото</span>
-                        </Link>
-                      </CollapsibleContent>
-                    </Collapsible>
-
-                    <Link to="/translations/aindra-prabhu" className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
-                      <span>Аіндри прабгу</span>
-                    </Link>
-
-                    <Link to="/translations/acharya-books" className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
-                      <span>Книги ачар'їв</span>
-                    </Link>
-                  </CollapsibleContent>
-                </Collapsible>
-
-                <Link to="/glossary" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                <Link to={getLocalizedPath("/glossary")} className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                   <Book className="h-5 w-5" />
                   <span>Глосарій</span>
                 </Link>
@@ -204,51 +170,41 @@ export const Header = () => {
                   </CollapsibleTrigger>
 
                   <CollapsibleContent className="ml-6 mt-2 space-y-2">
-                    <Link to="/tools/transliteration" className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                    <Link to={getLocalizedPath("/tools/transliteration")} className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                       <Languages className="h-4 w-4" />
                       <span>Транслітерація</span>
                     </Link>
 
-                    <Link to="/tools/normalization" className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                    <Link to={getLocalizedPath("/tools/normalization")} className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                       <Wand2 className="h-4 w-4" />
                       <span>Нормалізація</span>
                     </Link>
 
-                    <Link to="/tools/learning" className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                    <Link to={getLocalizedPath("/tools/learning")} className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                       <GraduationCap className="h-4 w-4" />
                       <span>Вивчення мов</span>
                     </Link>
 
-                    <Link to="/tools/numerology" className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
-                      <Hash className="h-4 w-4" />
-                      <span>Нумерологія</span>
-                    </Link>
-
-                    <Link to="/tools/compiler" className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                    <Link to={getLocalizedPath("/tools/compiler")} className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                       <BookMarked className="h-4 w-4" />
                       <span>Збірки знань</span>
                     </Link>
 
-                    <Link to="/chat" className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                    <Link to={getLocalizedPath("/chat")} className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                       <Bot className="h-4 w-4" />
                       <span>VedaVOICE</span>
                     </Link>
                   </CollapsibleContent>
                 </Collapsible>
 
-                <Link to="/blog" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                <Link to={getLocalizedPath("/blog")} className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                   <FileText className="h-5 w-5" />
                   <span>Блог</span>
                 </Link>
 
-                <Link to="/contact" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                <Link to={getLocalizedPath("/contact")} className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                   <MessageCircle className="h-5 w-5" />
                   <span>Контакти</span>
-                </Link>
-
-                <Link to="/donation" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
-                  <Heart className="h-5 w-5" />
-                  <span>Підтримати проєкт</span>
                 </Link>
 
                 {!user && <Link to="/auth" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
@@ -280,4 +236,4 @@ export const Header = () => {
         {/* === /БЛОК ДІЙ === */}
       </div>
     </header>;
-};
+}

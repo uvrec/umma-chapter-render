@@ -21,7 +21,7 @@ export const openExternal = (url: string) => {
     document.body.removeChild(a);
 
     if ((import.meta as any).env?.DEV) {
-      console.debug('[openExternal] anchor-click navigation', { url: parsed.href, ua: navigator.userAgent });
+      console.debug('[openExternal] anchor-click navigation', { url: parsed.href, uk: navigator.userAgent });
     }
   } catch (err) {
     console.error('[openExternal] Fallback navigation due to error:', err);

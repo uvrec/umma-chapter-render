@@ -12,7 +12,7 @@ interface CitationCardProps {
 }
 
 export function CitationCard({ citation, className }: CitationCardProps) {
-  const { language } = useLanguage();
+  const { language, getLocalizedPath } = useLanguage();
   const [isExpanded, setIsExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -23,20 +23,20 @@ export function CitationCard({ citation, className }: CitationCardProps) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Build internal link - correct format for veda-reader
-  // For SB with canto: /veda-reader/sb/canto/1/chapter/1/1
-  // For other books: /veda-reader/bg/2/2
+  // Build internal link using compact format
+  // For SB with canto: /lib/sb/1/1/1
+  // For other books: /lib/bg/2/2
   const buildInternalPath = () => {
-    if (!citation.bookSlug) return '/veda-reader/bg';
+    if (!citation.bookSlug) return getLocalizedPath('/lib/bg');
     if (!citation.chapterNumber || !citation.verseNumber) {
-      return `/veda-reader/${citation.bookSlug}`;
+      return getLocalizedPath(`/lib/${citation.bookSlug}`);
     }
     // Books with canto structure: SB (Srimad-Bhagavatam) and SCC (Sri Caitanya-caritamrta)
     if ((citation.bookSlug === 'sb' || citation.bookSlug === 'scc') && citation.cantoNumber) {
-      return `/veda-reader/${citation.bookSlug}/canto/${citation.cantoNumber}/chapter/${citation.chapterNumber}/${citation.verseNumber}`;
+      return getLocalizedPath(`/lib/${citation.bookSlug}/${citation.cantoNumber}/${citation.chapterNumber}/${citation.verseNumber}`);
     }
     // Other books use simple structure
-    return `/veda-reader/${citation.bookSlug}/${citation.chapterNumber}/${citation.verseNumber}`;
+    return getLocalizedPath(`/lib/${citation.bookSlug}/${citation.chapterNumber}/${citation.verseNumber}`);
   };
 
   const internalPath = buildInternalPath();

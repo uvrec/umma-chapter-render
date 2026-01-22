@@ -36,39 +36,39 @@ interface DayDetailPanelProps {
 }
 
 // Paksha display info
-const pakshaInfo: Record<Paksha, { ua: string; en: string; description_ua: string; description_en: string }> = {
+const pakshaInfo: Record<Paksha, { uk: string; en: string; description_uk: string; description_en: string }> = {
   shukla: {
-    ua: "Шукла пакша",
+    uk: "Шукла пакша",
     en: "Shukla Paksha",
-    description_ua: "Світла половина місяця (зростаючий)",
+    description_uk: "Світла половина місяця (зростаючий)",
     description_en: "Bright fortnight (waxing moon)",
   },
   krishna: {
-    ua: "Крішна пакша",
+    uk: "Крішна пакша",
     en: "Krishna Paksha",
-    description_ua: "Темна половина місяця (спадаючий)",
+    description_uk: "Темна половина місяця (спадаючий)",
     description_en: "Dark fortnight (waning moon)",
   },
 };
 
 // Tithi names
-const tithiNames: Record<number, { ua: string; en: string; sanskrit: string }> = {
-  1: { ua: "Пратіпада", en: "Pratipada", sanskrit: "प्रतिपदा" },
-  2: { ua: "Двітія", en: "Dvitiya", sanskrit: "द्वितीया" },
-  3: { ua: "Трітія", en: "Tritiya", sanskrit: "तृतीया" },
-  4: { ua: "Чатуртхі", en: "Chaturthi", sanskrit: "चतुर्थी" },
-  5: { ua: "Панчамі", en: "Panchami", sanskrit: "पञ्चमी" },
-  6: { ua: "Шаштхі", en: "Shashthi", sanskrit: "षष्ठी" },
-  7: { ua: "Саптамі", en: "Saptami", sanskrit: "सप्तमी" },
-  8: { ua: "Аштамі", en: "Ashtami", sanskrit: "अष्टमी" },
-  9: { ua: "Навамі", en: "Navami", sanskrit: "नवमी" },
-  10: { ua: "Дашамі", en: "Dashami", sanskrit: "दशमी" },
-  11: { ua: "Екадаші", en: "Ekadashi", sanskrit: "एकादशी" },
-  12: { ua: "Двадаші", en: "Dvadashi", sanskrit: "द्वादशी" },
-  13: { ua: "Трайодаші", en: "Trayodashi", sanskrit: "त्रयोदशी" },
-  14: { ua: "Чатурдаші", en: "Chaturdashi", sanskrit: "चतुर्दशी" },
-  15: { ua: "Пурніма", en: "Purnima", sanskrit: "पूर्णिमा" },
-  30: { ua: "Амавас'я", en: "Amavasya", sanskrit: "अमावस्या" },
+const tithiNames: Record<number, { uk: string; en: string; sanskrit: string }> = {
+  1: { uk: "Пратіпада", en: "Pratipada", sanskrit: "प्रतिपदा" },
+  2: { uk: "Двітія", en: "Dvitiya", sanskrit: "द्वितीया" },
+  3: { uk: "Трітія", en: "Tritiya", sanskrit: "तृतीया" },
+  4: { uk: "Чатуртхі", en: "Chaturthi", sanskrit: "चतुर्थी" },
+  5: { uk: "Панчамі", en: "Panchami", sanskrit: "पञ्चमी" },
+  6: { uk: "Шаштхі", en: "Shashthi", sanskrit: "षष्ठी" },
+  7: { uk: "Саптамі", en: "Saptami", sanskrit: "सप्तमी" },
+  8: { uk: "Аштамі", en: "Ashtami", sanskrit: "अष्टमी" },
+  9: { uk: "Навамі", en: "Navami", sanskrit: "नवमी" },
+  10: { uk: "Дашамі", en: "Dashami", sanskrit: "दशमी" },
+  11: { uk: "Екадаші", en: "Ekadashi", sanskrit: "एकादशी" },
+  12: { uk: "Двадаші", en: "Dvadashi", sanskrit: "द्वादशी" },
+  13: { uk: "Трайодаші", en: "Trayodashi", sanskrit: "त्रयोदशी" },
+  14: { uk: "Чатурдаші", en: "Chaturdashi", sanskrit: "चतुर्दशी" },
+  15: { uk: "Пурніма", en: "Purnima", sanskrit: "पूर्णिमा" },
+  30: { uk: "Амавас'я", en: "Amavasya", sanskrit: "अमावस्या" },
 };
 
 // Moon phase emoji based on percentage

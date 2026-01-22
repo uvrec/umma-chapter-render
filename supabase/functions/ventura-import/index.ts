@@ -6,6 +6,7 @@
  *
  * POST /ventura-import
  * Content-Type: multipart/form-data
+ * Authorization: Bearer <token>
  *
  * Body:
  *   file: .H93 file (Ventura format)
@@ -19,10 +20,66 @@
  * REQUIRES AUTHENTICATION: Admin only
  */
 
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.4";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+// Environment variables
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+
+/**
+ * Validate admin authentication
+ * Returns user ID if valid admin, or Response with error
+ */
+async function validateAdminAuth(req: Request): Promise<string | Response> {
+  const authHeader = req.headers.get("Authorization");
+
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response(
+      JSON.stringify({ error: "Unauthorized: Missing or invalid Authorization header" }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    global: { headers: { Authorization: authHeader } }
+  });
+
+  const token = authHeader.replace("Bearer ", "");
+  const { data, error } = await supabase.auth.getUser(token);
+
+  if (error || !data?.user?.id) {
+    console.error("Auth error:", error?.message);
+    return new Response(
+      JSON.stringify({ error: "Unauthorized: Invalid token" }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  const userId = data.user.id;
+
+  // Check admin role
+  const { data: roleData, error: roleError } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
+
+  if (roleError || !roleData) {
+    console.error("Role check failed:", roleError?.message || "Not an admin");
+    return new Response(
+      JSON.stringify({ error: "Forbidden: Admin access required" }),
+      { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  return userId;
+}
 
 // =============================================================================
 // PUA MAPPING - Ukrainian diacritics
@@ -611,6 +668,14 @@ Deno.serve(async (req) => {
         { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    // Validate admin authentication
+    const authResult = await validateAdminAuth(req);
+    if (authResult instanceof Response) {
+      return authResult;
+    }
+    const adminUserId = authResult;
+    console.log(`Authenticated admin user: ${adminUserId}`);
 
     // Parse multipart form data with explicit error handling
     let formData: FormData;

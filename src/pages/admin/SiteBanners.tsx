@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,27 +16,28 @@ import { Link } from "react-router-dom";
 type HeroSettings = {
   background_image: string;
   logo_image: string;
-  subtitle_ua: string;
+  subtitle_uk: string;
   subtitle_en: string;
-  quote_ua: string;
+  quote_uk: string;
   quote_en: string;
-  quote_author_ua: string;
+  quote_author_uk: string;
   quote_author_en: string;
 };
 
 export default function SiteBanners() {
   const { user, isAdmin } = useAuth();
+  const { getLocalizedPath } = useLanguage();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState<HeroSettings>({
     background_image: "",
     logo_image: "",
-    subtitle_ua: "",
+    subtitle_uk: "",
     subtitle_en: "",
-    quote_ua: "",
+    quote_uk: "",
     quote_en: "",
-    quote_author_ua: "",
+    quote_author_uk: "",
     quote_author_en: "",
   });
 
@@ -167,7 +169,7 @@ export default function SiteBanners() {
             </div>
             <div className="flex gap-2">
               <Button variant="outline" asChild>
-                <Link to="/" target="_blank">
+                <Link to={getLocalizedPath("/")} target="_blank">
                   <Eye className="w-4 h-4 mr-2" />
                   Переглянути
                 </Link>
@@ -274,9 +276,9 @@ export default function SiteBanners() {
               <div>
                 <Label>Українською</Label>
                 <Input
-                  value={settings.subtitle_ua}
+                  value={settings.subtitle_uk}
                   onChange={(e) =>
-                    setSettings({ ...settings, subtitle_ua: e.target.value })
+                    setSettings({ ...settings, subtitle_uk: e.target.value })
                   }
                   placeholder="Бібліотека ведичних аудіокниг"
                 />
@@ -303,9 +305,9 @@ export default function SiteBanners() {
               <div>
                 <Label>Цитата українською</Label>
                 <Textarea
-                  value={settings.quote_ua}
+                  value={settings.quote_uk}
                   onChange={(e) =>
-                    setSettings({ ...settings, quote_ua: e.target.value })
+                    setSettings({ ...settings, quote_uk: e.target.value })
                   }
                   rows={4}
                   placeholder="За моєї відсутності читайте книжки..."
@@ -325,9 +327,9 @@ export default function SiteBanners() {
               <div>
                 <Label>Автор українською</Label>
                 <Input
-                  value={settings.quote_author_ua}
+                  value={settings.quote_author_uk}
                   onChange={(e) =>
-                    setSettings({ ...settings, quote_author_ua: e.target.value })
+                    setSettings({ ...settings, quote_author_uk: e.target.value })
                   }
                   placeholder="Шріла Прабгупада"
                 />

@@ -1,0 +1,295 @@
+{
+  "book_slug": "sb",
+  "canto": 1,
+  "chapter": 15,
+  "verses": [
+    {
+      "verse_number": "1",
+      "transliteration_en": "evaṁ kṛṣṇa-sakhaḥ kṛṣṇo\nbhrātrā rājñā vikalpitaḥ\nnānā-śaṅkāspadaṁ rūpaṁ\nkṛṣṇa-viśleṣa-karśitaḥ",
+      "transliteration_ua": "евам̇ кр̣шн̣а-сакхах̣ кр̣шн̣о\nбгра̄тра̄ ра̄джн̃а̄ вікалпітах̣\nна̄на̄-ш́ан̇ка̄спадам̇ рӯпам̇\nкр̣шн̣а-віш́леша-карш́ітах̣",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/1/"
+    },
+    {
+      "verse_number": "2",
+      "transliteration_en": "śokena śuṣyad-vadana-\nhṛt-sarojo hata-prabhaḥ\nvibhuṁ tam evānusmaran\nnāśaknot pratibhāṣitum",
+      "transliteration_ua": "ш́окена ш́ушйад-вадана-\nхр̣т-сароджо хата-прабгах̣\nвібгум̇ там ева̄нусмаран\nна̄ш́акнот пратібга̄шітум",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/2/"
+    },
+    {
+      "verse_number": "3",
+      "transliteration_en": "kṛcchreṇa saṁstabhya śucaḥ\npāṇināmṛjya netrayoḥ\nparokṣeṇa samunnaddha-\npraṇayautkaṇṭhya-kātaraḥ",
+      "transliteration_ua": "кр̣ччхрен̣а сам̇стабгйа ш́учах̣\nпа̄н̣іна̄мр̣джйа нетрайох̣\nпарокшен̣а самуннаддга-\nпран̣айауткан̣т̣хйа-ка̄тарах̣",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/3/"
+    },
+    {
+      "verse_number": "4",
+      "transliteration_en": "sakhyaṁ maitrīṁ sauhṛdaṁ ca\nsārathyādiṣu saṁsmaran\nnṛpam agrajam ity āha\nbāṣpa-gadgadayā girā",
+      "transliteration_ua": "сакхйам̇ маітрı̄м̇ саухр̣дам̇ ча\nса̄ратхйа̄дішу сам̇смаран\nнр̣пам аґраджам ітй а̄ха\nба̄шпа-ґадґадайа̄ ґіра̄",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/4/"
+    },
+    {
+      "verse_number": "5",
+      "transliteration_en": "vañcito ’haṁ mahā-rāja\nhariṇā bandhu-rūpiṇā\nyena me ’pahṛtaṁ tejo\ndeva-vismāpanaṁ mahat",
+      "transliteration_ua": "ван̃чіто ’хам̇ маха̄-ра̄джа\nхарін̣а̄ бандгу-рӯпін̣а̄\nйена ме ’пахр̣там̇ теджо\nдева-вісма̄панам̇ махат",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/5/"
+    },
+    {
+      "verse_number": "6",
+      "transliteration_en": "yasya kṣaṇa-viyogena\nloko hy apriya-darśanaḥ\nukthena rahito hy eṣa\nmṛtakaḥ procyate yathā",
+      "transliteration_ua": "йасйа кшан̣а-війоґена\nлоко хй апрійа-дарш́анах̣\nуктхена рахіто хй еша\nмр̣таках̣ прочйате йатха̄",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/6/"
+    },
+    {
+      "verse_number": "7",
+      "transliteration_en": "yat-saṁśrayād drupada-geham upāgatānāṁ\nrājñāṁ svayaṁvara-mukhe smara-durmadānām\ntejo hṛtaṁ khalu mayābhihataś ca matsyaḥ\nsajjīkṛtena dhanuṣādhigatā ca kṛṣṇā",
+      "transliteration_ua": "йат-сам̇ш́райа̄д друпада-ґехам упа̄ґата̄на̄м̇\nра̄джн̃а̄м̇ свайам̇вара-мукхе смара-дурмада̄на̄м\nтеджо хр̣там̇ кхалу майа̄бгіхаташ́ ча матсйах̣\nсаджджı̄кр̣тена дгануша̄дгіґата̄ ча кр̣шн̣а̄",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/7/"
+    },
+    {
+      "verse_number": "8",
+      "transliteration_en": "yat-sannidhāv aham u khāṇḍavam agnaye ’dām\nindraṁ ca sāmara-gaṇaṁ tarasā vijitya\nlabdhā sabhā maya-kṛtādbhuta-śilpa-māyā\ndigbhyo ’haran nṛpatayo balim adhvare te",
+      "transliteration_ua": "йат-саннідга̄в ахам у кха̄н̣д̣авам аґнайе ’да̄м\nіндрам̇ ча са̄мара-ґан̣ам̇ тараса̄ віджітйа\nлабдга̄ сабга̄ майа-кр̣та̄дбгута-ш́ілпа-ма̄йа̄\nдіґбгйо ’харан нр̣патайо балім адгваре те",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/8/"
+    },
+    {
+      "verse_number": "9",
+      "transliteration_en": "yat-tejasā nṛpa-śiro-’ṅghrim ahan makhārtham\nāryo ’nujas tava gajāyuta-sattva-vīryaḥ\ntenāhṛtāḥ pramatha-nātha-makhāya bhūpā\nyan-mocitās tad-anayan balim adhvare te",
+      "transliteration_ua": "йат-теджаса̄ нр̣па-ш́іро-’н̇ґгрім ахан макха̄ртхам\nа̄рйо ’нуджас тава ґаджа̄йута-саттва-вı̄рйах̣\nтена̄хр̣та̄х̣ праматха-на̄тха-макха̄йа бгӯпа̄\nйан-мочіта̄с тад-анайан балім адгваре те",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/9/"
+    },
+    {
+      "verse_number": "10",
+      "transliteration_en": "patnyās tavādhimakha-kḷpta-mahābhiṣeka-\nślāghiṣṭha-cāru-kabaraṁ kitavaiḥ sabhāyām\nspṛṣṭaṁ vikīrya padayoḥ patitāśru-mukhyā\nyas tat-striyo ’kṛta-hateśa-vimukta-keśāḥ",
+      "transliteration_ua": "патнйа̄с тава̄дгімакха-кл̣пта-маха̄бгішека-\nш́ла̄ґгішт̣ха-ча̄ру-кабарам̇ кітаваіх̣ сабга̄йа̄м\nспр̣шт̣ам̇ вікı̄рйа падайох̣ патіта̄ш́ру-мукхйа̄\nйас тат-стрійо ’кр̣та-хатеш́а-вімукта-кеш́а̄х̣",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/10/"
+    },
+    {
+      "verse_number": "11",
+      "transliteration_en": "yo no jugopa vana etya duranta-kṛcchrād\ndurvāsaso ’ri-racitād ayutāgra-bhug yaḥ\nśākānna-śiṣṭam upayujya yatas tri-lokīṁ\ntṛptām amaṁsta salile vinimagna-saṅghaḥ",
+      "transliteration_ua": "йо но джуґопа вана етйа дуранта-кр̣ччхра̄д\nдурва̄сасо ’рі-рачіта̄д айута̄ґра-бгуґ йах̣\nш́а̄ка̄нна-ш́ішт̣ам упайуджйа йатас трі-локı̄м̇\nтр̣пта̄м амам̇ста саліле вінімаґна-сан̇ґгах̣",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/11/"
+    },
+    {
+      "verse_number": "12",
+      "transliteration_en": "yat-tejasātha bhagavān yudhi śūla-pāṇir\nvismāpitaḥ sagirijo ’stram adān nijaṁ me\nanye ’pi cāham amunaiva kalevareṇa\nprāpto mahendra-bhavane mahad-āsanārdham",
+      "transliteration_ua": "йат-теджаса̄тха бгаґава̄н йудгі ш́ӯла-па̄н̣ір\nвісма̄пітах̣ саґіріджо ’страм ада̄н ніджам̇ ме\nанйе ’пі ча̄хам амунаіва калеварен̣а\nпра̄пто махендра-бгаване махад-а̄сана̄рдгам",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/12/"
+    },
+    {
+      "verse_number": "13",
+      "transliteration_en": "tatraiva me viharato bhuja-daṇḍa-yugmaṁ\ngāṇḍīva-lakṣaṇam arāti-vadhāya devāḥ\nsendrāḥ śritā yad-anubhāvitam ājamīḍha\ntenāham adya muṣitaḥ puruṣeṇa bhūmnā",
+      "transliteration_ua": "татраіва ме віхарато бгуджа-дан̣д̣а-йуґмам̇\nґа̄н̣д̣ı̄ва-лакшан̣ам ара̄ті-вадга̄йа дева̄х̣\nсендра̄х̣ ш́ріта̄ йад-анубга̄вітам а̄джамı̄д̣ха\nтена̄хам адйа мушітах̣ пурушен̣а бгӯмна̄",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/13/"
+    },
+    {
+      "verse_number": "14",
+      "transliteration_en": "yad-bāndhavaḥ kuru-balābdhim ananta-pāram\neko rathena tatare ’ham atīrya-sattvam\npratyāhṛtaṁ bahu dhanaṁ ca mayā pareṣāṁ\ntejās-padaṁ maṇimayaṁ ca hṛtaṁ śirobhyaḥ",
+      "transliteration_ua": "йад-ба̄ндгавах̣ куру-бала̄бдгім ананта-па̄рам\nеко ратхена татаре ’хам атı̄рйа-саттвам\nпратйа̄хр̣там̇ баху дганам̇ ча майа̄ пареша̄м̇\nтеджа̄с-падам̇ ман̣імайам̇ ча хр̣там̇ ш́іробгйах̣",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/14/"
+    },
+    {
+      "verse_number": "15",
+      "transliteration_en": "yo bhīṣma-karṇa-guru-śalya-camūṣv adabhra-\nrājanya-varya-ratha-maṇḍala-maṇḍitāsu\nagrecaro mama vibho ratha-yūthapānām\nāyur manāṁsi ca dṛśā saha oja ārcchat",
+      "transliteration_ua": "йо бгı̄шма-карн̣а-ґуру-ш́алйа-чамӯшв адабгра-\nра̄джанйа-варйа-ратха-ман̣д̣ала-ман̣д̣іта̄су\nаґречаро мама вібго ратха-йӯтхапа̄на̄м\nа̄йур мана̄м̇сі ча др̣ш́а̄ саха оджа а̄рччхат",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/15/"
+    },
+    {
+      "verse_number": "16",
+      "transliteration_en": "yad-doḥṣu mā praṇihitaṁ guru-bhīṣma-karṇa-\nnaptṛ-trigarta-śalya-saindhava-bāhlikādyaiḥ\nastrāṇy amogha-mahimāni nirūpitāni\nnopaspṛśur nṛhari-dāsam ivāsurāṇi",
+      "transliteration_ua": "йад-дох̣шу ма̄ пран̣іхітам̇ ґуру-бгı̄шма-карн̣а-\nнаптр̣-тріґарта-ш́алйа-саіндгава-ба̄хліка̄дйаіх̣\nастра̄н̣й амоґга-махіма̄ні нірӯпіта̄ні\nнопаспр̣ш́ур нр̣харі-да̄сам іва̄сура̄н̣і",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/16/"
+    },
+    {
+      "verse_number": "17",
+      "transliteration_en": "sautye vṛtaḥ kumatinātmada īśvaro me\nyat-pāda-padmam abhavāya bhajanti bhavyāḥ\nmāṁ śrānta-vāham arayo rathino bhuvi-ṣṭhaṁ\nna prāharan yad-anubhāva-nirasta-cittāḥ",
+      "transliteration_ua": "саутйе вр̣тах̣ куматіна̄тмада ı̄ш́варо ме\nйат-па̄да-падмам абгава̄йа бгаджанті бгавйа̄х̣\nма̄м̇ ш́ра̄нта-ва̄хам арайо ратхіно бгуві-шт̣хам̇\nна пра̄харан йад-анубга̄ва-ніраста-чітта̄х̣",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/17/"
+    },
+    {
+      "verse_number": "18",
+      "transliteration_en": "narmāṇy udāra-rucira-smita-śobhitāni\nhe pārtha he ’rjuna sakhe kuru-nandaneti\nsañjalpitāni nara-deva hṛdi-spṛśāni\nsmartur luṭhanti hṛdayaṁ mama mādhavasya",
+      "transliteration_ua": "нарма̄н̣й уда̄ра-ручіра-сміта-ш́обгіта̄ні\nхе па̄ртха хе ’рджуна сакхе куру-нанданеті\nсан̃джалпіта̄ні нара-дева хр̣ді-спр̣ш́а̄ні\nсмартур лут̣ханті хр̣дайам̇ мама ма̄дгавасйа",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/18/"
+    },
+    {
+      "verse_number": "19",
+      "transliteration_en": "śayyāsanāṭana-vikatthana-bhojanādiṣv\naikyād vayasya ṛtavān iti vipralabdhaḥ\nsakhyuḥ sakheva pitṛvat tanayasya sarvaṁ\nsehe mahān mahitayā kumater aghaṁ me",
+      "transliteration_ua": "ш́аййа̄сана̄т̣ана-вікаттхана-бгоджана̄дішв\nаікйа̄д вайасйа р̣тава̄н іті віпралабдгах̣\nсакхйух̣ сакхева пітр̣ват танайасйа сарвам̇\nсехе маха̄н махітайа̄ куматер аґгам̇ ме",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/19/"
+    },
+    {
+      "verse_number": "20",
+      "transliteration_en": "so ’haṁ nṛpendra rahitaḥ puruṣottamena\nsakhyā priyeṇa suhṛdā hṛdayena śūnyaḥ\nadhvany urukrama-parigraham aṅga rakṣan\ngopair asadbhir abaleva vinirjito ’smi",
+      "transliteration_ua": "со ’хам̇ нр̣пендра рахітах̣ пурушоттамена\nсакхйа̄ прійен̣а сухр̣да̄ хр̣дайена ш́ӯнйах̣\nадгванй урукрама-паріґрахам ан̇ґа ракшан\nґопаір асадбгір абалева вінірджіто ’смі",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/20/"
+    },
+    {
+      "verse_number": "21",
+      "transliteration_en": "tad vai dhanus ta iṣavaḥ sa ratho hayās te\nso ’haṁ rathī nṛpatayo yata ānamanti\nsarvaṁ kṣaṇena tad abhūd asad īśa-riktaṁ\nbhasman hutaṁ kuhaka-rāddham ivoptam ūṣyām",
+      "transliteration_ua": "тад ваі дганус та ішавах̣ са ратхо хайа̄с те\nсо ’хам̇ ратхı̄ нр̣патайо йата а̄наманті\nсарвам̇ кшан̣ена тад абгӯд асад ı̄ш́а-ріктам̇\nбгасман хутам̇ кухака-ра̄ддгам івоптам ӯшйа̄м",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/21/"
+    },
+    {
+      "verse_number": "22-23",
+      "transliteration_en": "rājaṁs tvayānupṛṣṭānāṁ\nsuhṛdāṁ naḥ suhṛt-pure\nvipra-śāpa-vimūḍhānāṁ\nnighnatāṁ muṣṭibhir mithaḥ\n\nvāruṇīṁ madirāṁ pītvā\nmadonmathita-cetasām\najānatām ivānyonyaṁ\ncatuḥ-pañcāvaśeṣitāḥ",
+      "transliteration_ua": "ра̄джам̇с твайа̄нупр̣шт̣а̄на̄м̇\nсухр̣да̄м̇ нах̣ сухр̣т-пуре\nвіпра-ш́а̄па-вімӯд̣ха̄на̄м̇\nніґгната̄м̇ мушт̣ібгір мітхах̣\n\nва̄рун̣ı̄м̇ мадіра̄м̇ пı̄тва̄\nмадонматхіта-четаса̄м\nаджа̄ната̄м іва̄нйонйам̇\nчатух̣-пан̃ча̄ваш́ешіта̄х̣",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/22-23/"
+    },
+    {
+      "verse_number": "24",
+      "transliteration_en": "prāyeṇaitad bhagavata\nīśvarasya viceṣṭitam\nmitho nighnanti bhūtāni\nbhāvayanti ca yan mithaḥ",
+      "transliteration_ua": "пра̄йен̣аітад бгаґавата\nı̄ш́варасйа вічешт̣ітам\nмітхо ніґгнанті бгӯта̄ні\nбга̄вайанті ча йан мітхах̣",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/24/"
+    },
+    {
+      "verse_number": "25-26",
+      "transliteration_en": "jalaukasāṁ jale yadvan\nmahānto ’danty aṇīyasaḥ\ndurbalān balino rājan\nmahānto balino mithaḥ\n\nevaṁ baliṣṭhair yadubhir\nmahadbhir itarān vibhuḥ\nyadūn yadubhir anyonyaṁ\nbhū-bhārān sañjahāra ha",
+      "transliteration_ua": "джалаукаса̄м̇ джале йадван\nмаха̄нто ’дантй ан̣ı̄йасах̣\nдурбала̄н баліно ра̄джан\nмаха̄нто баліно мітхах̣\n\nевам̇ балішт̣хаір йадубгір\nмахадбгір ітара̄н вібгух̣\nйадӯн йадубгір анйонйам̇\nбгӯ-бга̄ра̄н сан̃джаха̄ра ха",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/25-26/"
+    },
+    {
+      "verse_number": "27",
+      "transliteration_en": "deśa-kālārtha-yuktāni\nhṛt-tāpopaśamāni ca\nharanti smarataś cittaṁ\ngovindābhihitāni me",
+      "transliteration_ua": "деш́а-ка̄ла̄ртха-йукта̄ні\nхр̣т-та̄попаш́ама̄ні ча\nхаранті смараташ́ чіттам̇\nґовінда̄бгіхіта̄ні ме",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/27/"
+    },
+    {
+      "verse_number": "28",
+      "transliteration_en": "evaṁ cintayato jiṣṇoḥ\nkṛṣṇa-pāda-saroruham\nsauhārdenātigāḍhena\nśāntāsīd vimalā matiḥ",
+      "transliteration_ua": "евам̇ чінтайато джішн̣ох̣\nкр̣шн̣а-па̄да-сарорухам\nсауха̄рдена̄тіґа̄д̣хена\nш́а̄нта̄сı̄д вімала̄ матіх̣",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/28/"
+    },
+    {
+      "verse_number": "29",
+      "transliteration_en": "vāsudevāṅghry-anudhyāna-\nparibṛṁhita-raṁhasā\nbhaktyā nirmathitāśeṣa-\nkaṣāya-dhiṣaṇo ’rjunaḥ",
+      "transliteration_ua": "ва̄судева̄н̇ґгрй-анудгйа̄на-\nпарібр̣м̇хіта-рам̇хаса̄\nбгактйа̄ нірматхіта̄ш́еша-\nкаша̄йа-дгішан̣о ’рджунах̣",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/29/"
+    },
+    {
+      "verse_number": "30",
+      "transliteration_en": "gītaṁ bhagavatā jñānaṁ\nyat tat saṅgrāma-mūrdhani\nkāla-karma-tamo-ruddhaṁ\npunar adhyagamat prabhuḥ",
+      "transliteration_ua": "ґı̄там̇ бгаґавата̄ джн̃а̄нам̇\nйат тат сан̇ґра̄ма-мӯрдгані\nка̄ла-карма-тамо-руддгам̇\nпунар адгйаґамат прабгух̣",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/30/"
+    },
+    {
+      "verse_number": "31",
+      "transliteration_en": "viśoko brahma-sampattyā\nsañchinna-dvaita-saṁśayaḥ\nlīna-prakṛti-nairguṇyād\naliṅgatvād asambhavaḥ",
+      "transliteration_ua": "віш́око брахма-сампаттйа̄\nсан̃чхінна-дваіта-сам̇ш́айах̣\nлı̄на-пракр̣ті-наірґун̣йа̄д\nалін̇ґатва̄д асамбгавах̣",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/31/"
+    },
+    {
+      "verse_number": "32",
+      "transliteration_en": "niśamya bhagavan-mārgaṁ\nsaṁsthāṁ yadu-kulasya ca\nsvaḥ-pathāya matiṁ cakre\nnibhṛtātmā yudhiṣṭhiraḥ",
+      "transliteration_ua": "ніш́амйа бгаґаван-ма̄рґам̇\nсам̇стха̄м̇ йаду-куласйа ча\nсвах̣-патха̄йа матім̇ чакре\nнібгр̣та̄тма̄ йудгішт̣хірах̣",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/32/"
+    },
+    {
+      "verse_number": "33",
+      "transliteration_en": "pṛthāpy anuśrutya dhanañjayoditaṁ\nnāśaṁ yadūnāṁ bhagavad-gatiṁ ca tām\nekānta-bhaktyā bhagavaty adhokṣaje\nniveśitātmopararāma saṁsṛteḥ",
+      "transliteration_ua": "пр̣тха̄пй ануш́рутйа дганан̃джайодітам̇\nна̄ш́ам̇ йадӯна̄м̇ бгаґавад-ґатім̇ ча та̄м\nека̄нта-бгактйа̄ бгаґаватй адгокшадже\nнівеш́іта̄тмопарара̄ма сам̇ср̣тех̣",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/33/"
+    },
+    {
+      "verse_number": "34",
+      "transliteration_en": "yayāharad bhuvo bhāraṁ\ntāṁ tanuṁ vijahāv ajaḥ\nkaṇṭakaṁ kaṇṭakeneva\ndvayaṁ cāpīśituḥ samam",
+      "transliteration_ua": "йайа̄харад бгуво бга̄рам̇\nта̄м̇ танум̇ віджаха̄в аджах̣\nкан̣т̣акам̇ кан̣т̣акенева\nдвайам̇ ча̄пı̄ш́ітух̣ самам",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/34/"
+    },
+    {
+      "verse_number": "35",
+      "transliteration_en": "yathā matsyādi-rūpāṇi\ndhatte jahyād yathā naṭaḥ\nbhū-bhāraḥ kṣapito yena\njahau tac ca kalevaram",
+      "transliteration_ua": "йатха̄ матсйа̄ді-рӯпа̄н̣і\nдгатте джахйа̄д йатха̄ нат̣ах̣\nбгӯ-бга̄рах̣ кшапіто йена\nджахау тач ча калеварам",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/35/"
+    },
+    {
+      "verse_number": "36",
+      "transliteration_en": "yadā mukundo bhagavān imāṁ mahīṁ\njahau sva-tanvā śravaṇīya-sat-kathaḥ\ntadāhar evāpratibuddha-cetasām\nabhadra-hetuḥ kalir anvavartata",
+      "transliteration_ua": "йада̄ мукундо бгаґава̄н іма̄м̇ махı̄м̇\nджахау сва-танва̄ ш́раван̣ı̄йа-сат-катхах̣\nтада̄хар ева̄пратібуддга-четаса̄м\nабгадра-хетух̣ калір анвавартата",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/36/"
+    },
+    {
+      "verse_number": "37",
+      "transliteration_en": "yudhiṣṭhiras tat parisarpaṇaṁ budhaḥ\npure ca rāṣṭre ca gṛhe tathātmani\nvibhāvya lobhānṛta-jihma-hiṁsanādy-\nadharma-cakraṁ gamanāya paryadhāt",
+      "transliteration_ua": "йудгішт̣хірас тат парісарпан̣ам̇ будгах̣\nпуре ча ра̄шт̣ре ча ґр̣хе татха̄тмані\nвібга̄вйа лобга̄нр̣та-джіхма-хім̇сана̄дй-\nадгарма-чакрам̇ ґамана̄йа парйадга̄т",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/37/"
+    },
+    {
+      "verse_number": "38",
+      "transliteration_en": "sva-rāṭ pautraṁ vinayinam\nātmanaḥ susamaṁ guṇaiḥ\ntoya-nīvyāḥ patiṁ bhūmer\nabhyaṣiñcad gajāhvaye",
+      "transliteration_ua": "сва-ра̄т̣ паутрам̇ вінайінам\nа̄тманах̣ сусамам̇ ґун̣аіх̣\nтойа-нı̄вйа̄х̣ патім̇ бгӯмер\nабгйашін̃чад ґаджа̄хвайе",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/38/"
+    },
+    {
+      "verse_number": "39",
+      "transliteration_en": "mathurāyāṁ tathā vajraṁ\nśūrasena-patiṁ tataḥ\nprājāpatyāṁ nirūpyeṣṭim\nagnīn apibad īśvaraḥ",
+      "transliteration_ua": "матхура̄йа̄м̇ татха̄ ваджрам̇\nш́ӯрасена-патім̇ татах̣\nпра̄джа̄патйа̄м̇ нірӯпйешт̣ім\nаґнı̄н апібад ı̄ш́варах̣",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/39/"
+    },
+    {
+      "verse_number": "40",
+      "transliteration_en": "visṛjya tatra tat sarvaṁ\ndukūla-valayādikam\nnirmamo nirahaṅkāraḥ\nsañchinnāśeṣa-bandhanaḥ",
+      "transliteration_ua": "віср̣джйа татра тат сарвам̇\nдукӯла-валайа̄дікам\nнірмамо нірахан̇ка̄рах̣\nсан̃чхінна̄ш́еша-бандганах̣",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/40/"
+    },
+    {
+      "verse_number": "41",
+      "transliteration_en": "vācaṁ juhāva manasi\ntat prāṇa itare ca tam\nmṛtyāv apānaṁ sotsargaṁ\ntaṁ pañcatve hy ajohavīt",
+      "transliteration_ua": "ва̄чам̇ джуха̄ва манасі\nтат пра̄н̣а ітаре ча там\nмр̣тйа̄в апа̄нам̇ сотсарґам̇\nтам̇ пан̃чатве хй аджохавı̄т",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/41/"
+    },
+    {
+      "verse_number": "42",
+      "transliteration_en": "tritve hutvā ca pañcatvaṁ\ntac caikatve ’juhon muniḥ\nsarvam ātmany ajuhavīd\nbrahmaṇy ātmānam avyaye",
+      "transliteration_ua": "трітве хутва̄ ча пан̃чатвам̇\nтач чаікатве ’джухон муніх̣\nсарвам а̄тманй аджухавı̄д\nбрахман̣й а̄тма̄нам авйайе",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/42/"
+    },
+    {
+      "verse_number": "43",
+      "transliteration_en": "cīra-vāsā nirāhāro\nbaddha-vāṅ mukta-mūrdhajaḥ\ndarśayann ātmano rūpaṁ\njaḍonmatta-piśācavat\nanavekṣamāṇo niragād\naśṛṇvan badhiro yathā",
+      "transliteration_ua": "чı̄ра-ва̄са̄ ніра̄ха̄ро\nбаддга-ва̄н̇ мукта-мӯрдгаджах̣\nдарш́айанн а̄тмано рӯпам̇\nджад̣онматта-піш́а̄чават\nанавекшама̄н̣о ніраґа̄д\nаш́р̣н̣ван бадгіро йатха̄",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/43/"
+    },
+    {
+      "verse_number": "44",
+      "transliteration_en": "udīcīṁ praviveśāśāṁ\ngata-pūrvāṁ mahātmabhiḥ\nhṛdi brahma paraṁ dhyāyan\nnāvarteta yato gataḥ",
+      "transliteration_ua": "удı̄чı̄м̇ правівеш́а̄ш́а̄м̇\nґата-пӯрва̄м̇ маха̄тмабгіх̣\nхр̣ді брахма парам̇ дгйа̄йан\nна̄вартета йато ґатах̣",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/44/"
+    },
+    {
+      "verse_number": "45",
+      "transliteration_en": "sarve tam anunirjagmur\nbhrātaraḥ kṛta-niścayāḥ\nkalinādharma-mitreṇa\ndṛṣṭvā spṛṣṭāḥ prajā bhuvi",
+      "transliteration_ua": "сарве там анунірджаґмур\nбгра̄тарах̣ кр̣та-ніш́чайа̄х̣\nкаліна̄дгарма-мітрен̣а\nдр̣шт̣ва̄ спр̣шт̣а̄х̣ праджа̄ бгуві",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/45/"
+    },
+    {
+      "verse_number": "46",
+      "transliteration_en": "te sādhu-kṛta-sarvārthā\njñātvātyantikam ātmanaḥ\nmanasā dhārayām āsur\nvaikuṇṭha-caraṇāmbujam",
+      "transliteration_ua": "те са̄дгу-кр̣та-сарва̄ртха̄\nджн̃а̄тва̄тйантікам а̄тманах̣\nманаса̄ дга̄райа̄м а̄сур\nваікун̣т̣ха-чаран̣а̄мбуджам",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/46/"
+    },
+    {
+      "verse_number": "47-48",
+      "transliteration_en": "tad-dhyānodriktayā bhaktyā\nviśuddha-dhiṣaṇāḥ pare\ntasmin nārāyaṇa-pade\nekānta-matayo gatim\n\navāpur duravāpāṁ te\nasadbhir viṣayātmabhiḥ\nvidhūta-kalmaṣā sthānaṁ\nvirajenātmanaiva hi",
+      "transliteration_ua": "тад-дгйа̄нодріктайа̄ бгактйа̄\nвіш́уддга-дгішан̣а̄х̣ паре\nтасмін на̄ра̄йан̣а-паде\nека̄нта-матайо ґатім\n\nава̄пур дурава̄па̄м̇ те\nасадбгір вішайа̄тмабгіх̣\nвідгӯта-калмаша̄ стха̄нам̇\nвіраджена̄тманаіва хі",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/47-48/"
+    },
+    {
+      "verse_number": "49",
+      "transliteration_en": "viduro ’pi parityajya\nprabhāse deham ātmanaḥ\nkṛṣṇāveśena tac-cittaḥ\npitṛbhiḥ sva-kṣayaṁ yayau",
+      "transliteration_ua": "відуро ’пі парітйаджйа\nпрабга̄се дехам а̄тманах̣\nкр̣шн̣а̄веш́ена тач-чіттах̣\nпітр̣бгіх̣ сва-кшайам̇ йайау",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/49/"
+    },
+    {
+      "verse_number": "50",
+      "transliteration_en": "draupadī ca tadājñāya\npatīnām anapekṣatām\nvāsudeve bhagavati\nhy ekānta-matir āpa tam",
+      "transliteration_ua": "драупадı̄ ча тада̄джн̃а̄йа\nпатı̄на̄м анапекшата̄м\nва̄судеве бгаґаваті\nхй ека̄нта-матір а̄па там",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/50/"
+    },
+    {
+      "verse_number": "51",
+      "transliteration_en": "yaḥ śraddhayaitad bhagavat-priyāṇāṁ\npāṇḍoḥ sutānām iti samprayāṇam\nśṛṇoty alaṁ svastyayanaṁ pavitraṁ\nlabdhvā harau bhaktim upaiti siddhim",
+      "transliteration_ua": "йах̣ ш́раддгайаітад бгаґават-прійа̄н̣а̄м̇\nпа̄н̣д̣ох̣ сута̄на̄м іті сампрайа̄н̣ам\nш́р̣н̣отй алам̇ свастйайанам̇ павітрам̇\nлабдгва̄ харау бгактім упаіті сіддгім",
+      "source_url_vedabase": "https://vedabase.io/en/library/sb/1/15/51/"
+    }
+  ]
+}

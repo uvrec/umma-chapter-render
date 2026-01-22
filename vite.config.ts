@@ -1,16 +1,39 @@
-import { defineConfig } from "vite";
+import { defineConfig, Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
+import fs from "fs";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from "vite-plugin-pwa";
 
-// Версія білда - ISO timestamp
-const BUILD_TIME = new Date().toISOString();
+// Версія білда - ISO timestamp (генерується один раз при старті білда)
+const BUILD_VERSION = new Date().toISOString();
+
+/**
+ * Плагін для генерації version.json при білді
+ * Цей файл можна fetch з cache: 'no-store' для перевірки версії на сервері
+ */
+function generateVersionJson(): Plugin {
+  return {
+    name: 'generate-version-json',
+    writeBundle() {
+      const versionData = {
+        build: BUILD_VERSION,
+        timestamp: Date.now()
+      };
+      const outDir = 'dist';
+      const filePath = path.join(outDir, 'version.json');
+      fs.writeFileSync(filePath, JSON.stringify(versionData, null, 2));
+      console.log(`[version-json] Generated ${filePath} with build: ${BUILD_VERSION}`);
+    }
+  };
+}
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   define: {
-    '__BUILD_TIME__': JSON.stringify(BUILD_TIME),
+    '__BUILD_VERSION__': JSON.stringify(BUILD_VERSION),
+    // Залишаємо __BUILD_TIME__ для сумісності (alias)
+    '__BUILD_TIME__': JSON.stringify(BUILD_VERSION),
   },
   server: {
     host: "::",
@@ -19,6 +42,8 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mode === 'development' && componentTagger(),
+    // Генеруємо version.json при продакшен-білді
+    mode === 'production' && generateVersionJson(),
     // PWA тільки в production — в Lovable preview (dev mode) SW викликає проблеми з кешуванням
     mode === 'production' && VitePWA({
       registerType: 'autoUpdate', // Автоматичне оновлення без prompt
@@ -173,12 +198,41 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Mock virtual:pwa-register/react in development (VitePWA is disabled)
+      ...(mode !== 'production' && {
+        'virtual:pwa-register/react': path.resolve(__dirname, './src/lib/pwa-register-stub.ts'),
+      }),
     },
   },
   build: {
     rollupOptions: {
-      output: {},
+      output: {
+        manualChunks: {
+          // Vendor chunks - розділяємо великі бібліотеки
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-query': ['@tanstack/react-query'],
+          'vendor-ui': [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-toast',
+            '@radix-ui/react-tooltip',
+            '@radix-ui/react-popover',
+            '@radix-ui/react-select',
+            '@radix-ui/react-accordion',
+          ],
+          'vendor-editor': [
+            '@tiptap/react',
+            '@tiptap/starter-kit',
+            '@tiptap/extension-link',
+            '@tiptap/extension-image',
+          ],
+          'vendor-charts': ['recharts'],
+          'vendor-supabase': ['@supabase/supabase-js'],
+          'vendor-date': ['date-fns'],
+        },
+      },
     },
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 500, // Знижуємо поріг для кращого моніторингу
   },
 }));

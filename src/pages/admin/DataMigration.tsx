@@ -8,15 +8,17 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, AlertCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function DataMigration() {
   const navigate = useNavigate();
   const { isAdmin, user } = useAuth();
+  const { getLocalizedPath } = useLanguage();
 
   useEffect(() => {
-    if (user && !isAdmin) navigate("/");
+    if (user && !isAdmin) navigate(getLocalizedPath("/"));
     if (!user) navigate("/auth");
-  }, [user, isAdmin, navigate]);
+  }, [user, isAdmin, navigate, getLocalizedPath]);
 
   if (!user || !isAdmin) return null;
 

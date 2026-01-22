@@ -68,7 +68,7 @@ export interface EkadashiFastingTimes {
 
   // Additional info
   isDvadashiParana: boolean; // true if parana is on Dvadashi
-  notes_ua?: string;
+  notes_uk?: string;
   notes_en?: string;
 }
 
@@ -107,7 +107,7 @@ export interface VaishnavEventFastingTimes {
 
   // Fasting level
   fastingLevel: FastingLevel;
-  fastingLevelDescription_ua: string;
+  fastingLevelDescription_uk: string;
   fastingLevelDescription_en: string;
 
   // Fasting start (sunrise on event day)
@@ -117,7 +117,7 @@ export interface VaishnavEventFastingTimes {
   // Fasting end / Breaking fast time
   fastingEnd: Date;
   fastingEndFormatted: string;
-  breakFastDescription_ua: string;
+  breakFastDescription_uk: string;
   breakFastDescription_en: string;
 
   // Sunrise/Sunset on event day
@@ -138,7 +138,7 @@ export interface VaishnavEventFastingTimes {
   location: GeoLocation;
 
   // Additional notes
-  notes_ua: string;
+  notes_uk: string;
   notes_en: string;
 }
 
@@ -304,7 +304,7 @@ export function calculateEkadashiFastingTimes(
   }
 
   // Generate notes
-  const notes_ua = generateNotesUa(paranaStart, paranaEnd, hariVasaraEnd, dvadashiEndTime);
+  const notes_uk = generateNotesUk(paranaStart, paranaEnd, hariVasaraEnd, dvadashiEndTime);
   const notes_en = generateNotesEn(paranaStart, paranaEnd, hariVasaraEnd, dvadashiEndTime);
 
   return {
@@ -330,7 +330,7 @@ export function calculateEkadashiFastingTimes(
 
     location,
     isDvadashiParana: true,
-    notes_ua,
+    notes_uk,
     notes_en,
   };
 }
@@ -343,24 +343,24 @@ export function calculateEkadashiFastingTimes(
  * Get fasting level descriptions
  */
 function getFastingLevelDescriptions(level: FastingLevel): {
-  ua: string;
+  uk: string;
   en: string;
 } {
-  const descriptions: Record<FastingLevel, { ua: string; en: string }> = {
+  const descriptions: Record<FastingLevel, { uk: string; en: string }> = {
     nirjala: {
-      ua: 'Повний піст без води (ніраджала)',
+      uk: 'Повний піст без води (ніраджала)',
       en: 'Complete fast without water (nirjala)',
     },
     full: {
-      ua: 'Повний піст (без зернових та бобових)',
+      uk: 'Повний піст (без зернових та бобових)',
       en: 'Full fast (no grains or beans)',
     },
     half: {
-      ua: 'Піст до полудня',
+      uk: 'Піст до полудня',
       en: 'Fast until noon',
     },
     none: {
-      ua: 'Без посту (святкування)',
+      uk: 'Без посту (святкування)',
       en: 'No fasting (celebration)',
     },
   };
@@ -377,7 +377,7 @@ function getBreakFastDescriptions(
   nextSunrise: Date,
   timezone?: string
 ): {
-  ua: string;
+  uk: string;
   en: string;
   breakTime: Date;
 } {
@@ -387,25 +387,25 @@ function getBreakFastDescriptions(
   switch (level) {
     case 'nirjala':
       return {
-        ua: `Переривання посту наступного дня після сходу сонця (${nextSunriseFormatted})`,
+        uk: `Переривання посту наступного дня після сходу сонця (${nextSunriseFormatted})`,
         en: `Break fast next day after sunrise (${nextSunriseFormatted})`,
         breakTime: nextSunrise,
       };
     case 'full':
       return {
-        ua: `Переривання посту наступного дня після сходу сонця (${nextSunriseFormatted})`,
+        uk: `Переривання посту наступного дня після сходу сонця (${nextSunriseFormatted})`,
         en: `Break fast next day after sunrise (${nextSunriseFormatted})`,
         breakTime: nextSunrise,
       };
     case 'half':
       return {
-        ua: `Переривання посту після полудня (${noonFormatted})`,
+        uk: `Переривання посту після полудня (${noonFormatted})`,
         en: `Break fast after noon (${noonFormatted})`,
         breakTime: solarNoon,
       };
     case 'none':
       return {
-        ua: 'Піст не потрібен',
+        uk: 'Піст не потрібен',
         en: 'No fasting required',
         breakTime: solarNoon,
       };
@@ -419,56 +419,56 @@ function generateEventFastingNotes(
   eventType: VaishnavEventType,
   level: FastingLevel,
   eventName?: string
-): { ua: string; en: string } {
+): { uk: string; en: string } {
   const eventTypeNames = {
-    appearance: { ua: 'явлення', en: 'appearance' },
-    disappearance: { ua: 'відходу', en: 'disappearance' },
-    festival: { ua: 'свята', en: 'festival' },
-    ekadashi: { ua: 'екадаші', en: 'ekadashi' },
+    appearance: { uk: 'явлення', en: 'appearance' },
+    disappearance: { uk: 'відходу', en: 'disappearance' },
+    festival: { uk: 'свята', en: 'festival' },
+    ekadashi: { uk: 'екадаші', en: 'ekadashi' },
   };
 
   const typeName = eventTypeNames[eventType];
   const name = eventName || '';
 
-  let notes_ua = '';
+  let notes_uk = '';
   let notes_en = '';
 
   if (eventType === 'appearance') {
-    notes_ua = `День явлення ${name}. `;
+    notes_uk = `День явлення ${name}. `;
     notes_en = `Appearance day of ${name}. `;
 
     if (level === 'half') {
-      notes_ua += 'Рекомендується дотримуватись посту до полудня, а потім святкувати з прасадом.';
+      notes_uk += 'Рекомендується дотримуватись посту до полудня, а потім святкувати з прасадом.';
       notes_en += 'It is recommended to fast until noon, then celebrate with prasadam.';
     } else if (level === 'full') {
-      notes_ua += 'Рекомендується повний піст без зернових. Святкування з прасадом наступного дня.';
+      notes_uk += 'Рекомендується повний піст без зернових. Святкування з прасадом наступного дня.';
       notes_en += 'Full fast without grains is recommended. Celebrate with prasadam the next day.';
     }
   } else if (eventType === 'disappearance') {
-    notes_ua = `День відходу ${name}. `;
+    notes_uk = `День відходу ${name}. `;
     notes_en = `Disappearance day of ${name}. `;
 
     if (level === 'half') {
-      notes_ua += 'Рекомендується дотримуватись посту до полудня на честь відданого.';
+      notes_uk += 'Рекомендується дотримуватись посту до полудня на честь відданого.';
       notes_en += 'It is recommended to fast until noon in honor of the devotee.';
     } else if (level === 'full') {
-      notes_ua += 'Рекомендується повний піст на честь відданого.';
+      notes_uk += 'Рекомендується повний піст на честь відданого.';
       notes_en += 'Full fast is recommended in honor of the devotee.';
     }
   } else if (eventType === 'festival') {
-    notes_ua = `Свято ${name}. `;
+    notes_uk = `Свято ${name}. `;
     notes_en = `Festival of ${name}. `;
 
     if (level !== 'none') {
-      notes_ua += 'Дотримуйтесь рекомендованого посту та беріть участь у святкуванні.';
+      notes_uk += 'Дотримуйтесь рекомендованого посту та беріть участь у святкуванні.';
       notes_en += 'Follow the recommended fasting and participate in the celebration.';
     } else {
-      notes_ua += 'Беріть участь у святкуванні з прасадом!';
+      notes_uk += 'Беріть участь у святкуванні з прасадом!';
       notes_en += 'Participate in the celebration with prasadam!';
     }
   }
 
-  return { ua: notes_ua, en: notes_en };
+  return { uk: notes_uk, en: notes_en };
 }
 
 /**
@@ -520,7 +520,7 @@ export function calculateVaishnavEventFastingTimes(
     eventDateFormatted,
 
     fastingLevel,
-    fastingLevelDescription_ua: levelDesc.ua,
+    fastingLevelDescription_uk: levelDesc.uk,
     fastingLevelDescription_en: levelDesc.en,
 
     fastingStart: sunTimes.sunrise,
@@ -528,7 +528,7 @@ export function calculateVaishnavEventFastingTimes(
 
     fastingEnd: breakFastInfo.breakTime,
     fastingEndFormatted: formatTime(breakFastInfo.breakTime, location.timezone),
-    breakFastDescription_ua: breakFastInfo.ua,
+    breakFastDescription_uk: breakFastInfo.uk,
     breakFastDescription_en: breakFastInfo.en,
 
     sunrise: sunTimes.sunrise,
@@ -544,7 +544,7 @@ export function calculateVaishnavEventFastingTimes(
 
     location,
 
-    notes_ua: notes.ua,
+    notes_uk: notes.uk,
     notes_en: notes.en,
   };
 }
@@ -664,28 +664,152 @@ export function calculateTithi(date: Date): { tithi: number; paksha: 'shukla' | 
 }
 
 /**
- * Check if a date is Ekadashi (11th tithi of either paksha)
+ * Check if a date is Ekadashi using ISKCON rules
+ *
+ * ISKCON uses Brahma Muhurta (Arunodaya - 96 min before sunrise) as the check time:
+ * 1. If Ekadashi (11th tithi) at Brahma Muhurta → that's Ekadashi day
+ * 2. If Dashami (10th) at Brahma Muhurta → Ekadashi is "viddha" (contaminated)
+ * 3. Mahadvadashi: If Dvadashi at Brahma Muhurta but Ekadashi was overnight
+ *    and previous day was contaminated → observe today
+ *
+ * @param date - The date to check
+ * @param location - Geographic location (required for accurate ISKCON calculation)
  */
-export function isEkadashi(date: Date): boolean {
-  const { tithiInPaksha } = calculateTithi(date);
-  return tithiInPaksha === 11;
+export function isEkadashi(date: Date, location?: GeoLocation): boolean {
+  // Simple check without location (legacy behavior - just check noon tithi)
+  if (!location) {
+    const { tithiInPaksha } = calculateTithi(date);
+    return tithiInPaksha === 11;
+  }
+
+  // ISKCON-compliant check with location
+  const result = isEkadashiISKCON(date, location);
+  return result.isEkadashi;
 }
 
 /**
- * Find next Ekadashi from a given date
+ * ISKCON-compliant Ekadashi detection
+ *
+ * Returns detailed information about whether a date is Ekadashi
+ * according to ISKCON rules (Brahma Muhurta check + Mahadvadashi handling)
  */
-export function findNextEkadashi(fromDate: Date): Date {
+export function isEkadashiISKCON(date: Date, location: GeoLocation): {
+  isEkadashi: boolean;
+  tithi: number;
+  paksha: 'shukla' | 'krishna';
+  checkType?: 'brahma_muhurta' | 'mahadvadashi';
+} {
+  const sunTimes = calculateSunTimes(date, location);
+  const brahmaMuhurta = new Date(sunTimes.sunrise.getTime() - 96 * 60 * 1000);
+  const tithiAtBrahma = calculateTithi(brahmaMuhurta);
+
+  // Primary rule: Ekadashi at Brahma Muhurta
+  if (tithiAtBrahma.tithiInPaksha === 11) {
+    return {
+      isEkadashi: true,
+      tithi: tithiAtBrahma.tithiInPaksha,
+      paksha: tithiAtBrahma.paksha,
+      checkType: 'brahma_muhurta'
+    };
+  }
+
+  // Mahadvadashi rule: Dvadashi at Brahma Muhurta, but check overnight
+  if (tithiAtBrahma.tithiInPaksha === 12) {
+    const prevDay = new Date(date);
+    prevDay.setDate(prevDay.getDate() - 1);
+    const prevSunTimes = calculateSunTimes(prevDay, location);
+    const tithiAtPrevSunset = calculateTithi(prevSunTimes.sunset);
+    const prevBrahma = new Date(prevSunTimes.sunrise.getTime() - 96 * 60 * 1000);
+    const tithiAtPrevBrahma = calculateTithi(prevBrahma);
+
+    // If Ekadashi at prev sunset AND Dashami at prev Brahma Muhurta → Mahadvadashi
+    if (tithiAtPrevSunset.tithiInPaksha === 11 && tithiAtPrevBrahma.tithiInPaksha === 10) {
+      return {
+        isEkadashi: true,
+        tithi: 11,
+        paksha: tithiAtPrevSunset.paksha,
+        checkType: 'mahadvadashi'
+      };
+    }
+  }
+
+  return {
+    isEkadashi: false,
+    tithi: tithiAtBrahma.tithiInPaksha,
+    paksha: tithiAtBrahma.paksha
+  };
+}
+
+/**
+ * Find next Ekadashi from a given date using ISKCON rules
+ *
+ * @param fromDate - Starting date for search
+ * @param location - Geographic location (optional, uses simple tithi check if not provided)
+ */
+export function findNextEkadashi(fromDate: Date, location?: GeoLocation): Date {
   const searchDate = new Date(fromDate);
 
   // Search for up to 30 days
   for (let i = 0; i < 30; i++) {
-    if (isEkadashi(searchDate)) {
+    if (isEkadashi(searchDate, location)) {
       return searchDate;
     }
     searchDate.setDate(searchDate.getDate() + 1);
   }
 
   return searchDate;
+}
+
+/**
+ * Find all Ekadashi dates in a year for a specific location
+ *
+ * Uses ISKCON rules and handles consecutive Brahma Muhurta Ekadashis
+ * by preferring the later date (Shuddha Ekadashi)
+ */
+export function findAllEkadashisInYear(year: number, location: GeoLocation): Array<{
+  date: Date;
+  paksha: 'shukla' | 'krishna';
+  checkType: 'brahma_muhurta' | 'mahadvadashi';
+}> {
+  const ekadashis: Array<{
+    date: Date;
+    paksha: 'shukla' | 'krishna';
+    checkType: 'brahma_muhurta' | 'mahadvadashi';
+  }> = [];
+
+  const startDate = new Date(year, 0, 1);
+  const endDate = new Date(year, 11, 31);
+  let currentDate = new Date(startDate);
+
+  while (currentDate <= endDate) {
+    const result = isEkadashiISKCON(currentDate, location);
+
+    if (result.isEkadashi && result.checkType) {
+      // Check if next day also has Ekadashi at Brahma Muhurta (same paksha)
+      // If so, skip today and use tomorrow (Shuddha Ekadashi preference)
+      const nextDay = new Date(currentDate);
+      nextDay.setDate(nextDay.getDate() + 1);
+      const nextResult = isEkadashiISKCON(nextDay, location);
+
+      if (nextResult.isEkadashi &&
+          nextResult.paksha === result.paksha &&
+          nextResult.checkType === 'brahma_muhurta') {
+        // Skip today, will pick up tomorrow
+        currentDate.setDate(currentDate.getDate() + 1);
+        continue;
+      }
+
+      ekadashis.push({
+        date: new Date(currentDate),
+        paksha: result.paksha,
+        checkType: result.checkType
+      });
+    }
+
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  return ekadashis;
 }
 
 // ============================================
@@ -722,7 +846,7 @@ function formatDateKey(date: Date): string {
 /**
  * Generate Ukrainian notes for parana
  */
-function generateNotesUa(
+function generateNotesUk(
   paranaStart: Date,
   paranaEnd: Date,
   hariVasaraEnd: Date,
@@ -824,7 +948,9 @@ const ekadashiCalculator = {
   findNextFullMoon,
   calculateTithi,
   isEkadashi,
+  isEkadashiISKCON,
   findNextEkadashi,
+  findAllEkadashisInYear,
   formatDuration,
   getDayLengthInfo,
 };

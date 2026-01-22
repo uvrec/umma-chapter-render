@@ -463,8 +463,8 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
         </Button>
       </div>
 
-      {/* Editor content */}
-      <EditorContent editor={editor} className="prose prose-sm dark:prose-invert max-w-none p-4 min-h-[400px]" />
+      {/* Editor content - стилі вже задані в editorProps.attributes.class */}
+      <EditorContent editor={editor} />
     </div>
   );
 };

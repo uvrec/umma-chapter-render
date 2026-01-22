@@ -5,7 +5,7 @@ ALTER TABLE blog_posts DROP COLUMN category;
 ALTER TABLE blog_posts ALTER COLUMN category_id SET NOT NULL;
 
 -- Додати початкові категорії блогу
-INSERT INTO blog_categories (name_ua, name_en, slug, description_ua, description_en) VALUES
+INSERT INTO blog_categories (name_uk, name_en, slug, description_uk, description_en) VALUES
   ('Новини', 'News', 'news', 'Новини та оголошення', 'News and announcements'),
   ('Статті', 'Articles', 'articles', 'Статті та есе', 'Articles and essays'),
   ('Лекції', 'Lectures', 'lectures', 'Лекції та проповіді', 'Lectures and sermons'),

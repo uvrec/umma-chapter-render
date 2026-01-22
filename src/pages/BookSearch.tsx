@@ -47,13 +47,13 @@ interface SearchResult {
 
 interface Book {
   id: string;
-  title_ua: string;
+  title_uk: string;
   title_en: string;
   slug: string;
 }
 
 export default function BookSearch() {
-  const { language, t } = useLanguage();
+  const { language, t, getLocalizedPath } = useLanguage();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   
@@ -77,7 +77,7 @@ export default function BookSearch() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('books')
-        .select('id, title_ua, title_en, slug')
+        .select('id, title_uk, title_en, slug')
         .eq('is_published', true)
         .order('display_order');
       
@@ -168,9 +168,9 @@ export default function BookSearch() {
   // Перехід до вірша
   const navigateToVerse = (result: SearchResult) => {
     const path = result.canto_number
-      ? `/veda-reader/${result.book_slug}/canto/${result.canto_number}/chapter/${result.chapter_number}/${result.verse_number}`
-      : `/veda-reader/${result.book_slug}/${result.chapter_number}/${result.verse_number}`;
-    navigate(path);
+      ? `/lib/${result.book_slug}/${result.canto_number}/${result.chapter_number}/${result.verse_number}`
+      : `/lib/${result.book_slug}/${result.chapter_number}/${result.verse_number}`;
+    navigate(getLocalizedPath(path));
   };
 
   // Toggle book filter

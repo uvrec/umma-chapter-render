@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 interface Book {
   id: string;
-  title_ua: string;
+  title_uk: string;
   has_cantos: boolean;
 }
 
@@ -14,7 +14,7 @@ interface Canto {
   id: string;
   book_id: string;
   canto_number: number;
-  title_ua: string;
+  title_uk: string;
 }
 
 interface Chapter {
@@ -22,7 +22,7 @@ interface Chapter {
   book_id?: string;
   canto_id?: string;
   chapter_number: number;
-  title_ua: string;
+  title_uk: string;
   verse_count?: number;
 }
 

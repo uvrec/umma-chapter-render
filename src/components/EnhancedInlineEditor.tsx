@@ -322,8 +322,8 @@ export const EnhancedInlineEditor = ({
   // Scroll sync: attach scroll listener to both the container and the editor element
   useEffect(() => {
     const container = scrollContainerRef.current;
-    // Also try to find the ProseMirror editor element inside
-    const editorElement = container?.querySelector('.ProseMirror') as HTMLElement | null;
+    // Get the ProseMirror DOM element directly from the editor
+    const editorElement = editor?.view?.dom as HTMLElement | null;
 
     if (!container) return;
 
@@ -357,16 +357,18 @@ export const EnhancedInlineEditor = ({
   // Scroll sync: apply scroll position from paired editor
   useEffect(() => {
     const container = scrollContainerRef.current;
-    const editorElement = container?.querySelector('.ProseMirror') as HTMLElement | null;
+    const editorElement = editor?.view?.dom as HTMLElement | null;
 
     if (syncScrollRatio === undefined || !container) return;
+
+    // Prevent loop
+    isSyncingRef.current = true;
 
     // Try scrolling the container first
     const { scrollHeight: containerScrollHeight, clientHeight: containerClientHeight } = container;
     const containerMaxScroll = containerScrollHeight - containerClientHeight;
 
     if (containerMaxScroll > 0) {
-      isSyncingRef.current = true;
       container.scrollTop = syncScrollRatio * containerMaxScroll;
     }
 
@@ -375,7 +377,6 @@ export const EnhancedInlineEditor = ({
       const { scrollHeight, clientHeight } = editorElement;
       const maxScroll = scrollHeight - clientHeight;
       if (maxScroll > 0) {
-        isSyncingRef.current = true;
         editorElement.scrollTop = syncScrollRatio * maxScroll;
       }
     }
@@ -562,7 +563,7 @@ export const EnhancedInlineEditor = ({
 
   return (
     <div
-      className={`rounded-md border ${editable ? "border-amber-400/40 hover:border-amber-400/80" : "border-transparent"} transition-colors relative flex flex-col max-h-[70vh]`}
+      className={`rounded-md border ${editable ? "border-amber-400/40 hover:border-amber-400/80" : "border-transparent"} transition-colors relative flex flex-col`}
     >
 
       {/* STICKY TOOLBAR - завжди видимий, поза скрольним контейнером */}
@@ -989,7 +990,8 @@ export const EnhancedInlineEditor = ({
       {/* EDITOR CONTENT - скрольний контейнер */}
       <div
         ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto min-h-0"
+        className="flex-1 overflow-y-auto min-h-[200px]"
+        style={{ minHeight }}
       >
         <EditorContent editor={editor} />
       </div>

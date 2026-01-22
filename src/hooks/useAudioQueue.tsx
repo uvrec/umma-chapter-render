@@ -66,13 +66,13 @@ export const useAudioQueue = (options?: Options) => {
         .select(
           `
             id,
-            title_ua,
+            title_uk,
             audio_url,
             playlist_id,
             track_number,
             audio_playlists!inner (
               id,
-              title_ua,
+              title_uk,
               slug,
               is_published,
               audio_categories ( slug )

@@ -4,6 +4,7 @@ import { Header } from "@/components/Header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Headphones, User } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import srimadBhagavatam1Cover from "@/assets/srimad-bhagavatam-1-cover.webp";
 import bhagavadGitaCover from "@/assets/bhagavad-gita-new.png";
 import srimadBhagavatam2Cover from "@/assets/srimad-bhagavatam-2-cover.webp";
@@ -27,7 +28,7 @@ const prabhupadaBooks: Book[] = [
     description: "Перші дев'ять розділів найбільшого шедевра індійської духовної думки, літератури, богослов'я та метафізики.",
     price: "595 грн",
     hasVerse: true,
-    verseLink: "/veda-reader/sb/canto/1",
+    verseLink: "/lib/sb/1",
     coverImage: srimadBhagavatam1Cover,
     purchaseUrl: "https://books.krishna.ua/tproduct/384929173-626906141911-persha-psnya-shrmad-bgaavatam"
   },
@@ -37,7 +38,7 @@ const prabhupadaBooks: Book[] = [
     description: "Ця пісня \"Шрімад-Бгаґаватам\" являє собою стислий виклад усієї книги.",
     price: "438 грн",
     coverImage: srimadBhagavatam2Cover,
-    purchaseUrl: "https://books.krishna.ua/ua/srimad-bhagavatam-2-pisnja/"
+    purchaseUrl: "https://books.krishna.ua/uk/srimad-bhagavatam-2-pisnja/"
   },
   {
     id: "bg",
@@ -45,9 +46,9 @@ const prabhupadaBooks: Book[] = [
     description: "Суть усієї ведичної мудрості. У цьому творі у стислому вигляді викладено основні ідеї давньоіндійської філософії.",
     price: "425 грн",
     hasVerse: true,
-    verseLink: "/veda-reader/bg/1",
+    verseLink: "/lib/bg/1",
     coverImage: bhagavadGitaCover,
-    purchaseUrl: "https://books.krishna.ua/ua/bhagavad-gita-jak-vona-je/"
+    purchaseUrl: "https://books.krishna.ua/uk/bhagavad-gita-jak-vona-je/"
   },
   {
     id: "iso",
@@ -55,9 +56,9 @@ const prabhupadaBooks: Book[] = [
     description: "Переклад одного з найважливіших філософських трактатів Стародавньої Індії.",
     price: "50 грн",
     hasVerse: true,
-    verseLink: "/veda-reader/iso/1",
+    verseLink: "/lib/iso/1",
     coverImage: "https://optim.tildacdn.com/stor3130-6531-4561-b838-633461363163/-/format/webp/26491780.png.webp",
-    purchaseUrl: "https://books.krishna.ua/ua/sri-ishopanishada/"
+    purchaseUrl: "https://books.krishna.ua/uk/sri-ishopanishada/"
   },
   {
     id: "krishna",
@@ -66,7 +67,7 @@ const prabhupadaBooks: Book[] = [
     price: "94 грн",
     hasVerse: false,
     coverImage: krishnaSupremePersonCover,
-    purchaseUrl: "https://books.krishna.ua/ua/krishna-verhovnyj-bog-osoba/"
+    purchaseUrl: "https://books.krishna.ua/uk/krishna-verhovnyj-bog-osoba/"
   },
   {
     id: "nectar-devotion",
@@ -75,11 +76,13 @@ const prabhupadaBooks: Book[] = [
     price: "350 грн",
     hasVerse: false,
     coverImage: "/lovable-uploads/3b875002-99ad-4bb7-9e0c-aa933b5780fa.png",
-    purchaseUrl: "https://books.krishna.ua/ua/nektar-viddanosti/"
+    purchaseUrl: "https://books.krishna.ua/uk/nektar-viddanosti/"
   }
 ];
 
 export const PrabhupadaBooks = () => {
+  const { getLocalizedPath } = useLanguage();
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -114,11 +117,11 @@ export const PrabhupadaBooks = () => {
               <Card key={book.id} className="group hover:shadow-lg transition-all duration-300 border-border/50">
                 <div className="aspect-[3/4] bg-gradient-to-br from-primary/10 to-primary/5 rounded-t-lg overflow-hidden">
                   {book.coverImage && typeof book.coverImage === 'string' && !book.coverImage.includes('placeholder') ? (
-                    <Link to={book.verseLink || '#'} className="block w-full h-full">
+                    <Link to={book.verseLink ? getLocalizedPath(book.verseLink) : '#'} className="block w-full h-full">
                       <img src={book.coverImage} alt={book.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
                     </Link>
                   ) : (
-                    <Link to={book.verseLink || '#'} className="block w-full h-full">
+                    <Link to={book.verseLink ? getLocalizedPath(book.verseLink) : '#'} className="block w-full h-full">
                       <div className="w-full h-full bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/20 dark:to-orange-900/20 flex items-center justify-center hover:scale-105 transition-transform duration-300">
                         <div className="text-center p-4">
                           <div className="text-6xl mb-4 text-primary">
@@ -141,7 +144,7 @@ export const PrabhupadaBooks = () => {
                   </p>
                   <div className="flex items-center justify-center gap-2">
                     {book.hasVerse && (
-                      <Link to={book.verseLink!}>
+                      <Link to={getLocalizedPath(book.verseLink!)}>
                         <Badge variant="outline" className="hover:bg-primary hover:text-primary-foreground transition-colors">
                           <BookOpen className="w-3 h-3 mr-1" />
                           Читати

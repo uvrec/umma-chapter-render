@@ -434,7 +434,7 @@ export function useCalendarEventFasting(
   event: {
     event_date: string;
     event_type: string;
-    name_ua?: string;
+    name_uk?: string;
     name_en?: string;
     fasting_level?: string;
   } | null,

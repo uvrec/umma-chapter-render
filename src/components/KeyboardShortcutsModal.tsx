@@ -16,11 +16,11 @@ interface KeyboardShortcutsModalProps {
 }
 
 const categoryLabels = {
-  navigation: { ua: 'Навігація', en: 'Navigation' },
-  display: { ua: 'Відображення', en: 'Display' },
-  font: { ua: 'Розмір шрифту', en: 'Font Size' },
-  modes: { ua: 'Режими', en: 'Modes' },
-  help: { ua: 'Довідка', en: 'Help' },
+  navigation: { uk: 'Навігація', en: 'Navigation' },
+  display: { uk: 'Відображення', en: 'Display' },
+  font: { uk: 'Розмір шрифту', en: 'Font Size' },
+  modes: { uk: 'Режими', en: 'Modes' },
+  help: { uk: 'Довідка', en: 'Help' },
 };
 
 export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({

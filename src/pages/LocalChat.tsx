@@ -8,14 +8,14 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, BookOpen, Cpu, Lock, Zap, HardDrive } from "lucide-react";
 
 export function LocalChat() {
-  const { language, t } = useLanguage();
+  const { language, t, getLocalizedPath } = useLanguage();
 
   return (
     <>
       <PageMeta
-        titleUa="Локальна AI | Vedavoice"
+        titleUk="Локальна AI | Vedavoice"
         titleEn="Local AI | Vedavoice"
-        metaDescriptionUa="Локальна AI-система для вивчення вчень Шріли Прабгупади. Працює на вашому комп'ютері без інтернету."
+        metaDescriptionUk="Локальна AI-система для вивчення вчень Шріли Прабгупади. Працює на вашому комп'ютері без інтернету."
         metaDescriptionEn="Local AI system for studying Srila Prabhupada's teachings. Runs on your computer without internet."
         language={language}
       />
@@ -27,7 +27,7 @@ export function LocalChat() {
         <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-40">
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
-              <Link to="/">
+              <Link to={getLocalizedPath("/")}>
                 <Button variant="ghost" size="sm" className="gap-2">
                   <ArrowLeft className="h-4 w-4" />
                   {t("На головну", "Home")}
@@ -35,12 +35,12 @@ export function LocalChat() {
               </Link>
 
               <div className="flex items-center gap-2">
-                <Link to="/chat">
+                <Link to={getLocalizedPath("/chat")}>
                   <Button variant="ghost" size="sm" className="gap-2">
                     {t("Онлайн чат", "Online chat")}
                   </Button>
                 </Link>
-                <Link to="/library">
+                <Link to={getLocalizedPath("/library")}>
                   <Button variant="ghost" size="sm" className="gap-2">
                     <BookOpen className="h-4 w-4" />
                     {t("Бібліотека", "Library")}

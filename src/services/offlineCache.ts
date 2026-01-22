@@ -15,9 +15,9 @@ export interface CachedChapter {
   bookSlug: string;
   cantoId?: string;
   chapterNumber: number;
-  titleUa: string;
+  titleUk: string;
   titleEn: string;
-  contentUa?: string;
+  contentUk?: string;
   contentEn?: string;
   versesJson: string; // JSON stringified verses array
   cachedAt: number; // timestamp
@@ -30,11 +30,11 @@ export interface CachedVerse {
   verseNumber: string;
   sanskrit?: string;
   transliteration?: string;
-  synonymsUa?: string;
+  synonymsUk?: string;
   synonymsEn?: string;
-  translationUa?: string;
+  translationUk?: string;
   translationEn?: string;
-  commentaryUa?: string;
+  commentaryUk?: string;
   commentaryEn?: string;
 }
 
@@ -119,9 +119,9 @@ async function initSQLite(): Promise<SQLiteDBConnection | null> {
         bookSlug TEXT NOT NULL,
         cantoId TEXT,
         chapterNumber INTEGER NOT NULL,
-        titleUa TEXT NOT NULL,
+        titleUk TEXT NOT NULL,
         titleEn TEXT NOT NULL,
-        contentUa TEXT,
+        contentUk TEXT,
         contentEn TEXT,
         versesJson TEXT NOT NULL,
         cachedAt INTEGER NOT NULL,
@@ -166,7 +166,7 @@ export async function cacheChapter(chapter: CachedChapter): Promise<void> {
 
     const query = `
       INSERT OR REPLACE INTO chapters 
-      (id, bookId, bookSlug, cantoId, chapterNumber, titleUa, titleEn, contentUa, contentEn, versesJson, cachedAt, lastReadAt)
+      (id, bookId, bookSlug, cantoId, chapterNumber, titleUk, titleEn, contentUk, contentEn, versesJson, cachedAt, lastReadAt)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
@@ -176,9 +176,9 @@ export async function cacheChapter(chapter: CachedChapter): Promise<void> {
       chapterWithTimestamp.bookSlug,
       chapterWithTimestamp.cantoId || null,
       chapterWithTimestamp.chapterNumber,
-      chapterWithTimestamp.titleUa,
+      chapterWithTimestamp.titleUk,
       chapterWithTimestamp.titleEn,
-      chapterWithTimestamp.contentUa || null,
+      chapterWithTimestamp.contentUk || null,
       chapterWithTimestamp.contentEn || null,
       chapterWithTimestamp.versesJson,
       chapterWithTimestamp.cachedAt,

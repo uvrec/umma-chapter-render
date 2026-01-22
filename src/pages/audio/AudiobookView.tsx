@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 type Track = {
   id: string;
-  title_ua?: string | null;
+  title_uk?: string | null;
   title_en?: string | null;
   audio_url: string | null;
   duration?: number | null;
@@ -21,12 +21,12 @@ type Track = {
 
 type Playlist = {
   id: string;
-  title_ua?: string | null;
+  title_uk?: string | null;
   title_en?: string | null;
   author?: string | null;
   year?: number | null;
   cover_image_url?: string | null;
-  description_ua?: string | null;
+  description_uk?: string | null;
   description_en?: string | null;
   is_published?: boolean | null;
   tracks?: Track[];

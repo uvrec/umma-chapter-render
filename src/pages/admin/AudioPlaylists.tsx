@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 type AudioCategory = {
   id: string;
-  name_ua: string;
+  name_uk: string;
   name_en: string;
   slug: string;
   display_order: number;
@@ -18,9 +19,9 @@ type AudioCategory = {
 
 type PlaylistRow = {
   id: string;
-  title_ua: string | null;
+  title_uk: string | null;
   title_en: string | null;
-  description_ua: string | null;
+  description_uk: string | null;
   description_en: string | null;
   category_id: string | null;
   cover_image_url: string | null;
@@ -28,13 +29,20 @@ type PlaylistRow = {
   year: number | null;
   is_published: boolean | null;
   display_order: number | null;
-  category?: Pick<AudioCategory, "id" | "name_ua" | "name_en" | "slug"> | null;
+  category?: Pick<AudioCategory, "id" | "name_uk" | "name_en" | "slug"> | null;
   tracks?: Array<{ count: number }>;
 };
 
 export default function AudioPlaylists() {
+  const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+
+  useEffect(() => {
+    if (!user || !isAdmin) {
+      navigate("/auth");
+    }
+  }, [user, isAdmin, navigate]);
 
   const { data: categories } = useQuery({
     queryKey: ["audio-categories"],
@@ -62,7 +70,7 @@ export default function AudioPlaylists() {
         .select(
           `
           *,
-          category:audio_categories ( id, name_ua, name_en, slug ),
+          category:audio_categories ( id, name_uk, name_en, slug ),
           tracks:audio_tracks ( count )
         `,
         )
@@ -87,7 +95,7 @@ export default function AudioPlaylists() {
         .from("audio_playlists")
         .insert({
           title_en: "New Playlist",
-          title_ua: "Новий плейліст",
+          title_uk: "Новий плейліст",
           is_published: false,
           display_order: 100000,
           category_id: selectedCategory !== "all" ? selectedCategory : null,
@@ -102,6 +110,8 @@ export default function AudioPlaylists() {
       navigate(`/admin/audio-playlists/${row.id}`);
     },
   });
+
+  if (!user || !isAdmin) return null;
 
   if (isLoading) {
     return (

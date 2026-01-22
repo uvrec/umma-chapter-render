@@ -196,10 +196,10 @@ function PreviewVerse({ verse }: { verse: ParsedVerse }) {
         <div className="text-sm text-muted-foreground italic">Переклад відсутній</div>
       )}
       {/* Якщо є пояснення (HTML), покажемо коротку підказку */}
-      {verse.commentary_ua && (
+      {verse.commentary_uk && (
         <div className="mt-2 text-xs text-muted-foreground line-clamp-2">
           {/* грубий зріз без повного рендера HTML */}
-          {stripHtml(verse.commentary_ua).slice(0, 160)}…
+          {stripHtml(verse.commentary_uk).slice(0, 160)}…
         </div>
       )}
     </div>

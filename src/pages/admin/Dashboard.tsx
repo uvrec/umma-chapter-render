@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -17,17 +18,18 @@ import {
   PenSquare,
   Headphones,
   Music,
-  WrapText,
   FileEdit,
   Search,
   Mic,
   Mail,
+  Download,
 } from "lucide-react";
 
-type QuickBook = { id: string; title_ua: string; has_cantos: boolean };
+type QuickBook = { id: string; title_uk: string; has_cantos: boolean };
 
 const Dashboard = () => {
   const { user, isAdmin, signOut } = useAuth();
+  const { getLocalizedPath } = useLanguage();
   const navigate = useNavigate();
 
   const [booksList, setBooksList] = useState<QuickBook[]>([]);
@@ -58,8 +60,8 @@ const Dashboard = () => {
     if (!user || !isAdmin) return;
     supabase
       .from("books")
-      .select("id, title_ua, has_cantos")
-      .order("title_ua", { ascending: true })
+      .select("id, title_uk, has_cantos")
+      .order("title_uk", { ascending: true })
       .then(({ data, error }) => {
         if (!error) setBooksList(data || []);
       });
@@ -94,7 +96,7 @@ const Dashboard = () => {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate("/");
+    navigate(getLocalizedPath("/"));
   };
 
   if (!user || !isAdmin) return null;
@@ -289,21 +291,6 @@ const Dashboard = () => {
                   Універсальний імпорт
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="w-full">
-                <Link to="/admin/import-wizard">
-                  <Upload className="w-4 h-4 mr-2" />
-                  Імпорт глави
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full">
-                <Link to="/admin/fix-verse-linebreaks">
-                  <WrapText className="w-4 h-4 mr-2" />
-                  Виправити розриви рядків
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full">
-                <Link to="/admin/data-migration">Старий імпорт</Link>
-              </Button>
             </CardContent>
           </Card>
 
@@ -349,6 +336,42 @@ const Dashboard = () => {
                   Категорії
                 </Link>
               </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>LRC Editor</CardTitle>
+              <CardDescription>Синхронізація аудіо з текстом</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Button asChild className="w-full">
+                <Link to="/admin/lrc-editor">
+                  <Music className="w-4 h-4 mr-2" />
+                  Редактор LRC Timestamps
+                </Link>
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Створення караоке-стилю підсвітки тексту для віршів
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Експорт книг</CardTitle>
+              <CardDescription>Експорт глав з форматуванням</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Button asChild className="w-full">
+                <Link to="/admin/book-export">
+                  <Download className="w-4 h-4 mr-2" />
+                  Експорт контенту
+                </Link>
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Експорт глав/віршів з маркерами @, @@, @@@
+              </p>
             </CardContent>
           </Card>
 
@@ -416,7 +439,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <Button asChild variant="outline" className="w-full">
-                <Link to="/">Головна сторінка</Link>
+                <Link to={getLocalizedPath("/")}>Головна сторінка</Link>
               </Button>
             </CardContent>
           </Card>

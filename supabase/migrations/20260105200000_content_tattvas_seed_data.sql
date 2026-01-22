@@ -124,7 +124,8 @@ SELECT link_verse_to_tattva('sb', 3, '28', 'krishna-tattva', 1.0);
 -- Create view for tattva statistics
 -- =============================================================================
 
-CREATE OR REPLACE VIEW public.tattva_stats AS
+DROP VIEW IF EXISTS public.tattva_stats;
+CREATE VIEW public.tattva_stats AS
 SELECT
   t.id,
   t.name_uk,

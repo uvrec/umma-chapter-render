@@ -18,7 +18,7 @@ export const BookGlossaryPage = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("books")
-        .select("slug, title_ua, title_en")
+        .select("slug, title_uk, title_en")
         .eq("slug", bookId)
         .single();
       if (error) throw error;

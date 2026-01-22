@@ -37,11 +37,11 @@ export const ContinueListening = () => {
           created_at,
           audio_tracks!inner (
             id,
-            title_ua,
+            title_uk,
             audio_url,
             duration,
             audio_playlists (
-              title_ua,
+              title_uk,
               slug,
               audio_categories (
                 slug

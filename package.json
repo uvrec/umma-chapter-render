@@ -15,7 +15,10 @@
     "ios": "npx cap open ios",
     "android:run": "npx cap run android",
     "ios:run": "npx cap run ios",
-    "assets:generate": "npx capacitor-assets generate --assetPath assets"
+    "assets:generate": "npx capacitor-assets generate --assetPath assets",
+    "sitemap": "npx tsx scripts/generate-sitemap.ts",
+    "prebuild": "bash scripts/prebuild.sh || true",
+    "build:sitemap": "npm run sitemap && npm run build"
   },
   "dependencies": {
     "@bidyashish/panchang": "^1.0.10",
@@ -26,6 +29,8 @@
     "@capacitor/ios": "^8.0.0",
     "@capacitor/splash-screen": "^8.0.0",
     "@hookform/resolvers": "^3.10.0",
+    "@indic-transliteration/sanscript": "^1.3.3",
+    "@playwright/test": "^1.57.0",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-aspect-ratio": "^1.1.7",
@@ -100,10 +105,10 @@
     "react-error-boundary": "^6.0.0",
     "react-helmet-async": "^2.0.5",
     "react-hook-form": "^7.61.1",
+    "react-icons": "^5.5.0",
     "react-resizable-panels": "^2.1.9",
     "react-router-dom": "^6.30.1",
     "recharts": "^2.15.4",
-    "sanscript": "^0.0.2",
     "sonner": "^1.7.4",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
