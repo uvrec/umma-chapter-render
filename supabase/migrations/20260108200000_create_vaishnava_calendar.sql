@@ -538,6 +538,9 @@ END$$;
 -- 11. HELPER FUNCTIONS
 -- ============================================
 
+-- Drop existing function if it exists with different signature
+DROP FUNCTION IF EXISTS get_calendar_events(DATE, DATE, UUID);
+
 -- Get calendar events for a date range
 CREATE OR REPLACE FUNCTION get_calendar_events(
   p_start_date DATE,
