@@ -1,4 +1,4 @@
-package app.vedavoice.ua;
+package app.vedavoice.org;
 
 import android.os.Build;
 import android.os.Bundle;
