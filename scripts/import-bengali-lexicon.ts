@@ -10,7 +10,7 @@
  *   npx tsx scripts/import-bengali-lexicon.ts
  *
  * Prerequisites:
- *   1. Download the dictionary: curl -o /tmp/bengali-dictionary.json https://raw.githubusercontent.com/Nafisa41/Dictionary--English-to-Bangla-/master/Database/E2Bdatabase.json
+ *   1. Dictionary file at ./docs/E2Bdatabase.json (or set DICTIONARY_PATH env var)
  *   2. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables
  */
 
@@ -101,14 +101,11 @@ async function importLexicon() {
     process.exit(1);
   }
 
-  const dictionaryPath = process.env.DICTIONARY_PATH || "/tmp/bengali-dictionary.json";
+  const dictionaryPath = process.env.DICTIONARY_PATH || "./docs/E2Bdatabase.json";
 
   if (!fs.existsSync(dictionaryPath)) {
     console.error(`Error: Dictionary file not found at ${dictionaryPath}`);
-    console.log("\nPlease download the dictionary first:");
-    console.log(
-      "  curl -o /tmp/bengali-dictionary.json https://raw.githubusercontent.com/Nafisa41/Dictionary--English-to-Bangla-/master/Database/E2Bdatabase.json",
-    );
+    console.log("\nEnsure the file exists at ./docs/E2Bdatabase.json or set DICTIONARY_PATH env var");
     process.exit(1);
   }
 
