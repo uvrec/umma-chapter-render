@@ -6,6 +6,7 @@ interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (ua: string, en: string) => string;
+  getLocalizedPath: (path: string) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -28,8 +29,13 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     return language === 'uk' ? ua : en;
   };
 
+  const getLocalizedPath = (path: string) => {
+    // Simply return the path as-is for now (no prefix needed)
+    return path;
+  };
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, getLocalizedPath }}>
       {children}
     </LanguageContext.Provider>
   );
