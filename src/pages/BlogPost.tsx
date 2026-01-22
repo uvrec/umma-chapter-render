@@ -262,18 +262,18 @@ export default function BlogPost() {
     );
   }
 
-  const titleUa = post.title_uk;
+  const titleUk = post.title_uk;
   const titleEn = post.title_en;
   const contentUk = post.content_uk;
   const contentEn = post.content_en;
-  const excerptUa = post.excerpt_uk;
+  const excerptUk = post.excerpt_uk;
   const excerptEn = post.excerpt_en;
   const metaDescUk = post.meta_description_uk;
   const metaDescEn = post.meta_description_en;
 
   // Для SEO та соцмереж - одна мова
-  const title = language === "uk" ? titleUa : titleEn;
-  const excerpt = language === "uk" ? excerptUa : excerptEn;
+  const title = language === "uk" ? titleUk : titleEn;
+  const excerpt = language === "uk" ? excerptUk : excerptEn;
   const metaDesc = language === "uk" ? metaDescUk : metaDescEn;
 
   const hasContentUk = contentUk && contentUk.trim().length > 20;
@@ -432,7 +432,7 @@ export default function BlogPost() {
               <div>
                 <header className="mb-8">
                   {post.category && <Badge className="mb-4">{post.category.name_uk}</Badge>}
-                  <h1 className="blog-title mb-4">{titleUa}</h1>
+                  <h1 className="blog-title mb-4">{titleUk}</h1>
 
                   <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-4">
                     <div className="flex items-center gap-1">

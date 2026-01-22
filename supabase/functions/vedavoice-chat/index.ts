@@ -440,15 +440,15 @@ async function findRelatedTopics(supabase: any, query: string, language: 'uk' | 
 
     if (tattvas && tattvas.length > 0) {
       // Return tattva names in the appropriate language
-      return tattvas.slice(0, 5).map((t: { name_ua: string; name_en: string }) =>
-        language === 'uk' ? t.name_ua : t.name_en
+      return tattvas.slice(0, 5).map((t: { name_uk: string; name_en: string }) =>
+        language === 'uk' ? t.name_uk : t.name_en
       );
     }
 
     // If no tattvas found by search, get top-level tattvas with most verses
     const { data: popularTattvas, error: popularError } = await supabase
       .from('tattvas')
-      .select('name_ua, name_en, id')
+      .select('name_uk, name_en, id')
       .is('parent_id', null)
       .order('display_order')
       .limit(5);
@@ -460,8 +460,8 @@ async function findRelatedTopics(supabase: any, query: string, language: 'uk' | 
       return defaultTopics.slice(0, 3);
     }
 
-    return popularTattvas.map((t: { name_ua: string; name_en: string }) =>
-      language === 'uk' ? t.name_ua : t.name_en
+    return popularTattvas.map((t: { name_uk: string; name_en: string }) =>
+      language === 'uk' ? t.name_uk : t.name_en
     );
   } catch (err) {
     console.error('Error in findRelatedTopics:', err);

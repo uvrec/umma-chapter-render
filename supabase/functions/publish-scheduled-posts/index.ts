@@ -106,7 +106,7 @@ async function publishScheduledPosts(): Promise<{ publishedCount: number; error?
       if (updateError) {
         console.error(`Error publishing post ${post.id}:`, updateError);
       } else {
-        console.log(`Published post: ${post.title_ua || post.title_en}`);
+        console.log(`Published post: ${post.title_uk || post.title_en}`);
         publishedCount++;
       }
     }

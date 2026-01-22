@@ -764,7 +764,7 @@ export const VedaReaderDB = () => {
       audioUrl: (currentVerse as any).full_verse_audio_url || currentVerse.audio_url || undefined,
       audioSanskrit: (currentVerse as any).recitation_audio_url || undefined,
       audioTranslation: language === 'uk'
-        ? (currentVerse as any).explanation_ua_audio_url || undefined
+        ? (currentVerse as any).explanation_uk_audio_url || undefined
         : (currentVerse as any).explanation_en_audio_url || undefined
     };
     const added = addLearningVerse(learningVerse);
@@ -1446,9 +1446,9 @@ export const VedaReaderDB = () => {
                   commentaryEn={(verse as any).commentary_en || ""}
                   audioUrl={(verse as any).full_verse_audio_url || (verse as any).audio_url || ""}
                   audioSanskrit={(verse as any).recitation_audio_url || ""}
-                  audioTranslationUk={(verse as any).explanation_ua_audio_url || ""}
+                  audioTranslationUk={(verse as any).explanation_uk_audio_url || ""}
                   audioTranslationEn={(verse as any).explanation_en_audio_url || ""}
-                  audioCommentaryUk={(verse as any).explanation_ua_audio_url || ""}
+                  audioCommentaryUk={(verse as any).explanation_uk_audio_url || ""}
                   audioCommentaryEn={(verse as any).explanation_en_audio_url || ""}
                   textDisplaySettings={contSettings}
                   isAdmin={isAdmin}
@@ -1477,8 +1477,8 @@ export const VedaReaderDB = () => {
                   commentary={getTranslationWithFallback(verse, 'commentary')}
                   audioUrl={(verse as any).full_verse_audio_url || (verse as any).audio_url || ""}
                   audioSanskrit={(verse as any).recitation_audio_url || ""}
-                  audioTranslation={language === "uk" ? (verse as any).explanation_ua_audio_url || "" : (verse as any).explanation_en_audio_url || ""}
-                  audioCommentary={language === "uk" ? (verse as any).explanation_ua_audio_url || "" : (verse as any).explanation_en_audio_url || ""}
+                  audioTranslation={language === "uk" ? (verse as any).explanation_uk_audio_url || "" : (verse as any).explanation_en_audio_url || ""}
+                  audioCommentary={language === "uk" ? (verse as any).explanation_uk_audio_url || "" : (verse as any).explanation_en_audio_url || ""}
                   is_composite={(verse as any).is_composite}
                   start_verse={(verse as any).start_verse}
                   end_verse={(verse as any).end_verse}
@@ -1526,9 +1526,9 @@ export const VedaReaderDB = () => {
                 commentaryEn={(currentVerse as any).commentary_en || ""}
                 audioUrl={(currentVerse as any).full_verse_audio_url || (currentVerse as any).audio_url || ""}
                 audioSanskrit={(currentVerse as any).recitation_audio_url || ""}
-                audioTranslationUk={(currentVerse as any).explanation_ua_audio_url || ""}
+                audioTranslationUk={(currentVerse as any).explanation_uk_audio_url || ""}
                 audioTranslationEn={(currentVerse as any).explanation_en_audio_url || ""}
-                audioCommentaryUk={(currentVerse as any).explanation_ua_audio_url || ""}
+                audioCommentaryUk={(currentVerse as any).explanation_uk_audio_url || ""}
                 audioCommentaryEn={(currentVerse as any).explanation_en_audio_url || ""}
                 textDisplaySettings={textDisplaySettings}
                 isAdmin={isAdmin}
@@ -1566,8 +1566,8 @@ export const VedaReaderDB = () => {
                 commentary={getTranslationWithFallback(currentVerse, 'commentary')}
                 audioUrl={(currentVerse as any).full_verse_audio_url || currentVerse.audio_url || ""}
                 audioSanskrit={(currentVerse as any).recitation_audio_url || ""}
-                audioTranslation={language === "uk" ? (currentVerse as any).explanation_ua_audio_url || "" : (currentVerse as any).explanation_en_audio_url || ""}
-                audioCommentary={language === "uk" ? (currentVerse as any).explanation_ua_audio_url || "" : (currentVerse as any).explanation_en_audio_url || ""}
+                audioTranslation={language === "uk" ? (currentVerse as any).explanation_uk_audio_url || "" : (currentVerse as any).explanation_en_audio_url || ""}
+                audioCommentary={language === "uk" ? (currentVerse as any).explanation_uk_audio_url || "" : (currentVerse as any).explanation_en_audio_url || ""}
                 is_composite={(currentVerse as any).is_composite}
                 start_verse={(currentVerse as any).start_verse}
                 end_verse={(currentVerse as any).end_verse}

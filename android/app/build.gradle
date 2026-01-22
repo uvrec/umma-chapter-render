@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "app.vedavoice.ua"
+    namespace = "app.vedavoice.org"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "app.vedavoice.ua"
+        applicationId "app.vedavoice.org"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

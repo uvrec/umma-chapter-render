@@ -114,15 +114,15 @@ export const IntroChapter = () => {
   const synchronizedParagraphs = useMemo(() => {
     if (!introChapter || !dualLanguageMode) return [];
 
-    const paragraphsUa = parseHTMLToParagraphs(introChapter.content_uk || '');
+    const paragraphsUk = parseHTMLToParagraphs(introChapter.content_uk || '');
     const paragraphsEn = parseHTMLToParagraphs(introChapter.content_en || '');
 
-    const maxLength = Math.max(paragraphsUa.length, paragraphsEn.length);
+    const maxLength = Math.max(paragraphsUk.length, paragraphsEn.length);
     const synced: Array<{ uk: string; en: string }> = [];
 
     for (let i = 0; i < maxLength; i++) {
       synced.push({
-        uk: paragraphsUa[i] || '',
+        uk: paragraphsUk[i] || '',
         en: paragraphsEn[i] || '',
       });
     }

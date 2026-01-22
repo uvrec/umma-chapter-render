@@ -151,13 +151,13 @@ function parseLetter(html, slug) {
   return {
     slug,
     recipient_en: recipient,
-    recipient_ua: null,
+    recipient_uk: null,
     letter_date: letterDate,
     location_en: location,
-    location_ua: LOCATION_TRANSLATIONS[location] || null,
+    location_uk: LOCATION_TRANSLATIONS[location] || null,
     reference,
     content_en: content,
-    content_ua: null,
+    content_uk: null,
   };
 }
 

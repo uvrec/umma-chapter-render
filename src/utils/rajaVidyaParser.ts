@@ -26,7 +26,7 @@ const ukrainianChapterNumbers: Record<string, number> = {
   'восьма': 8, 'восьмий': 8,
 };
 
-export interface RajaVidyaChapterUA {
+export interface RajaVidyaChapterUK {
   chapter_number: number;
   title_uk: string;
   content_uk: string; // Весь текст глави з вбудованими віршами
@@ -41,7 +41,7 @@ export interface RajaVidyaChapterEN {
 /**
  * Парсить українську версію Raja Vidya з EPUB HTML
  */
-export function parseRajaVidyaEPUB(html: string): RajaVidyaChapterUA[] {
+export function parseRajaVidyaEPUB(html: string): RajaVidyaChapterUK[] {
   console.log(`🔍 [Raja Vidya UA] parseRajaVidyaEPUB called`);
   console.log(`📄 [Raja Vidya UA] HTML length: ${html?.length || 0} characters`);
 
@@ -54,7 +54,7 @@ export function parseRajaVidyaEPUB(html: string): RajaVidyaChapterUA[] {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
-    const chapters: RajaVidyaChapterUA[] = [];
+    const chapters: RajaVidyaChapterUK[] = [];
 
     // Діагностика: дивимось які класи є в документі
     const allClasses = new Set<string>();
@@ -277,7 +277,7 @@ export function parseRajaVidyaVedabase(html: string, url: string): RajaVidyaChap
  * Об'єднує українську та англійську версії глави
  */
 export function mergeRajaVidyaChapters(
-  ua: RajaVidyaChapterUA | null,
+  ua: RajaVidyaChapterUK | null,
   en: RajaVidyaChapterEN | null
 ): any {
   if (!ua && !en) return null;
