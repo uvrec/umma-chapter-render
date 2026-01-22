@@ -18,9 +18,9 @@ import { toast } from 'sonner';
 interface VerseData {
   sanskrit: string | null;
   transliteration: string | null;
-  translation_ua: string | null;
+  translation_uk: string | null;
   translation_en: string | null;
-  synonyms_ua: string | null;
+  synonyms_uk: string | null;
   synonyms_en: string | null;
 }
 
@@ -123,7 +123,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
       try {
         const { data, error } = await supabase
           .from('verses')
-          .select('sanskrit, transliteration, transliteration_ua, transliteration_en, translation_ua, translation_en, synonyms_ua, synonyms_en')
+          .select('sanskrit, transliteration, translation_uk, translation_en, synonyms_uk, synonyms_en')
           .eq('id', currentTrack.verseId)
           .maybeSingle();
 
@@ -131,10 +131,10 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
         if (data) {
           setVerseData({
             sanskrit: data.sanskrit,
-            transliteration: data.transliteration || data.transliteration_ua || data.transliteration_en,
-            translation_ua: data.translation_uk,
+            transliteration: data.transliteration,
+            translation_uk: data.translation_uk,
             translation_en: data.translation_en,
-            synonyms_ua: data.synonyms_uk,
+            synonyms_uk: data.synonyms_uk,
             synonyms_en: data.synonyms_en,
           });
         }

@@ -128,11 +128,11 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
         setVerse(data);
         setVerseNumber(data.verse_number || "");
         // Ukrainian fields
-        setSanskritUa(data.sanskrit_ua || (data as any).sanskrit || "");
-        setTransliterationUa(data.transliteration_ua || "");
+        setSanskritUa(data.sanskrit_uk || (data as any).sanskrit || "");
+        setTransliterationUa(data.transliteration_uk || "");
         setSynonymsUa(data.synonyms_uk || "");
         setTranslationUa(data.translation_uk || "");
-        setCommentaryUa(data.commentary_ua || "");
+        setCommentaryUa(data.commentary_uk || "");
         // English fields
         setSanskritEn(data.sanskrit_en || (data as any).sanskrit || "");
         setTransliterationEn(data.transliteration_en || "");
@@ -142,11 +142,11 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
         // Audio fields
         setFullVerseAudioUrl(data.full_verse_audio_url || "");
         setRecitationAudioUrl(data.recitation_audio_url || "");
-        setExplanationUaAudioUrl(data.explanation_ua_audio_url || "");
+        setExplanationUaAudioUrl(data.explanation_uk_audio_url || "");
         setExplanationEnAudioUrl(data.explanation_en_audio_url || "");
         // Auto-open audio section if verse has audio
         if (data.full_verse_audio_url || data.recitation_audio_url ||
-            data.explanation_ua_audio_url || data.explanation_en_audio_url) {
+            data.explanation_uk_audio_url || data.explanation_en_audio_url) {
           setIsAudioOpen(true);
         }
 

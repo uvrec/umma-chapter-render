@@ -186,12 +186,12 @@ export function CalendarEventCard({
             )}
 
             {/* Тітхі та Вайшнавський місяць */}
-            {(event.tithi_name_ua || event.vaishnava_month_name_ua) && (
+            {(event.tithi_name_uk || event.vaishnava_month_name_uk) && (
               <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mt-2">
-                {event.tithi_name_ua && (
+                {event.tithi_name_uk && (
                   <span className="flex items-center gap-1">
                     <CircleDot className="h-3 w-3" />
-                    {language === "uk" ? event.tithi_name_ua : event.tithi_name_en}
+                    {language === "uk" ? event.tithi_name_uk : event.tithi_name_en}
                     {event.paksha && (
                       <span className="text-muted-foreground/60">
                         ({event.paksha === "shukla"
@@ -201,10 +201,10 @@ export function CalendarEventCard({
                     )}
                   </span>
                 )}
-                {event.vaishnava_month_name_ua && (
+                {event.vaishnava_month_name_uk && (
                   <span>
                     • {language === "uk"
-                      ? event.vaishnava_month_name_ua
+                      ? event.vaishnava_month_name_uk
                       : event.vaishnava_month_name_en}
                   </span>
                 )}

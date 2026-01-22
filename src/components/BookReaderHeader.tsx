@@ -30,13 +30,13 @@ import { cn } from "@/lib/utils";
 
 interface Chapter {
   chapter_number: number;
-  title_ua?: string;
+  title_uk?: string;
   title_en?: string;
 }
 
 interface Verse {
   verse_number: string;
-  transliteration_ua?: string;
+  transliteration_uk?: string;
   transliteration_en?: string;
 }
 
@@ -247,7 +247,7 @@ export const BookReaderHeader = ({
                     {verses.map((verse) => {
                       const translit =
                         language === "uk"
-                          ? verse.transliteration_ua
+                          ? verse.transliteration_uk
                           : verse.transliteration_en;
                       const isActive = verse.verse_number === verseNumber;
 

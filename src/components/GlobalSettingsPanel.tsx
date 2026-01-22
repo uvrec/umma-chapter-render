@@ -230,7 +230,7 @@ export const GlobalSettingsPanel = () => {
               <div className="flex gap-2">
                 <Button
                   variant={language === "uk" ? "default" : "outline"}
-                  onClick={() => setLanguage("ua")}
+                  onClick={() => setLanguage("uk")}
                   className="flex-1"
                 >
                   <Globe className="w-4 h-4 mr-2" />

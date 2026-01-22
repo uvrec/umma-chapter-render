@@ -2,7 +2,7 @@ import { TiptapRenderer } from "./blog/TiptapRenderer";
 import type { PageBlock } from "./admin/PageBuilder";
 
 interface PageContent {
-  content_ua?: string;
+  content_uk?: string;
   content_en?: string;
   hero_image_url?: string;
   banner_image_url?: string;
@@ -47,7 +47,7 @@ const BlockRenderer = ({ block, language }: { block: PageBlock; language: string
           )}
           {display_blocks.translation && (
             <div className="translation font-bold">
-              {language === "uk" && block.content.translation_uk && <TiptapRenderer content={block.content.translation_uk} />}
+              {language === "uk" && block.content.translation_ua && <TiptapRenderer content={block.content.translation_ua} />}
               {language === "en" && block.content.translation_en && <TiptapRenderer content={block.content.translation_en} />}
             </div>
           )}

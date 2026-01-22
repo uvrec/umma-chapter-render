@@ -34,7 +34,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 export const LecturesContent = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
-  const [contentLanguage, setContentLanguage] = useState<"uk" | "en">("ua");
+  const [contentLanguage, setContentLanguage] = useState<"uk" | "en">("uk");
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<LectureFilters>({
     type: "all",
@@ -73,7 +73,7 @@ export const LecturesContent = () => {
           lecture.title_en.toLowerCase().includes(query) ||
           (lecture.title_uk && lecture.title_uk.toLowerCase().includes(query)) ||
           lecture.location_en.toLowerCase().includes(query) ||
-          (lecture.location_ua && lecture.location_ua.toLowerCase().includes(query))
+          (lecture.location_uk && lecture.location_uk.toLowerCase().includes(query))
       );
     }
 
@@ -173,7 +173,7 @@ export const LecturesContent = () => {
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return contentLanguage === "ua"
+    return contentLanguage === "uk"
       ? date.toLocaleDateString("uk-UA", {
           year: "numeric",
           month: "long",
@@ -187,16 +187,16 @@ export const LecturesContent = () => {
   };
 
   const getLectureTitle = (lecture: Lecture) => {
-    return contentLanguage === "ua" && lecture.title_uk ? lecture.title_uk : lecture.title_en;
+    return contentLanguage === "uk" && lecture.title_uk ? lecture.title_uk : lecture.title_en;
   };
 
   const getLectureLocation = (lecture: Lecture) => {
-    return contentLanguage === "ua" && lecture.location_ua
-      ? lecture.location_ua
+    return contentLanguage === "uk" && lecture.location_uk
+      ? lecture.location_uk
       : lecture.location_en;
   };
 
-  const t = (ua: string, en: string) => contentLanguage === "ua" ? ua : en;
+  const t = (ua: string, en: string) => contentLanguage === "uk" ? ua : en;
 
   if (isLoading) {
     return (

@@ -46,7 +46,7 @@ interface PageBuilderProps {
 }
 
 export function PageBuilder({ sections, onChange }: PageBuilderProps) {
-  const [activeTab, setActiveTab] = useState<"uk" | "en">("ua");
+  const [activeTab, setActiveTab] = useState<"uk" | "en">("uk");
 
   const addBlock = (type: BlockType) => {
     const newBlock: PageBlock = {
@@ -191,8 +191,8 @@ export function PageBuilder({ sections, onChange }: PageBuilderProps) {
                     <div className="flex gap-2 border-b pb-2">
                       <Button
                         size="sm"
-                        variant={activeTab === "ua" ? "default" : "ghost"}
-                        onClick={() => setActiveTab("ua")}
+                        variant={activeTab === "uk" ? "default" : "ghost"}
+                        onClick={() => setActiveTab("uk")}
                       >
                         Українська
                       </Button>
@@ -204,7 +204,7 @@ export function PageBuilder({ sections, onChange }: PageBuilderProps) {
                         English
                       </Button>
                     </div>
-                    {activeTab === "ua" ? (
+                    {activeTab === "uk" ? (
                       <TiptapEditor
                         content={block.content.text_ua || ""}
                         onChange={(val) => updateBlock(block.id, { content: { ...block.content, text_ua: val } })}
@@ -286,7 +286,7 @@ export function PageBuilder({ sections, onChange }: PageBuilderProps) {
                     <div>
                       <Label>Переклад (UA)</Label>
                       <TiptapEditor
-                        content={block.content.translation_uk || ""}
+                        content={block.content.translation_ua || ""}
                         onChange={(val) => updateBlock(block.id, { content: { ...block.content, translation_ua: val } })}
                       />
                     </div>

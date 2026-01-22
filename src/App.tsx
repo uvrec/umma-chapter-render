@@ -440,7 +440,7 @@ function AppContent() {
         <OfflineIndicator />
         <PWAUpdatePrompt />
         <ModernGlobalPlayer />
-        <GlobalSettingsPanel showFloatingButton={false} />
+        <GlobalSettingsPanel />
         <UnifiedSearch open={searchOpen} onOpenChange={setSearchOpen} />
         <ReadingModeExitButton />
       </BrowserRouter>
