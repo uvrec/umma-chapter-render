@@ -24,7 +24,7 @@ BEGIN
   -- CHAITANYA MAHAPRABHU AND PANCHA-TATTVA
   -- ============================================
 
-  INSERT INTO appearance_days (slug, category_id, event_type, person_name_sanskrit, person_name_ua, person_name_en, person_title_ua, person_title_en, vaishnava_month_id, tithi_number, paksha, fasting_level, is_major, description_ua, description_en) VALUES
+  INSERT INTO appearance_days (slug, category_id, event_type, person_name_sanskrit, person_name_uk, person_name_en, person_title_uk, person_title_en, vaishnava_month_id, tithi_number, paksha, fasting_level, is_major, description_uk, description_en) VALUES
   ('chaitanya-mahaprabhu-appearance', v_appearance_cat, 'appearance', 'Śrī Caitanya Mahāprabhu', 'Шрі Чайтанья Махапрабгу', 'Sri Chaitanya Mahaprabhu', 'Верховний Господь', 'The Supreme Lord', 11, 15, 'shukla', 'full', true, 'Явлення Шрі Чайтаньї Махапрабгу, Золотого Аватара', 'Appearance of Sri Chaitanya Mahaprabhu, the Golden Avatar'),
   ('chaitanya-mahaprabhu-disappearance', v_disappearance_cat, 'disappearance', 'Śrī Caitanya Mahāprabhu', 'Шрі Чайтанья Махапрабгу', 'Sri Chaitanya Mahaprabhu', 'Верховний Господь', 'The Supreme Lord', 4, 15, 'shukla', 'half', true, 'Відхід Шрі Чайтаньї Махапрабгу', 'Disappearance of Sri Chaitanya Mahaprabhu'),
   ('nityananda-prabhu-appearance', v_appearance_cat, 'appearance', 'Śrī Nityānanda Prabhu', 'Шрі Нітьянанда Прабгу', 'Sri Nityananda Prabhu', 'Верховний Господь', 'The Supreme Lord', 10, 13, 'shukla', 'full', true, 'Явлення Шрі Нітьянанди Прабгу', 'Appearance of Sri Nityananda Prabhu'),
@@ -40,7 +40,7 @@ BEGIN
   -- SIX GOSWAMIS OF VRINDAVAN
   -- ============================================
 
-  INSERT INTO appearance_days (slug, category_id, event_type, person_name_sanskrit, person_name_ua, person_name_en, person_title_ua, person_title_en, vaishnava_month_id, tithi_number, paksha, fasting_level, is_major, description_ua, description_en) VALUES
+  INSERT INTO appearance_days (slug, category_id, event_type, person_name_sanskrit, person_name_uk, person_name_en, person_title_uk, person_title_en, vaishnava_month_id, tithi_number, paksha, fasting_level, is_major, description_uk, description_en) VALUES
   ('rupa-goswami-appearance', v_appearance_cat, 'appearance', 'Śrīla Rūpa Gosvāmī', 'Шріла Рупа Ґосвамі', 'Srila Rupa Goswami', 'Ґосвамі', 'Goswami', 12, 12, 'shukla', 'half', false, 'Явлення Шріли Рупи Ґосвамі', 'Appearance of Srila Rupa Goswami'),
   ('rupa-goswami-disappearance', v_disappearance_cat, 'disappearance', 'Śrīla Rūpa Gosvāmī', 'Шріла Рупа Ґосвамі', 'Srila Rupa Goswami', 'Ґосвамі', 'Goswami', 5, 12, 'shukla', 'half', true, 'Відхід Шріли Рупи Ґосвамі', 'Disappearance of Srila Rupa Goswami'),
   ('sanatana-goswami-appearance', v_appearance_cat, 'appearance', 'Śrīla Sanātana Gosvāmī', 'Шріла Санатана Ґосвамі', 'Srila Sanatana Goswami', 'Ґосвамі', 'Goswami', 12, 5, 'shukla', 'half', false, 'Явлення Шріли Санатани Ґосвамі', 'Appearance of Srila Sanatana Goswami'),
@@ -59,7 +59,7 @@ BEGIN
   -- ACHARYAS IN PARAMPARA
   -- ============================================
 
-  INSERT INTO appearance_days (slug, category_id, event_type, person_name_sanskrit, person_name_ua, person_name_en, person_title_ua, person_title_en, vaishnava_month_id, tithi_number, paksha, fasting_level, is_major, description_ua, description_en) VALUES
+  INSERT INTO appearance_days (slug, category_id, event_type, person_name_sanskrit, person_name_uk, person_name_en, person_title_uk, person_title_en, vaishnava_month_id, tithi_number, paksha, fasting_level, is_major, description_uk, description_en) VALUES
   -- Vishvanath Chakravarti Thakur
   ('vishvanath-chakravarti-disappearance', v_disappearance_cat, 'disappearance', 'Śrīla Viśvanātha Cakravartī Ṭhākura', 'Шріла Вішванатх Чакраварті Тхакур', 'Srila Vishvanath Chakravarti Thakur', 'Тхакур', 'Thakura', 10, 5, 'shukla', 'half', false, 'Відхід Шріли Вішванатха Чакраварті Тхакура', 'Disappearance of Srila Vishvanath Chakravarti Thakur'),
   -- Baladeva Vidyabhusana
@@ -85,7 +85,7 @@ BEGIN
   -- OTHER IMPORTANT VAISHNAVAS
   -- ============================================
 
-  INSERT INTO appearance_days (slug, category_id, event_type, person_name_sanskrit, person_name_ua, person_name_en, person_title_ua, person_title_en, vaishnava_month_id, tithi_number, paksha, fasting_level, is_major, description_ua, description_en) VALUES
+  INSERT INTO appearance_days (slug, category_id, event_type, person_name_sanskrit, person_name_uk, person_name_en, person_title_uk, person_title_en, vaishnava_month_id, tithi_number, paksha, fasting_level, is_major, description_uk, description_en) VALUES
   -- Vishnupriya Devi
   ('vishnupriya-devi-appearance', v_appearance_cat, 'appearance', 'Śrīmatī Viṣṇupriyā Devī', 'Шріматі Вішнупрія Деві', 'Srimati Vishnupriya Devi', 'Вічна дружина Господа Чайтаньї', 'Eternal consort of Lord Chaitanya', 10, 5, 'shukla', 'half', false, 'Явлення Шріматі Вішнупрії Деві', 'Appearance of Srimati Vishnupriya Devi'),
   -- Pundarika Vidyanidhi
@@ -122,7 +122,7 @@ BEGIN
   -- 2. MAJOR FESTIVALS
   -- ============================================
 
-  INSERT INTO vaishnava_festivals (slug, category_id, name_sanskrit, name_ua, name_en, vaishnava_month_id, tithi_number, paksha, fasting_level, is_major, short_description_ua, short_description_en, description_ua, description_en) VALUES
+  INSERT INTO vaishnava_festivals (slug, category_id, name_sanskrit, name_uk, name_en, vaishnava_month_id, tithi_number, paksha, fasting_level, is_major, short_description_uk, short_description_en, description_uk, description_en) VALUES
   -- Krishna Janmashtami
   ('janmashtami', v_major_festival_cat, 'Śrī Kṛṣṇa Janmāṣṭamī', 'Шрі Крішна Джанмаштамі', 'Sri Krishna Janmashtami', 5, 8, 'krishna', 'full', true, 'Явлення Господа Шрі Крішни', 'Appearance of Lord Sri Krishna', 'Святкування явлення Верховного Господа Шрі Крішни у в''язниці Камси в Матхурі', 'Celebration of the appearance of Supreme Lord Sri Krishna in the prison of Kamsa in Mathura'),
   -- Nandotsava
@@ -159,7 +159,7 @@ END$$;
 -- 3. EKADASHI INFO (26 ekadashis)
 -- ============================================
 
-INSERT INTO ekadashi_info (slug, vaishnava_month_id, paksha, name_sanskrit, name_ua, name_en, presiding_deity_ua, presiding_deity_en, is_major, glory_title_ua, glory_title_en) VALUES
+INSERT INTO ekadashi_info (slug, vaishnava_month_id, paksha, name_sanskrit, name_uk, name_en, presiding_deity_uk, presiding_deity_en, is_major, glory_title_uk, glory_title_en) VALUES
 -- Month 1 - Madhava (Apr-May)
 ('varuthini', 1, 'krishna', 'Varūthinī', 'Варутхіні', 'Varuthini', 'Варага', 'Varaha', false, 'Слава Варутхіні Екадаші', 'Glory of Varuthini Ekadashi'),
 ('mohini', 1, 'shukla', 'Mohinī', 'Мохіні', 'Mohini', 'Мохіні', 'Mohini', false, 'Слава Мохіні Екадаші', 'Glory of Mohini Ekadashi'),

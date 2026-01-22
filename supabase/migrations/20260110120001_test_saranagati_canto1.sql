@@ -13,10 +13,10 @@ CREATE UNIQUE INDEX IF NOT EXISTS ux_chapters_canto_chno
   WHERE canto_id IS NOT NULL;
 
 -- 1. Create/update the book
-INSERT INTO public.books (slug, title_en, title_ua, is_published, has_cantos)
+INSERT INTO public.books (slug, title_en, title_uk, is_published, has_cantos)
 VALUES ('saranagati', 'Saranagati', 'Шаранаґаті', true, true)
 ON CONFLICT (slug) DO UPDATE SET
-  title_ua = EXCLUDED.title_ua,
+  title_uk = EXCLUDED.title_uk,
   has_cantos = EXCLUDED.has_cantos;
 
 -- Get book ID
@@ -30,102 +30,102 @@ BEGIN
 
 
   -- Canto 1: Introduction
-  INSERT INTO public.cantos (book_id, canto_number, title_en, title_ua, is_published)
+  INSERT INTO public.cantos (book_id, canto_number, title_en, title_uk, is_published)
   VALUES (v_book_id, 1, E'Introduction', E'Вступ', true)
   ON CONFLICT (book_id, canto_number) DO UPDATE SET
     title_en = EXCLUDED.title_en,
-    title_ua = EXCLUDED.title_ua;
+    title_uk = EXCLUDED.title_uk;
 
 
   -- Canto 2: Humility
-  INSERT INTO public.cantos (book_id, canto_number, title_en, title_ua, is_published)
+  INSERT INTO public.cantos (book_id, canto_number, title_en, title_uk, is_published)
   VALUES (v_book_id, 2, E'Humility', E'Дайн''я (Смирення)', true)
   ON CONFLICT (book_id, canto_number) DO UPDATE SET
     title_en = EXCLUDED.title_en,
-    title_ua = EXCLUDED.title_ua;
+    title_uk = EXCLUDED.title_uk;
 
 
   -- Canto 3: Self-Surrender
-  INSERT INTO public.cantos (book_id, canto_number, title_en, title_ua, is_published)
+  INSERT INTO public.cantos (book_id, canto_number, title_en, title_uk, is_published)
   VALUES (v_book_id, 3, E'Self-Surrender', E'Атма-нівéдана (Самовіддача)', true)
   ON CONFLICT (book_id, canto_number) DO UPDATE SET
     title_en = EXCLUDED.title_en,
-    title_ua = EXCLUDED.title_ua;
+    title_uk = EXCLUDED.title_uk;
 
 
   -- Canto 4: Embracing the Lord''s Guardianship
-  INSERT INTO public.cantos (book_id, canto_number, title_en, title_ua, is_published)
+  INSERT INTO public.cantos (book_id, canto_number, title_en, title_uk, is_published)
   VALUES (v_book_id, 4, E'Embracing the Lord''s Guardianship', E'Ґоптрітве варана (Прийняття опіки Господа)', true)
   ON CONFLICT (book_id, canto_number) DO UPDATE SET
     title_en = EXCLUDED.title_en,
-    title_ua = EXCLUDED.title_ua;
+    title_uk = EXCLUDED.title_uk;
 
 
   -- Canto 5: Maintaining Faith that Krsna Will Surely Protect
-  INSERT INTO public.cantos (book_id, canto_number, title_en, title_ua, is_published)
+  INSERT INTO public.cantos (book_id, canto_number, title_en, title_uk, is_published)
   VALUES (v_book_id, 5, E'Maintaining Faith that Krsna Will Surely Protect', E'Авашья ракшібе Крішна вішваса палана (Віра в захист Крішни)', true)
   ON CONFLICT (book_id, canto_number) DO UPDATE SET
     title_en = EXCLUDED.title_en,
-    title_ua = EXCLUDED.title_ua;
+    title_uk = EXCLUDED.title_uk;
 
 
   -- Canto 6: Acceptance Only of Activities Favorable to Devotion
-  INSERT INTO public.cantos (book_id, canto_number, title_en, title_ua, is_published)
+  INSERT INTO public.cantos (book_id, canto_number, title_en, title_uk, is_published)
   VALUES (v_book_id, 6, E'Acceptance Only of Activities Favorable to Devotion', E'Бгакті-анукула матра кар''єра свікара (Сприятливе для відданості)', true)
   ON CONFLICT (book_id, canto_number) DO UPDATE SET
     title_en = EXCLUDED.title_en,
-    title_ua = EXCLUDED.title_ua;
+    title_uk = EXCLUDED.title_uk;
 
 
   -- Canto 7: Rejection of Activities Unfavorable to Devotion
-  INSERT INTO public.cantos (book_id, canto_number, title_en, title_ua, is_published)
+  INSERT INTO public.cantos (book_id, canto_number, title_en, title_uk, is_published)
   VALUES (v_book_id, 7, E'Rejection of Activities Unfavorable to Devotion', E'Бгакті-пратікула бгава варджанаңґікара (Несприятливе для відданості)', true)
   ON CONFLICT (book_id, canto_number) DO UPDATE SET
     title_en = EXCLUDED.title_en,
-    title_ua = EXCLUDED.title_ua;
+    title_uk = EXCLUDED.title_uk;
 
 
   -- Canto 8: Longing for Devotional Service
-  INSERT INTO public.cantos (book_id, canto_number, title_en, title_ua, is_published)
+  INSERT INTO public.cantos (book_id, canto_number, title_en, title_uk, is_published)
   VALUES (v_book_id, 8, E'Longing for Devotional Service', E'Бгаджана-лаласа (Прагнення до служіння)', true)
   ON CONFLICT (book_id, canto_number) DO UPDATE SET
     title_en = EXCLUDED.title_en,
-    title_ua = EXCLUDED.title_ua;
+    title_uk = EXCLUDED.title_uk;
 
 
   -- Canto 9: Longing for Spiritual Perfection
-  INSERT INTO public.cantos (book_id, canto_number, title_en, title_ua, is_published)
+  INSERT INTO public.cantos (book_id, canto_number, title_en, title_uk, is_published)
   VALUES (v_book_id, 9, E'Longing for Spiritual Perfection', E'Сіддгі-лаласа (Прагнення до досконалості)', true)
   ON CONFLICT (book_id, canto_number) DO UPDATE SET
     title_en = EXCLUDED.title_en,
-    title_ua = EXCLUDED.title_ua;
+    title_uk = EXCLUDED.title_uk;
 
 
   -- Canto 10: Heartfelt Prayer
-  INSERT INTO public.cantos (book_id, canto_number, title_en, title_ua, is_published)
+  INSERT INTO public.cantos (book_id, canto_number, title_en, title_uk, is_published)
   VALUES (v_book_id, 10, E'Heartfelt Prayer', E'Віджняпті (Молитва від серця)', true)
   ON CONFLICT (book_id, canto_number) DO UPDATE SET
     title_en = EXCLUDED.title_en,
-    title_ua = EXCLUDED.title_ua;
+    title_uk = EXCLUDED.title_uk;
 
 
   -- Canto 11: The Glories of the Holy Name
-  INSERT INTO public.cantos (book_id, canto_number, title_en, title_ua, is_published)
+  INSERT INTO public.cantos (book_id, canto_number, title_en, title_uk, is_published)
   VALUES (v_book_id, 11, E'The Glories of the Holy Name', E'Шрі-нама-махатмья (Слава Святого Імені)', true)
   ON CONFLICT (book_id, canto_number) DO UPDATE SET
     title_en = EXCLUDED.title_en,
-    title_ua = EXCLUDED.title_ua;
+    title_uk = EXCLUDED.title_uk;
 
 
   -- Section 1, Song 1: Sri Krsna Caitanya Prabhu Jive Doya Kori
   SELECT id INTO v_canto_id FROM public.cantos
   WHERE book_id = v_book_id AND canto_number = 1;
 
-  INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
+  INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_uk, chapter_type, is_published)
   VALUES (v_canto_id, 1, E'Sri Krsna Caitanya Prabhu Jive Doya Kori', E'', 'verses', true)
   ON CONFLICT (canto_id, chapter_number) WHERE canto_id IS NOT NULL DO UPDATE SET
     title_en = EXCLUDED.title_en,
-    title_ua = EXCLUDED.title_ua,
+    title_uk = EXCLUDED.title_uk,
     chapter_type = EXCLUDED.chapter_type;
 
   SELECT id INTO v_chapter_id FROM public.chapters
@@ -135,11 +135,11 @@ BEGIN
   -- Verse 1
   INSERT INTO public.verses (
     chapter_id, verse_number,
-    sanskrit_en, sanskrit_ua,
-    transliteration_en, transliteration_ua,
-    synonyms_en, synonyms_ua,
-    translation_en, translation_ua,
-    commentary_en, commentary_ua,
+    sanskrit_en, sanskrit_uk,
+    transliteration_en, transliteration_uk,
+    synonyms_en, synonyms_uk,
+    translation_en, translation_uk,
+    commentary_en, commentary_uk,
     is_published
   )
   VALUES (
@@ -166,25 +166,25 @@ saranagati is the very life of the true devotee
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
     sanskrit_en = EXCLUDED.sanskrit_en,
-    sanskrit_ua = EXCLUDED.sanskrit_ua,
+    sanskrit_uk = EXCLUDED.sanskrit_uk,
     transliteration_en = EXCLUDED.transliteration_en,
-    transliteration_ua = EXCLUDED.transliteration_ua,
+    transliteration_uk = EXCLUDED.transliteration_uk,
     synonyms_en = EXCLUDED.synonyms_en,
-    synonyms_ua = EXCLUDED.synonyms_ua,
+    synonyms_uk = EXCLUDED.synonyms_uk,
     translation_en = EXCLUDED.translation_en,
-    translation_ua = EXCLUDED.translation_ua,
+    translation_uk = EXCLUDED.translation_uk,
     commentary_en = EXCLUDED.commentary_en,
-    commentary_ua = EXCLUDED.commentary_ua;
+    commentary_uk = EXCLUDED.commentary_uk;
 
 
   -- Verse 2
   INSERT INTO public.verses (
     chapter_id, verse_number,
-    sanskrit_en, sanskrit_ua,
-    transliteration_en, transliteration_ua,
-    synonyms_en, synonyms_ua,
-    translation_en, translation_ua,
-    commentary_en, commentary_ua,
+    sanskrit_en, sanskrit_uk,
+    transliteration_en, transliteration_uk,
+    synonyms_en, synonyms_uk,
+    translation_en, translation_uk,
+    commentary_en, commentary_uk,
     is_published
   )
   VALUES (
@@ -209,25 +209,25 @@ conduct adverse to pure devotion.', E'',
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
     sanskrit_en = EXCLUDED.sanskrit_en,
-    sanskrit_ua = EXCLUDED.sanskrit_ua,
+    sanskrit_uk = EXCLUDED.sanskrit_uk,
     transliteration_en = EXCLUDED.transliteration_en,
-    transliteration_ua = EXCLUDED.transliteration_ua,
+    transliteration_uk = EXCLUDED.transliteration_uk,
     synonyms_en = EXCLUDED.synonyms_en,
-    synonyms_ua = EXCLUDED.synonyms_ua,
+    synonyms_uk = EXCLUDED.synonyms_uk,
     translation_en = EXCLUDED.translation_en,
-    translation_ua = EXCLUDED.translation_ua,
+    translation_uk = EXCLUDED.translation_uk,
     commentary_en = EXCLUDED.commentary_en,
-    commentary_ua = EXCLUDED.commentary_ua;
+    commentary_uk = EXCLUDED.commentary_uk;
 
 
   -- Verse 3
   INSERT INTO public.verses (
     chapter_id, verse_number,
-    sanskrit_en, sanskrit_ua,
-    transliteration_en, transliteration_ua,
-    synonyms_en, synonyms_ua,
-    translation_en, translation_ua,
-    commentary_en, commentary_ua,
+    sanskrit_en, sanskrit_uk,
+    transliteration_en, transliteration_uk,
+    synonyms_en, synonyms_uk,
+    translation_en, translation_uk,
+    commentary_en, commentary_uk,
     is_published
   )
   VALUES (
@@ -253,25 +253,25 @@ takes refuge in Him by this six-fold practice.
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
     sanskrit_en = EXCLUDED.sanskrit_en,
-    sanskrit_ua = EXCLUDED.sanskrit_ua,
+    sanskrit_uk = EXCLUDED.sanskrit_uk,
     transliteration_en = EXCLUDED.transliteration_en,
-    transliteration_ua = EXCLUDED.transliteration_ua,
+    transliteration_uk = EXCLUDED.transliteration_uk,
     synonyms_en = EXCLUDED.synonyms_en,
-    synonyms_ua = EXCLUDED.synonyms_ua,
+    synonyms_uk = EXCLUDED.synonyms_uk,
     translation_en = EXCLUDED.translation_en,
-    translation_ua = EXCLUDED.translation_ua,
+    translation_uk = EXCLUDED.translation_uk,
     commentary_en = EXCLUDED.commentary_en,
-    commentary_ua = EXCLUDED.commentary_ua;
+    commentary_uk = EXCLUDED.commentary_uk;
 
 
   -- Verse 4
   INSERT INTO public.verses (
     chapter_id, verse_number,
-    sanskrit_en, sanskrit_ua,
-    transliteration_en, transliteration_ua,
-    synonyms_en, synonyms_ua,
-    translation_en, translation_ua,
-    commentary_en, commentary_ua,
+    sanskrit_en, sanskrit_uk,
+    transliteration_en, transliteration_uk,
+    synonyms_en, synonyms_uk,
+    translation_en, translation_uk,
+    commentary_en, commentary_uk,
     is_published
   )
   VALUES (
@@ -297,25 +297,25 @@ best of men by teaching me the ways of saranagati', E'',
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
     sanskrit_en = EXCLUDED.sanskrit_en,
-    sanskrit_ua = EXCLUDED.sanskrit_ua,
+    sanskrit_uk = EXCLUDED.sanskrit_uk,
     transliteration_en = EXCLUDED.transliteration_en,
-    transliteration_ua = EXCLUDED.transliteration_ua,
+    transliteration_uk = EXCLUDED.transliteration_uk,
     synonyms_en = EXCLUDED.synonyms_en,
-    synonyms_ua = EXCLUDED.synonyms_ua,
+    synonyms_uk = EXCLUDED.synonyms_uk,
     translation_en = EXCLUDED.translation_en,
-    translation_ua = EXCLUDED.translation_ua,
+    translation_uk = EXCLUDED.translation_uk,
     commentary_en = EXCLUDED.commentary_en,
-    commentary_ua = EXCLUDED.commentary_ua;
+    commentary_uk = EXCLUDED.commentary_uk;
 
 
   -- Verse 5
   INSERT INTO public.verses (
     chapter_id, verse_number,
-    sanskrit_en, sanskrit_ua,
-    transliteration_en, transliteration_ua,
-    synonyms_en, synonyms_ua,
-    translation_en, translation_ua,
-    commentary_en, commentary_ua,
+    sanskrit_en, sanskrit_uk,
+    transliteration_en, transliteration_uk,
+    synonyms_en, synonyms_uk,
+    translation_en, translation_uk,
+    commentary_en, commentary_uk,
     is_published
   )
   VALUES (
@@ -337,25 +337,25 @@ prārthanā śune śrī-nanda-kumāra', E'шад̣-аńґа
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
     sanskrit_en = EXCLUDED.sanskrit_en,
-    sanskrit_ua = EXCLUDED.sanskrit_ua,
+    sanskrit_uk = EXCLUDED.sanskrit_uk,
     transliteration_en = EXCLUDED.transliteration_en,
-    transliteration_ua = EXCLUDED.transliteration_ua,
+    transliteration_uk = EXCLUDED.transliteration_uk,
     synonyms_en = EXCLUDED.synonyms_en,
-    synonyms_ua = EXCLUDED.synonyms_ua,
+    synonyms_uk = EXCLUDED.synonyms_uk,
     translation_en = EXCLUDED.translation_en,
-    translation_ua = EXCLUDED.translation_ua,
+    translation_uk = EXCLUDED.translation_uk,
     commentary_en = EXCLUDED.commentary_en,
-    commentary_ua = EXCLUDED.commentary_ua;
+    commentary_uk = EXCLUDED.commentary_uk;
 
 
   -- Verse 6
   INSERT INTO public.verses (
     chapter_id, verse_number,
-    sanskrit_en, sanskrit_ua,
-    transliteration_en, transliteration_ua,
-    synonyms_en, synonyms_ua,
-    translation_en, translation_ua,
-    commentary_en, commentary_ua,
+    sanskrit_en, sanskrit_uk,
+    transliteration_en, transliteration_uk,
+    synonyms_en, synonyms_uk,
+    translation_en, translation_uk,
+    commentary_en, commentary_uk,
     is_published
   )
   VALUES (
@@ -377,25 +377,25 @@ poḍe duhuń pada dhori''', E'рӯпа-сана̄тана-паде
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
     sanskrit_en = EXCLUDED.sanskrit_en,
-    sanskrit_ua = EXCLUDED.sanskrit_ua,
+    sanskrit_uk = EXCLUDED.sanskrit_uk,
     transliteration_en = EXCLUDED.transliteration_en,
-    transliteration_ua = EXCLUDED.transliteration_ua,
+    transliteration_uk = EXCLUDED.transliteration_uk,
     synonyms_en = EXCLUDED.synonyms_en,
-    synonyms_ua = EXCLUDED.synonyms_ua,
+    synonyms_uk = EXCLUDED.synonyms_uk,
     translation_en = EXCLUDED.translation_en,
-    translation_ua = EXCLUDED.translation_ua,
+    translation_uk = EXCLUDED.translation_uk,
     commentary_en = EXCLUDED.commentary_en,
-    commentary_ua = EXCLUDED.commentary_ua;
+    commentary_uk = EXCLUDED.commentary_uk;
 
 
   -- Verse 7
   INSERT INTO public.verses (
     chapter_id, verse_number,
-    sanskrit_en, sanskrit_ua,
-    transliteration_en, transliteration_ua,
-    synonyms_en, synonyms_ua,
-    translation_en, translation_ua,
-    commentary_en, commentary_ua,
+    sanskrit_en, sanskrit_uk,
+    transliteration_en, transliteration_uk,
+    synonyms_en, synonyms_uk,
+    translation_en, translation_uk,
+    commentary_en, commentary_uk,
     is_published
   )
   VALUES (
@@ -417,15 +417,15 @@ kāńdiyā bole āmi to'' adhama
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
     sanskrit_en = EXCLUDED.sanskrit_en,
-    sanskrit_ua = EXCLUDED.sanskrit_ua,
+    sanskrit_uk = EXCLUDED.sanskrit_uk,
     transliteration_en = EXCLUDED.transliteration_en,
-    transliteration_ua = EXCLUDED.transliteration_ua,
+    transliteration_uk = EXCLUDED.transliteration_uk,
     synonyms_en = EXCLUDED.synonyms_en,
-    synonyms_ua = EXCLUDED.synonyms_ua,
+    synonyms_uk = EXCLUDED.synonyms_uk,
     translation_en = EXCLUDED.translation_en,
-    translation_ua = EXCLUDED.translation_ua,
+    translation_uk = EXCLUDED.translation_uk,
     commentary_en = EXCLUDED.commentary_en,
-    commentary_ua = EXCLUDED.commentary_ua;
+    commentary_uk = EXCLUDED.commentary_uk;
 
 
 

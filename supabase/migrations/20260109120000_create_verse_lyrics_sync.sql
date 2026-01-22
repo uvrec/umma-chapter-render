@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS public.verse_lyrics (
 
   -- Guardrail checks for enum-like columns
   CONSTRAINT verse_lyrics_audio_type_chk CHECK (
-    audio_type = ANY (ARRAY['full', 'recitation', 'explanation_ua', 'explanation_en'])
+    audio_type = ANY (ARRAY['full', 'recitation', 'explanation_uk', 'explanation_en'])
   ),
   CONSTRAINT verse_lyrics_language_chk CHECK (
     language = ANY (ARRAY['sa', 'en', 'ua'])

@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS public.nakshatras (
 
   -- Names
   name_iast TEXT NOT NULL,
-  name_ua TEXT NOT NULL,
+  name_uk TEXT NOT NULL,
   name_en TEXT NOT NULL,
   name_sanskrit TEXT NOT NULL,
 
@@ -23,11 +23,11 @@ CREATE TABLE IF NOT EXISTS public.nakshatras (
   )),
 
   -- Deity
-  deity_ua TEXT,
+  deity_uk TEXT,
   deity_en TEXT,
 
   -- Symbol
-  symbol_ua TEXT,
+  symbol_uk TEXT,
   symbol_en TEXT,
 
   -- Degrees (0-360)
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS public.nakshatras (
 );
 
 -- Insert 27 nakshatras
-INSERT INTO nakshatras (nakshatra_number, name_iast, name_ua, name_en, name_sanskrit, ruler_planet, deity_ua, deity_en, symbol_ua, symbol_en, start_degree, end_degree, guna, element) VALUES
+INSERT INTO nakshatras (nakshatra_number, name_iast, name_uk, name_en, name_sanskrit, ruler_planet, deity_uk, deity_en, symbol_uk, symbol_en, start_degree, end_degree, guna, element) VALUES
   (1, 'Aśvinī', 'Ашвіні', 'Ashvini', 'अश्विनी', 'ketu', 'Ашвіни Кумари', 'Ashvini Kumaras', 'Голова коня', 'Horse head', 0, 13.333333, 'rajas', 'earth'),
   (2, 'Bharaṇī', 'Бгарані', 'Bharani', 'भरणी', 'shukra', 'Яма', 'Yama', 'Йоні', 'Yoni', 13.333333, 26.666667, 'rajas', 'earth'),
   (3, 'Kṛttikā', 'Кріттіка', 'Krittika', 'कृत्तिका', 'surya', 'Аґні', 'Agni', 'Леза, полум''я', 'Razor, flame', 26.666667, 40, 'rajas', 'fire'),
@@ -81,7 +81,7 @@ ALTER TABLE appearance_days
   ADD COLUMN IF NOT EXISTS nakshatra_id INTEGER REFERENCES nakshatras(id),
   ADD COLUMN IF NOT EXISTS birth_year INTEGER,
   ADD COLUMN IF NOT EXISTS birth_place TEXT,
-  ADD COLUMN IF NOT EXISTS biography_short_ua TEXT,
+  ADD COLUMN IF NOT EXISTS biography_short_uk TEXT,
   ADD COLUMN IF NOT EXISTS biography_short_en TEXT;
 
 -- Index for nakshatra lookups
@@ -92,25 +92,25 @@ CREATE INDEX IF NOT EXISTS idx_appearance_days_nakshatra ON appearance_days(naks
 -- ============================================
 
 -- First, ensure we have the appearance category
-INSERT INTO festival_categories (slug, name_ua, name_en, icon, color, sort_order)
+INSERT INTO festival_categories (slug, name_uk, name_en, icon, color, sort_order)
 VALUES ('appearance', 'Явлення', 'Appearance', 'Sunrise', '#F59E0B', 2)
 ON CONFLICT (slug) DO NOTHING;
 
 -- Insert major Gaudiya Vaishnava acharyas with their nakshatra data
 INSERT INTO appearance_days (
   slug, category_id, event_type,
-  person_name_sanskrit, person_name_ua, person_name_en, person_title_ua, person_title_en,
+  person_name_sanskrit, person_name_uk, person_name_en, person_title_uk, person_title_en,
   vaishnava_month_id, tithi_number, paksha, nakshatra_id,
-  description_ua, description_en, is_major, fasting_level
+  description_uk, description_en, is_major, fasting_level
 )
 SELECT
   slug,
   (SELECT id FROM festival_categories WHERE slug = 'appearance'),
   event_type,
-  person_name_sanskrit, person_name_ua, person_name_en, person_title_ua, person_title_en,
+  person_name_sanskrit, person_name_uk, person_name_en, person_title_uk, person_title_en,
   vaishnava_month_id, tithi_number, paksha,
   (SELECT id FROM nakshatras WHERE nakshatra_number = nakshatra_num),
-  description_ua, description_en, is_major, fasting_level
+  description_uk, description_en, is_major, fasting_level
 FROM (VALUES
   -- Шрі Чайтанья Махапрабгу
   ('chaitanya-mahaprabhu-appearance', 'appearance',
@@ -238,10 +238,10 @@ FROM (VALUES
    'Appearance of Sri Pundarika Vidyanidhi, incarnation of Vrishabhanu Maharaja, father of Srimati Radharani.',
    true, 'none')
 
-) AS data(slug, event_type, person_name_sanskrit, person_name_ua, person_name_en, person_title_ua, person_title_en, vaishnava_month_id, tithi_number, paksha, nakshatra_num, description_ua, description_en, is_major, fasting_level)
+) AS data(slug, event_type, person_name_sanskrit, person_name_uk, person_name_en, person_title_uk, person_title_en, vaishnava_month_id, tithi_number, paksha, nakshatra_num, description_uk, description_en, is_major, fasting_level)
 ON CONFLICT (slug) DO UPDATE SET
   nakshatra_id = (SELECT id FROM nakshatras WHERE nakshatra_number = EXCLUDED.nakshatra_id),
-  description_ua = EXCLUDED.description_ua,
+  description_uk = EXCLUDED.description_uk,
   description_en = EXCLUDED.description_en;
 
 -- ============================================
@@ -250,14 +250,14 @@ ON CONFLICT (slug) DO UPDATE SET
 
 CREATE OR REPLACE FUNCTION get_saints_by_nakshatra(p_nakshatra_number INTEGER)
 RETURNS TABLE (
-  person_name_ua TEXT,
+  person_name_uk TEXT,
   person_name_en TEXT,
-  person_title_ua TEXT,
+  person_title_uk TEXT,
   person_title_en TEXT,
   event_type TEXT,
-  nakshatra_name_ua TEXT,
+  nakshatra_name_uk TEXT,
   nakshatra_name_en TEXT,
-  description_ua TEXT,
+  description_uk TEXT,
   description_en TEXT
 )
 LANGUAGE plpgsql
@@ -267,14 +267,14 @@ AS $func$
 BEGIN
   RETURN QUERY
   SELECT
-    ad.person_name_ua,
+    ad.person_name_uk,
     ad.person_name_en,
-    ad.person_title_ua,
+    ad.person_title_uk,
     ad.person_title_en,
     ad.event_type,
-    n.name_ua as nakshatra_name_ua,
+    n.name_uk as nakshatra_name_uk,
     n.name_en as nakshatra_name_en,
-    ad.description_ua,
+    ad.description_uk,
     ad.description_en
   FROM appearance_days ad
   JOIN nakshatras n ON ad.nakshatra_id = n.id

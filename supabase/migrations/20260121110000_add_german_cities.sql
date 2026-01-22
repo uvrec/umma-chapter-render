@@ -1,7 +1,7 @@
 -- Add German cities to calendar locations
 -- Includes Würzburg and other major German cities
 
-INSERT INTO calendar_locations (name_ua, name_en, latitude, longitude, timezone, country_code, city_ua, city_en, is_preset) VALUES
+INSERT INTO calendar_locations (name_uk, name_en, latitude, longitude, timezone, country_code, city_uk, city_en, is_preset) VALUES
   -- Würzburg (user's location)
   ('Вюрцбург', 'Würzburg', 49.7913, 9.9534, 'Europe/Berlin', 'DE', 'Вюрцбург', 'Würzburg', true),
   -- Major German cities

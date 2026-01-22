@@ -10,9 +10,9 @@ CREATE TABLE IF NOT EXISTS quote_categories (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     slug TEXT UNIQUE NOT NULL,
     title TEXT NOT NULL,
-    title_ua TEXT,
+    title_uk TEXT,
     description TEXT,
-    description_ua TEXT,
+    description_uk TEXT,
     parent_id UUID REFERENCES quote_categories(id) ON DELETE SET NULL,
     vaniquotes_url TEXT, -- Оригінальне посилання на Vaniquotes
     quotes_count INTEGER DEFAULT 0,
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS quote_pages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     slug TEXT UNIQUE NOT NULL,
     title TEXT NOT NULL,
-    title_ua TEXT,
+    title_uk TEXT,
     vaniquotes_url TEXT,
     created_at TIMESTAMPTZ DEFAULT now(),
     updated_at TIMESTAMPTZ DEFAULT now()
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS quotes (
 
     -- Текст цитати
     text_en TEXT NOT NULL,
-    text_ua TEXT,
+    text_uk TEXT,
     text_html TEXT, -- Оригінальний HTML з форматуванням
 
     -- Джерело
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS quotes (
     -- Full-text search
     search_vector tsvector GENERATED ALWAYS AS (
         setweight(to_tsvector('english', coalesce(text_en, '')), 'A') ||
-        setweight(to_tsvector('simple', coalesce(text_ua, '')), 'B')
+        setweight(to_tsvector('simple', coalesce(text_uk, '')), 'B')
     ) STORED,
 
     created_at TIMESTAMPTZ DEFAULT now(),
@@ -124,7 +124,7 @@ CREATE OR REPLACE FUNCTION search_quotes(
 RETURNS TABLE (
     id UUID,
     text_en TEXT,
-    text_ua TEXT,
+    text_uk TEXT,
     source_type TEXT,
     source_reference TEXT,
     book_slug TEXT,
@@ -139,7 +139,7 @@ BEGIN
     SELECT
         q.id,
         q.text_en,
-        q.text_ua,
+        q.text_uk,
         q.source_type,
         q.source_reference,
         q.book_slug,
@@ -184,7 +184,7 @@ CREATE OR REPLACE FUNCTION get_verse_quotes(
 RETURNS TABLE (
     id UUID,
     text_en TEXT,
-    text_ua TEXT,
+    text_uk TEXT,
     source_type TEXT,
     source_reference TEXT,
     page_title TEXT
@@ -194,7 +194,7 @@ BEGIN
     SELECT
         q.id,
         q.text_en,
-        q.text_ua,
+        q.text_uk,
         q.source_type,
         q.source_reference,
         qp.title AS page_title
@@ -215,7 +215,7 @@ RETURNS TABLE (
     id UUID,
     slug TEXT,
     title TEXT,
-    title_ua TEXT,
+    title_uk TEXT,
     quotes_count INTEGER
 ) AS $$
 BEGIN
@@ -224,7 +224,7 @@ BEGIN
         qc.id,
         qc.slug,
         qc.title,
-        qc.title_ua,
+        qc.title_uk,
         qc.quotes_count
     FROM quote_categories qc
     WHERE qc.is_featured = TRUE OR qc.quotes_count > 0
