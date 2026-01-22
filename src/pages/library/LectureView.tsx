@@ -58,7 +58,7 @@ export const LectureView = () => {
   const queryClient = useQueryClient();
   const { isAdmin } = useAuth();
 
-  const [language, setLanguage] = useState<"ua" | "en">("ua");
+  const [language, setLanguage] = useState<"uk" | "en">("ua");
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentParagraph, setCurrentParagraph] = useState<number | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -87,7 +87,7 @@ export const LectureView = () => {
 
   // Scroll sync state for bilingual editors
   const [scrollSyncState, setScrollSyncState] = useState<{
-    [paragraphId: string]: { ratio: number; source: "ua" | "en"; counter: number };
+    [paragraphId: string]: { ratio: number; source: "uk" | "en"; counter: number };
   }>({});
 
   // Завантаження лекції
@@ -201,7 +201,7 @@ export const LectureView = () => {
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return language === "ua"
+    return language === "uk"
       ? date.toLocaleDateString("uk-UA", {
           year: "numeric",
           month: "long",
@@ -221,7 +221,7 @@ export const LectureView = () => {
 
       // Update lecture metadata
       const lectureUpdates: Partial<Lecture> = {};
-      if (editedLecture.title_ua !== lecture.title_ua) lectureUpdates.title_ua = editedLecture.title_ua;
+      if (editedLecture.title_uk !== lecture.title_uk) lectureUpdates.title_uk = editedLecture.title_uk;
       if (editedLecture.title_en !== lecture.title_en) lectureUpdates.title_en = editedLecture.title_en;
       if (editedLecture.location_ua !== lecture.location_ua) lectureUpdates.location_ua = editedLecture.location_ua;
       if (editedLecture.location_en !== lecture.location_en) lectureUpdates.location_en = editedLecture.location_en;
@@ -240,7 +240,7 @@ export const LectureView = () => {
         if (!originalParagraph) continue;
 
         const updates: Partial<LectureParagraph> = {};
-        if (content.content_ua !== originalParagraph.content_ua) updates.content_ua = content.content_ua;
+        if (content.content_uk !== originalParagraph.content_uk) updates.content_uk = content.content_uk;
         if (content.content_en !== originalParagraph.content_en) updates.content_en = content.content_en;
 
         if (Object.keys(updates).length > 0) {
@@ -267,7 +267,7 @@ export const LectureView = () => {
   const startEdit = () => {
     if (!lecture) return;
     setEditedLecture({
-      title_ua: lecture.title_ua || "",
+      title_ua: lecture.title_uk || "",
       title_en: lecture.title_en,
       location_ua: lecture.location_ua || "",
       location_en: lecture.location_en,
@@ -275,7 +275,7 @@ export const LectureView = () => {
     const paragraphEdits: { [id: string]: { content_ua: string; content_en: string } } = {};
     paragraphs.forEach((p) => {
       paragraphEdits[p.id] = {
-        content_ua: p.content_ua || "",
+        content_ua: p.content_uk || "",
         content_en: p.content_en,
       };
     });
@@ -374,7 +374,7 @@ export const LectureView = () => {
   // AI переклад всіх параграфів
   const translateAllWithAI = async () => {
     const untranslated = Object.entries(editedParagraphs).filter(
-      ([_, content]) => content.content_en && !content.content_ua
+      ([_, content]) => content.content_en && !content.content_uk
     );
 
     if (untranslated.length === 0) {
@@ -392,7 +392,7 @@ export const LectureView = () => {
       }
 
       for (const [paragraphId, content] of Object.entries(editedParagraphs)) {
-        if (!content.content_en || content.content_ua) continue;
+        if (!content.content_en || content.content_uk) continue;
 
         setTranslatingParagraphId(paragraphId);
 
@@ -559,9 +559,9 @@ export const LectureView = () => {
     );
   }
 
-  const title = language === "ua" && lecture.title_ua ? lecture.title_ua : lecture.title_en;
+  const title = language === "uk" && lecture.title_uk ? lecture.title_uk : lecture.title_en;
   const location =
-    language === "ua" && lecture.location_ua ? lecture.location_ua : lecture.location_en;
+    language === "uk" && lecture.location_ua ? lecture.location_ua : lecture.location_en;
 
   return (
     <div className="min-h-screen bg-background">
@@ -574,7 +574,7 @@ export const LectureView = () => {
           className="mb-6"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          {language === "ua" ? "Назад до бібліотеки" : "Back to library"}
+          {language === "uk" ? "Назад до бібліотеки" : "Back to library"}
         </Button>
 
         {/* Admin Edit Header */}
@@ -668,7 +668,7 @@ export const LectureView = () => {
               <div>
                 <label className="text-sm text-muted-foreground mb-1 block">Заголовок UA</label>
                 <Input
-                  value={editedLecture.title_ua}
+                  value={editedLecture.title_uk}
                   onChange={(e) => setEditedLecture({ ...editedLecture, title_ua: e.target.value })}
                   className="text-xl font-bold"
                 />
@@ -727,7 +727,7 @@ export const LectureView = () => {
 
           {/* Мовний переключач */}
           <div className="mt-6">
-            <Tabs value={language} onValueChange={(v) => setLanguage(v as "ua" | "en")}>
+            <Tabs value={language} onValueChange={(v) => setLanguage(v as "uk" | "en")}>
               <TabsList>
                 <TabsTrigger value="ua">Українська</TabsTrigger>
                 <TabsTrigger value="en">English</TabsTrigger>
@@ -753,7 +753,7 @@ export const LectureView = () => {
                 </Button>
                 <div className="flex items-center text-sm text-muted-foreground">
                   <Volume2 className="w-4 h-4 mr-2" />
-                  {language === "ua" ? "Аудіо лекція" : "Audio lecture"}
+                  {language === "uk" ? "Аудіо лекція" : "Audio lecture"}
                 </div>
               </div>
               <audio ref={audioRef} src={lecture.audio_url} preload="metadata" />
@@ -805,7 +805,7 @@ export const LectureView = () => {
                     <div>
                       <label className="text-sm text-muted-foreground mb-1 block">Українська</label>
                       <EnhancedInlineEditor
-                        content={editedParagraphs[paragraph.id]?.content_ua || ""}
+                        content={editedParagraphs[paragraph.id]?.content_uk || ""}
                         onChange={(html) =>
                           setEditedParagraphs((prev) => ({
                             ...prev,
@@ -874,8 +874,8 @@ export const LectureView = () => {
             <div className="prose prose-lg dark:prose-invert max-w-none text-foreground">
               {paragraphs.map((paragraph) => {
                 const content =
-                  language === "ua" && paragraph.content_ua
-                    ? paragraph.content_ua
+                  language === "uk" && paragraph.content_uk
+                    ? paragraph.content_uk
                     : paragraph.content_en;
 
                 const isCurrentParagraph =
@@ -903,7 +903,7 @@ export const LectureView = () => {
           {/* Якщо немає параграфів */}
           {paragraphs.length === 0 && (
             <div className="text-center text-muted-foreground py-12">
-              {language === "ua"
+              {language === "uk"
                 ? "Текст лекції ще не додано"
                 : "Lecture text not yet added"}
             </div>
@@ -914,10 +914,10 @@ export const LectureView = () => {
         <div className="flex justify-between mt-8">
           <Button variant="outline" disabled>
             <ChevronLeft className="w-4 h-4 mr-2" />
-            {language === "ua" ? "Попередня" : "Previous"}
+            {language === "uk" ? "Попередня" : "Previous"}
           </Button>
           <Button variant="outline" disabled>
-            {language === "ua" ? "Наступна" : "Next"}
+            {language === "uk" ? "Наступна" : "Next"}
             <ChevronRight className="w-4 h-4 ml-2" />
           </Button>
         </div>

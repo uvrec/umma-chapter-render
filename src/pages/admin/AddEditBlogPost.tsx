@@ -98,13 +98,13 @@ export default function AddEditBlogPost() {
 
   useEffect(() => {
     if (post) {
-      setTitleUa(post.title_ua || "");
+      setTitleUa(post.title_uk || "");
       setTitleEn(post.title_en || "");
       setSlug(post.slug || "");
       setContentMode((post.content_mode as "text" | "poetry") || "text");
-      setContentUa(post.content_ua || "");
+      setContentUa(post.content_uk || "");
       setContentEn(post.content_en || "");
-      setExcerptUa(post.excerpt_ua || "");
+      setExcerptUa(post.excerpt_uk || "");
       setExcerptEn(post.excerpt_en || "");
       setCategoryId(post.category_id || "");
       setIsPublished(post.is_published || false);
@@ -115,16 +115,16 @@ export default function AddEditBlogPost() {
       setInstagramUrl(post.instagram_embed_url || "");
       setTelegramUrl(post.telegram_embed_url || "");
       setSubstackUrl(post.substack_embed_url || "");
-      setMetaDescUa(post.meta_description_ua || "");
+      setMetaDescUa(post.meta_description_uk || "");
       setMetaDescEn(post.meta_description_en || "");
       setAuthorName(post.author_name || "Аніруддга дас");
 
       // Poetry mode fields
       setSanskrit(post.sanskrit || "");
       setTransliteration(post.transliteration || "");
-      setSynonymsUa(post.synonyms_ua || "");
+      setSynonymsUa(post.synonyms_uk || "");
       setSynonymsEn(post.synonyms_en || "");
-      setPoetryTranslationUa(post.poetry_translation_ua || "");
+      setPoetryTranslationUa(post.poetry_translation_uk || "");
       setPoetryTranslationEn(post.poetry_translation_en || "");
 
       // Poetry audio URLs
@@ -686,7 +686,7 @@ export default function AddEditBlogPost() {
                 <SelectContent>
                   {categories?.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id}>
-                      {cat.name_ua}
+                      {cat.name_uk}
                     </SelectItem>
                   ))}
                 </SelectContent>

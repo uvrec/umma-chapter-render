@@ -31,7 +31,7 @@ export const LettersContent = () => {
   const { language } = useLanguage();
 
   // Мовні налаштування для контенту
-  const [contentLanguage, setContentLanguage] = useState<"ua" | "en">("ua");
+  const [contentLanguage, setContentLanguage] = useState<"uk" | "en">("ua");
 
   // Пошук та фільтрація
   const [searchQuery, setSearchQuery] = useState("");
@@ -88,8 +88,8 @@ export const LettersContent = () => {
         const location = contentLanguage === "ua" && letter.location_ua
           ? letter.location_ua
           : letter.location_en;
-        const content = contentLanguage === "ua" && letter.content_ua
-          ? letter.content_ua
+        const content = contentLanguage === "ua" && letter.content_uk
+          ? letter.content_uk
           : letter.content_en;
 
         return (
@@ -426,8 +426,8 @@ export const LettersContent = () => {
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-2 mt-2">
-                        {contentLanguage === "ua" && letter.content_ua
-                          ? letter.content_ua.substring(0, 150) + "..."
+                        {contentLanguage === "ua" && letter.content_uk
+                          ? letter.content_uk.substring(0, 150) + "..."
                           : letter.content_en.substring(0, 150) + "..."}
                       </p>
                     </div>

@@ -74,7 +74,7 @@ export default function LettersManager() {
           location_en: letter.location_en,
           location_ua: letter.location_ua,
           content_en: letter.content_en,
-          content_ua: letter.content_ua,
+          content_ua: letter.content_uk,
         })
         .eq("id", letter.id);
 
@@ -251,7 +251,7 @@ export default function LettersManager() {
                         <Badge variant="outline">{letter.reference}</Badge>
                       </TableCell>
                       <TableCell>
-                        {letter.content_ua ? (
+                        {letter.content_uk ? (
                           <Badge variant="secondary">Так</Badge>
                         ) : (
                           <Badge variant="destructive">Ні</Badge>
@@ -410,7 +410,7 @@ export default function LettersManager() {
                         Українська
                       </label>
                       <Textarea
-                        value={editingLetter.content_ua || ""}
+                        value={editingLetter.content_uk || ""}
                         onChange={(e) =>
                           setEditingLetter({
                             ...editingLetter,

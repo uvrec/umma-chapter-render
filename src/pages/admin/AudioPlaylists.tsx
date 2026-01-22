@@ -176,7 +176,7 @@ export default function AudioPlaylists() {
               <SelectItem value="all">Всі категорії</SelectItem>
               {categories?.map((cat) => (
                 <SelectItem key={cat.id} value={cat.id}>
-                  {cat.name_ua}
+                  {cat.name_uk}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -199,7 +199,7 @@ export default function AudioPlaylists() {
                 <div className="aspect-square bg-muted rounded-lg overflow-hidden mb-4">
                   <img
                     src={img}
-                    alt={playlist.title_ua || "Обкладинка плейліста"}
+                    alt={playlist.title_uk || "Обкладинка плейліста"}
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />
@@ -207,7 +207,7 @@ export default function AudioPlaylists() {
               )}
               <CardHeader className="pt-0">
                 <CardTitle className="flex justify-between items-start gap-3">
-                  <span className="line-clamp-2">{playlist.title_ua || "Без назви"}</span>
+                  <span className="line-clamp-2">{playlist.title_uk || "Без назви"}</span>
                   <Badge variant={playlist.is_published ? "default" : "secondary"}>
                     {playlist.is_published ? "Опубліковано" : "Чернетка"}
                   </Badge>
@@ -215,13 +215,13 @@ export default function AudioPlaylists() {
               </CardHeader>
               <CardContent>
                 <div className="text-sm text-muted-foreground space-y-2">
-                  {playlist.description_ua && <p className="line-clamp-2">{playlist.description_ua}</p>}
+                  {playlist.description_uk && <p className="line-clamp-2">{playlist.description_uk}</p>}
                   <div className="flex items-center justify-between pt-2 border-t">
                     <div className="flex items-center gap-2">
                       <Music className="w-4 h-4" />
                       <span>{trackCount} треків</span>
                     </div>
-                    {playlist.category?.name_ua && <Badge variant="outline">{playlist.category.name_ua}</Badge>}
+                    {playlist.category?.name_uk && <Badge variant="outline">{playlist.category.name_uk}</Badge>}
                   </div>
                   {playlist.author && <p className="text-xs">Автор: {playlist.author}</p>}
                 </div>

@@ -311,9 +311,9 @@ export default function UniversalImportFixed() {
               (v: any) =>
                 !(
                   v?.translation_en ||
-                  v?.translation_ua ||
+                  v?.translation_uk ||
                   v?.synonyms_en ||
-                  v?.synonyms_ua ||
+                  v?.synonyms_uk ||
                   v?.commentary_en ||
                   v?.commentary_ua
                 ),
@@ -468,9 +468,9 @@ export default function UniversalImportFixed() {
                   } else {
                     parsedUA = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
                     console.log(`✅ Gitabase parsed for ${t.lastPart}:`, {
-                      hasSynonyms: !!parsedUA?.synonyms_ua,
-                      hasTranslation: !!parsedUA?.translation_ua,
-                      synonymsPreview: parsedUA?.synonyms_ua?.substring(0, 50),
+                      hasSynonyms: !!parsedUA?.synonyms_uk,
+                      hasTranslation: !!parsedUA?.translation_uk,
+                      synonymsPreview: parsedUA?.synonyms_uk?.substring(0, 50),
                     });
                   }
                 } else {
@@ -509,9 +509,9 @@ export default function UniversalImportFixed() {
                     transliteration_en: merged.transliteration_en || "",
                     transliteration_ua: merged.transliteration_ua || "",
                     synonyms_en: merged.synonyms_en || "",
-                    synonyms_ua: merged.synonyms_ua || "",
+                    synonyms_ua: merged.synonyms_uk || "",
                     translation_en: merged.translation_en || "",
-                    translation_ua: merged.translation_ua || "",
+                    translation_ua: merged.translation_uk || "",
                     commentary_en: merged.purport_en || "",
                     commentary_ua: merged.purport_ua || "",
                   });
@@ -634,9 +634,9 @@ export default function UniversalImportFixed() {
                   transliteration_en: merged.transliteration_en || "",
                   transliteration_ua: merged.transliteration_ua || "",
                   synonyms_en: merged.synonyms_en || "",
-                  synonyms_ua: merged.synonyms_ua || "",
+                  synonyms_ua: merged.synonyms_uk || "",
                   translation_en: merged.translation_en || "",
-                  translation_ua: merged.translation_ua || "",
+                  translation_ua: merged.translation_uk || "",
                   commentary_en: merged.purport_en || "",
                   commentary_ua: merged.purport_ua || "",
                 });
@@ -698,10 +698,10 @@ export default function UniversalImportFixed() {
           {
             chapter_number: chapterNum,
             // ✅ Передаємо назви (з дефолтними значеннями для БД NOT NULL constraint)
-            title_ua: importData.metadata.title_ua?.trim() || undefined,
+            title_ua: importData.metadata.title_uk?.trim() || undefined,
             title_en:
               importData.metadata.title_en?.trim() ||
-              `${bookInfo?.name_ua || vedabaseBook.toUpperCase()} ${vedabaseCanto ? vedabaseCanto + " " : ""}${chapterNum}`,
+              `${bookInfo?.name_uk || vedabaseBook.toUpperCase()} ${vedabaseCanto ? vedabaseCanto + " " : ""}${chapterNum}`,
             // ✅ Передаємо intro як content для глави
             ...(importData.chapters[0]?.intro_ua && { content_ua: importData.chapters[0].intro_ua }),
             ...(importData.chapters[0]?.intro_en && { content_en: importData.chapters[0].intro_en }),
@@ -862,9 +862,9 @@ export default function UniversalImportFixed() {
                   (v: any) =>
                     !(
                       v?.translation_en ||
-                      v?.translation_ua ||
+                      v?.translation_uk ||
                       v?.synonyms_en ||
-                      v?.synonyms_ua ||
+                      v?.synonyms_uk ||
                       v?.commentary_en ||
                       v?.commentary_ua
                     ),
@@ -916,7 +916,7 @@ export default function UniversalImportFixed() {
 
           const isFallback = (s: string) => /\(English.*only\)|\(Eng\)/.test(s);
           const chapterToImport: any = { ...result };
-          if (isFallback(chapterToImport.title_ua)) delete chapterToImport.title_ua;
+          if (isFallback(chapterToImport.title_uk)) delete chapterToImport.title_uk;
           if (isFallback(chapterToImport.title_en)) delete chapterToImport.title_en;
 
           await importSingleChapter(supabase, {
@@ -1180,7 +1180,7 @@ export default function UniversalImportFixed() {
           metadata: {
             ...importData.metadata,
             title_en: `${bookInfo.name_en} - ${vedabaseCanto} khaṇḍa`,
-            title_ua: `${bookInfo.name_ua} - ${vedabaseCanto}`,
+            title_ua: `${bookInfo.name_uk} - ${vedabaseCanto}`,
             author: bookInfo.author || "Vrindavan Das Thakur",
             book_slug: bookInfo.our_slug,
             source_url: sourceUrl,
@@ -1361,7 +1361,7 @@ export default function UniversalImportFixed() {
           metadata: {
             ...importData.metadata,
             title_en: pageTitle.title_en || bookInfo.name_en,
-            title_ua: bookInfo.name_ua, // Use book config for UA
+            title_ua: bookInfo.name_uk, // Use book config for UA
             author: bookInfo.author || "Bhaktivinoda Thakur",
             book_slug: bookInfo.our_slug,
             source_url: sourceUrl,
@@ -1493,9 +1493,9 @@ export default function UniversalImportFixed() {
           chapters = rajaVidyaChapters.map((ch) => ({
             chapter_number: ch.chapter_number,
             chapter_type: 'text' as const,
-            title_ua: ch.title_ua,
+            title_ua: ch.title_uk,
             verses: [],
-            content_ua: ch.content_ua,
+            content_ua: ch.content_uk,
           }));
 
           console.log(`✅ [Raja Vidya] Розпарсено ${chapters.length} глав`);
@@ -1521,7 +1521,7 @@ export default function UniversalImportFixed() {
 
         // Для текстових глав - рахуємо символи замість віршів
         const totalVerses = chapters.reduce((sum, ch) => sum + ch.verses.length, 0);
-        const totalChars = chapters.reduce((sum, ch) => sum + (ch.content_ua?.length || 0), 0);
+        const totalChars = chapters.reduce((sum, ch) => sum + (ch.content_uk?.length || 0), 0);
 
         const description = totalVerses > 0
           ? `Знайдено ${chapters.length} розділ(ів), ${totalVerses} віршів`
@@ -1602,15 +1602,15 @@ export default function UniversalImportFixed() {
         const merged = mergeRajaVidyaChapters(
           {
             chapter_number: uaChapter.chapter_number,
-            title_ua: uaChapter.title_ua,
-            content_ua: uaChapter.content_ua || '',
+            title_ua: uaChapter.title_uk,
+            content_ua: uaChapter.content_uk || '',
           },
           enChapter
         );
 
         if (merged) {
           mergedChapters.push(merged);
-          console.log(`✅ Глава ${chapterNum}: UA (${merged.content_ua?.length || 0} chars) + EN (${merged.content_en?.length || 0} chars)`);
+          console.log(`✅ Глава ${chapterNum}: UA (${merged.content_uk?.length || 0} chars) + EN (${merged.content_en?.length || 0} chars)`);
         }
 
         // Невелика затримка між запитами
@@ -1636,7 +1636,7 @@ export default function UniversalImportFixed() {
         processedText: JSON.stringify(mergedChapters, null, 2),
         chapters: mergedChapters,
         metadata: {
-          title_ua: bookInfo.name_ua,
+          title_ua: bookInfo.name_uk,
           title_en: bookInfo.name_en,
           author: bookInfo.author || 'A. C. Bhaktivedanta Swami Prabhupada',
           book_slug: bookInfo.our_slug,
@@ -1698,7 +1698,7 @@ export default function UniversalImportFixed() {
           .from("books")
           .insert({
             slug,
-            title_ua: importData.metadata.title_ua || currentBookInfo?.name || "Імпортована книга",
+            title_ua: importData.metadata.title_uk || currentBookInfo?.name || "Імпортована книга",
             title_en: importData.metadata.title_en || currentBookInfo?.name || "Imported Book",
             is_published: true,
           })
@@ -1733,7 +1733,7 @@ export default function UniversalImportFixed() {
         return re.test(s);
       };
       const chapterToImport: any = { ...chapter };
-      if (isFallback(chapterToImport.title_ua)) delete chapterToImport.title_ua;
+      if (isFallback(chapterToImport.title_uk)) delete chapterToImport.title_uk;
       if (isFallback(chapterToImport.title_en)) delete chapterToImport.title_en;
 
       await importSingleChapter(supabase, {
@@ -1790,7 +1790,7 @@ export default function UniversalImportFixed() {
             .from("books")
             .insert({
               slug,
-              title_ua: data.metadata.title_ua,
+              title_ua: data.metadata.title_uk,
               title_en: data.metadata.title_en,
               is_published: true,
             })
@@ -1827,7 +1827,7 @@ export default function UniversalImportFixed() {
             return re.test(s);
           };
           const chapterToImport: any = { ...ch };
-          if (isFallback(chapterToImport.title_ua)) delete chapterToImport.title_ua;
+          if (isFallback(chapterToImport.title_uk)) delete chapterToImport.title_uk;
           if (isFallback(chapterToImport.title_en)) delete chapterToImport.title_en;
 
           await importSingleChapter(supabase, {
@@ -1920,7 +1920,7 @@ export default function UniversalImportFixed() {
                   >
                     {VEDABASE_BOOKS.map((book) => (
                       <option key={book.slug} value={book.slug}>
-                        {book.name_ua} ({book.slug.toUpperCase()})
+                        {book.name_uk} ({book.slug.toUpperCase()})
                       </option>
                     ))}
                   </select>
@@ -1959,14 +1959,14 @@ export default function UniversalImportFixed() {
                 <div>
                   <Label>Назва глави (UA)</Label>
                   <Input
-                    value={importData.metadata.title_ua}
+                    value={importData.metadata.title_uk}
                     onChange={(e) =>
                       setImportData((prev) => ({
                         ...prev,
                         metadata: { ...prev.metadata, title_ua: e.target.value },
                       }))
                     }
-                    placeholder={`${currentBookInfo?.name_ua} ${vedabaseCanto} ${vedabaseChapter}`}
+                    placeholder={`${currentBookInfo?.name_uk} ${vedabaseCanto} ${vedabaseChapter}`}
                   />
                 </div>
                 <div>
@@ -2151,7 +2151,7 @@ export default function UniversalImportFixed() {
                       >
                         {VEDABASE_BOOKS.map((book) => (
                           <option key={book.slug} value={book.slug}>
-                            {book.name_ua} ({book.slug.toUpperCase()})
+                            {book.name_uk} ({book.slug.toUpperCase()})
                           </option>
                         ))}
                       </select>
@@ -2239,7 +2239,7 @@ export default function UniversalImportFixed() {
                         >
                           {parsedChapters.map((ch, idx) => (
                             <option key={idx} value={idx}>
-                              Розділ {ch.chapter_number}: {ch.title_ua || ch.title_en || "Без назви"} (
+                              Розділ {ch.chapter_number}: {ch.title_uk || ch.title_en || "Без назви"} (
                               {ch.verses?.length || 0} віршів, тип: {ch.chapter_type})
                             </option>
                           ))}
@@ -2255,7 +2255,7 @@ export default function UniversalImportFixed() {
                             </p>
                             <p>
                               <strong>Назва (UA):</strong>{" "}
-                              {parsedChapters[selectedChapterIndex].title_ua || "Не вказано"}
+                              {parsedChapters[selectedChapterIndex].title_uk || "Не вказано"}
                             </p>
                             <p>
                               <strong>Тип:</strong> {parsedChapters[selectedChapterIndex].chapter_type}
@@ -2275,10 +2275,10 @@ export default function UniversalImportFixed() {
                                     {parsedChapters[selectedChapterIndex].verses[0].sanskrit.substring(0, 100)}...
                                   </p>
                                 )}
-                                {parsedChapters[selectedChapterIndex].verses[0].translation_ua && (
+                                {parsedChapters[selectedChapterIndex].verses[0].translation_uk && (
                                   <p className="text-xs mt-1">
                                     <strong>Переклад:</strong>{" "}
-                                    {parsedChapters[selectedChapterIndex].verses[0].translation_ua.substring(0, 150)}
+                                    {parsedChapters[selectedChapterIndex].verses[0].translation_uk.substring(0, 150)}
                                     ...
                                   </p>
                                 )}
@@ -2292,14 +2292,14 @@ export default function UniversalImportFixed() {
                         <div>
                           <Label>Назва розділу (UA) - необов'язково</Label>
                           <Input
-                            value={importData.metadata.title_ua}
+                            value={importData.metadata.title_uk}
                             onChange={(e) =>
                               setImportData((prev) => ({
                                 ...prev,
                                 metadata: { ...prev.metadata, title_ua: e.target.value },
                               }))
                             }
-                            placeholder={parsedChapters[selectedChapterIndex]?.title_ua || "Залишити як є"}
+                            placeholder={parsedChapters[selectedChapterIndex]?.title_uk || "Залишити як є"}
                           />
                         </div>
                         <div>
@@ -2466,7 +2466,7 @@ export default function UniversalImportFixed() {
                           ...ch,
                           verses: ch.verses.map((v: any) => ({
                             ...v,
-                            synonyms_ua: v.synonyms_ua ? normalizeTransliteration(v.synonyms_ua) : v.synonyms_ua,
+                            synonyms_ua: v.synonyms_uk ? normalizeTransliteration(v.synonyms_uk) : v.synonyms_uk,
                           })),
                         }));
                         return { ...prev, chapters };

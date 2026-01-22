@@ -157,7 +157,7 @@ export const ChapterVersesList = () => {
     enabled: !!fallbackChapter?.id
   });
   const versesRaw = useMemo(() => versesMain && versesMain.length > 0 ? versesMain : versesFallback || [], [versesMain, versesFallback]);
-  const verses = useMemo(() => (versesRaw || []).filter((v: Verse) => v?.translation_ua && v.translation_ua.trim().length > 0 || v?.translation_en && v.translation_en.trim().length > 0), [versesRaw]);
+  const verses = useMemo(() => (versesRaw || []).filter((v: Verse) => v?.translation_uk && v.translation_uk.trim().length > 0 || v?.translation_en && v.translation_en.trim().length > 0), [versesRaw]);
   const {
     data: adjacentChapters
   } = useQuery({
@@ -207,10 +207,10 @@ export const ChapterVersesList = () => {
       navigate(`/veda-reader/${bookId}`);
     }
   };
-  const bookTitle = language === "ua" ? book?.title_ua : book?.title_en;
-  const cantoTitle = canto ? language === "ua" ? canto.title_ua : canto.title_en : null;
+  const bookTitle = language === "uk" ? book?.title_uk : book?.title_en;
+  const cantoTitle = canto ? language === "uk" ? canto.title_uk : canto.title_en : null;
   const effectiveChapterObj = chapter ?? fallbackChapter;
-  const chapterTitle = effectiveChapterObj && "title_ua" in effectiveChapterObj ? language === "ua" ? effectiveChapterObj.title_ua : effectiveChapterObj.title_en : null;
+  const chapterTitle = effectiveChapterObj && "title_ua" in effectiveChapterObj ? language === "uk" ? effectiveChapterObj.title_uk : effectiveChapterObj.title_en : null;
   const saveContentMutation = useMutation({
     mutationFn: async () => {
       if (!effectiveChapterObj || !("id" in effectiveChapterObj)) return;
@@ -240,7 +240,7 @@ export const ChapterVersesList = () => {
   });
   useEffect(() => {
     if (effectiveChapterObj) {
-      setEditedContentUa(effectiveChapterObj.content_ua || "");
+      setEditedContentUa(effectiveChapterObj.content_uk || "");
       setEditedContentEn(effectiveChapterObj.content_en || "");
     }
   }, [effectiveChapterObj]);
@@ -293,10 +293,10 @@ export const ChapterVersesList = () => {
             <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
               {adjacentChapters?.prev && <Button variant="outline" size="sm" onClick={() => handleNavigate(adjacentChapters.prev.chapter_number)} className="gap-1 flex-1 sm:flex-none">
                   <ChevronLeft className="h-4 w-4" />
-                  <span className="hidden sm:inline">{language === "ua" ? "Попередня" : "Previous"}</span>
+                  <span className="hidden sm:inline">{language === "uk" ? "Попередня" : "Previous"}</span>
                 </Button>}
               {adjacentChapters?.next && <Button variant="outline" size="sm" onClick={() => handleNavigate(adjacentChapters.next.chapter_number)} className="gap-1 flex-1 sm:flex-none">
-                  <span className="hidden sm:inline">{language === "ua" ? "Наступна" : "Next"}</span>
+                  <span className="hidden sm:inline">{language === "uk" ? "Наступна" : "Next"}</span>
                   <ChevronRight className="h-4 w-4" />
                 </Button>}
             </div>
@@ -316,13 +316,13 @@ export const ChapterVersesList = () => {
             </h1>
           </div>
 
-          {effectiveChapterObj && (effectiveChapterObj.content_ua || effectiveChapterObj.content_en) && (
+          {effectiveChapterObj && (effectiveChapterObj.content_uk || effectiveChapterObj.content_en) && (
             <div className="mb-8">
               {user && !isEditingContent && (
                 <div className="mb-4 flex justify-end">
                   <Button variant="outline" size="sm" onClick={() => setIsEditingContent(true)} className="gap-2">
                     <Edit className="h-4 w-4" />
-                    {language === "ua" ? "Редагувати" : "Edit"}
+                    {language === "uk" ? "Редагувати" : "Edit"}
                   </Button>
                 </div>
               )}
@@ -336,19 +336,19 @@ export const ChapterVersesList = () => {
                   <div className="flex gap-2">
                     <Button onClick={() => saveContentMutation.mutate()} disabled={saveContentMutation.isPending} className="gap-2">
                       <Save className="h-4 w-4" />
-                      {language === "ua" ? "Зберегти" : "Save"}
+                      {language === "uk" ? "Зберегти" : "Save"}
                     </Button>
                     <Button variant="outline" onClick={() => {
                 setIsEditingContent(false);
-                setEditedContentUa(effectiveChapterObj.content_ua || "");
+                setEditedContentUa(effectiveChapterObj.content_uk || "");
                 setEditedContentEn(effectiveChapterObj.content_en || "");
               }} className="gap-2">
                       <X className="h-4 w-4" />
-                      {language === "ua" ? "Скасувати" : "Cancel"}
+                      {language === "uk" ? "Скасувати" : "Cancel"}
                     </Button>
                   </div>
                 </div>
-              ) : dualLanguageMode && effectiveChapterObj.content_ua && effectiveChapterObj.content_en ? (
+              ) : dualLanguageMode && effectiveChapterObj.content_uk && effectiveChapterObj.content_en ? (
                 (() => {
             const splitHtmlIntoParagraphs = (html: string): string[] => {
               const sanitized = DOMPurify.sanitize(html);
@@ -377,7 +377,7 @@ export const ChapterVersesList = () => {
               }
               return paragraphs.filter(p => p.length > 0);
             };
-            const paragraphsUa = splitHtmlIntoParagraphs(effectiveChapterObj.content_ua || "");
+            const paragraphsUa = splitHtmlIntoParagraphs(effectiveChapterObj.content_uk || "");
             const paragraphsEn = splitHtmlIntoParagraphs(effectiveChapterObj.content_en || "");
 
             // Вирівнювання: довший переклад (зазвичай УКР) задає довжину
@@ -415,9 +415,9 @@ export const ChapterVersesList = () => {
                   style={readerTextStyle}
                   dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(
-                      language === "ua"
-                        ? effectiveChapterObj.content_ua || effectiveChapterObj.content_en || ""
-                        : effectiveChapterObj.content_en || effectiveChapterObj.content_ua || "",
+                      language === "uk"
+                        ? effectiveChapterObj.content_uk || effectiveChapterObj.content_en || ""
+                        : effectiveChapterObj.content_en || effectiveChapterObj.content_uk || "",
                     ),
                   }}
                 />
@@ -427,16 +427,16 @@ export const ChapterVersesList = () => {
 
           {flowMode ? <div className="prose prose-lg max-w-none" style={readerTextStyle}>
               {verses.map((verse: Verse) => {
-            const text = language === "ua" ? verse.translation_ua : verse.translation_en;
+            const text = language === "uk" ? verse.translation_uk : verse.translation_en;
             return <p key={verse.id} className="text-foreground mb-6">
                     {stripParagraphTags(text || "") || <span className="italic text-muted-foreground">
-                        {language === "ua" ? "Немає перекладу" : "No translation"}
+                        {language === "uk" ? "Немає перекладу" : "No translation"}
                       </span>}
                   </p>;
           })}
             </div> : <div className="space-y-6">
               {verses.map((verse: Verse) => {
-            const translationUa = verse.translation_ua || "";
+            const translationUa = verse.translation_uk || "";
             const translationEn = verse.translation_en || "";
             return <div key={verse.id} className="space-y-3">
                     {dualLanguageMode ? <div className="grid gap-6 md:grid-cols-2">
@@ -459,10 +459,10 @@ export const ChapterVersesList = () => {
                         </div>
                       </div> : <div className="space-y-3">
                         {showNumbers && <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
-                            {language === "ua" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
+                            {language === "uk" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
                           </Link>}
                         <p className="text-foreground" style={readerTextStyle}>
-                          {language === "ua" ? stripParagraphTags(translationUa) || <span className="italic text-muted-foreground">Немає перекладу</span> : stripParagraphTags(translationEn) || <span className="italic text-muted-foreground">No translation</span>}
+                          {language === "uk" ? stripParagraphTags(translationUa) || <span className="italic text-muted-foreground">Немає перекладу</span> : stripParagraphTags(translationEn) || <span className="italic text-muted-foreground">No translation</span>}
                         </p>
                       </div>}
 
@@ -478,10 +478,10 @@ export const ChapterVersesList = () => {
                   <ChevronLeft className="h-4 w-4" />
                   <div className="text-left">
                     <div className="text-xs text-muted-foreground">
-                      {language === "ua" ? "Попередня глава" : "Previous Chapter"}
+                      {language === "uk" ? "Попередня глава" : "Previous Chapter"}
                     </div>
                     <div className="font-medium">
-                      {language === "ua" ? adjacentChapters.prev.title_ua : adjacentChapters.prev.title_en}
+                      {language === "uk" ? adjacentChapters.prev.title_uk : adjacentChapters.prev.title_en}
                     </div>
                   </div>
                 </Button> : <div />}
@@ -489,10 +489,10 @@ export const ChapterVersesList = () => {
               {adjacentChapters?.next ? <Button variant="outline" onClick={() => handleNavigate(adjacentChapters.next.chapter_number)} className="gap-2">
                   <div className="text-right">
                     <div className="text-xs text-muted-foreground">
-                      {language === "ua" ? "Наступна глава" : "Next Chapter"}
+                      {language === "uk" ? "Наступна глава" : "Next Chapter"}
                     </div>
                     <div className="font-medium">
-                      {language === "ua" ? adjacentChapters.next.title_ua : adjacentChapters.next.title_en}
+                      {language === "uk" ? adjacentChapters.next.title_uk : adjacentChapters.next.title_en}
                     </div>
                   </div>
                   <ChevronRight className="h-4 w-4" />

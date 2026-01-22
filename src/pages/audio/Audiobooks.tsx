@@ -161,7 +161,7 @@ export const Audiobooks = () => {
                     <div className="aspect-[2/3] bg-muted relative overflow-hidden">
                       <img
                         src={coverUrl}
-                        alt={book.title_ua || "Обкладинка аудіокниги"}
+                        alt={book.title_uk || "Обкладинка аудіокниги"}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         loading="lazy"
                       />
@@ -175,11 +175,11 @@ export const Audiobooks = () => {
                     {/* Контент */}
                     <div className="p-4">
                       <h3 className="font-semibold text-lg mb-2 line-clamp-2">
-                        {book.title_ua || "Без назви"}
+                        {book.title_uk || "Без назви"}
                       </h3>
-                      {book.description_ua && (
+                      {book.description_uk && (
                         <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                          {book.description_ua}
+                          {book.description_uk}
                         </p>
                       )}
                       <div className="flex items-center justify-between">

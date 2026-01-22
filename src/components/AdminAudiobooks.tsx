@@ -259,7 +259,7 @@ export default function AdminAudiobooks() {
               <Label htmlFor="title-ua">Заголовок (UA)</Label>
               <Input
                 id="title-ua"
-                value={settings.title_ua}
+                value={settings.title_uk}
                 onChange={(e) => setSettings((prev) => ({ ...prev, title_ua: e.target.value }))}
                 placeholder="Аудіокниги"
               />
@@ -306,7 +306,7 @@ export default function AdminAudiobooks() {
               <Label htmlFor="desc-ua">Опис (UA)</Label>
               <Textarea
                 id="desc-ua"
-                value={settings.description_ua}
+                value={settings.description_uk}
                 onChange={(e) => setSettings((prev) => ({ ...prev, description_ua: e.target.value }))}
                 placeholder="Короткий опис сторінки для пошукових систем"
                 rows={3}

@@ -144,9 +144,9 @@ export function useTodayEvents(locationId?: string) {
     if (!data?.events) return [];
     return data.events.map((event) => ({
       ...event,
-      name: language === "ua" ? event.name_ua : event.name_en,
+      name: language === "uk" ? event.name_uk : event.name_en,
       description:
-        language === "ua" ? event.description_ua : event.description_en,
+        language === "uk" ? event.description_uk : event.description_en,
     }));
   }, [data?.events, language]);
 
@@ -158,8 +158,8 @@ export function useTodayEvents(locationId?: string) {
       event: {
         ...data.next_ekadashi.event,
         name:
-          language === "ua"
-            ? data.next_ekadashi.event.name_ua
+          language === "uk"
+            ? data.next_ekadashi.event.name_uk
             : data.next_ekadashi.event.name_en,
       },
     };
@@ -237,20 +237,20 @@ export function useEkadashi(slug: string) {
     if (!data) return null;
     return {
       ...data,
-      name: language === "ua" ? data.name_ua : data.name_en,
+      name: language === "uk" ? data.name_uk : data.name_en,
       gloryTitle:
-        language === "ua" ? data.glory_title_ua : data.glory_title_en,
-      gloryText: language === "ua" ? data.glory_text_ua : data.glory_text_en,
+        language === "uk" ? data.glory_title_uk : data.glory_title_en,
+      gloryText: language === "uk" ? data.glory_text_uk : data.glory_text_en,
       presidingDeity:
-        language === "ua" ? data.presiding_deity_ua : data.presiding_deity_en,
+        language === "uk" ? data.presiding_deity_uk : data.presiding_deity_en,
       recommendedActivities:
-        language === "ua"
+        language === "uk"
           ? data.recommended_activities_ua
           : data.recommended_activities_en,
       fastingRules:
-        language === "ua" ? data.fasting_rules_ua : data.fasting_rules_en,
-      benefits: language === "ua" ? data.benefits_ua : data.benefits_en,
-      story: language === "ua" ? data.story_ua : data.story_en,
+        language === "uk" ? data.fasting_rules_uk : data.fasting_rules_en,
+      benefits: language === "uk" ? data.benefits_uk : data.benefits_en,
+      story: language === "uk" ? data.story_uk : data.story_en,
     };
   }, [data, language]);
 
@@ -305,17 +305,17 @@ export function useFestival(slug: string) {
     if (!data) return null;
     return {
       ...data,
-      name: language === "ua" ? data.name_ua : data.name_en,
+      name: language === "uk" ? data.name_uk : data.name_en,
       description:
-        language === "ua" ? data.description_ua : data.description_en,
+        language === "uk" ? data.description_uk : data.description_en,
       shortDescription:
-        language === "ua"
-          ? data.short_description_ua
+        language === "uk"
+          ? data.short_description_uk
           : data.short_description_en,
       significance:
-        language === "ua" ? data.significance_ua : data.significance_en,
+        language === "uk" ? data.significance_ua : data.significance_en,
       observances:
-        language === "ua" ? data.observances_ua : data.observances_en,
+        language === "uk" ? data.observances_uk : data.observances_en,
     };
   }, [data, language]);
 
@@ -374,17 +374,17 @@ export function useAppearanceDay(slug: string) {
     return {
       ...data,
       personName:
-        language === "ua" ? data.person_name_ua : data.person_name_en,
+        language === "uk" ? data.person_name_uk : data.person_name_en,
       personTitle:
-        language === "ua" ? data.person_title_ua : data.person_title_en,
+        language === "uk" ? data.person_title_uk : data.person_title_en,
       description:
-        language === "ua" ? data.description_ua : data.description_en,
+        language === "uk" ? data.description_uk : data.description_en,
       shortDescription:
-        language === "ua"
-          ? data.short_description_ua
+        language === "uk"
+          ? data.short_description_uk
           : data.short_description_en,
       observances:
-        language === "ua" ? data.observances_ua : data.observances_en,
+        language === "uk" ? data.observances_uk : data.observances_en,
     };
   }, [data, language]);
 
@@ -413,8 +413,8 @@ export function useCalendarLocations() {
     if (!data) return [];
     return data.map((loc) => ({
       ...loc,
-      name: language === "ua" ? loc.name_ua : loc.name_en,
-      city: language === "ua" ? loc.city_ua : loc.city_en,
+      name: language === "uk" ? loc.name_uk : loc.name_en,
+      city: language === "uk" ? loc.city_uk : loc.city_en,
     }));
   }, [data, language]);
 
@@ -494,9 +494,9 @@ export function useVaishnavMonths() {
     if (!data) return [];
     return data.map((m) => ({
       ...m,
-      name: language === "ua" ? m.name_ua : m.name_en,
+      name: language === "uk" ? m.name_uk : m.name_en,
       description:
-        language === "ua" ? m.description_ua : m.description_en,
+        language === "uk" ? m.description_uk : m.description_en,
     }));
   }, [data, language]);
 
@@ -528,10 +528,10 @@ export function useNextEkadashi(locationId?: string) {
       ...data,
       event: {
         ...data.event,
-        name: language === "ua" ? data.event.name_ua : data.event.name_en,
+        name: language === "uk" ? data.event.name_uk : data.event.name_en,
         description:
-          language === "ua"
-            ? data.event.description_ua
+          language === "uk"
+            ? data.event.description_uk
             : data.event.description_en,
       },
       formattedDate: data.event.event_date

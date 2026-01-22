@@ -117,7 +117,7 @@ const Books = () => {
             {books.map((book) => (
               <Card key={book.id}>
                 <CardHeader>
-                  <CardTitle>{book.title_ua}</CardTitle>
+                  <CardTitle>{book.title_uk}</CardTitle>
                   <CardDescription>{book.title_en}</CardDescription>
                 </CardHeader>
                 <CardContent>

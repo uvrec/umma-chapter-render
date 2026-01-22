@@ -46,7 +46,7 @@ interface PageBuilderProps {
 }
 
 export function PageBuilder({ sections, onChange }: PageBuilderProps) {
-  const [activeTab, setActiveTab] = useState<"ua" | "en">("ua");
+  const [activeTab, setActiveTab] = useState<"uk" | "en">("ua");
 
   const addBlock = (type: BlockType) => {
     const newBlock: PageBlock = {
@@ -286,7 +286,7 @@ export function PageBuilder({ sections, onChange }: PageBuilderProps) {
                     <div>
                       <Label>Переклад (UA)</Label>
                       <TiptapEditor
-                        content={block.content.translation_ua || ""}
+                        content={block.content.translation_uk || ""}
                         onChange={(val) => updateBlock(block.id, { content: { ...block.content, translation_ua: val } })}
                       />
                     </div>

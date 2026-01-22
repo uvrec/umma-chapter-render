@@ -62,7 +62,7 @@ export const Blog = () => {
       const { data, error } = await supabase
         .from('blog_categories')
         .select('*')
-        .order(language === 'ua' ? 'name_ua' : 'name_en');
+        .order(language === 'uk' ? 'name_ua' : 'name_en');
       if (error) throw error;
       return data;
     },
@@ -71,8 +71,8 @@ export const Blog = () => {
   // Filter posts by search query
   const filteredPosts = posts?.filter((post) => {
     if (!searchQuery) return true;
-    const title = language === 'ua' ? post.title_ua : post.title_en;
-    const excerpt = language === 'ua' ? post.excerpt_ua : post.excerpt_en;
+    const title = language === 'uk' ? post.title_uk : post.title_en;
+    const excerpt = language === 'uk' ? post.excerpt_uk : post.excerpt_en;
     const searchLower = searchQuery.toLowerCase();
     return (
       title?.toLowerCase().includes(searchLower) ||
@@ -88,10 +88,10 @@ export const Blog = () => {
         {/* Hero Section - адаптивний */}
         <div className="text-center mb-8 sm:mb-12">
           <h1 className="blog-title text-foreground mb-3 sm:mb-4 text-2xl sm:text-3xl md:text-4xl">
-            {language === 'ua' ? 'Духовний блог' : 'Spiritual Blog'}
+            {language === 'uk' ? 'Духовний блог' : 'Spiritual Blog'}
           </h1>
           <p className="blog-subtitle max-w-2xl mx-auto text-sm sm:text-base px-4">
-            {language === 'ua' 
+            {language === 'uk' 
               ? 'Статті, роздуми та практичні поради на шляху духовного розвитку'
               : 'Articles, reflections and practical advice on the path of spiritual development'
             }
@@ -104,7 +104,7 @@ export const Blog = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
               type="text"
-              placeholder={language === 'ua' ? 'Шукати статті...' : 'Search articles...'}
+              placeholder={language === 'uk' ? 'Шукати статті...' : 'Search articles...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -119,7 +119,7 @@ export const Blog = () => {
             size="sm"
             onClick={() => setSelectedCategory('all')}
           >
-            {language === 'ua' ? 'Всі' : 'All'}
+            {language === 'uk' ? 'Всі' : 'All'}
           </Button>
           {categories?.map((category) => (
             <Button
@@ -128,7 +128,7 @@ export const Blog = () => {
               size="sm"
               onClick={() => setSelectedCategory(category.id)}
             >
-              {language === 'ua' ? category.name_ua : category.name_en}
+              {language === 'uk' ? category.name_uk : category.name_en}
             </Button>
           ))}
         </div>
@@ -137,22 +137,22 @@ export const Blog = () => {
         {postsLoading ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground text-sm sm:text-base">
-              {language === 'ua' ? 'Завантаження...' : 'Loading...'}
+              {language === 'uk' ? 'Завантаження...' : 'Loading...'}
             </p>
           </div>
         ) : filteredPosts && filteredPosts.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground text-sm sm:text-base">
-              {language === 'ua' ? 'Статей не знайдено' : 'No articles found'}
+              {language === 'uk' ? 'Статей не знайдено' : 'No articles found'}
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {filteredPosts?.map((post) => {
-              const title = language === 'ua' ? post.title_ua : post.title_en;
-              const excerpt = language === 'ua' ? post.excerpt_ua : post.excerpt_en;
-              const categoryName = language === 'ua' 
-                ? post.blog_categories?.name_ua 
+              const title = language === 'uk' ? post.title_uk : post.title_en;
+              const excerpt = language === 'uk' ? post.excerpt_uk : post.excerpt_en;
+              const categoryName = language === 'uk' 
+                ? post.blog_categories?.name_uk 
                 : post.blog_categories?.name_en;
 
               return (
@@ -174,7 +174,7 @@ export const Blog = () => {
                     {post.read_time > 0 && (
                       <div className="flex items-center text-sm text-muted-foreground">
                         <Clock className="w-3 h-3 mr-1" />
-                        {post.read_time} {language === 'ua' ? 'хв' : 'min'}
+                        {post.read_time} {language === 'uk' ? 'хв' : 'min'}
                       </div>
                     )}
                   </div>
@@ -197,7 +197,7 @@ export const Blog = () => {
                       <Calendar className="w-3 h-3 mr-1" />
                       <span>
                         {new Date(post.published_at || post.created_at).toLocaleDateString(
-                          language === 'ua' ? 'uk-UA' : 'en-US'
+                          language === 'uk' ? 'uk-UA' : 'en-US'
                         )}
                       </span>
                     </div>

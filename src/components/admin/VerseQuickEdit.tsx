@@ -130,8 +130,8 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
         // Ukrainian fields
         setSanskritUa(data.sanskrit_ua || (data as any).sanskrit || "");
         setTransliterationUa(data.transliteration_ua || "");
-        setSynonymsUa(data.synonyms_ua || "");
-        setTranslationUa(data.translation_ua || "");
+        setSynonymsUa(data.synonyms_uk || "");
+        setTranslationUa(data.translation_uk || "");
         setCommentaryUa(data.commentary_ua || "");
         // English fields
         setSanskritEn(data.sanskrit_en || (data as any).sanskrit || "");

@@ -74,7 +74,7 @@ export const Library = () => {
                 {books.map(book => <Link key={book.id} to={`/veda-reader/${book.slug}`} className="group cursor-pointer">
                     {/* Book Cover */}
                     <div className="relative aspect-[2/3] overflow-hidden rounded-lg shadow-md group-hover:shadow-xl transition-all duration-300">
-                      {book.cover_image_url ? <img src={book.cover_image_url} alt={language === 'ua' ? book.title_ua : book.title_en} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" /> : <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
+                      {book.cover_image_url ? <img src={book.cover_image_url} alt={language === 'uk' ? book.title_uk : book.title_en} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" /> : <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
                           <span className="text-3xl sm:text-5xl opacity-50">📖</span>
                         </div>}
 
@@ -84,7 +84,7 @@ export const Library = () => {
 
                     {/* Book Title - адаптивний */}
                     <h3 className="mt-2 sm:mt-3 text-xs sm:text-sm font-medium text-center line-clamp-2 text-foreground group-hover:text-primary transition-colors px-1">
-                      {language === 'ua' ? book.title_ua : book.title_en}
+                      {language === 'uk' ? book.title_uk : book.title_en}
                     </h3>
                   </Link>)}
               </div>}

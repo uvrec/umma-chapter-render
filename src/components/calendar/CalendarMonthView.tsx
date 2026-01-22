@@ -17,7 +17,7 @@ interface CalendarMonthViewProps {
   monthData: MonthData;
   selectedDate: Date | null;
   onSelectDate: (date: Date) => void;
-  language: "ua" | "en";
+  language: "uk" | "en";
   weekDays: string[];
   showSunTimes?: boolean;
   showTithi?: boolean;
@@ -53,7 +53,7 @@ const tithiNames: Record<number, { ua: string; en: string }> = {
 function getTithiDisplay(
   tithi: number | undefined,
   paksha: Paksha | undefined,
-  language: "ua" | "en"
+  language: "uk" | "en"
 ): string | null {
   if (!tithi) return null;
 
@@ -207,13 +207,13 @@ export function CalendarMonthView({
                     )}
                     style={{ backgroundColor: getEventColor(primaryEvent) }}
                     title={
-                      language === "ua"
-                        ? primaryEvent.name_ua
+                      language === "uk"
+                        ? primaryEvent.name_uk
                         : primaryEvent.name_en
                     }
                   >
-                    {language === "ua"
-                      ? primaryEvent.name_ua
+                    {language === "uk"
+                      ? primaryEvent.name_uk
                       : primaryEvent.name_en}
                   </div>
                 )}
@@ -227,7 +227,7 @@ export function CalendarMonthView({
                         className="w-2 h-2 rounded-full"
                         style={{ backgroundColor: getEventColor(event) }}
                         title={
-                          language === "ua" ? event.name_ua : event.name_en
+                          language === "uk" ? event.name_uk : event.name_en
                         }
                       />
                     ))}
@@ -244,13 +244,13 @@ export function CalendarMonthView({
               {showSunTimes && (day.sunrise || day.sunset) && (
                 <div className="absolute bottom-1 left-1 right-1 flex justify-between text-[9px] text-muted-foreground">
                   {day.sunrise && (
-                    <span className="flex items-center gap-0.5" title={language === "ua" ? "Схід" : "Sunrise"}>
+                    <span className="flex items-center gap-0.5" title={language === "uk" ? "Схід" : "Sunrise"}>
                       <Sunrise className="h-2.5 w-2.5 text-amber-500" />
                       {day.sunrise}
                     </span>
                   )}
                   {day.sunset && (
-                    <span className="flex items-center gap-0.5" title={language === "ua" ? "Захід" : "Sunset"}>
+                    <span className="flex items-center gap-0.5" title={language === "uk" ? "Захід" : "Sunset"}>
                       <Sunset className="h-2.5 w-2.5 text-orange-500" />
                       {day.sunset}
                     </span>

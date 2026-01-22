@@ -25,7 +25,7 @@ function ChatMessageComponent({ message, className }: ChatMessageProps) {
           <div className="bg-brand-500 text-white dark:bg-brand-600 rounded-2xl px-4 py-2 max-w-[80%]">
             <p className="text-sm">{message.content}</p>
             <p className="text-xs opacity-70 mt-1 text-right">
-              {new Date(message.createdAt).toLocaleTimeString(language === 'ua' ? 'uk-UA' : 'en-US', {
+              {new Date(message.createdAt).toLocaleTimeString(language === 'uk' ? 'uk-UA' : 'en-US', {
                 hour: '2-digit',
                 minute: '2-digit',
               })}
@@ -74,7 +74,7 @@ function ChatMessageComponent({ message, className }: ChatMessageProps) {
               {message.responseLevel === 'insufficient' && message.relatedTopics && message.relatedTopics.length > 0 && (
                 <div className="mt-3">
                   <p className="text-xs text-muted-foreground mb-1">
-                    {language === 'ua' ? 'Пов\'язані теми' : 'Related Topics'}
+                    {language === 'uk' ? 'Пов\'язані теми' : 'Related Topics'}
                   </p>
                   <div className="flex flex-wrap gap-1">
                     {message.relatedTopics.map((topic, index) => (
@@ -91,7 +91,7 @@ function ChatMessageComponent({ message, className }: ChatMessageProps) {
 
               {/* Timestamp */}
               <p className="text-xs text-muted-foreground mt-2">
-                {new Date(message.createdAt).toLocaleTimeString(language === 'ua' ? 'uk-UA' : 'en-US', {
+                {new Date(message.createdAt).toLocaleTimeString(language === 'uk' ? 'uk-UA' : 'en-US', {
                   hour: '2-digit',
                   minute: '2-digit',
                 })}

@@ -380,7 +380,7 @@ export default function VedabaseImportV3() {
           .from("books")
           .insert({
             slug: bookConfig.our_slug || selectedBook,
-            title_ua: bookConfig.name_ua,
+            title_ua: bookConfig.name_uk,
             title_en: bookConfig.name_en,
             has_cantos: bookConfig.has_cantos,
             is_published: true,
@@ -477,7 +477,7 @@ export default function VedabaseImportV3() {
           .from("books")
           .insert({
             slug: bookConfig.our_slug || selectedBook,
-            title_ua: bookConfig.name_ua,
+            title_ua: bookConfig.name_uk,
             title_en: bookConfig.name_en,
             has_cantos: bookConfig.has_cantos,
             is_published: true,
@@ -647,8 +647,8 @@ export default function VedabaseImportV3() {
 
             // ⚠️ transliteration_ua НЕ береться з Gitabase (там він зіпсований)
             // Замість цього конвертуємо IAST з Vedabase нижче
-            synonymsUA = data?.synonyms_ua || "";
-            translationUA = data?.translation_ua || "";
+            synonymsUA = data?.synonyms_uk || "";
+            translationUA = data?.translation_uk || "";
             purportUA = data?.purport_ua || "";
 
             await new Promise((r) => setTimeout(r, 500));
@@ -792,7 +792,7 @@ export default function VedabaseImportV3() {
                     <SelectContent>
                       {VEDABASE_BOOKS.map((book) => (
                         <SelectItem key={book.slug} value={book.slug}>
-                          {book.name_ua} ({book.slug.toUpperCase()})
+                          {book.name_uk} ({book.slug.toUpperCase()})
                           {book.gitabase_available && (
                             <Badge variant="outline" className="ml-2">
                               UA
@@ -894,7 +894,7 @@ export default function VedabaseImportV3() {
                     <SelectContent>
                       {VEDABASE_BOOKS.map((book) => (
                         <SelectItem key={book.slug} value={book.slug}>
-                          {book.name_ua} ({book.slug.toUpperCase()})
+                          {book.name_uk} ({book.slug.toUpperCase()})
                         </SelectItem>
                       ))}
                     </SelectContent>

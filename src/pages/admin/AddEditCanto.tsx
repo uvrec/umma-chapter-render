@@ -48,9 +48,9 @@ const AddEditCanto = () => {
   useEffect(() => {
     if (!canto) return;
     setCantoNumber(String(canto.canto_number ?? ""));
-    setTitleUa(canto.title_ua ?? "");
+    setTitleUa(canto.title_uk ?? "");
     setTitleEn(canto.title_en ?? "");
-    setDescriptionUa(canto.description_ua ?? "");
+    setDescriptionUa(canto.description_uk ?? "");
     setDescriptionEn(canto.description_en ?? "");
     setCoverImageUrl(canto.cover_image_url ?? "");
   }, [canto]);

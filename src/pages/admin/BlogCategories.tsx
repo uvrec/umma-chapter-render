@@ -73,10 +73,10 @@ export default function BlogCategories() {
 
   const handleEdit = (category: CategoryRow & { post_count?: number }) => {
     setEditId(category.id);
-    setNameUa(category.name_ua);
+    setNameUa(category.name_uk);
     setNameEn(category.name_en);
     setSlug(category.slug);
-    setDescUa(category.description_ua || "");
+    setDescUa(category.description_uk || "");
     setDescEn(category.description_en || "");
     setOpen(true);
   };
@@ -166,13 +166,13 @@ export default function BlogCategories() {
     if (row.post_count > 0) {
       toast({
         title: "Неможливо видалити",
-        description: `У категорії «${row.name_ua}» є пости (${row.post_count}). Спочатку перенесіть або видаліть пости.`,
+        description: `У категорії «${row.name_uk}» є пости (${row.post_count}). Спочатку перенесіть або видаліть пости.`,
         variant: "destructive",
       });
       return;
     }
 
-    if (!confirm(`Видалити категорію «${row.name_ua}»?`)) return;
+    if (!confirm(`Видалити категорію «${row.name_uk}»?`)) return;
 
     setDeletingId(row.id);
     const { error } = await supabase.from("blog_categories").delete().eq("id", row.id);
@@ -282,7 +282,7 @@ export default function BlogCategories() {
             {!isLoading &&
               rows.map((category) => (
                 <TableRow key={category.id}>
-                  <TableCell className="font-medium">{category.name_ua}</TableCell>
+                  <TableCell className="font-medium">{category.name_uk}</TableCell>
                   <TableCell>{category.name_en}</TableCell>
                   <TableCell>{category.slug}</TableCell>
                   <TableCell>{category.post_count}</TableCell>
@@ -298,7 +298,7 @@ export default function BlogCategories() {
                         onClick={() =>
                           handleDelete({
                             id: category.id,
-                            name_ua: category.name_ua,
+                            name_ua: category.name_uk,
                             post_count: category.post_count,
                           })
                         }

@@ -123,7 +123,7 @@ function hasVerses(chapter: ParsedChapterWithVerses | ParsedChapterWithContent):
 }
 
 function hasContent(chapter: ParsedChapterWithVerses | ParsedChapterWithContent): chapter is ParsedChapterWithContent {
-  return 'content_ua' in chapter && typeof chapter.content_ua === 'string';
+  return 'content_ua' in chapter && typeof chapter.content_uk === 'string';
 }
 
 export default function BBTImportUniversal() {
@@ -193,7 +193,7 @@ export default function BBTImportUniversal() {
           .from("books")
           .insert({
             slug: bookConfig.slug,
-            title_ua: bookConfig.title_ua,
+            title_ua: bookConfig.title_uk,
             title_en: bookConfig.title_en,
             is_published: true,
           })
@@ -268,10 +268,10 @@ export default function BBTImportUniversal() {
 
           // Update chapter
           const updateData = {
-            title_ua: chapter.title_ua.replace(/\n/g, ' '),
+            title_ua: chapter.title_uk.replace(/\n/g, ' '),
             ...(cantoId && { canto_id: cantoId }),
             ...(!bookConfig.hasVerses && hasContent(chapter) && {
-              content_ua: chapter.content_ua,
+              content_ua: chapter.content_uk,
               chapter_type: "text" as const,
             }),
           };
@@ -285,11 +285,11 @@ export default function BBTImportUniversal() {
           const insertData = {
             book_id: bookId,
             chapter_number: chapter.chapter_number,
-            title_ua: chapter.title_ua.replace(/\n/g, ' '),
-            title_en: chapter.title_ua.replace(/\n/g, ' '), // Fallback
+            title_ua: chapter.title_uk.replace(/\n/g, ' '),
+            title_en: chapter.title_uk.replace(/\n/g, ' '), // Fallback
             ...(cantoId && { canto_id: cantoId }),
             ...(!bookConfig.hasVerses && hasContent(chapter) && {
-              content_ua: chapter.content_ua,
+              content_ua: chapter.content_uk,
               chapter_type: "text" as const,
             }),
           };
@@ -324,8 +324,8 @@ export default function BBTImportUniversal() {
                 .from("verses")
                 .update({
                   transliteration_ua: verse.transliteration_ua,
-                  synonyms_ua: verse.synonyms_ua,
-                  translation_ua: verse.translation_ua,
+                  synonyms_ua: verse.synonyms_uk,
+                  translation_ua: verse.translation_uk,
                   commentary_ua: verse.commentary_ua,
                 })
                 .eq("id", existingVerse.id);
@@ -340,8 +340,8 @@ export default function BBTImportUniversal() {
                 chapter_id: chapterId,
                 verse_number: verse.verse_number,
                 transliteration_ua: verse.transliteration_ua,
-                synonyms_ua: verse.synonyms_ua,
-                translation_ua: verse.translation_ua,
+                synonyms_ua: verse.synonyms_uk,
+                translation_ua: verse.translation_uk,
                 commentary_ua: verse.commentary_ua,
               });
 
@@ -371,8 +371,8 @@ export default function BBTImportUniversal() {
           const { error } = await supabase
             .from("intro_chapters")
             .update({
-              title_ua: intro.title_ua,
-              content_ua: intro.content_ua,
+              title_ua: intro.title_uk,
+              content_ua: intro.content_uk,
               display_order: intro.display_order,
             })
             .eq("id", existingIntro.id);
@@ -386,9 +386,9 @@ export default function BBTImportUniversal() {
           const { error } = await supabase.from("intro_chapters").insert({
             book_id: bookId,
             slug: intro.slug,
-            title_ua: intro.title_ua,
-            title_en: intro.title_ua,
-            content_ua: intro.content_ua,
+            title_ua: intro.title_uk,
+            title_en: intro.title_uk,
+            content_ua: intro.content_uk,
             display_order: intro.display_order,
           });
 
@@ -473,7 +473,7 @@ export default function BBTImportUniversal() {
             <SelectContent>
               {BOOK_CONFIGS.map((book) => (
                 <SelectItem key={book.slug} value={book.slug}>
-                  {book.title_ua}
+                  {book.title_uk}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -486,7 +486,7 @@ export default function BBTImportUniversal() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-green-800">
             <CheckCircle className="w-5 h-5" />
-            Дані готові до імпорту: {bookConfig.title_ua}
+            Дані готові до імпорту: {bookConfig.title_uk}
           </CardTitle>
           <CardDescription className="text-green-700">
             {bookConfig.hasVerses
@@ -554,7 +554,7 @@ export default function BBTImportUniversal() {
                     htmlFor={`chapter-${ch.chapter_number}`}
                     className="flex-1 cursor-pointer"
                   >
-                    Глава {ch.chapter_number}: {ch.title_ua.replace(/\n/g, ' ')}
+                    Глава {ch.chapter_number}: {ch.title_uk.replace(/\n/g, ' ')}
                     {bookConfig.hasVerses && hasVerses(ch) && (
                       <span className="text-muted-foreground ml-1">
                         ({ch.verses.length} віршів)
@@ -580,7 +580,7 @@ export default function BBTImportUniversal() {
                       htmlFor={`intro-${intro.slug}`}
                       className="flex-1 cursor-pointer"
                     >
-                      {intro.title_ua}
+                      {intro.title_uk}
                     </Label>
                   </div>
                 ))}

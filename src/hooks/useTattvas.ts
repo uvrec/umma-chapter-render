@@ -70,10 +70,10 @@ export function useRootTattvas() {
       
       return data.map(t => ({
         id: t.id,
-        name_ua: t.name_ua,
+        name_ua: t.name_uk,
         name_en: t.name_en,
         slug: t.slug,
-        description_ua: t.description_ua,
+        description_ua: t.description_uk,
         description_en: t.description_en,
         parent_id: t.parent_id,
         category: t.category as Tattva['category'],
@@ -100,10 +100,10 @@ export function useTattva(slug: string) {
       
       return {
         id: data.id,
-        name_ua: data.name_ua,
+        name_ua: data.name_uk,
         name_en: data.name_en,
         slug: data.slug,
-        description_ua: data.description_ua,
+        description_ua: data.description_uk,
         description_en: data.description_en,
         parent_id: data.parent_id,
         category: data.category as Tattva['category'],
@@ -137,10 +137,10 @@ export function useTattvaChildren(parentId: string) {
             .eq("tattva_id", t.id);
           return {
             id: t.id,
-            name_ua: t.name_ua,
+            name_ua: t.name_uk,
             name_en: t.name_en,
             slug: t.slug,
-            description_ua: t.description_ua,
+            description_ua: t.description_uk,
             description_en: t.description_en,
             parent_id: t.parent_id,
             category: t.category as Tattva['category'],
@@ -265,10 +265,10 @@ export function useTattvasWithCounts() {
 
       return tattvas.map((t) => ({
         id: t.id,
-        name_ua: t.name_ua,
+        name_ua: t.name_uk,
         name_en: t.name_en,
         slug: t.slug,
-        description_ua: t.description_ua,
+        description_ua: t.description_uk,
         description_en: t.description_en,
         parent_id: t.parent_id,
         category: t.category as Tattva['category'],

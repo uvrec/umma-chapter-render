@@ -266,19 +266,19 @@ export default function BlogPost() {
     );
   }
 
-  const titleUa = post.title_ua;
+  const titleUa = post.title_uk;
   const titleEn = post.title_en;
-  const contentUa = post.content_ua;
+  const contentUa = post.content_uk;
   const contentEn = post.content_en;
-  const excerptUa = post.excerpt_ua;
+  const excerptUa = post.excerpt_uk;
   const excerptEn = post.excerpt_en;
-  const metaDescUa = post.meta_description_ua;
+  const metaDescUa = post.meta_description_uk;
   const metaDescEn = post.meta_description_en;
 
   // Для SEO та соцмереж - одна мова
-  const title = language === "ua" ? titleUa : titleEn;
-  const excerpt = language === "ua" ? excerptUa : excerptEn;
-  const metaDesc = language === "ua" ? metaDescUa : metaDescEn;
+  const title = language === "uk" ? titleUa : titleEn;
+  const excerpt = language === "uk" ? excerptUa : excerptEn;
+  const metaDesc = language === "uk" ? metaDescUa : metaDescEn;
 
   const hasContentUa = contentUa && contentUa.trim().length > 20;
   const hasContentEn = contentEn && contentEn.trim().length > 20;
@@ -312,7 +312,7 @@ export default function BlogPost() {
           {isAdmin && (
             <div className="mb-6 p-4 bg-card/50">
               <h3 className="font-semibold mb-3 text-sm uppercase tracking-wide text-muted-foreground">
-                {language === "ua" ? "Налаштування відображення блоків" : "Display Blocks Settings"}
+                {language === "uk" ? "Налаштування відображення блоків" : "Display Blocks Settings"}
               </h3>
               <div className="flex flex-wrap gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -320,35 +320,35 @@ export default function BlogPost() {
                     checked={displayBlocks.sanskrit}
                     onCheckedChange={(v) => handleToggleBlock('sanskrit', !!v)}
                   />
-                  <span className="text-sm">{language === "ua" ? "Санскрит" : "Sanskrit"}</span>
+                  <span className="text-sm">{language === "uk" ? "Санскрит" : "Sanskrit"}</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <Checkbox
                     checked={displayBlocks.transliteration}
                     onCheckedChange={(v) => handleToggleBlock('transliteration', !!v)}
                   />
-                  <span className="text-sm">{language === "ua" ? "Транслітерація" : "Transliteration"}</span>
+                  <span className="text-sm">{language === "uk" ? "Транслітерація" : "Transliteration"}</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <Checkbox
                     checked={displayBlocks.synonyms}
                     onCheckedChange={(v) => handleToggleBlock('synonyms', !!v)}
                   />
-                  <span className="text-sm">{language === "ua" ? "Послівний переклад" : "Word-for-word"}</span>
+                  <span className="text-sm">{language === "uk" ? "Послівний переклад" : "Word-for-word"}</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <Checkbox
                     checked={displayBlocks.translation}
                     onCheckedChange={(v) => handleToggleBlock('translation', !!v)}
                   />
-                  <span className="text-sm">{language === "ua" ? "Переклад" : "Translation"}</span>
+                  <span className="text-sm">{language === "uk" ? "Переклад" : "Translation"}</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <Checkbox
                     checked={displayBlocks.commentary}
                     onCheckedChange={(v) => handleToggleBlock('commentary', !!v)}
                   />
-                  <span className="text-sm">{language === "ua" ? "Пояснення" : "Commentary"}</span>
+                  <span className="text-sm">{language === "uk" ? "Пояснення" : "Commentary"}</span>
                 </label>
               </div>
             </div>
@@ -357,16 +357,16 @@ export default function BlogPost() {
           {/* Breadcrumbs */}
           <nav className="mb-6 text-sm text-muted-foreground">
             <Link to="/" className="hover:text-foreground">
-              {language === "ua" ? "Головна" : "Home"}
+              {language === "uk" ? "Головна" : "Home"}
             </Link>{" "}
             {" > "}
             <Link to="/blog" className="hover:text-foreground">
-              {language === "ua" ? "Блог" : "Blog"}
+              {language === "uk" ? "Блог" : "Blog"}
             </Link>
             {post.category && (
               <>
                 {" > "}
-                <span>{language === "ua" ? post.category.name_ua : post.category.name_en}</span>
+                <span>{language === "uk" ? post.category.name_uk : post.category.name_en}</span>
               </>
             )}
             {" > "}
@@ -386,7 +386,7 @@ export default function BlogPost() {
               {/* Ukrainian Column */}
               <div>
                 <header className="mb-8">
-                  {post.category && <Badge className="mb-4">{post.category.name_ua}</Badge>}
+                  {post.category && <Badge className="mb-4">{post.category.name_uk}</Badge>}
                   <h1 className="blog-title mb-4">{titleUa}</h1>
 
                   <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-4">
@@ -422,8 +422,8 @@ export default function BlogPost() {
                       <BlogPoetryContent
                         sanskrit={post.sanskrit}
                         transliteration={post.transliteration}
-                        synonyms={post.synonyms_ua}
-                        poetryTranslation={post.poetry_translation_ua}
+                        synonyms={post.synonyms_uk}
+                        poetryTranslation={post.poetry_translation_uk}
                         commentary={contentUa}
                         audioSanskritUrl={post.audio_sanskrit_url}
                         audioTransliterationUrl={post.audio_transliteration_url}
@@ -520,7 +520,7 @@ export default function BlogPost() {
             <>
               <header className="mb-8">
                 {post.category && (
-                  <Badge className="mb-4">{language === "ua" ? post.category.name_ua : post.category.name_en}</Badge>
+                  <Badge className="mb-4">{language === "uk" ? post.category.name_uk : post.category.name_en}</Badge>
                 )}
                 <h1 className="blog-title mb-4">{title}</h1>
 
@@ -529,7 +529,7 @@ export default function BlogPost() {
                     <Calendar className="h-4 w-4" />
                     <span>
                       {new Date(post.published_at || post.created_at).toLocaleDateString(
-                        language === "ua" ? "uk-UA" : "en-US",
+                        language === "uk" ? "uk-UA" : "en-US",
                       )}
                     </span>
                   </div>
@@ -538,7 +538,7 @@ export default function BlogPost() {
                     <div className="flex items-center gap-1">
                       <Clock className="h-4 w-4" />
                       <span>
-                        {post.read_time} {language === "ua" ? "хв читання" : "min read"}
+                        {post.read_time} {language === "uk" ? "хв читання" : "min read"}
                       </span>
                     </div>
                   )}
@@ -546,32 +546,32 @@ export default function BlogPost() {
                   <div className="flex items-center gap-1">
                     <Eye className="h-4 w-4" />
                     <span>
-                      {post.view_count || 0} {language === "ua" ? "переглядів" : "views"}
+                      {post.view_count || 0} {language === "uk" ? "переглядів" : "views"}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-1">
                     <span>
-                      {language === "ua" ? "Автор" : "Author"}: {post.author_display_name}
+                      {language === "uk" ? "Автор" : "Author"}: {post.author_display_name}
                     </span>
                   </div>
                 </div>
 
                 <Button variant="outline" onClick={handleShare} className="mb-6">
                   <Share2 className="h-4 w-4 mr-2" />
-                  {language === "ua" ? "Поділитися" : "Share"}
+                  {language === "uk" ? "Поділитися" : "Share"}
                 </Button>
               </header>
 
               <div className="blog-body prose prose-lg prose-slate dark:prose-invert max-w-none">
-                {language === "ua" ? (
+                {language === "uk" ? (
                   hasContentUa ? (
                     post.content_mode === "poetry" ? (
                       <BlogPoetryContent
                         sanskrit={post.sanskrit}
                         transliteration={post.transliteration}
-                        synonyms={post.synonyms_ua}
-                        poetryTranslation={post.poetry_translation_ua}
+                        synonyms={post.synonyms_uk}
+                        poetryTranslation={post.poetry_translation_uk}
                         commentary={contentUa}
                         audioSanskritUrl={post.audio_sanskrit_url}
                         audioTransliterationUrl={post.audio_transliteration_url}

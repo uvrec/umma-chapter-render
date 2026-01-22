@@ -23,14 +23,14 @@ import {
 import { toast } from "@/hooks/use-toast";
 
 interface AdminTypographyPanelProps {
-  language: 'ua' | 'en';
+  language: 'uk' | 'en';
 }
 
 export const AdminTypographyPanel = ({ language }: AdminTypographyPanelProps) => {
   const [config, setConfig] = useState<AdminTypographyConfig>(loadAdminTypography());
   const [activeTab, setActiveTab] = useState<TypographyBlockType>('sanskrit');
 
-  const t = (ua: string, en: string) => language === 'ua' ? ua : en;
+  const t = (ua: string, en: string) => language === 'uk' ? ua : en;
 
   const blockNames: Record<TypographyBlockType, { ua: string; en: string }> = {
     sanskrit: { ua: 'Санскрит / Деванагарі', en: 'Sanskrit / Devanagari' },
@@ -307,7 +307,7 @@ export const AdminTypographyPanel = ({ language }: AdminTypographyPanelProps) =>
         <TabsList className="grid w-full grid-cols-5">
           {(Object.keys(blockNames) as TypographyBlockType[]).map((blockType) => (
             <TabsTrigger key={blockType} value={blockType} className="text-xs">
-              {language === 'ua' ? blockNames[blockType].ua : blockNames[blockType].en}
+              {language === 'uk' ? blockNames[blockType].ua : blockNames[blockType].en}
             </TabsTrigger>
           ))}
         </TabsList>

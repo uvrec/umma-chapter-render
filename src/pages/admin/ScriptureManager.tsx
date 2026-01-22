@@ -272,7 +272,7 @@ export default function ScriptureManager() {
               <h1 className="text-xl font-bold">Scripture Manager</h1>
               {selectedChapter && (
                 <p className="text-sm text-muted-foreground">
-                  {selectedChapter.books?.title_ua}
+                  {selectedChapter.books?.title_uk}
                   {selectedChapter.cantos && ` → Пісня ${selectedChapter.cantos.canto_number}`}
                   {` → Розділ ${selectedChapter.chapter_number}`}
                 </p>
@@ -439,8 +439,8 @@ export default function ScriptureManager() {
                                 </span>
                               )}
                             </div>
-                            {verse.translation_ua && (
-                              <p className="text-sm text-muted-foreground line-clamp-2">{stripParagraphTags(verse.translation_ua)}</p>
+                            {verse.translation_uk && (
+                              <p className="text-sm text-muted-foreground line-clamp-2">{stripParagraphTags(verse.translation_uk)}</p>
                             )}
                           </div>
 

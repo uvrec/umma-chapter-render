@@ -26,7 +26,7 @@ export interface SadhanaConfig {
   reminderEnabled: boolean;
   reminderTime: string;
   timezone: string;
-  language: 'ua' | 'en';
+  language: 'uk' | 'en';
 }
 
 export interface SadhanaDaily {

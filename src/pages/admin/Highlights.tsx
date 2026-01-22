@@ -75,7 +75,7 @@ export default function Highlights() {
 
     const headers = ["Книга", "Розділ", "Вірш", "Текст", "Нотатки", "Дата створення"];
     const rows = filteredHighlights.map((h) => [
-      h.books?.title_ua || "",
+      h.books?.title_uk || "",
       `Розділ ${h.chapters?.chapter_number}`,
       h.verse_number || "",
       h.selected_text.replace(/"/g, '""'),
@@ -104,7 +104,7 @@ export default function Highlights() {
     }
 
     const data = filteredHighlights.map((h) => ({
-      book: h.books?.title_ua,
+      book: h.books?.title_uk,
       chapter: h.chapters?.chapter_number,
       verse: h.verse_number,
       text: h.selected_text,
@@ -132,7 +132,7 @@ export default function Highlights() {
     const text = filteredHighlights
       .map((h) => {
         const parts = [
-          `${h.books?.title_ua} - Розділ ${h.chapters?.chapter_number}`,
+          `${h.books?.title_uk} - Розділ ${h.chapters?.chapter_number}`,
           h.verse_number ? `Вірш: ${h.verse_number}` : "",
           "",
           h.selected_text,
@@ -202,7 +202,7 @@ export default function Highlights() {
             {filteredHighlights?.map((highlight) => (
               <TableRow key={highlight.id}>
                 <TableCell className="font-medium">
-                  {highlight.books?.title_ua}
+                  {highlight.books?.title_uk}
                 </TableCell>
                 <TableCell>Розділ {highlight.chapters?.chapter_number}</TableCell>
                 <TableCell>{highlight.verse_number || "-"}</TableCell>

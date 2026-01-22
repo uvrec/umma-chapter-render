@@ -225,9 +225,9 @@ const StaticPages = () => {
     setEditingPage(page);
     setFormData({
       slug: page.slug,
-      title_ua: page.title_ua,
+      title_ua: page.title_uk,
       title_en: page.title_en,
-      meta_description_ua: page.meta_description_ua || "",
+      meta_description_ua: page.meta_description_uk || "",
       meta_description_en: page.meta_description_en || "",
       hero_image_url: page.hero_image_url || "",
       og_image: page.og_image || "",
@@ -241,12 +241,12 @@ const StaticPages = () => {
 
     // автогенерація slug при створенні
     const prepared = { ...formData };
-    if (!editingPage && !prepared.slug.trim() && prepared.title_ua.trim()) {
-      prepared.slug = generateSlug(prepared.title_ua.trim());
+    if (!editingPage && !prepared.slug.trim() && prepared.title_uk.trim()) {
+      prepared.slug = generateSlug(prepared.title_uk.trim());
       setFormData((prev) => ({ ...prev, slug: prepared.slug }));
     }
 
-    if (!prepared.slug.trim() || !prepared.title_ua.trim() || !prepared.title_en.trim()) {
+    if (!prepared.slug.trim() || !prepared.title_uk.trim() || !prepared.title_en.trim()) {
       toast({
         title: "Помилка",
         description: "Slug, Назва (UA) та Назва (EN) — обовʼязкові",
@@ -329,7 +329,7 @@ const StaticPages = () => {
                     <Label htmlFor="title_ua">Назва (UA)</Label>
                     <Input
                       id="title_ua"
-                      value={formData.title_ua}
+                      value={formData.title_uk}
                       onChange={(e) => setFormData({ ...formData, title_ua: e.target.value })}
                       required
                     />
@@ -349,7 +349,7 @@ const StaticPages = () => {
                     <Label htmlFor="meta_description_ua">Мета-опис (UA)</Label>
                     <Textarea
                       id="meta_description_ua"
-                      value={formData.meta_description_ua}
+                      value={formData.meta_description_uk}
                       onChange={(e) => setFormData({ ...formData, meta_description_ua: e.target.value })}
                       rows={3}
                     />
@@ -412,12 +412,12 @@ const StaticPages = () => {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-semibold">{page.title_ua}</h3>
+                      <h3 className="text-xl font-semibold">{page.title_uk}</h3>
                       <code className="text-sm bg-muted px-2 py-1 rounded">/{page.slug}</code>
                     </div>
                     <p className="text-sm text-muted-foreground mb-1">{page.title_en}</p>
-                    {page.meta_description_ua && (
-                      <p className="text-sm text-muted-foreground mt-2">{page.meta_description_ua}</p>
+                    {page.meta_description_uk && (
+                      <p className="text-sm text-muted-foreground mt-2">{page.meta_description_uk}</p>
                     )}
                   </div>
 

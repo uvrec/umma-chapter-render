@@ -558,7 +558,7 @@ export function mergeVedabaseAndGitabase(
   // Synonyms UA: об'єднуємо IAST терміни (конвертовані) + українські переклади
   const synonyms_ua = mergeSynonyms(
     vedabase.synonyms_en,
-    gitabase?.synonyms_ua || ''
+    gitabase?.synonyms_uk || ''
   );
   
   // ✅ Нормалізуємо ТІЛЬКИ праву частину synonyms_ua (переклади), НЕ ліву (транслітерацію)
@@ -580,7 +580,7 @@ export function mergeVedabaseAndGitabase(
     synonyms_en: vedabase.synonyms_en, // IAST без змін
     synonyms_ua: normalizedSynonymsUa, // ✅ Нормалізовані ТІЛЬКИ переклади, НЕ терміни
     translation_en: normalizeVerseField(vedabase.translation_en, 'translation'),
-    translation_ua: normalizeVerseField(gitabase?.translation_ua || '', 'translation'),
+    translation_ua: normalizeVerseField(gitabase?.translation_uk || '', 'translation'),
     purport_en: normalizeVerseField(vedabase.purport_en, 'commentary'),
     purport_ua: normalizeVerseField(gitabase?.purport_ua || '', 'commentary'),
     lila,
@@ -593,8 +593,8 @@ export function mergeVedabaseAndGitabase(
   console.log(`✅ Merged verse: ${lila} ${chapter}:${verse}`, {
     hasVedabase: !!vedabase,
     hasGitabase: !!gitabase,
-    hasTranslationUA: !!gitabase?.translation_ua,
-    hasSynonymsUA: !!gitabase?.synonyms_ua
+    hasTranslationUA: !!gitabase?.translation_uk,
+    hasSynonymsUA: !!gitabase?.synonyms_uk
   });
 
   return merged;

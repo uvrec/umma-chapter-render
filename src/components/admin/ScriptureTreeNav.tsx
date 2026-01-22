@@ -67,7 +67,7 @@ export function ScriptureTreeNav({
 
   // Filter by search query
   const filteredBooks = books.filter((book) =>
-    book.title_ua.toLowerCase().includes(searchQuery.toLowerCase())
+    book.title_uk.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -107,7 +107,7 @@ export function ScriptureTreeNav({
                     <ChevronRight className="h-4 w-4 flex-shrink-0" />
                   )}
                   <BookOpen className="h-4 w-4 flex-shrink-0 text-primary" />
-                  <span className="flex-1 truncate font-medium">{book.title_ua}</span>
+                  <span className="flex-1 truncate font-medium">{book.title_uk}</span>
                   <span className="text-xs text-muted-foreground">
                     {book.has_cantos ? bookCantos.length : bookChapters.length}
                   </span>
@@ -162,7 +162,7 @@ export function ScriptureTreeNav({
                                   >
                                     <FileText className="h-3.5 w-3.5 flex-shrink-0" />
                                     <span className="flex-1 truncate text-xs">
-                                      {chapter.chapter_number}. {chapter.title_ua}
+                                      {chapter.chapter_number}. {chapter.title_uk}
                                     </span>
                                     {chapter.verse_count !== undefined && (
                                       <span className="text-xs opacity-70">
@@ -190,7 +190,7 @@ export function ScriptureTreeNav({
                         >
                           <FileText className="h-3.5 w-3.5 flex-shrink-0" />
                           <span className="flex-1 truncate text-xs">
-                            {chapter.chapter_number}. {chapter.title_ua}
+                            {chapter.chapter_number}. {chapter.title_uk}
                           </span>
                           {chapter.verse_count !== undefined && (
                             <span className="text-xs opacity-70">

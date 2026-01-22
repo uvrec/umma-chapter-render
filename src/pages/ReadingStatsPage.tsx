@@ -177,15 +177,15 @@ export default function ReadingStatsPage() {
           <CardContent className="pt-6 text-center">
             <LogIn className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h2 className="text-xl font-semibold mb-2">
-              {language === 'ua' ? 'Увійдіть щоб переглянути статистику' : 'Sign in to view statistics'}
+              {language === 'uk' ? 'Увійдіть щоб переглянути статистику' : 'Sign in to view statistics'}
             </h2>
             <p className="text-muted-foreground mb-4">
-              {language === 'ua'
+              {language === 'uk'
                 ? 'Ваша статистика читання буде зберігатися та синхронізуватися між пристроями'
                 : 'Your reading statistics will be saved and synced across devices'}
             </p>
             <Button asChild>
-              <Link to="/auth">{language === 'ua' ? 'Увійти' : 'Sign In'}</Link>
+              <Link to="/auth">{language === 'uk' ? 'Увійти' : 'Sign In'}</Link>
             </Button>
           </CardContent>
         </Card>
@@ -197,7 +197,7 @@ export default function ReadingStatsPage() {
     <div className="container mx-auto px-4 py-6 max-w-6xl">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">
-          {language === 'ua' ? 'Статистика читання' : 'Reading Statistics'}
+          {language === 'uk' ? 'Статистика читання' : 'Reading Statistics'}
         </h1>
         <div className="flex gap-2">
           {(['7d', '14d', '30d'] as TimeRange[]).map((range) => (
@@ -223,7 +223,7 @@ export default function ReadingStatsPage() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
-                  {language === 'ua' ? 'Загальний час' : 'Total Time'}
+                  {language === 'uk' ? 'Загальний час' : 'Total Time'}
                 </p>
                 <p className="text-xl font-bold">
                   {stats ? formatDuration(stats.totalReadingTime) : '—'}
@@ -241,7 +241,7 @@ export default function ReadingStatsPage() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
-                  {language === 'ua' ? 'Глав прочитано' : 'Chapters Read'}
+                  {language === 'uk' ? 'Глав прочитано' : 'Chapters Read'}
                 </p>
                 <p className="text-xl font-bold">{stats?.chaptersCompleted || 0}</p>
               </div>
@@ -257,10 +257,10 @@ export default function ReadingStatsPage() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
-                  {language === 'ua' ? 'Поточна серія' : 'Current Streak'}
+                  {language === 'uk' ? 'Поточна серія' : 'Current Streak'}
                 </p>
                 <p className="text-xl font-bold">
-                  {stats?.currentStreak || 0} {language === 'ua' ? 'д.' : 'd.'}
+                  {stats?.currentStreak || 0} {language === 'uk' ? 'д.' : 'd.'}
                 </p>
               </div>
             </div>
@@ -275,7 +275,7 @@ export default function ReadingStatsPage() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
-                  {language === 'ua' ? 'Всього сесій' : 'Total Sessions'}
+                  {language === 'uk' ? 'Всього сесій' : 'Total Sessions'}
                 </p>
                 <p className="text-xl font-bold">{stats?.totalSessions || 0}</p>
               </div>
@@ -290,7 +290,7 @@ export default function ReadingStatsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5" />
-              {language === 'ua' ? 'Час читання по днях' : 'Daily Reading Time'}
+              {language === 'uk' ? 'Час читання по днях' : 'Daily Reading Time'}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -338,7 +338,7 @@ export default function ReadingStatsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5" />
-              {language === 'ua' ? 'Розподіл по книгах' : 'Time by Book'}
+              {language === 'uk' ? 'Розподіл по книгах' : 'Time by Book'}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -378,7 +378,7 @@ export default function ReadingStatsPage() {
               </div>
             ) : (
               <div className="h-[250px] flex items-center justify-center text-muted-foreground">
-                {language === 'ua' ? 'Немає даних для відображення' : 'No data to display'}
+                {language === 'uk' ? 'Немає даних для відображення' : 'No data to display'}
               </div>
             )}
           </CardContent>
@@ -390,7 +390,7 @@ export default function ReadingStatsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Target className="h-5 w-5" />
-            {language === 'ua' ? 'Прогрес по книгах' : 'Book Progress'}
+            {language === 'uk' ? 'Прогрес по книгах' : 'Book Progress'}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -417,7 +417,7 @@ export default function ReadingStatsPage() {
                       <span>{formatDuration(book.totalReadingSeconds)}</span>
                       <span>
                         {book.chaptersCompleted}/{book.totalChapters || '?'}{' '}
-                        {language === 'ua' ? 'глав' : 'ch.'}
+                        {language === 'uk' ? 'глав' : 'ch.'}
                       </span>
                       <ChevronRight
                         className={`h-4 w-4 transition-transform ${
@@ -428,10 +428,10 @@ export default function ReadingStatsPage() {
                   </div>
                   <Progress value={book.overallPercent} className="h-2" />
                   <div className="flex justify-between mt-1 text-xs text-muted-foreground">
-                    <span>{Math.round(book.overallPercent)}% {language === 'ua' ? 'завершено' : 'complete'}</span>
+                    <span>{Math.round(book.overallPercent)}% {language === 'uk' ? 'завершено' : 'complete'}</span>
                     {book.lastReadAt && (
                       <span>
-                        {language === 'ua' ? 'Останнє читання:' : 'Last read:'}{' '}
+                        {language === 'uk' ? 'Останнє читання:' : 'Last read:'}{' '}
                         {new Date(book.lastReadAt).toLocaleDateString('uk-UA')}
                       </span>
                     )}
@@ -441,7 +441,7 @@ export default function ReadingStatsPage() {
                   {selectedBook === book.bookSlug && chapterProgress.length > 0 && (
                     <div className="mt-4 pt-4 border-t space-y-2">
                       <p className="text-sm font-medium mb-2">
-                        {language === 'ua' ? 'Прогрес по главах:' : 'Chapter Progress:'}
+                        {language === 'uk' ? 'Прогрес по главах:' : 'Chapter Progress:'}
                       </p>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                         {chapterProgress.map((chapter) => (
@@ -477,10 +477,10 @@ export default function ReadingStatsPage() {
           ) : (
             <div className="text-center py-8 text-muted-foreground">
               <BookOpen className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p>{language === 'ua' ? 'Почніть читати щоб відслідковувати прогрес' : 'Start reading to track your progress'}</p>
+              <p>{language === 'uk' ? 'Почніть читати щоб відслідковувати прогрес' : 'Start reading to track your progress'}</p>
               <Button asChild className="mt-4">
                 <Link to="/veda-reader">
-                  {language === 'ua' ? 'Перейти до читання' : 'Start Reading'}
+                  {language === 'uk' ? 'Перейти до читання' : 'Start Reading'}
                 </Link>
               </Button>
             </div>

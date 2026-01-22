@@ -420,10 +420,10 @@ export default function ScriptLearning() {
 
       return data.map(verse => ({
         ...verse,
-        book: language === 'ua'
-          ? (verse.chapters.cantos?.books?.title_ua || verse.chapters.books?.title_ua)
+        book: language === 'uk'
+          ? (verse.chapters.cantos?.books?.title_uk || verse.chapters.books?.title_uk)
           : (verse.chapters.cantos?.books?.title_en || verse.chapters.books?.title_en),
-        synonyms: language === 'ua' ? verse.synonyms_ua : verse.synonyms_en,
+        synonyms: language === 'uk' ? verse.synonyms_uk : verse.synonyms_en,
         verse_number: verse.verse_number
       }));
     }

@@ -19,8 +19,8 @@ export const PageMeta = ({
   seoKeywords,
   language,
 }: PageMetaProps) => {
-  const title = language === "ua" ? titleUa : titleEn;
-  const description = language === "ua" ? metaDescriptionUa : metaDescriptionEn;
+  const title = language === "uk" ? titleUa : titleEn;
+  const description = language === "uk" ? metaDescriptionUa : metaDescriptionEn;
   const siteName = "Прабгупада солов'їною";
 
   return (

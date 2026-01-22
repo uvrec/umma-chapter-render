@@ -47,7 +47,7 @@ export function ChatInput({
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = true;
-      recognitionRef.current.lang = language === 'ua' ? 'uk-UA' : 'en-US';
+      recognitionRef.current.lang = language === 'uk' ? 'uk-UA' : 'en-US';
 
       recognitionRef.current.onresult = (event) => {
         const transcript = Array.from(event.results)
@@ -97,7 +97,7 @@ export function ChatInput({
       recognitionRef.current.stop();
       setIsListening(false);
     } else {
-      recognitionRef.current.lang = language === 'ua' ? 'uk-UA' : 'en-US';
+      recognitionRef.current.lang = language === 'uk' ? 'uk-UA' : 'en-US';
       recognitionRef.current.start();
       setIsListening(true);
     }

@@ -224,7 +224,7 @@ export const BookSettingsPage = ({
                         <Icon className="h-5 w-5" style={{ color: colorTheme.text }} />
                       </div>
                       <span className="font-medium">
-                        {language === "ua" ? colorTheme.name : colorTheme.nameEn}
+                        {language === "uk" ? colorTheme.name : colorTheme.nameEn}
                       </span>
                     </button>
                   );
@@ -260,7 +260,7 @@ export const BookSettingsPage = ({
                       )}
                       style={{ fontFamily: font.family }}
                     >
-                      {language === "ua" ? font.name : font.nameEn}
+                      {language === "uk" ? font.name : font.nameEn}
                     </button>
                   ))}
                 </div>
@@ -472,7 +472,7 @@ export const BookSettingsPage = ({
               oṁ ajñāna-timirāndhasya
             </p>
             <p style={{ marginBottom: `${paragraphSpacing}em` }}>
-              {language === "ua"
+              {language === "uk"
                 ? "Я народився в найглибшій темряві невігластва, і мій духовний учитель відкрив мені очі світлом знання. Йому мої шанобливі поклони."
                 : "I was born in the darkest ignorance, and my spiritual master opened my eyes with the torch of knowledge. I offer my respectful obeisances unto him."}
             </p>

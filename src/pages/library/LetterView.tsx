@@ -42,7 +42,7 @@ export const LetterView = () => {
   const { isAdmin } = useAuth();
 
   // Мовні налаштування
-  const [language, setLanguage] = useState<"ua" | "en">("ua");
+  const [language, setLanguage] = useState<"uk" | "en">("ua");
 
   // Inline editing state
   const [isEditing, setIsEditing] = useState(false);
@@ -81,7 +81,7 @@ export const LetterView = () => {
       if (editedLetter.recipient_en !== letter.recipient_en) updates.recipient_en = editedLetter.recipient_en;
       if (editedLetter.location_ua !== letter.location_ua) updates.location_ua = editedLetter.location_ua;
       if (editedLetter.location_en !== letter.location_en) updates.location_en = editedLetter.location_en;
-      if (editedLetter.content_ua !== letter.content_ua) updates.content_ua = editedLetter.content_ua;
+      if (editedLetter.content_uk !== letter.content_uk) updates.content_uk = editedLetter.content_uk;
       if (editedLetter.content_en !== letter.content_en) updates.content_en = editedLetter.content_en;
 
       if (Object.keys(updates).length > 0) {
@@ -110,7 +110,7 @@ export const LetterView = () => {
       recipient_en: letter.recipient_en,
       location_ua: letter.location_ua || "",
       location_en: letter.location_en,
-      content_ua: letter.content_ua || "",
+      content_ua: letter.content_uk || "",
       content_en: letter.content_en,
     });
     setIsEditing(true);
@@ -157,11 +157,11 @@ export const LetterView = () => {
     );
   }
 
-  const recipient = language === "ua" && letter.recipient_ua
+  const recipient = language === "uk" && letter.recipient_ua
     ? letter.recipient_ua
     : letter.recipient_en;
 
-  const location = language === "ua" && letter.location_ua
+  const location = language === "uk" && letter.location_ua
     ? letter.location_ua
     : letter.location_en;
 
@@ -181,7 +181,7 @@ export const LetterView = () => {
 
           <div className="flex gap-2">
             <Button
-              variant={language === "ua" ? "default" : "outline"}
+              variant={language === "uk" ? "default" : "outline"}
               size="sm"
               onClick={() => setLanguage("ua")}
             >
@@ -338,7 +338,7 @@ export const LetterView = () => {
               <div className="border rounded-lg p-4 bg-muted/20">
                 <label className="text-sm text-muted-foreground mb-2 block">Текст UA</label>
                 <EnhancedInlineEditor
-                  content={editedLetter.content_ua}
+                  content={editedLetter.content_uk}
                   onChange={(html) => setEditedLetter({ ...editedLetter, content_ua: html })}
                   label="Редагувати текст UA"
                 />
@@ -357,8 +357,8 @@ export const LetterView = () => {
           <div
             className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed"
             dangerouslySetInnerHTML={{
-              __html: language === "ua" && letter.content_ua
-                ? letter.content_ua
+              __html: language === "uk" && letter.content_uk
+                ? letter.content_uk
                 : letter.content_en
             }}
           />

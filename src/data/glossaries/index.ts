@@ -21,7 +21,7 @@ export const getGlossaryForBook = (bookSlug: string, language: string = "ua"): G
   switch (bookSlug) {
     case "iso":
     case "sri-isopanishad":
-      return language === "ua" ? ISO_GLOSSARY_UA : ISO_GLOSSARY_EN;
+      return language === "uk" ? ISO_GLOSSARY_UA : ISO_GLOSSARY_EN;
 
     case "raja-vidya":
       return RAJA_VIDYA_GLOSSARY_UA;

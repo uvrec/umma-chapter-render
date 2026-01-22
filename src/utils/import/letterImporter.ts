@@ -42,7 +42,7 @@ export async function importLetter(
           reference: data.metadata.reference,
           address_block: data.metadata.address_block,
           content_en: data.content_en,
-          content_ua: data.content_ua || null,
+          content_ua: data.content_uk || null,
         })
         .eq("id", existing.id)
         .select("id")
@@ -64,7 +64,7 @@ export async function importLetter(
           reference: data.metadata.reference,
           address_block: data.metadata.address_block,
           content_en: data.content_en,
-          content_ua: data.content_ua || null,
+          content_ua: data.content_uk || null,
         })
         .select("id")
         .single();

@@ -296,8 +296,8 @@ export function splitIntoVerses(
     console.log(`✅ Parsed verse ${verseNum}:`, {
       has_sanskrit: !!verse.sanskrit,
       has_transliteration: !!verse.transliteration,
-      has_synonyms: !!verse.synonyms_ua,
-      has_translation: !!verse.translation_ua,
+      has_synonyms: !!verse.synonyms_uk,
+      has_translation: !!verse.translation_uk,
       has_commentary: !!verse.commentary_ua
     });
     
@@ -452,7 +452,7 @@ function parseVerse(
     const synonymsEnd = translationMatch?.index || text.length;
     const synonymsText = text.substring(synonymsStart, synonymsEnd).trim();
     if (synonymsText.length > 0) {
-      verse.synonyms_ua = synonymsText;
+      verse.synonyms_uk = synonymsText;
     }
   }
   
@@ -478,7 +478,7 @@ function parseVerse(
     const translationEnd = commentaryMatch?.index || text.length;
     const translationText = text.substring(translationStart, translationEnd).trim();
     if (translationText.length > 0) {
-      verse.translation_ua = translationText;
+      verse.translation_uk = translationText;
     }
   }
   

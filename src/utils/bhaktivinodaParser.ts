@@ -150,7 +150,7 @@ export function groupSongUrlsByCantos(songUrls: string[]): Map<number, { name: s
     if (!cantoMap.has(cantoInfo.number)) {
       cantoMap.set(cantoInfo.number, {
         name: cantoInfo.name,
-        name_ua: cantoInfo.name_ua,
+        name_ua: cantoInfo.name_uk,
         urls: []
       });
     }
@@ -206,7 +206,7 @@ export function parseBhaktivinodaSongPage(html: string, url: string): Bhaktivino
     return {
       song_number: 1,
       title_en: songTitle.title_en,
-      title_ua: songTitle.title_ua,
+      title_ua: songTitle.title_uk,
       verses: verses
     };
   } catch (error) {
@@ -352,7 +352,7 @@ export function bhaktivinodaSongToChapter(song: BhaktivinodaSong, chapterNumber:
     chapter_number: chapterNumber,
     canto_number: song.canto_number || undefined, // Додано підтримку cantos
     title_en: song.title_en || `Song ${song.song_number}`,
-    title_ua: song.title_ua || `Пісня ${song.song_number}`,
+    title_ua: song.title_uk || `Пісня ${song.song_number}`,
     chapter_type: 'verses' as const,
     verses: song.verses.map(v => ({
       verse_number: v.verse_number,
@@ -360,9 +360,9 @@ export function bhaktivinodaSongToChapter(song: BhaktivinodaSong, chapterNumber:
       transliteration_en: v.transliteration_en || '',
       transliteration_ua: v.transliteration_ua || '',
       synonyms_en: v.synonyms_en || '',
-      synonyms_ua: v.synonyms_ua || '',
+      synonyms_ua: v.synonyms_uk || '',
       translation_en: v.translation_en || '',
-      translation_ua: v.translation_ua || '',
+      translation_ua: v.translation_uk || '',
       commentary_en: v.commentary_en || '',
       commentary_ua: v.commentary_ua || '',
     }))

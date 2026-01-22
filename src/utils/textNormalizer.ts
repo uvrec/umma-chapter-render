@@ -566,9 +566,9 @@ export function normalizeVerse(verse: any): any {
     sanskrit: normalizeVerseField(verse.sanskrit || "", "sanskrit"),
     transliteration: normalizeVerseField(verse.transliteration || "", "transliteration"),
     synonyms_en: normalizeVerseField(verse.synonyms_en || "", "synonyms"),
-    synonyms_ua: normalizeVerseField(verse.synonyms_ua || "", "synonyms"),
+    synonyms_ua: normalizeVerseField(verse.synonyms_uk || "", "synonyms"),
     translation_en: normalizeVerseField(verse.translation_en || "", "translation"),
-    translation_ua: normalizeVerseField(verse.translation_ua || "", "translation"),
+    translation_ua: normalizeVerseField(verse.translation_uk || "", "translation"),
     commentary_en: normalizeVerseField(verse.commentary_en || "", "commentary"),
     commentary_ua: normalizeVerseField(verse.commentary_ua || "", "commentary"),
   };

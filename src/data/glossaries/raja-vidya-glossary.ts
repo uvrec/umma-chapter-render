@@ -135,7 +135,7 @@ export const RAJA_VIDYA_GLOSSARY_UA: GlossaryTermData[] = [
 // Book metadata
 export const RAJA_VIDYA_BOOK_INFO = {
   slug: "raja-vidya",
-  title_ua: "Раджа-відья – найшляхетніше знання",
+  title_uk: "Раджа-відья – найшляхетніше знання",
   title_en: "Raja-Vidya: The King of Knowledge",
   author: "А.Ч. Бгактіведанта Свамі Прабгупада",
   author_en: "A.C. Bhaktivedanta Swami Prabhupāda",
@@ -143,18 +143,18 @@ export const RAJA_VIDYA_BOOK_INFO = {
   publisher: "The Bhaktivedanta Book Trust International, Inc.",
   copyright: "© 1992, 2022",
   chapters: [
-    { number: 1, title_ua: "Глава перша", title_en: "Chapter One" },
-    { number: 2, title_ua: "Глава друга", title_en: "Chapter Two" },
-    { number: 3, title_ua: "Глава третя", title_en: "Chapter Three" },
-    { number: 4, title_ua: "Глава четверта", title_en: "Chapter Four" },
-    { number: 5, title_ua: "Глава п'ята", title_en: "Chapter Five" },
-    { number: 6, title_ua: "Глава шоста", title_en: "Chapter Six" },
-    { number: 7, title_ua: "Глава сьома", title_en: "Chapter Seven" },
-    { number: 8, title_ua: "Глава восьма", title_en: "Chapter Eight" },
+    { number: 1, title_uk: "Глава перша", title_en: "Chapter One" },
+    { number: 2, title_uk: "Глава друга", title_en: "Chapter Two" },
+    { number: 3, title_uk: "Глава третя", title_en: "Chapter Three" },
+    { number: 4, title_uk: "Глава четверта", title_en: "Chapter Four" },
+    { number: 5, title_uk: "Глава п'ята", title_en: "Chapter Five" },
+    { number: 6, title_uk: "Глава шоста", title_en: "Chapter Six" },
+    { number: 7, title_uk: "Глава сьома", title_en: "Chapter Seven" },
+    { number: 8, title_uk: "Глава восьма", title_en: "Chapter Eight" },
   ],
   appendices: [
-    { slug: "about-author", title_ua: "Про автора", title_en: "About the Author" },
-    { slug: "glossary", title_ua: "Глосарій", title_en: "Glossary" },
-    { slug: "sanskrit-pronunciation", title_ua: "Як читати санскрит", title_en: "How to Read Sanskrit" },
+    { slug: "about-author", title_uk: "Про автора", title_en: "About the Author" },
+    { slug: "glossary", title_uk: "Глосарій", title_en: "Glossary" },
+    { slug: "sanskrit-pronunciation", title_uk: "Як читати санскрит", title_en: "How to Read Sanskrit" },
   ],
 };

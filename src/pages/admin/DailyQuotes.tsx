@@ -494,7 +494,7 @@ export default function DailyQuotes() {
                           {quote.quote_type === 'verse' ? (
                             <span className="flex items-center gap-2">
                               <BookOpen className="w-5 h-5" />
-                              Вірш: {quote.verse?.chapter?.book?.title_ua} {quote.verse?.chapter?.chapter_number}.{quote.verse?.verse_number}
+                              Вірш: {quote.verse?.chapter?.book?.title_uk} {quote.verse?.chapter?.chapter_number}.{quote.verse?.verse_number}
                             </span>
                           ) : (
                             <span className="flex items-center gap-2">
@@ -530,7 +530,7 @@ export default function DailyQuotes() {
                 <CardContent>
                   {quote.quote_type === 'verse' ? (
                     <blockquote className="border-l-4 border-primary pl-4 italic">
-                      {quote.verse?.translation_ua}
+                      {quote.verse?.translation_uk}
                     </blockquote>
                   ) : (
                     <blockquote className="border-l-4 border-primary pl-4 italic">

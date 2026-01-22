@@ -57,7 +57,7 @@ interface UserContentPageProps {
 // Format date for display
 const formatDate = (dateString: string, language: string) => {
   const date = new Date(dateString);
-  return date.toLocaleDateString(language === "ua" ? "uk-UA" : "en-US", {
+  return date.toLocaleDateString(language === "uk" ? "uk-UA" : "en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",

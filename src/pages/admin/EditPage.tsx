@@ -92,11 +92,11 @@ export default function EditPage() {
   // як тільки прийшла сторінка — заповнюємо поля
   useEffect(() => {
     if (page) {
-      setTitleUa(page.title_ua || "");
+      setTitleUa(page.title_uk || "");
       setTitleEn(page.title_en || "");
-      setContentUa(page.content_ua || "");
+      setContentUa(page.content_uk || "");
       setContentEn(page.content_en || "");
-      setMetaDescriptionUa(page.meta_description_ua || "");
+      setMetaDescriptionUa(page.meta_description_uk || "");
       setMetaDescriptionEn(page.meta_description_en || "");
       setHeroImageUrl(page.hero_image_url || "");
       setBannerImageUrl(page.banner_image_url || "");
@@ -225,11 +225,11 @@ export default function EditPage() {
 
   const handleReset = () => {
     if (!page) return;
-    setTitleUa(page.title_ua || "");
+    setTitleUa(page.title_uk || "");
     setTitleEn(page.title_en || "");
-    setContentUa(page.content_ua || "");
+    setContentUa(page.content_uk || "");
     setContentEn(page.content_en || "");
-    setMetaDescriptionUa(page.meta_description_ua || "");
+    setMetaDescriptionUa(page.meta_description_uk || "");
     setMetaDescriptionEn(page.meta_description_en || "");
     setHeroImageUrl(page.hero_image_url || "");
     setBannerImageUrl(page.banner_image_url || "");

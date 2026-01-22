@@ -200,10 +200,10 @@ export default function Chapters() {
         .from("chapters")
         .update({
           chapter_number: payload.chapter_number,
-          title_ua: payload.title_ua,
+          title_ua: payload.title_uk,
           title_en: payload.title_en,
           chapter_type: payload.chapter_type,
-          content_ua: payload.content_ua,
+          content_ua: payload.content_uk,
           content_en: payload.content_en,
         })
         .eq("id", payload.id);
@@ -253,7 +253,7 @@ export default function Chapters() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.chapter_number || !form.title_ua) {
+    if (!form.chapter_number || !form.title_uk) {
       toast({
         title: "Помилка",
         description: "Заповніть обов'язкові поля",
@@ -291,10 +291,10 @@ export default function Chapters() {
 
     const payload = {
       chapter_number: num,
-      title_ua: form.title_ua,
+      title_ua: form.title_uk,
       title_en: form.title_en || null,
       chapter_type: form.chapter_type,
-      content_ua: form.chapter_type === "text" ? form.content_ua || null : null,
+      content_ua: form.chapter_type === "text" ? form.content_uk || null : null,
       content_en: form.chapter_type === "text" ? form.content_en || null : null,
     };
 
@@ -314,10 +314,10 @@ export default function Chapters() {
     setEditingChapter(chapter);
     setForm({
       chapter_number: String(chapter.chapter_number),
-      title_ua: chapter.title_ua || "",
+      title_ua: chapter.title_uk || "",
       title_en: chapter.title_en || "",
       chapter_type: chapter.chapter_type || "verses",
-      content_ua: chapter.content_ua || "",
+      content_ua: chapter.content_uk || "",
       content_en: chapter.content_en || "",
     });
     setIsAddingChapter(true);
@@ -347,10 +347,10 @@ export default function Chapters() {
                 <h1 className="text-2xl font-bold">Глави</h1>
                 {isCantoMode && canto && (
                   <p className="text-sm text-muted-foreground">
-                    {canto.books?.title_ua} — Пісня {canto.canto_number}: {canto.title_ua}
+                    {canto.books?.title_uk} — Пісня {canto.canto_number}: {canto.title_uk}
                   </p>
                 )}
-                {!isCantoMode && book && <p className="text-sm text-muted-foreground">{book.title_ua}</p>}
+                {!isCantoMode && book && <p className="text-sm text-muted-foreground">{book.title_uk}</p>}
               </div>
             </div>
             <Button onClick={() => setIsAddingChapter(true)}>
@@ -421,7 +421,7 @@ export default function Chapters() {
                       <Label htmlFor="titleUa">Назва *</Label>
                       <Input
                         id="titleUa"
-                        value={form.title_ua}
+                        value={form.title_uk}
                         onChange={(e) => setForm((f) => ({ ...f, title_ua: e.target.value }))}
                         placeholder="Питання мудреців"
                         required
@@ -452,7 +452,7 @@ export default function Chapters() {
                       <div>
                         <Label className="mb-2 block">Контент (українською)</Label>
                         <EnhancedInlineEditor
-                          content={form.content_ua}
+                          content={form.content_uk}
                           onChange={(html) => setForm((f) => ({ ...f, content_ua: html }))}
                         />
                       </div>
@@ -491,7 +491,7 @@ export default function Chapters() {
                     <div>
                       <div className="flex items-center gap-2">
                         <h3 className="font-semibold text-lg">
-                          Глава {chapter.chapter_number}: {chapter.title_ua}
+                          Глава {chapter.chapter_number}: {chapter.title_uk}
                         </h3>
                         {chapter.chapter_type === "text" ? (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">

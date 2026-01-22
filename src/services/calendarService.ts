@@ -57,9 +57,9 @@ export async function getCalendarEvents(
       event_id: row.event_id,
       event_date: row.event_date,
       event_type: row.event_type,
-      name_ua: row.name_ua,
+      name_ua: row.name_uk,
       name_en: row.name_en,
-      description_ua: row.description_ua,
+      description_ua: row.description_uk,
       description_en: row.description_en,
       category_slug: row.category_slug,
       category_color: row.category_color || "#8B5CF6",
@@ -94,9 +94,9 @@ export async function getTodayEvents(
       event_id: row.event_id,
       event_date: today,
       event_type: row.event_type,
-      name_ua: row.name_ua,
+      name_ua: row.name_uk,
       name_en: row.name_en,
-      description_ua: row.short_description_ua,
+      description_ua: row.short_description_uk,
       description_en: row.short_description_en,
       category_color: row.category_color || "#8B5CF6",
       is_ekadashi: row.is_ekadashi || false,
@@ -167,9 +167,9 @@ export async function getNextEkadashi(
           event_id: row.id,
           event_date: row.event_date,
           event_type: "ekadashi",
-          name_ua: row.ekadashi_info?.name_ua || "Екадаші",
+          name_ua: row.ekadashi_info?.name_uk || "Екадаші",
           name_en: row.ekadashi_info?.name_en || "Ekadashi",
-          description_ua: row.ekadashi_info?.glory_title_ua,
+          description_ua: row.ekadashi_info?.glory_title_uk,
           description_en: row.ekadashi_info?.glory_title_en,
           category_color: "#8B5CF6",
           is_ekadashi: true,
@@ -711,7 +711,7 @@ export function saveLocalCalendarSettings(
  */
 export function formatCalendarDate(
   date: Date | string,
-  locale: "ua" | "en" = "ua"
+  locale: "uk" | "en" = "ua"
 ): string {
   const d = typeof date === "string" ? new Date(date) : date;
   return format(d, "d MMMM yyyy", { locale: locale === "ua" ? uk : undefined });
@@ -722,7 +722,7 @@ export function formatCalendarDate(
  */
 export function getMonthName(
   month: number,
-  locale: "ua" | "en" = "ua"
+  locale: "uk" | "en" = "ua"
 ): string {
   const date = new Date(2024, month, 1);
   return format(date, "LLLL", { locale: locale === "ua" ? uk : undefined });

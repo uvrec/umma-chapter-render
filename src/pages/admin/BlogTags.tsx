@@ -54,7 +54,7 @@ export default function BlogTags() {
 
   const handleEdit = (tag: BlogTag) => {
     setEditId(tag.id);
-    setNameUa(tag.name_ua);
+    setNameUa(tag.name_uk);
     setNameEn(tag.name_en);
     setSlug(tag.slug);
     setAutoSlug(false); // при редагуванні існуючого — не чіпаємо slug автоматично
@@ -139,7 +139,7 @@ export default function BlogTags() {
     if (!tags) return [];
     if (!debouncedSearch) return tags;
     return tags.filter((t) => {
-      const ua = (t.name_ua || "").toLowerCase();
+      const ua = (t.name_uk || "").toLowerCase();
       const en = (t.name_en || "").toLowerCase();
       const sl = (t.slug || "").toLowerCase();
       return ua.includes(debouncedSearch) || en.includes(debouncedSearch) || sl.includes(debouncedSearch);
@@ -253,7 +253,7 @@ export default function BlogTags() {
 
             {filtered.map((tag) => (
               <TableRow key={tag.id}>
-                <TableCell className="font-medium">{tag.name_ua}</TableCell>
+                <TableCell className="font-medium">{tag.name_uk}</TableCell>
                 <TableCell>{tag.name_en}</TableCell>
                 <TableCell>{tag.slug}</TableCell>
                 <TableCell>{tag.post_count ?? 0}</TableCell>

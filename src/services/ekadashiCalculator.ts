@@ -774,11 +774,11 @@ function generateNotesEn(
 /**
  * Format time duration in human-readable format
  */
-export function formatDuration(minutes: number, locale: 'ua' | 'en' = 'ua'): string {
+export function formatDuration(minutes: number, locale: 'uk' | 'en' = 'uk'): string {
   const hours = Math.floor(minutes / 60);
   const mins = Math.round(minutes % 60);
 
-  if (locale === 'ua') {
+  if (locale === 'uk') {
     if (hours === 0) return `${mins} хв`;
     if (mins === 0) return `${hours} год`;
     return `${hours} год ${mins} хв`;

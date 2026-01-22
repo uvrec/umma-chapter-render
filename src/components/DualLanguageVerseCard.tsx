@@ -260,9 +260,9 @@ export const DualLanguageVerseCard = ({
       if (edited.sanskritEn !== sanskritTextEn) updates.sanskrit_en = edited.sanskritEn;
       if (edited.transliterationUa !== transliterationUa) updates.transliteration_ua = edited.transliterationUa;
       if (edited.transliterationEn !== transliterationEn) updates.transliteration_en = edited.transliterationEn;
-      if (edited.synonymsUa !== synonymsUa) updates.synonyms_ua = edited.synonymsUa;
+      if (edited.synonymsUa !== synonymsUa) updates.synonyms_uk = edited.synonymsUa;
       if (edited.synonymsEn !== synonymsEn) updates.synonyms_en = edited.synonymsEn;
-      if (edited.translationUa !== translationUa) updates.translation_ua = edited.translationUa;
+      if (edited.translationUa !== translationUa) updates.translation_uk = edited.translationUa;
       if (edited.translationEn !== translationEn) updates.translation_en = edited.translationEn;
       if (edited.commentaryUa !== commentaryUa) updates.commentary_ua = edited.commentaryUa;
       if (edited.commentaryEn !== commentaryEn) updates.commentary_en = edited.commentaryEn;

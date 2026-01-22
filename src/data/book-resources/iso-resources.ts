@@ -11,20 +11,20 @@ import {
 
 export interface MantraInfo {
   number: number;
-  title_ua?: string;
+  title_uk?: string;
   title_en?: string;
 }
 
 // Book metadata
 export const ISO_BOOK_INFO: BookMetadata = {
   slug: "iso",
-  title_ua: "Шрі Ішопанішад",
+  title_uk: "Шрі Ішопанішад",
   title_en: "Śrī Īśopaniṣad",
-  subtitle_ua: "Знання, що наближає до Верховного Бога-Особи, Крішни",
+  subtitle_uk: "Знання, що наближає до Верховного Бога-Особи, Крішни",
   subtitle_en: "The Knowledge That Brings One Nearer to the Supreme Personality of Godhead, Kṛṣṇa",
-  author_ua: "А.Ч. Бгактіведанта Свамі Прабгупада",
+  author_uk: "А.Ч. Бгактіведанта Свамі Прабгупада",
   author_en: "A.C. Bhaktivedanta Swami Prabhupāda",
-  author_title_ua: "Його Божественна Милість",
+  author_title_uk: "Його Божественна Милість",
   author_title_en: "His Divine Grace",
   isbn: "978-91-7769-427-4",
   copyright: "© 1969 The Bhaktivedanta Book Trust",
@@ -56,13 +56,13 @@ export const ISO_MANTRAS: MantraInfo[] = [
 // Front matter sections
 export const ISO_FRONT_MATTER = {
   introduction: {
-    title_ua: "Вчення Вед",
+    title_uk: "Вчення Вед",
     title_en: "The Teachings of the Vedas",
-    subtitle_ua: "Лекція, прочитана 6 жовтня 1969 року у Бостонському храмі в Корнуей-стріт",
+    subtitle_uk: "Лекція, прочитана 6 жовтня 1969 року у Бостонському храмі в Корнуей-стріт",
     subtitle_en: "Lecture delivered October 6, 1969 at the Boston Temple on Cornway Street",
   },
   invocation: {
-    title_ua: "Звернення",
+    title_uk: "Звернення",
     title_en: "Invocation",
   },
 };
@@ -71,27 +71,27 @@ export const ISO_FRONT_MATTER = {
 export const ISO_APPENDICES = {
   aboutAuthor: {
     slug: "about-author",
-    title_ua: "Про автора",
+    title_uk: "Про автора",
     title_en: "About the Author",
   },
   glossary: {
     slug: "glossary",
-    title_ua: "Глосарій",
+    title_uk: "Глосарій",
     title_en: "Glossary",
   },
   sanskritPronunciation: {
     slug: "sanskrit-pronunciation",
-    title_ua: "Як читати санскрит",
+    title_uk: "Як читати санскрит",
     title_en: "A Note About Sanskrit Pronunciation",
   },
   citedLiterature: {
     slug: "cited-literature",
-    title_ua: "Цитована література",
+    title_uk: "Цитована література",
     title_en: "Cited Literature",
   },
   bbtInfo: {
     slug: "bbt-info",
-    title_ua: "ББТ",
+    title_uk: "ББТ",
     title_en: "BBT",
   },
 };

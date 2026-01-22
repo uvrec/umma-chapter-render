@@ -241,7 +241,7 @@ export function useNakshatraSearch(query: string) {
     const lowerQuery = query.toLowerCase();
     return NAKSHATRAS.filter(
       n =>
-        n.name_ua.toLowerCase().includes(lowerQuery) ||
+        n.name_uk.toLowerCase().includes(lowerQuery) ||
         n.name_en.toLowerCase().includes(lowerQuery) ||
         n.name_iast.toLowerCase().includes(lowerQuery)
     );

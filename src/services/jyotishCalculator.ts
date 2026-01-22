@@ -358,7 +358,7 @@ function generateInterpretation(
   const nakshatraRuler = getGrahaById(nakshatra.ruler_planet);
   const rashiRuler = getGrahaById(moonRashi.ruler_planet);
 
-  const personality_ua = `Ваша накшатра народження — ${nakshatra.name_ua} (${nakshatra.name_sanskrit}), що перебуває під впливом ${nakshatraRuler?.name_ua || nakshatra.ruler_planet}. ${nakshatra.description_ua} Місяць у ${moonRashi.name_ua} (${moonRashi.western_name_ua}) надає вашим емоціям ${moonRashi.description_ua.toLowerCase()}`;
+  const personality_ua = `Ваша накшатра народження — ${nakshatra.name_uk} (${nakshatra.name_sanskrit}), що перебуває під впливом ${nakshatraRuler?.name_uk || nakshatra.ruler_planet}. ${nakshatra.description_uk} Місяць у ${moonRashi.name_uk} (${moonRashi.western_name_uk}) надає вашим емоціям ${moonRashi.description_uk.toLowerCase()}`;
 
   const personality_en = `Your birth nakshatra is ${nakshatra.name_en} (${nakshatra.name_sanskrit}), ruled by ${nakshatraRuler?.name_en || nakshatra.ruler_planet}. ${nakshatra.description_en} Moon in ${moonRashi.name_en} (${moonRashi.western_name_en}) gives your emotions ${moonRashi.description_en.toLowerCase()}`;
 
@@ -371,7 +371,7 @@ function generateInterpretation(
     challenges_en: [...nakshatra.negative_traits_en, ...moonRashi.negative_traits_en.slice(0, 2)],
     career_ua: nakshatra.career_ua,
     career_en: nakshatra.career_en,
-    compatibility_ua: `Найкраща сумісність з накшатрами, якими володіє ${nakshatraRuler?.name_ua || 'та сама планета'}.`,
+    compatibility_ua: `Найкраща сумісність з накшатрами, якими володіє ${nakshatraRuler?.name_uk || 'та сама планета'}.`,
     compatibility_en: `Best compatibility with nakshatras ruled by ${nakshatraRuler?.name_en || 'the same planet'}.`,
   };
 }
@@ -421,10 +421,10 @@ export async function getVedicPortrait(birthData: BirthData): Promise<VedicPortr
 function generateCombinedInterpretation(
   jyotish: JyotishReading,
   numerology: VedicPortrait['numerology'],
-  lang: 'ua' | 'en'
+  lang: 'uk' | 'en'
 ): string {
   if (!numerology) {
-    return lang === 'ua'
+    return lang === 'uk'
       ? jyotish.personality_ua
       : jyotish.personality_en;
   }
@@ -432,8 +432,8 @@ function generateCombinedInterpretation(
   const nakshatra = jyotish.janma_nakshatra;
   const rashi = jyotish.chandra_rashi;
 
-  if (lang === 'ua') {
-    return `Ваш ведичний портрет: накшатра ${nakshatra.name_ua} у ${rashi.name_ua} (${rashi.western_name_ua}) поєднується з нумерологічним числом підсумку ${numerology.lifeNumber}. Формула ${numerology.notation} вказує на ${getLifeNumberTheme(numerology.lifeNumber, 'ua')}. ${nakshatra.description_ua}`;
+  if (lang === 'uk') {
+    return `Ваш ведичний портрет: накшатра ${nakshatra.name_uk} у ${rashi.name_uk} (${rashi.western_name_uk}) поєднується з нумерологічним числом підсумку ${numerology.lifeNumber}. Формула ${numerology.notation} вказує на ${getLifeNumberTheme(numerology.lifeNumber, 'ua')}. ${nakshatra.description_uk}`;
   }
 
   return `Your Vedic portrait: ${nakshatra.name_en} nakshatra in ${rashi.name_en} (${rashi.western_name_en}) combines with life number ${numerology.lifeNumber}. Formula ${numerology.notation} indicates ${getLifeNumberTheme(numerology.lifeNumber, 'en')}. ${nakshatra.description_en}`;
@@ -442,7 +442,7 @@ function generateCombinedInterpretation(
 /**
  * Отримати тему числа підсумку
  */
-function getLifeNumberTheme(lifeNumber: number, lang: 'ua' | 'en'): string {
+function getLifeNumberTheme(lifeNumber: number, lang: 'uk' | 'en'): string {
   const themes: Record<number, { ua: string; en: string }> = {
     1: { ua: 'шлях лідерства та незалежності', en: 'path of leadership and independence' },
     2: { ua: 'шлях партнерства та дипломатії', en: 'path of partnership and diplomacy' },
@@ -455,7 +455,7 @@ function getLifeNumberTheme(lifeNumber: number, lang: 'ua' | 'en'): string {
     9: { ua: 'шлях мудрості та гуманізму', en: 'path of wisdom and humanitarianism' },
   };
 
-  return themes[lifeNumber]?.[lang] || (lang === 'ua' ? 'унікальний життєвий шлях' : 'unique life path');
+  return themes[lifeNumber]?.[lang] || (lang === 'uk' ? 'унікальний життєвий шлях' : 'unique life path');
 }
 
 // ============================================

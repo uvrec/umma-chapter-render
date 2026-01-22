@@ -237,7 +237,7 @@ const Dashboard = () => {
                 </option>
                 {booksList.map((b) => (
                   <option key={b.id} value={b.id}>
-                    {b.title_ua} {b.has_cantos ? "— Пісні" : "— Розділи"}
+                    {b.title_uk} {b.has_cantos ? "— Пісні" : "— Розділи"}
                   </option>
                 ))}
               </select>

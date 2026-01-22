@@ -43,7 +43,7 @@ export function QuoteCard({
   const { language, t } = useLanguage();
   const [copied, setCopied] = useState(false);
 
-  const text = (language === "ua" && quote.text_ua) ? quote.text_ua : quote.text_en;
+  const text = (language === "uk" && quote.text_ua) ? quote.text_ua : quote.text_en;
   const sourceLabel = sourceTypeLabels[quote.source_type] || sourceTypeLabels.unknown;
 
   const handleCopy = async () => {

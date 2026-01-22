@@ -19,22 +19,22 @@ export type Database = {
           category_id: number | null
           created_at: string | null
           description_en: string | null
-          description_ua: string | null
+          description_uk: string | null
           event_type: string
           fasting_level: string | null
           id: string
           image_url: string | null
           is_major: boolean | null
           observances_en: string | null
-          observances_ua: string | null
+          observances_uk: string | null
           paksha: string | null
           person_name_en: string
           person_name_sanskrit: string | null
-          person_name_ua: string
+          person_name_uk: string
           person_title_en: string | null
-          person_title_ua: string | null
+          person_title_uk: string | null
           short_description_en: string | null
-          short_description_ua: string | null
+          short_description_uk: string | null
           slug: string
           sort_order: number | null
           tithi_number: number | null
@@ -45,22 +45,22 @@ export type Database = {
           category_id?: number | null
           created_at?: string | null
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           event_type: string
           fasting_level?: string | null
           id?: string
           image_url?: string | null
           is_major?: boolean | null
           observances_en?: string | null
-          observances_ua?: string | null
+          observances_uk?: string | null
           paksha?: string | null
           person_name_en: string
           person_name_sanskrit?: string | null
-          person_name_ua: string
+          person_name_uk: string
           person_title_en?: string | null
-          person_title_ua?: string | null
+          person_title_uk?: string | null
           short_description_en?: string | null
-          short_description_ua?: string | null
+          short_description_uk?: string | null
           slug: string
           sort_order?: number | null
           tithi_number?: number | null
@@ -71,22 +71,22 @@ export type Database = {
           category_id?: number | null
           created_at?: string | null
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           event_type?: string
           fasting_level?: string | null
           id?: string
           image_url?: string | null
           is_major?: boolean | null
           observances_en?: string | null
-          observances_ua?: string | null
+          observances_uk?: string | null
           paksha?: string | null
           person_name_en?: string
           person_name_sanskrit?: string | null
-          person_name_ua?: string
+          person_name_uk?: string
           person_title_en?: string | null
-          person_title_ua?: string | null
+          person_title_uk?: string | null
           short_description_en?: string | null
-          short_description_ua?: string | null
+          short_description_uk?: string | null
           slug?: string
           sort_order?: number | null
           tithi_number?: number | null
@@ -114,34 +114,34 @@ export type Database = {
         Row: {
           created_at: string | null
           description_en: string | null
-          description_ua: string | null
+          description_uk: string | null
           display_order: number | null
           icon: string | null
           id: string
           name_en: string
-          name_ua: string
+          name_uk: string
           slug: string
         }
         Insert: {
           created_at?: string | null
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           display_order?: number | null
           icon?: string | null
           id?: string
           name_en: string
-          name_ua: string
+          name_uk: string
           slug: string
         }
         Update: {
           created_at?: string | null
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           display_order?: number | null
           icon?: string | null
           id?: string
           name_en?: string
-          name_ua?: string
+          name_uk?: string
           slug?: string
         }
         Relationships: []
@@ -192,13 +192,13 @@ export type Database = {
           cover_image_url: string | null
           created_at: string | null
           description_en: string | null
-          description_ua: string | null
+          description_uk: string | null
           display_order: number | null
           id: string
           is_published: boolean | null
           slug: string | null
           title_en: string
-          title_ua: string
+          title_uk: string
           total_duration: number | null
           total_tracks: number | null
           updated_at: string | null
@@ -211,13 +211,13 @@ export type Database = {
           cover_image_url?: string | null
           created_at?: string | null
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           display_order?: number | null
           id?: string
           is_published?: boolean | null
           slug?: string | null
           title_en: string
-          title_ua: string
+          title_uk: string
           total_duration?: number | null
           total_tracks?: number | null
           updated_at?: string | null
@@ -230,13 +230,13 @@ export type Database = {
           cover_image_url?: string | null
           created_at?: string | null
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           display_order?: number | null
           id?: string
           is_published?: boolean | null
           slug?: string | null
           title_en?: string
-          title_ua?: string
+          title_uk?: string
           total_duration?: number | null
           total_tracks?: number | null
           updated_at?: string | null
@@ -272,7 +272,7 @@ export type Database = {
           sample_rate: number | null
           storage_path: string | null
           title_en: string
-          title_ua: string
+          title_uk: string
           track_number: number
           updated_at: string | null
           year: number | null
@@ -296,7 +296,7 @@ export type Database = {
           sample_rate?: number | null
           storage_path?: string | null
           title_en: string
-          title_ua: string
+          title_uk: string
           track_number: number
           updated_at?: string | null
           year?: number | null
@@ -320,7 +320,7 @@ export type Database = {
           sample_rate?: number | null
           storage_path?: string | null
           title_en?: string
-          title_ua?: string
+          title_uk?: string
           track_number?: number
           updated_at?: string | null
           year?: number | null
@@ -339,30 +339,30 @@ export type Database = {
         Row: {
           created_at: string | null
           description_en: string | null
-          description_ua: string | null
+          description_uk: string | null
           id: string
           name_en: string
-          name_ua: string
+          name_uk: string
           post_count: number | null
           slug: string
         }
         Insert: {
           created_at?: string | null
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           id?: string
           name_en: string
-          name_ua: string
+          name_uk: string
           post_count?: number | null
           slug: string
         }
         Update: {
           created_at?: string | null
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           id?: string
           name_en?: string
-          name_ua?: string
+          name_uk?: string
           post_count?: number | null
           slug?: string
         }
@@ -415,12 +415,12 @@ export type Database = {
       blog_posts: {
         Row: {
           audio_commentary_en_url: string | null
-          audio_commentary_ua_url: string | null
+          audio_commentary_uk_url: string | null
           audio_poetry_translation_en_url: string | null
-          audio_poetry_translation_ua_url: string | null
+          audio_poetry_translation_uk_url: string | null
           audio_sanskrit_url: string | null
           audio_synonyms_en_url: string | null
-          audio_synonyms_ua_url: string | null
+          audio_synonyms_uk_url: string | null
           audio_transliteration_url: string | null
           audio_url: string | null
           author_display_name: string | null
@@ -429,37 +429,37 @@ export type Database = {
           category_id: string
           content_en: string
           content_mode: string | null
-          content_ua: string
+          content_uk: string
           cover_image_url: string | null
           created_at: string
           display_blocks: Json | null
           excerpt_en: string | null
-          excerpt_ua: string | null
+          excerpt_uk: string | null
           featured_image: string | null
           id: string
           instagram_embed_url: string | null
           is_published: boolean | null
           meta_description_en: string | null
-          meta_description_ua: string | null
+          meta_description_uk: string | null
           poetry_translation_en: string | null
-          poetry_translation_ua: string | null
+          poetry_translation_uk: string | null
           published_at: string | null
           read_time: number | null
           sanskrit: string | null
           scheduled_publish_at: string | null
           search_vector: unknown
           search_vector_en: unknown
-          search_vector_ua: unknown
+          search_vector_uk: unknown
           slug: string
           substack_embed_url: string | null
           synonyms_en: string | null
-          synonyms_ua: string | null
+          synonyms_uk: string | null
           tags: string[] | null
           telegram_embed_url: string | null
           title_en: string
-          title_ua: string
+          title_uk: string
           translation_en: string | null
-          translation_ua: string | null
+          translation_uk: string | null
           transliteration: string | null
           updated_at: string
           video_url: string | null
@@ -467,12 +467,12 @@ export type Database = {
         }
         Insert: {
           audio_commentary_en_url?: string | null
-          audio_commentary_ua_url?: string | null
+          audio_commentary_uk_url?: string | null
           audio_poetry_translation_en_url?: string | null
-          audio_poetry_translation_ua_url?: string | null
+          audio_poetry_translation_uk_url?: string | null
           audio_sanskrit_url?: string | null
           audio_synonyms_en_url?: string | null
-          audio_synonyms_ua_url?: string | null
+          audio_synonyms_uk_url?: string | null
           audio_transliteration_url?: string | null
           audio_url?: string | null
           author_display_name?: string | null
@@ -481,37 +481,37 @@ export type Database = {
           category_id: string
           content_en: string
           content_mode?: string | null
-          content_ua: string
+          content_uk: string
           cover_image_url?: string | null
           created_at?: string
           display_blocks?: Json | null
           excerpt_en?: string | null
-          excerpt_ua?: string | null
+          excerpt_uk?: string | null
           featured_image?: string | null
           id?: string
           instagram_embed_url?: string | null
           is_published?: boolean | null
           meta_description_en?: string | null
-          meta_description_ua?: string | null
+          meta_description_uk?: string | null
           poetry_translation_en?: string | null
-          poetry_translation_ua?: string | null
+          poetry_translation_uk?: string | null
           published_at?: string | null
           read_time?: number | null
           sanskrit?: string | null
           scheduled_publish_at?: string | null
           search_vector?: unknown
           search_vector_en?: unknown
-          search_vector_ua?: unknown
+          search_vector_uk?: unknown
           slug: string
           substack_embed_url?: string | null
           synonyms_en?: string | null
-          synonyms_ua?: string | null
+          synonyms_uk?: string | null
           tags?: string[] | null
           telegram_embed_url?: string | null
           title_en: string
-          title_ua: string
+          title_uk: string
           translation_en?: string | null
-          translation_ua?: string | null
+          translation_uk?: string | null
           transliteration?: string | null
           updated_at?: string
           video_url?: string | null
@@ -519,12 +519,12 @@ export type Database = {
         }
         Update: {
           audio_commentary_en_url?: string | null
-          audio_commentary_ua_url?: string | null
+          audio_commentary_uk_url?: string | null
           audio_poetry_translation_en_url?: string | null
-          audio_poetry_translation_ua_url?: string | null
+          audio_poetry_translation_uk_url?: string | null
           audio_sanskrit_url?: string | null
           audio_synonyms_en_url?: string | null
-          audio_synonyms_ua_url?: string | null
+          audio_synonyms_uk_url?: string | null
           audio_transliteration_url?: string | null
           audio_url?: string | null
           author_display_name?: string | null
@@ -533,37 +533,37 @@ export type Database = {
           category_id?: string
           content_en?: string
           content_mode?: string | null
-          content_ua?: string
+          content_uk?: string
           cover_image_url?: string | null
           created_at?: string
           display_blocks?: Json | null
           excerpt_en?: string | null
-          excerpt_ua?: string | null
+          excerpt_uk?: string | null
           featured_image?: string | null
           id?: string
           instagram_embed_url?: string | null
           is_published?: boolean | null
           meta_description_en?: string | null
-          meta_description_ua?: string | null
+          meta_description_uk?: string | null
           poetry_translation_en?: string | null
-          poetry_translation_ua?: string | null
+          poetry_translation_uk?: string | null
           published_at?: string | null
           read_time?: number | null
           sanskrit?: string | null
           scheduled_publish_at?: string | null
           search_vector?: unknown
           search_vector_en?: unknown
-          search_vector_ua?: unknown
+          search_vector_uk?: unknown
           slug?: string
           substack_embed_url?: string | null
           synonyms_en?: string | null
-          synonyms_ua?: string | null
+          synonyms_uk?: string | null
           tags?: string[] | null
           telegram_embed_url?: string | null
           title_en?: string
-          title_ua?: string
+          title_uk?: string
           translation_en?: string | null
-          translation_ua?: string | null
+          translation_uk?: string | null
           transliteration?: string | null
           updated_at?: string
           video_url?: string | null
@@ -584,7 +584,7 @@ export type Database = {
           created_at: string | null
           id: string
           name_en: string
-          name_ua: string
+          name_uk: string
           post_count: number | null
           slug: string
         }
@@ -592,7 +592,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           name_en: string
-          name_ua: string
+          name_uk: string
           post_count?: number | null
           slug: string
         }
@@ -600,7 +600,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           name_en?: string
-          name_ua?: string
+          name_uk?: string
           post_count?: number | null
           slug?: string
         }
@@ -611,7 +611,7 @@ export type Database = {
           book_id: string
           canto_id: string | null
           content_en: Json | null
-          content_ua: Json | null
+          content_uk: Json | null
           created_at: string | null
           id: string
           is_published: boolean | null
@@ -619,14 +619,14 @@ export type Database = {
           page_type: string
           slug: string | null
           title_en: string | null
-          title_ua: string | null
+          title_uk: string | null
           updated_at: string | null
         }
         Insert: {
           book_id: string
           canto_id?: string | null
           content_en?: Json | null
-          content_ua?: Json | null
+          content_uk?: Json | null
           created_at?: string | null
           id?: string
           is_published?: boolean | null
@@ -634,14 +634,14 @@ export type Database = {
           page_type: string
           slug?: string | null
           title_en?: string | null
-          title_ua?: string | null
+          title_uk?: string | null
           updated_at?: string | null
         }
         Update: {
           book_id?: string
           canto_id?: string | null
           content_en?: Json | null
-          content_ua?: Json | null
+          content_uk?: Json | null
           created_at?: string | null
           id?: string
           is_published?: boolean | null
@@ -649,7 +649,7 @@ export type Database = {
           page_type?: string
           slug?: string | null
           title_en?: string | null
-          title_ua?: string | null
+          title_uk?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -684,7 +684,7 @@ export type Database = {
           default_structure: string | null
           deleted_at: string | null
           description_en: string | null
-          description_ua: string | null
+          description_uk: string | null
           display_category: string | null
           display_order: number | null
           gitabase_slug: string | null
@@ -695,7 +695,7 @@ export type Database = {
           purchase_url: string | null
           slug: string
           title_en: string
-          title_ua: string
+          title_uk: string
           vedabase_slug: string | null
         }
         Insert: {
@@ -705,7 +705,7 @@ export type Database = {
           default_structure?: string | null
           deleted_at?: string | null
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           display_category?: string | null
           display_order?: number | null
           gitabase_slug?: string | null
@@ -716,7 +716,7 @@ export type Database = {
           purchase_url?: string | null
           slug: string
           title_en: string
-          title_ua: string
+          title_uk: string
           vedabase_slug?: string | null
         }
         Update: {
@@ -726,7 +726,7 @@ export type Database = {
           default_structure?: string | null
           deleted_at?: string | null
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           display_category?: string | null
           display_order?: number | null
           gitabase_slug?: string | null
@@ -737,7 +737,7 @@ export type Database = {
           purchase_url?: string | null
           slug?: string
           title_en?: string
-          title_ua?: string
+          title_uk?: string
           vedabase_slug?: string | null
         }
         Relationships: []
@@ -747,9 +747,9 @@ export type Database = {
           appearance_day_id: string | null
           created_at: string | null
           custom_description_en: string | null
-          custom_description_ua: string | null
+          custom_description_uk: string | null
           custom_name_en: string | null
-          custom_name_ua: string | null
+          custom_name_uk: string | null
           ekadashi_end_time: string | null
           ekadashi_id: string | null
           ekadashi_start_time: string | null
@@ -774,9 +774,9 @@ export type Database = {
           appearance_day_id?: string | null
           created_at?: string | null
           custom_description_en?: string | null
-          custom_description_ua?: string | null
+          custom_description_uk?: string | null
           custom_name_en?: string | null
-          custom_name_ua?: string | null
+          custom_name_uk?: string | null
           ekadashi_end_time?: string | null
           ekadashi_id?: string | null
           ekadashi_start_time?: string | null
@@ -801,9 +801,9 @@ export type Database = {
           appearance_day_id?: string | null
           created_at?: string | null
           custom_description_en?: string | null
-          custom_description_ua?: string | null
+          custom_description_uk?: string | null
           custom_name_en?: string | null
-          custom_name_ua?: string | null
+          custom_name_uk?: string | null
           ekadashi_end_time?: string | null
           ekadashi_id?: string | null
           ekadashi_start_time?: string | null
@@ -865,7 +865,7 @@ export type Database = {
       calendar_locations: {
         Row: {
           city_en: string | null
-          city_ua: string | null
+          city_uk: string | null
           country_code: string | null
           created_at: string | null
           id: string
@@ -874,14 +874,14 @@ export type Database = {
           latitude: number
           longitude: number
           name_en: string
-          name_ua: string
+          name_uk: string
           timezone: string
           updated_at: string | null
           utc_offset: number | null
         }
         Insert: {
           city_en?: string | null
-          city_ua?: string | null
+          city_uk?: string | null
           country_code?: string | null
           created_at?: string | null
           id?: string
@@ -890,14 +890,14 @@ export type Database = {
           latitude: number
           longitude: number
           name_en: string
-          name_ua: string
+          name_uk: string
           timezone: string
           updated_at?: string | null
           utc_offset?: number | null
         }
         Update: {
           city_en?: string | null
-          city_ua?: string | null
+          city_uk?: string | null
           country_code?: string | null
           created_at?: string | null
           id?: string
@@ -906,7 +906,7 @@ export type Database = {
           latitude?: number
           longitude?: number
           name_en?: string
-          name_ua?: string
+          name_uk?: string
           timezone?: string
           updated_at?: string | null
           utc_offset?: number | null
@@ -920,11 +920,11 @@ export type Database = {
           cover_image_url: string | null
           created_at: string | null
           description_en: string | null
-          description_ua: string | null
+          description_uk: string | null
           id: string
           is_published: boolean | null
           title_en: string
-          title_ua: string
+          title_uk: string
         }
         Insert: {
           book_id: string
@@ -932,11 +932,11 @@ export type Database = {
           cover_image_url?: string | null
           created_at?: string | null
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           id?: string
           is_published?: boolean | null
           title_en: string
-          title_ua: string
+          title_uk: string
         }
         Update: {
           book_id?: string
@@ -944,11 +944,11 @@ export type Database = {
           cover_image_url?: string | null
           created_at?: string | null
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           id?: string
           is_published?: boolean | null
           title_en?: string
-          title_ua?: string
+          title_uk?: string
         }
         Relationships: [
           {
@@ -976,14 +976,14 @@ export type Database = {
           content_en: string | null
           content_format: string | null
           content_structure: string | null
-          content_ua: string | null
+          content_uk: string | null
           created_at: string
           id: string
           is_published: boolean | null
           summary_en: string | null
-          summary_ua: string | null
+          summary_uk: string | null
           title_en: string
-          title_ua: string
+          title_uk: string
         }
         Insert: {
           book_id?: string | null
@@ -993,14 +993,14 @@ export type Database = {
           content_en?: string | null
           content_format?: string | null
           content_structure?: string | null
-          content_ua?: string | null
+          content_uk?: string | null
           created_at?: string
           id?: string
           is_published?: boolean | null
           summary_en?: string | null
-          summary_ua?: string | null
+          summary_uk?: string | null
           title_en: string
-          title_ua: string
+          title_uk: string
         }
         Update: {
           book_id?: string | null
@@ -1010,14 +1010,14 @@ export type Database = {
           content_en?: string | null
           content_format?: string | null
           content_structure?: string | null
-          content_ua?: string | null
+          content_uk?: string | null
           created_at?: string
           id?: string
           is_published?: boolean | null
           summary_en?: string | null
-          summary_ua?: string | null
+          summary_uk?: string | null
           title_en?: string
-          title_ua?: string
+          title_uk?: string
         }
         Relationships: [
           {
@@ -1051,11 +1051,11 @@ export type Database = {
           chapter_type: Database["public"]["Enums"]["chapter_type"] | null
           content_en: string | null
           content_format: string | null
-          content_ua: string | null
+          content_uk: string | null
           created_at: string
           id: string
           title_en: string
-          title_ua: string
+          title_uk: string
         }
         Insert: {
           book_id?: string | null
@@ -1064,11 +1064,11 @@ export type Database = {
           chapter_type?: Database["public"]["Enums"]["chapter_type"] | null
           content_en?: string | null
           content_format?: string | null
-          content_ua?: string | null
+          content_uk?: string | null
           created_at?: string
           id?: string
           title_en: string
-          title_ua: string
+          title_uk: string
         }
         Update: {
           book_id?: string | null
@@ -1077,11 +1077,11 @@ export type Database = {
           chapter_type?: Database["public"]["Enums"]["chapter_type"] | null
           content_en?: string | null
           content_format?: string | null
-          content_ua?: string | null
+          content_uk?: string | null
           created_at?: string
           id?: string
           title_en?: string
-          title_ua?: string
+          title_uk?: string
         }
         Relationships: []
       }
@@ -1093,11 +1093,11 @@ export type Database = {
           chapter_type: Database["public"]["Enums"]["chapter_type"] | null
           content_en: string | null
           content_format: string | null
-          content_ua: string | null
+          content_uk: string | null
           created_at: string | null
           id: string | null
           title_en: string | null
-          title_ua: string | null
+          title_uk: string | null
         }
         Insert: {
           book_id?: string | null
@@ -1106,11 +1106,11 @@ export type Database = {
           chapter_type?: Database["public"]["Enums"]["chapter_type"] | null
           content_en?: string | null
           content_format?: string | null
-          content_ua?: string | null
+          content_uk?: string | null
           created_at?: string | null
           id?: string | null
           title_en?: string | null
-          title_ua?: string | null
+          title_uk?: string | null
         }
         Update: {
           book_id?: string | null
@@ -1119,11 +1119,11 @@ export type Database = {
           chapter_type?: Database["public"]["Enums"]["chapter_type"] | null
           content_en?: string | null
           content_format?: string | null
-          content_ua?: string | null
+          content_uk?: string | null
           created_at?: string | null
           id?: string | null
           title_en?: string | null
-          title_ua?: string | null
+          title_uk?: string | null
         }
         Relationships: []
       }
@@ -1355,7 +1355,7 @@ export type Database = {
       daily_quotes: {
         Row: {
           author_en: string | null
-          author_ua: string | null
+          author_uk: string | null
           created_at: string | null
           created_by: string | null
           display_count: number | null
@@ -1365,15 +1365,15 @@ export type Database = {
           priority: number | null
           quote_en: string | null
           quote_type: Database["public"]["Enums"]["daily_quote_type"]
-          quote_ua: string | null
+          quote_uk: string | null
           source_en: string | null
-          source_ua: string | null
+          source_uk: string | null
           updated_at: string | null
           verse_id: string | null
         }
         Insert: {
           author_en?: string | null
-          author_ua?: string | null
+          author_uk?: string | null
           created_at?: string | null
           created_by?: string | null
           display_count?: number | null
@@ -1383,15 +1383,15 @@ export type Database = {
           priority?: number | null
           quote_en?: string | null
           quote_type: Database["public"]["Enums"]["daily_quote_type"]
-          quote_ua?: string | null
+          quote_uk?: string | null
           source_en?: string | null
-          source_ua?: string | null
+          source_uk?: string | null
           updated_at?: string | null
           verse_id?: string | null
         }
         Update: {
           author_en?: string | null
-          author_ua?: string | null
+          author_uk?: string | null
           created_at?: string | null
           created_by?: string | null
           display_count?: number | null
@@ -1401,9 +1401,9 @@ export type Database = {
           priority?: number | null
           quote_en?: string | null
           quote_type?: Database["public"]["Enums"]["daily_quote_type"]
-          quote_ua?: string | null
+          quote_uk?: string | null
           source_en?: string | null
-          source_ua?: string | null
+          source_uk?: string | null
           updated_at?: string | null
           verse_id?: string | null
         }
@@ -1441,94 +1441,94 @@ export type Database = {
       ekadashi_info: {
         Row: {
           benefits_en: string | null
-          benefits_ua: string | null
+          benefits_uk: string | null
           breaking_fast_time: string | null
           created_at: string | null
           fasting_rules_en: string | null
-          fasting_rules_ua: string | null
+          fasting_rules_uk: string | null
           glory_source: string | null
           glory_text_en: string | null
-          glory_text_ua: string | null
+          glory_text_uk: string | null
           glory_title_en: string | null
-          glory_title_ua: string | null
+          glory_title_uk: string | null
           id: string
           image_url: string | null
           is_major: boolean | null
           mantras: string[] | null
           name_en: string
           name_sanskrit: string
-          name_ua: string
+          name_uk: string
           paksha: string
           presiding_deity_en: string | null
-          presiding_deity_ua: string | null
+          presiding_deity_uk: string | null
           recommended_activities_en: string | null
-          recommended_activities_ua: string | null
+          recommended_activities_uk: string | null
           slug: string
           sort_order: number | null
           story_en: string | null
-          story_ua: string | null
+          story_uk: string | null
           updated_at: string | null
           vaishnava_month_id: number | null
         }
         Insert: {
           benefits_en?: string | null
-          benefits_ua?: string | null
+          benefits_uk?: string | null
           breaking_fast_time?: string | null
           created_at?: string | null
           fasting_rules_en?: string | null
-          fasting_rules_ua?: string | null
+          fasting_rules_uk?: string | null
           glory_source?: string | null
           glory_text_en?: string | null
-          glory_text_ua?: string | null
+          glory_text_uk?: string | null
           glory_title_en?: string | null
-          glory_title_ua?: string | null
+          glory_title_uk?: string | null
           id?: string
           image_url?: string | null
           is_major?: boolean | null
           mantras?: string[] | null
           name_en: string
           name_sanskrit: string
-          name_ua: string
+          name_uk: string
           paksha: string
           presiding_deity_en?: string | null
-          presiding_deity_ua?: string | null
+          presiding_deity_uk?: string | null
           recommended_activities_en?: string | null
-          recommended_activities_ua?: string | null
+          recommended_activities_uk?: string | null
           slug: string
           sort_order?: number | null
           story_en?: string | null
-          story_ua?: string | null
+          story_uk?: string | null
           updated_at?: string | null
           vaishnava_month_id?: number | null
         }
         Update: {
           benefits_en?: string | null
-          benefits_ua?: string | null
+          benefits_uk?: string | null
           breaking_fast_time?: string | null
           created_at?: string | null
           fasting_rules_en?: string | null
-          fasting_rules_ua?: string | null
+          fasting_rules_uk?: string | null
           glory_source?: string | null
           glory_text_en?: string | null
-          glory_text_ua?: string | null
+          glory_text_uk?: string | null
           glory_title_en?: string | null
-          glory_title_ua?: string | null
+          glory_title_uk?: string | null
           id?: string
           image_url?: string | null
           is_major?: boolean | null
           mantras?: string[] | null
           name_en?: string
           name_sanskrit?: string
-          name_ua?: string
+          name_uk?: string
           paksha?: string
           presiding_deity_en?: string | null
-          presiding_deity_ua?: string | null
+          presiding_deity_uk?: string | null
           recommended_activities_en?: string | null
-          recommended_activities_ua?: string | null
+          recommended_activities_uk?: string | null
           slug?: string
           sort_order?: number | null
           story_en?: string | null
-          story_ua?: string | null
+          story_uk?: string | null
           updated_at?: string | null
           vaishnava_month_id?: number | null
         }
@@ -1547,11 +1547,11 @@ export type Database = {
           color: string
           created_at: string | null
           description_en: string | null
-          description_ua: string | null
+          description_uk: string | null
           icon: string | null
           id: number
           name_en: string
-          name_ua: string
+          name_uk: string
           slug: string
           sort_order: number | null
         }
@@ -1559,11 +1559,11 @@ export type Database = {
           color?: string
           created_at?: string | null
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           icon?: string | null
           id?: number
           name_en: string
-          name_ua: string
+          name_uk: string
           slug: string
           sort_order?: number | null
         }
@@ -1571,11 +1571,11 @@ export type Database = {
           color?: string
           created_at?: string | null
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           icon?: string | null
           id?: number
           name_en?: string
-          name_ua?: string
+          name_uk?: string
           slug?: string
           sort_order?: number | null
         }
@@ -1584,7 +1584,7 @@ export type Database = {
       gv_authors: {
         Row: {
           biography_en: string | null
-          biography_ua: string | null
+          biography_uk: string | null
           birth_place: string | null
           birth_year: number | null
           created_at: string | null
@@ -1598,20 +1598,20 @@ export type Database = {
           name_en: string
           name_sanskrit: string | null
           name_transliteration: string
-          name_ua: string
+          name_uk: string
           samadhi_place: string | null
           significance_en: string | null
-          significance_ua: string | null
+          significance_uk: string | null
           slug: string
           title_en: string | null
           title_sanskrit: string | null
           title_transliteration: string | null
-          title_ua: string | null
+          title_uk: string | null
           updated_at: string | null
         }
         Insert: {
           biography_en?: string | null
-          biography_ua?: string | null
+          biography_uk?: string | null
           birth_place?: string | null
           birth_year?: number | null
           created_at?: string | null
@@ -1625,20 +1625,20 @@ export type Database = {
           name_en: string
           name_sanskrit?: string | null
           name_transliteration: string
-          name_ua: string
+          name_uk: string
           samadhi_place?: string | null
           significance_en?: string | null
-          significance_ua?: string | null
+          significance_uk?: string | null
           slug: string
           title_en?: string | null
           title_sanskrit?: string | null
           title_transliteration?: string | null
-          title_ua?: string | null
+          title_uk?: string | null
           updated_at?: string | null
         }
         Update: {
           biography_en?: string | null
-          biography_ua?: string | null
+          biography_uk?: string | null
           birth_place?: string | null
           birth_year?: number | null
           created_at?: string | null
@@ -1652,15 +1652,15 @@ export type Database = {
           name_en?: string
           name_sanskrit?: string | null
           name_transliteration?: string
-          name_ua?: string
+          name_uk?: string
           samadhi_place?: string | null
           significance_en?: string | null
-          significance_ua?: string | null
+          significance_uk?: string | null
           slug?: string
           title_en?: string | null
           title_sanskrit?: string | null
           title_transliteration?: string | null
-          title_ua?: string | null
+          title_uk?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -1678,39 +1678,39 @@ export type Database = {
           color: string | null
           created_at: string | null
           description_en: string | null
-          description_ua: string | null
+          description_uk: string | null
           display_order: number | null
           icon: string | null
           id: string
           is_published: boolean | null
           name_en: string
-          name_ua: string
+          name_uk: string
           slug: string
         }
         Insert: {
           color?: string | null
           created_at?: string | null
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           display_order?: number | null
           icon?: string | null
           id?: string
           is_published?: boolean | null
           name_en: string
-          name_ua: string
+          name_uk: string
           slug: string
         }
         Update: {
           color?: string | null
           created_at?: string | null
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           display_order?: number | null
           icon?: string | null
           id?: string
           is_published?: boolean | null
           name_en?: string
-          name_ua?: string
+          name_uk?: string
           slug?: string
         }
         Relationships: []
@@ -1727,7 +1727,7 @@ export type Database = {
           cover_image_url: string | null
           created_at: string | null
           description_en: string | null
-          description_ua: string | null
+          description_uk: string | null
           display_order: number | null
           external_url: string | null
           id: string
@@ -1738,13 +1738,13 @@ export type Database = {
           original_language: string | null
           original_text_id: string | null
           significance_en: string | null
-          significance_ua: string | null
+          significance_uk: string | null
           slug: string
           subcategory: string | null
           title_en: string
           title_sanskrit: string | null
           title_transliteration: string
-          title_ua: string
+          title_uk: string
           topics: string[] | null
           updated_at: string | null
           verse_count: number | null
@@ -1761,7 +1761,7 @@ export type Database = {
           cover_image_url?: string | null
           created_at?: string | null
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           display_order?: number | null
           external_url?: string | null
           id?: string
@@ -1772,13 +1772,13 @@ export type Database = {
           original_language?: string | null
           original_text_id?: string | null
           significance_en?: string | null
-          significance_ua?: string | null
+          significance_uk?: string | null
           slug: string
           subcategory?: string | null
           title_en: string
           title_sanskrit?: string | null
           title_transliteration: string
-          title_ua: string
+          title_uk: string
           topics?: string[] | null
           updated_at?: string | null
           verse_count?: number | null
@@ -1795,7 +1795,7 @@ export type Database = {
           cover_image_url?: string | null
           created_at?: string | null
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           display_order?: number | null
           external_url?: string | null
           id?: string
@@ -1806,13 +1806,13 @@ export type Database = {
           original_language?: string | null
           original_text_id?: string | null
           significance_en?: string | null
-          significance_ua?: string | null
+          significance_uk?: string | null
           slug?: string
           subcategory?: string | null
           title_en?: string
           title_sanskrit?: string | null
           title_transliteration?: string
-          title_ua?: string
+          title_uk?: string
           topics?: string[] | null
           updated_at?: string | null
           verse_count?: number | null
@@ -1923,37 +1923,37 @@ export type Database = {
         Row: {
           book_id: string
           content_en: string | null
-          content_ua: string | null
+          content_uk: string | null
           created_at: string
           display_order: number
           id: string
           slug: string
           title_en: string
-          title_ua: string
+          title_uk: string
           updated_at: string
         }
         Insert: {
           book_id: string
           content_en?: string | null
-          content_ua?: string | null
+          content_uk?: string | null
           created_at?: string
           display_order?: number
           id?: string
           slug: string
           title_en: string
-          title_ua: string
+          title_uk: string
           updated_at?: string
         }
         Update: {
           book_id?: string
           content_en?: string | null
-          content_ua?: string | null
+          content_uk?: string | null
           created_at?: string
           display_order?: number
           id?: string
           slug?: string
           title_en?: string
-          title_ua?: string
+          title_uk?: string
           updated_at?: string
         }
         Relationships: [
@@ -1977,7 +1977,7 @@ export type Database = {
         Row: {
           audio_timecode: number | null
           content_en: string
-          content_ua: string | null
+          content_uk: string | null
           created_at: string
           id: string
           lecture_id: string
@@ -1986,7 +1986,7 @@ export type Database = {
         Insert: {
           audio_timecode?: number | null
           content_en: string
-          content_ua?: string | null
+          content_uk?: string | null
           created_at?: string
           id?: string
           lecture_id: string
@@ -1995,7 +1995,7 @@ export type Database = {
         Update: {
           audio_timecode?: number | null
           content_en?: string
-          content_ua?: string | null
+          content_uk?: string | null
           created_at?: string
           id?: string
           lecture_id?: string
@@ -2019,15 +2019,15 @@ export type Database = {
           chapter_number: number | null
           created_at: string
           description_en: string | null
-          description_ua: string | null
+          description_uk: string | null
           id: string
           lecture_date: string
           lecture_type: Database["public"]["Enums"]["lecture_type"]
           location_en: string
-          location_ua: string | null
+          location_uk: string | null
           slug: string
           title_en: string
-          title_ua: string | null
+          title_uk: string | null
           updated_at: string
           verse_number: string | null
         }
@@ -2038,15 +2038,15 @@ export type Database = {
           chapter_number?: number | null
           created_at?: string
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           id?: string
           lecture_date: string
           lecture_type?: Database["public"]["Enums"]["lecture_type"]
           location_en: string
-          location_ua?: string | null
+          location_uk?: string | null
           slug: string
           title_en: string
-          title_ua?: string | null
+          title_uk?: string | null
           updated_at?: string
           verse_number?: string | null
         }
@@ -2057,15 +2057,15 @@ export type Database = {
           chapter_number?: number | null
           created_at?: string
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           id?: string
           lecture_date?: string
           lecture_type?: Database["public"]["Enums"]["lecture_type"]
           location_en?: string
-          location_ua?: string | null
+          location_uk?: string | null
           slug?: string
           title_en?: string
-          title_ua?: string | null
+          title_uk?: string | null
           updated_at?: string
           verse_number?: string | null
         }
@@ -2075,14 +2075,14 @@ export type Database = {
         Row: {
           address_block: string | null
           content_en: string
-          content_ua: string | null
+          content_uk: string | null
           created_at: string
           id: string
           letter_date: string
           location_en: string
-          location_ua: string | null
+          location_uk: string | null
           recipient_en: string
-          recipient_ua: string | null
+          recipient_uk: string | null
           reference: string | null
           slug: string
           updated_at: string
@@ -2090,14 +2090,14 @@ export type Database = {
         Insert: {
           address_block?: string | null
           content_en: string
-          content_ua?: string | null
+          content_uk?: string | null
           created_at?: string
           id?: string
           letter_date: string
           location_en: string
-          location_ua?: string | null
+          location_uk?: string | null
           recipient_en: string
-          recipient_ua?: string | null
+          recipient_uk?: string | null
           reference?: string | null
           slug: string
           updated_at?: string
@@ -2105,14 +2105,14 @@ export type Database = {
         Update: {
           address_block?: string | null
           content_en?: string
-          content_ua?: string | null
+          content_uk?: string | null
           created_at?: string
           id?: string
           letter_date?: string
           location_en?: string
-          location_ua?: string | null
+          location_uk?: string | null
           recipient_en?: string
-          recipient_ua?: string | null
+          recipient_uk?: string | null
           reference?: string | null
           slug?: string
           updated_at?: string
@@ -2123,55 +2123,55 @@ export type Database = {
         Row: {
           banner_image_url: string | null
           content_en: string | null
-          content_ua: string | null
+          content_uk: string | null
           created_at: string
           hero_image_url: string | null
           id: string
           is_published: boolean | null
           meta_description_en: string | null
-          meta_description_ua: string | null
+          meta_description_uk: string | null
           og_image: string | null
           sections: Json | null
           seo_keywords: string | null
           slug: string
           title_en: string
-          title_ua: string
+          title_uk: string
           updated_at: string
         }
         Insert: {
           banner_image_url?: string | null
           content_en?: string | null
-          content_ua?: string | null
+          content_uk?: string | null
           created_at?: string
           hero_image_url?: string | null
           id?: string
           is_published?: boolean | null
           meta_description_en?: string | null
-          meta_description_ua?: string | null
+          meta_description_uk?: string | null
           og_image?: string | null
           sections?: Json | null
           seo_keywords?: string | null
           slug: string
           title_en: string
-          title_ua: string
+          title_uk: string
           updated_at?: string
         }
         Update: {
           banner_image_url?: string | null
           content_en?: string | null
-          content_ua?: string | null
+          content_uk?: string | null
           created_at?: string
           hero_image_url?: string | null
           id?: string
           is_published?: boolean | null
           meta_description_en?: string | null
-          meta_description_ua?: string | null
+          meta_description_uk?: string | null
           og_image?: string | null
           sections?: Json | null
           seo_keywords?: string | null
           slug?: string
           title_en?: string
-          title_ua?: string
+          title_uk?: string
           updated_at?: string
         }
         Relationships: []
@@ -2204,7 +2204,7 @@ export type Database = {
         Row: {
           created_at: string | null
           description: string | null
-          description_ua: string | null
+          description_uk: string | null
           display_order: number | null
           id: string
           is_featured: boolean | null
@@ -2212,14 +2212,14 @@ export type Database = {
           quotes_count: number | null
           slug: string
           title: string
-          title_ua: string | null
+          title_uk: string | null
           updated_at: string | null
           vaniquotes_url: string | null
         }
         Insert: {
           created_at?: string | null
           description?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           display_order?: number | null
           id?: string
           is_featured?: boolean | null
@@ -2227,14 +2227,14 @@ export type Database = {
           quotes_count?: number | null
           slug: string
           title: string
-          title_ua?: string | null
+          title_uk?: string | null
           updated_at?: string | null
           vaniquotes_url?: string | null
         }
         Update: {
           created_at?: string | null
           description?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           display_order?: number | null
           id?: string
           is_featured?: boolean | null
@@ -2242,7 +2242,7 @@ export type Database = {
           quotes_count?: number | null
           slug?: string
           title?: string
-          title_ua?: string | null
+          title_uk?: string | null
           updated_at?: string | null
           vaniquotes_url?: string | null
         }
@@ -2292,7 +2292,7 @@ export type Database = {
           id: string
           slug: string
           title: string
-          title_ua: string | null
+          title_uk: string | null
           updated_at: string | null
           vaniquotes_url: string | null
         }
@@ -2301,7 +2301,7 @@ export type Database = {
           id?: string
           slug: string
           title: string
-          title_ua?: string | null
+          title_uk?: string | null
           updated_at?: string | null
           vaniquotes_url?: string | null
         }
@@ -2310,7 +2310,7 @@ export type Database = {
           id?: string
           slug?: string
           title?: string
-          title_ua?: string | null
+          title_uk?: string | null
           updated_at?: string | null
           vaniquotes_url?: string | null
         }
@@ -2332,7 +2332,7 @@ export type Database = {
           source_type: string | null
           text_en: string
           text_html: string | null
-          text_ua: string | null
+          text_uk: string | null
           updated_at: string | null
           verse_id: string | null
           verse_number: string | null
@@ -2352,7 +2352,7 @@ export type Database = {
           source_type?: string | null
           text_en: string
           text_html?: string | null
-          text_ua?: string | null
+          text_uk?: string | null
           updated_at?: string | null
           verse_id?: string | null
           verse_number?: string | null
@@ -2372,7 +2372,7 @@ export type Database = {
           source_type?: string | null
           text_en?: string
           text_html?: string | null
-          text_ua?: string | null
+          text_uk?: string | null
           updated_at?: string | null
           verse_id?: string | null
           verse_number?: string | null
@@ -2491,12 +2491,12 @@ export type Database = {
           hero_image_url: string | null
           id: string
           meta_description_en: string | null
-          meta_description_ua: string | null
+          meta_description_uk: string | null
           og_image: string | null
           seo_keywords: string | null
           slug: string
           title_en: string
-          title_ua: string
+          title_uk: string
           updated_at: string
         }
         Insert: {
@@ -2504,12 +2504,12 @@ export type Database = {
           hero_image_url?: string | null
           id?: string
           meta_description_en?: string | null
-          meta_description_ua?: string | null
+          meta_description_uk?: string | null
           og_image?: string | null
           seo_keywords?: string | null
           slug: string
           title_en: string
-          title_ua: string
+          title_uk: string
           updated_at?: string
         }
         Update: {
@@ -2517,12 +2517,12 @@ export type Database = {
           hero_image_url?: string | null
           id?: string
           meta_description_en?: string | null
-          meta_description_ua?: string | null
+          meta_description_uk?: string | null
           og_image?: string | null
           seo_keywords?: string | null
           slug?: string
           title_en?: string
-          title_ua?: string
+          title_uk?: string
           updated_at?: string
         }
         Relationships: []
@@ -2532,12 +2532,12 @@ export type Database = {
           category: string | null
           created_at: string | null
           description_en: string | null
-          description_ua: string | null
+          description_uk: string | null
           display_order: number | null
           id: string
           name_en: string
           name_sanskrit: string | null
-          name_ua: string
+          name_uk: string
           parent_id: string | null
           slug: string
         }
@@ -2545,12 +2545,12 @@ export type Database = {
           category?: string | null
           created_at?: string | null
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           display_order?: number | null
           id?: string
           name_en: string
           name_sanskrit?: string | null
-          name_ua: string
+          name_uk: string
           parent_id?: string | null
           slug: string
         }
@@ -2558,12 +2558,12 @@ export type Database = {
           category?: string | null
           created_at?: string | null
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           display_order?: number | null
           id?: string
           name_en?: string
           name_sanskrit?: string | null
-          name_ua?: string
+          name_uk?: string
           parent_id?: string | null
           slug?: string
         }
@@ -2591,7 +2591,7 @@ export type Database = {
           is_ekadashi: boolean | null
           name_en: string
           name_sanskrit: string
-          name_ua: string
+          name_uk: string
           paksha: string
           tithi_number: number
         }
@@ -2601,7 +2601,7 @@ export type Database = {
           is_ekadashi?: boolean | null
           name_en: string
           name_sanskrit: string
-          name_ua: string
+          name_uk: string
           paksha: string
           tithi_number: number
         }
@@ -2611,7 +2611,7 @@ export type Database = {
           is_ekadashi?: boolean | null
           name_en?: string
           name_sanskrit?: string
-          name_ua?: string
+          name_uk?: string
           paksha?: string
           tithi_number?: number
         }
@@ -3071,7 +3071,7 @@ export type Database = {
           category_id: number | null
           created_at: string | null
           description_en: string | null
-          description_ua: string | null
+          description_uk: string | null
           fasting_level: string | null
           gallery_urls: string[] | null
           id: string
@@ -3079,16 +3079,16 @@ export type Database = {
           is_major: boolean | null
           name_en: string
           name_sanskrit: string | null
-          name_ua: string
+          name_uk: string
           observances_en: string | null
-          observances_ua: string | null
+          observances_uk: string | null
           paksha: string | null
           related_books: string[] | null
           related_verses: string[] | null
           short_description_en: string | null
-          short_description_ua: string | null
+          short_description_uk: string | null
           significance_en: string | null
-          significance_ua: string | null
+          significance_uk: string | null
           slug: string
           sort_order: number | null
           tithi_number: number | null
@@ -3099,7 +3099,7 @@ export type Database = {
           category_id?: number | null
           created_at?: string | null
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           fasting_level?: string | null
           gallery_urls?: string[] | null
           id?: string
@@ -3107,16 +3107,16 @@ export type Database = {
           is_major?: boolean | null
           name_en: string
           name_sanskrit?: string | null
-          name_ua: string
+          name_uk: string
           observances_en?: string | null
-          observances_ua?: string | null
+          observances_uk?: string | null
           paksha?: string | null
           related_books?: string[] | null
           related_verses?: string[] | null
           short_description_en?: string | null
-          short_description_ua?: string | null
+          short_description_uk?: string | null
           significance_en?: string | null
-          significance_ua?: string | null
+          significance_uk?: string | null
           slug: string
           sort_order?: number | null
           tithi_number?: number | null
@@ -3127,7 +3127,7 @@ export type Database = {
           category_id?: number | null
           created_at?: string | null
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           fasting_level?: string | null
           gallery_urls?: string[] | null
           id?: string
@@ -3135,16 +3135,16 @@ export type Database = {
           is_major?: boolean | null
           name_en?: string
           name_sanskrit?: string | null
-          name_ua?: string
+          name_uk?: string
           observances_en?: string | null
-          observances_ua?: string | null
+          observances_uk?: string | null
           paksha?: string | null
           related_books?: string[] | null
           related_verses?: string[] | null
           short_description_en?: string | null
-          short_description_ua?: string | null
+          short_description_uk?: string | null
           significance_en?: string | null
-          significance_ua?: string | null
+          significance_uk?: string | null
           slug?: string
           sort_order?: number | null
           tithi_number?: number | null
@@ -3172,32 +3172,32 @@ export type Database = {
         Row: {
           created_at: string | null
           description_en: string | null
-          description_ua: string | null
+          description_uk: string | null
           id: number
           month_number: number
           name_en: string
           name_sanskrit: string
-          name_ua: string
+          name_uk: string
         }
         Insert: {
           created_at?: string | null
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           id?: number
           month_number: number
           name_en: string
           name_sanskrit: string
-          name_ua: string
+          name_uk: string
         }
         Update: {
           created_at?: string | null
           description_en?: string | null
-          description_ua?: string | null
+          description_uk?: string | null
           id?: number
           month_number?: number
           name_en?: string
           name_sanskrit?: string
-          name_ua?: string
+          name_uk?: string
         }
         Relationships: []
       }
@@ -3355,14 +3355,14 @@ export type Database = {
           audio_url: string | null
           chapter_id: string
           commentary_en: string | null
-          commentary_ua: string | null
+          commentary_uk: string | null
           created_at: string
           deleted_at: string | null
           display_blocks: Json | null
           embedding: string | null
           end_verse: number | null
           explanation_en_audio_url: string | null
-          explanation_ua_audio_url: string | null
+          explanation_uk_audio_url: string | null
           full_verse_audio_url: string | null
           id: string
           is_composite: boolean | null
@@ -3370,19 +3370,19 @@ export type Database = {
           recitation_audio_url: string | null
           sanskrit: string | null
           sanskrit_en: string | null
-          sanskrit_ua: string | null
+          sanskrit_uk: string | null
           search_vector: unknown
           search_vector_en: unknown
-          search_vector_ua: unknown
+          search_vector_uk: unknown
           sort_key: number | null
           start_verse: number | null
           synonyms_en: string | null
-          synonyms_ua: string | null
+          synonyms_uk: string | null
           translation_en: string | null
-          translation_ua: string | null
+          translation_uk: string | null
           transliteration: string | null
           transliteration_en: string | null
-          transliteration_ua: string | null
+          transliteration_uk: string | null
           verse_count: number | null
           verse_end: number | null
           verse_number: string
@@ -3394,14 +3394,14 @@ export type Database = {
           audio_url?: string | null
           chapter_id: string
           commentary_en?: string | null
-          commentary_ua?: string | null
+          commentary_uk?: string | null
           created_at?: string
           deleted_at?: string | null
           display_blocks?: Json | null
           embedding?: string | null
           end_verse?: number | null
           explanation_en_audio_url?: string | null
-          explanation_ua_audio_url?: string | null
+          explanation_uk_audio_url?: string | null
           full_verse_audio_url?: string | null
           id?: string
           is_composite?: boolean | null
@@ -3409,19 +3409,19 @@ export type Database = {
           recitation_audio_url?: string | null
           sanskrit?: string | null
           sanskrit_en?: string | null
-          sanskrit_ua?: string | null
+          sanskrit_uk?: string | null
           search_vector?: unknown
           search_vector_en?: unknown
-          search_vector_ua?: unknown
+          search_vector_uk?: unknown
           sort_key?: number | null
           start_verse?: number | null
           synonyms_en?: string | null
-          synonyms_ua?: string | null
+          synonyms_uk?: string | null
           translation_en?: string | null
-          translation_ua?: string | null
+          translation_uk?: string | null
           transliteration?: string | null
           transliteration_en?: string | null
-          transliteration_ua?: string | null
+          transliteration_uk?: string | null
           verse_count?: number | null
           verse_end?: number | null
           verse_number: string
@@ -3433,14 +3433,14 @@ export type Database = {
           audio_url?: string | null
           chapter_id?: string
           commentary_en?: string | null
-          commentary_ua?: string | null
+          commentary_uk?: string | null
           created_at?: string
           deleted_at?: string | null
           display_blocks?: Json | null
           embedding?: string | null
           end_verse?: number | null
           explanation_en_audio_url?: string | null
-          explanation_ua_audio_url?: string | null
+          explanation_uk_audio_url?: string | null
           full_verse_audio_url?: string | null
           id?: string
           is_composite?: boolean | null
@@ -3448,19 +3448,19 @@ export type Database = {
           recitation_audio_url?: string | null
           sanskrit?: string | null
           sanskrit_en?: string | null
-          sanskrit_ua?: string | null
+          sanskrit_uk?: string | null
           search_vector?: unknown
           search_vector_en?: unknown
-          search_vector_ua?: unknown
+          search_vector_uk?: unknown
           sort_key?: number | null
           start_verse?: number | null
           synonyms_en?: string | null
-          synonyms_ua?: string | null
+          synonyms_uk?: string | null
           translation_en?: string | null
-          translation_ua?: string | null
+          translation_uk?: string | null
           transliteration?: string | null
           transliteration_en?: string | null
-          transliteration_ua?: string | null
+          transliteration_uk?: string | null
           verse_count?: number | null
           verse_end?: number | null
           verse_number?: string
@@ -3490,15 +3490,15 @@ export type Database = {
           audio_url: string | null
           chapter_id: string
           commentary_en: string | null
-          commentary_ua: string | null
+          commentary_uk: string | null
           created_at: string
           id: string
           sanskrit: string | null
           search_vector: unknown
           synonyms_en: string | null
-          synonyms_ua: string | null
+          synonyms_uk: string | null
           translation_en: string | null
-          translation_ua: string | null
+          translation_uk: string | null
           transliteration: string | null
           verse_number: string
           verse_number_sort: number | null
@@ -3507,15 +3507,15 @@ export type Database = {
           audio_url?: string | null
           chapter_id: string
           commentary_en?: string | null
-          commentary_ua?: string | null
+          commentary_uk?: string | null
           created_at?: string
           id?: string
           sanskrit?: string | null
           search_vector?: unknown
           synonyms_en?: string | null
-          synonyms_ua?: string | null
+          synonyms_uk?: string | null
           translation_en?: string | null
-          translation_ua?: string | null
+          translation_uk?: string | null
           transliteration?: string | null
           verse_number: string
           verse_number_sort?: number | null
@@ -3524,15 +3524,15 @@ export type Database = {
           audio_url?: string | null
           chapter_id?: string
           commentary_en?: string | null
-          commentary_ua?: string | null
+          commentary_uk?: string | null
           created_at?: string
           id?: string
           sanskrit?: string | null
           search_vector?: unknown
           synonyms_en?: string | null
-          synonyms_ua?: string | null
+          synonyms_uk?: string | null
           translation_en?: string | null
-          translation_ua?: string | null
+          translation_uk?: string | null
           transliteration?: string | null
           verse_number?: string
           verse_number_sort?: number | null
@@ -3544,15 +3544,15 @@ export type Database = {
           audio_url: string | null
           chapter_id: string | null
           commentary_en: string | null
-          commentary_ua: string | null
+          commentary_uk: string | null
           created_at: string | null
           id: string | null
           sanskrit: string | null
           search_vector: unknown
           synonyms_en: string | null
-          synonyms_ua: string | null
+          synonyms_uk: string | null
           translation_en: string | null
-          translation_ua: string | null
+          translation_uk: string | null
           transliteration: string | null
           verse_number: string | null
           verse_number_sort: number | null
@@ -3561,15 +3561,15 @@ export type Database = {
           audio_url?: string | null
           chapter_id?: string | null
           commentary_en?: string | null
-          commentary_ua?: string | null
+          commentary_uk?: string | null
           created_at?: string | null
           id?: string | null
           sanskrit?: string | null
           search_vector?: unknown
           synonyms_en?: string | null
-          synonyms_ua?: string | null
+          synonyms_uk?: string | null
           translation_en?: string | null
-          translation_ua?: string | null
+          translation_uk?: string | null
           transliteration?: string | null
           verse_number?: string | null
           verse_number_sort?: number | null
@@ -3578,15 +3578,15 @@ export type Database = {
           audio_url?: string | null
           chapter_id?: string | null
           commentary_en?: string | null
-          commentary_ua?: string | null
+          commentary_uk?: string | null
           created_at?: string | null
           id?: string | null
           sanskrit?: string | null
           search_vector?: unknown
           synonyms_en?: string | null
-          synonyms_ua?: string | null
+          synonyms_uk?: string | null
           translation_en?: string | null
-          translation_ua?: string | null
+          translation_uk?: string | null
           transliteration?: string | null
           verse_number?: string | null
           verse_number_sort?: number | null
@@ -3598,19 +3598,19 @@ export type Database = {
           changed_at: string | null
           id: string
           orig_sanskrit_en: string | null
-          orig_sanskrit_ua: string | null
+          orig_sanskrit_uk: string | null
         }
         Insert: {
           changed_at?: string | null
           id: string
           orig_sanskrit_en?: string | null
-          orig_sanskrit_ua?: string | null
+          orig_sanskrit_uk?: string | null
         }
         Update: {
           changed_at?: string | null
           id?: string
           orig_sanskrit_en?: string | null
-          orig_sanskrit_ua?: string | null
+          orig_sanskrit_uk?: string | null
         }
         Relationships: []
       }
@@ -3645,17 +3645,17 @@ export type Database = {
           author_display_name: string | null
           category_id: string | null
           content_en: string | null
-          content_ua: string | null
+          content_uk: string | null
           cover_image_url: string | null
           created_at: string | null
           excerpt_en: string | null
-          excerpt_ua: string | null
+          excerpt_uk: string | null
           featured_image: string | null
           id: string | null
           instagram_embed_url: string | null
           is_published: boolean | null
           meta_description_en: string | null
-          meta_description_ua: string | null
+          meta_description_uk: string | null
           published_at: string | null
           read_time: number | null
           scheduled_publish_at: string | null
@@ -3665,7 +3665,7 @@ export type Database = {
           tags: string[] | null
           telegram_embed_url: string | null
           title_en: string | null
-          title_ua: string | null
+          title_uk: string | null
           updated_at: string | null
           video_url: string | null
           view_count: number | null
@@ -3675,17 +3675,17 @@ export type Database = {
           author_display_name?: string | null
           category_id?: string | null
           content_en?: string | null
-          content_ua?: string | null
+          content_uk?: string | null
           cover_image_url?: string | null
           created_at?: string | null
           excerpt_en?: string | null
-          excerpt_ua?: string | null
+          excerpt_uk?: string | null
           featured_image?: string | null
           id?: string | null
           instagram_embed_url?: string | null
           is_published?: boolean | null
           meta_description_en?: string | null
-          meta_description_ua?: string | null
+          meta_description_uk?: string | null
           published_at?: string | null
           read_time?: number | null
           scheduled_publish_at?: string | null
@@ -3695,7 +3695,7 @@ export type Database = {
           tags?: string[] | null
           telegram_embed_url?: string | null
           title_en?: string | null
-          title_ua?: string | null
+          title_uk?: string | null
           updated_at?: string | null
           video_url?: string | null
           view_count?: number | null
@@ -3705,17 +3705,17 @@ export type Database = {
           author_display_name?: string | null
           category_id?: string | null
           content_en?: string | null
-          content_ua?: string | null
+          content_uk?: string | null
           cover_image_url?: string | null
           created_at?: string | null
           excerpt_en?: string | null
-          excerpt_ua?: string | null
+          excerpt_uk?: string | null
           featured_image?: string | null
           id?: string | null
           instagram_embed_url?: string | null
           is_published?: boolean | null
           meta_description_en?: string | null
-          meta_description_ua?: string | null
+          meta_description_uk?: string | null
           published_at?: string | null
           read_time?: number | null
           scheduled_publish_at?: string | null
@@ -3725,7 +3725,7 @@ export type Database = {
           tags?: string[] | null
           telegram_embed_url?: string | null
           title_en?: string | null
-          title_ua?: string | null
+          title_uk?: string | null
           updated_at?: string | null
           video_url?: string | null
           view_count?: number | null
@@ -3745,9 +3745,9 @@ export type Database = {
           book_id: string | null
           book_slug: string | null
           book_title_en: string | null
-          book_title_ua: string | null
+          book_title_uk: string | null
           content_en: Json | null
-          content_ua: Json | null
+          content_uk: Json | null
           created_at: string | null
           id: string | null
           is_published: boolean | null
@@ -3756,7 +3756,7 @@ export type Database = {
           page_type_display: string | null
           slug: string | null
           title_en: string | null
-          title_ua: string | null
+          title_uk: string | null
           updated_at: string | null
         }
         Relationships: [
@@ -3786,7 +3786,7 @@ export type Database = {
           id: string | null
           our_slug: string | null
           title_en: string | null
-          title_ua: string | null
+          title_uk: string | null
           vedabase_slug: string | null
           verses_count: number | null
         }
@@ -3799,7 +3799,7 @@ export type Database = {
           id?: string | null
           our_slug?: string | null
           title_en?: string | null
-          title_ua?: string | null
+          title_uk?: string | null
           vedabase_slug?: string | null
           verses_count?: never
         }
@@ -3812,7 +3812,7 @@ export type Database = {
           id?: string | null
           our_slug?: string | null
           title_en?: string | null
-          title_ua?: string | null
+          title_uk?: string | null
           vedabase_slug?: string | null
           verses_count?: never
         }
@@ -3828,7 +3828,7 @@ export type Database = {
           slug: string | null
           sort_date: string | null
           title_en: string | null
-          title_ua: string | null
+          title_uk: string | null
         }
         Relationships: [
           {
@@ -3845,11 +3845,11 @@ export type Database = {
           book_id: string | null
           book_slug: string | null
           book_title_en: string | null
-          book_title_ua: string | null
+          book_title_uk: string | null
           chapter_id: string | null
           chapter_number: number | null
           chapter_title_en: string | null
-          chapter_title_ua: string | null
+          chapter_title_uk: string | null
           chapter_type: Database["public"]["Enums"]["chapter_type"] | null
           completion_percentage: number | null
           filled_verses: number | null
@@ -3879,7 +3879,7 @@ export type Database = {
           id: string | null
           manual_tagged: number | null
           name_en: string | null
-          name_ua: string | null
+          name_uk: string | null
           seed_tagged: number | null
           slug: string | null
           verses_count: number | null
@@ -3893,9 +3893,9 @@ export type Database = {
           chapter_id: string | null
           chapter_number: number | null
           chapter_title_en: string | null
-          chapter_title_ua: string | null
+          chapter_title_uk: string | null
           commentary_en: string | null
-          commentary_ua: string | null
+          commentary_uk: string | null
           created_at: string | null
           deleted_at: string | null
           display_blocks: Json | null
@@ -3905,17 +3905,17 @@ export type Database = {
           is_published: boolean | null
           sanskrit: string | null
           sanskrit_en: string | null
-          sanskrit_ua: string | null
+          sanskrit_uk: string | null
           search_vector: unknown
           sort_key: number | null
           start_verse: number | null
           synonyms_en: string | null
-          synonyms_ua: string | null
+          synonyms_uk: string | null
           translation_en: string | null
-          translation_ua: string | null
+          translation_uk: string | null
           transliteration: string | null
           transliteration_en: string | null
-          transliteration_ua: string | null
+          transliteration_uk: string | null
           verse_count: number | null
           verse_end: number | null
           verse_number: string | null
@@ -4002,13 +4002,13 @@ export type Database = {
           id: string | null
           sanskrit: string | null
           synonyms_en: string | null
-          synonyms_ua: string | null
+          synonyms_uk: string | null
           title_en: string | null
-          title_ua: string | null
+          title_uk: string | null
           translation_en: string | null
-          translation_ua: string | null
+          translation_uk: string | null
           transliteration_en: string | null
-          transliteration_ua: string | null
+          transliteration_uk: string | null
           verse_number: string | null
         }
         Relationships: []
@@ -4021,25 +4021,25 @@ export type Database = {
           _audio_url?: string
           _category_id?: string
           _content_en: string
-          _content_ua: string
+          _content_uk: string
           _cover_image_url?: string
           _excerpt_en?: string
-          _excerpt_ua?: string
+          _excerpt_uk?: string
           _is_published?: boolean
           _scheduled_publish_at?: string
           _tags?: string[]
           _title_en: string
-          _title_ua: string
+          _title_uk: string
           _video_url?: string
         }
         Returns: {
           audio_commentary_en_url: string | null
-          audio_commentary_ua_url: string | null
+          audio_commentary_uk_url: string | null
           audio_poetry_translation_en_url: string | null
-          audio_poetry_translation_ua_url: string | null
+          audio_poetry_translation_uk_url: string | null
           audio_sanskrit_url: string | null
           audio_synonyms_en_url: string | null
-          audio_synonyms_ua_url: string | null
+          audio_synonyms_uk_url: string | null
           audio_transliteration_url: string | null
           audio_url: string | null
           author_display_name: string | null
@@ -4048,37 +4048,37 @@ export type Database = {
           category_id: string
           content_en: string
           content_mode: string | null
-          content_ua: string
+          content_uk: string
           cover_image_url: string | null
           created_at: string
           display_blocks: Json | null
           excerpt_en: string | null
-          excerpt_ua: string | null
+          excerpt_uk: string | null
           featured_image: string | null
           id: string
           instagram_embed_url: string | null
           is_published: boolean | null
           meta_description_en: string | null
-          meta_description_ua: string | null
+          meta_description_uk: string | null
           poetry_translation_en: string | null
-          poetry_translation_ua: string | null
+          poetry_translation_uk: string | null
           published_at: string | null
           read_time: number | null
           sanskrit: string | null
           scheduled_publish_at: string | null
           search_vector: unknown
           search_vector_en: unknown
-          search_vector_ua: unknown
+          search_vector_uk: unknown
           slug: string
           substack_embed_url: string | null
           synonyms_en: string | null
-          synonyms_ua: string | null
+          synonyms_uk: string | null
           tags: string[] | null
           telegram_embed_url: string | null
           title_en: string
-          title_ua: string
+          title_uk: string
           translation_en: string | null
-          translation_ua: string | null
+          translation_uk: string | null
           transliteration: string | null
           updated_at: string
           video_url: string | null
@@ -4141,7 +4141,7 @@ export type Database = {
           id: string
           slug: string
           title_en: string
-          title_ua: string
+          title_uk: string
           vedabase_slug: string
         }[]
       }
@@ -4182,7 +4182,7 @@ export type Database = {
           category_color: string
           category_slug: string
           description_en: string
-          description_ua: string
+          description_uk: string
           event_date: string
           event_id: string
           event_type: string
@@ -4190,7 +4190,7 @@ export type Database = {
           is_major: boolean
           moon_phase: number
           name_en: string
-          name_ua: string
+          name_uk: string
           sunrise_time: string
           sunset_time: string
         }[]
@@ -4200,16 +4200,16 @@ export type Database = {
         Returns: {
           audio_url: string
           commentary_en: string
-          commentary_ua: string
+          commentary_uk: string
           end_verse: number
           id: string
           is_composite: boolean
           sanskrit: string
           start_verse: number
           synonyms_en: string
-          synonyms_ua: string
+          synonyms_uk: string
           translation_en: string
-          translation_ua: string
+          translation_uk: string
           transliteration: string
           verse_count: number
           verse_number: string
@@ -4222,7 +4222,7 @@ export type Database = {
           quotes_count: number
           slug: string
           title: string
-          title_ua: string
+          title_uk: string
         }[]
       }
       get_glossary_stats: {
@@ -4320,7 +4320,7 @@ export type Database = {
           depth: number
           id: string
           name_en: string
-          name_ua: string
+          name_uk: string
           slug: string
         }[]
       }
@@ -4340,7 +4340,7 @@ export type Database = {
           sanskrit: string
           tattva_name: string
           translation_en: string
-          translation_ua: string
+          translation_uk: string
           verse_id: string
           verse_number: string
         }[]
@@ -4353,11 +4353,11 @@ export type Database = {
           event_type: string
           is_ekadashi: boolean
           name_en: string
-          name_ua: string
+          name_uk: string
           parana_end_time: string
           parana_start_time: string
           short_description_en: string
-          short_description_ua: string
+          short_description_uk: string
         }[]
       }
       get_topic_statistics: {
@@ -4419,15 +4419,15 @@ export type Database = {
           chapter_number: number | null
           created_at: string
           description_en: string | null
-          description_ua: string | null
+          description_uk: string | null
           id: string
           lecture_date: string
           lecture_type: Database["public"]["Enums"]["lecture_type"]
           location_en: string
-          location_ua: string | null
+          location_uk: string | null
           slug: string
           title_en: string
-          title_ua: string | null
+          title_uk: string | null
           updated_at: string
           verse_number: string | null
         }[]
@@ -4451,7 +4451,7 @@ export type Database = {
           source_reference: string
           source_type: string
           text_en: string
-          text_ua: string
+          text_uk: string
         }[]
       }
       get_verse_tattvas: {
@@ -4461,7 +4461,7 @@ export type Database = {
           id: string
           name_en: string
           name_sanskrit: string
-          name_ua: string
+          name_uk: string
           relevance_score: number
           slug: string
         }[]
@@ -4614,7 +4614,7 @@ export type Database = {
           source_reference: string
           source_type: string
           text_en: string
-          text_ua: string
+          text_uk: string
           verse_number: string
         }[]
       }
@@ -4702,11 +4702,11 @@ export type Database = {
         Returns: {
           category: string
           description_en: string
-          description_ua: string
+          description_uk: string
           id: string
           name_en: string
           name_sanskrit: string
-          name_ua: string
+          name_uk: string
           parent_id: string
           parent_slug: string
           slug: string
@@ -4757,11 +4757,11 @@ export type Database = {
           book_slug: string
           chapter_id: string
           commentary_en: string
-          commentary_ua: string
+          commentary_uk: string
           id: string
           similarity: number
           translation_en: string
-          translation_ua: string
+          translation_uk: string
           verse_number: string
         }[]
       }

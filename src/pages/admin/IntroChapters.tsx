@@ -83,7 +83,7 @@ export default function IntroChapters() {
               Назад до книг
             </Link>
           </Button>
-          <h1 className="text-3xl font-bold">Вступні глави{book ? `: ${book.title_ua}` : ""}</h1>
+          <h1 className="text-3xl font-bold">Вступні глави{book ? `: ${book.title_uk}` : ""}</h1>
         </div>
         <Button asChild>
           <Link to={`/admin/intro-chapters/${bookId}/new`}>
@@ -127,7 +127,7 @@ export default function IntroChapters() {
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <div>
-                      <div className="text-lg">{chapter.title_ua}</div>
+                      <div className="text-lg">{chapter.title_uk}</div>
                       <div className="text-sm text-muted-foreground font-normal">{chapter.title_en}</div>
                     </div>
                     <div className="flex gap-2">

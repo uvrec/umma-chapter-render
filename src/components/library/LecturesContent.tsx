@@ -34,7 +34,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 export const LecturesContent = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
-  const [contentLanguage, setContentLanguage] = useState<"ua" | "en">("ua");
+  const [contentLanguage, setContentLanguage] = useState<"uk" | "en">("ua");
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<LectureFilters>({
     type: "all",
@@ -71,7 +71,7 @@ export const LecturesContent = () => {
       result = result.filter(
         (lecture) =>
           lecture.title_en.toLowerCase().includes(query) ||
-          (lecture.title_ua && lecture.title_ua.toLowerCase().includes(query)) ||
+          (lecture.title_uk && lecture.title_uk.toLowerCase().includes(query)) ||
           lecture.location_en.toLowerCase().includes(query) ||
           (lecture.location_ua && lecture.location_ua.toLowerCase().includes(query))
       );
@@ -187,7 +187,7 @@ export const LecturesContent = () => {
   };
 
   const getLectureTitle = (lecture: Lecture) => {
-    return contentLanguage === "ua" && lecture.title_ua ? lecture.title_ua : lecture.title_en;
+    return contentLanguage === "ua" && lecture.title_uk ? lecture.title_uk : lecture.title_en;
   };
 
   const getLectureLocation = (lecture: Lecture) => {
@@ -202,7 +202,7 @@ export const LecturesContent = () => {
     return (
       <div className="text-center py-12">
         <div className="animate-pulse text-muted-foreground">
-          {language === "ua" ? "Завантаження..." : "Loading..."}
+          {language === "uk" ? "Завантаження..." : "Loading..."}
         </div>
       </div>
     );
@@ -228,7 +228,7 @@ export const LecturesContent = () => {
         </div>
 
         {/* Мовний переключач */}
-        <Tabs value={contentLanguage} onValueChange={(v) => setContentLanguage(v as "ua" | "en")}>
+        <Tabs value={contentLanguage} onValueChange={(v) => setContentLanguage(v as "uk" | "en")}>
           <TabsList>
             <TabsTrigger value="ua">Українська</TabsTrigger>
             <TabsTrigger value="en">English</TabsTrigger>

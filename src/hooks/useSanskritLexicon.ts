@@ -140,7 +140,7 @@ export const useSanskritLexicon = (opts: UseSanskritLexiconOptions = {}) => {
    * Get grammar label for display
    */
   const getGrammarLabel = useCallback(
-    (grammar: string | null, language: "ua" | "en"): string | null => {
+    (grammar: string | null, language: "uk" | "en"): string | null => {
       if (!grammar) return null;
       const label = GRAMMAR_LABELS[grammar];
       return label ? label[language] : grammar;

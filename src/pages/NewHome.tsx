@@ -102,7 +102,7 @@ function Hero() {
     const s = Math.floor(seconds % 60);
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
-  const subtitle = language === "ua" ? settings.subtitle_ua : settings.subtitle_en;
+  const subtitle = language === "uk" ? settings.subtitle_ua : settings.subtitle_en;
   const {
     isAdmin
   } = useAuth();
@@ -144,7 +144,7 @@ function Hero() {
                   <div className="flex items-center justify-between gap-3 sm:gap-4">
                     <div className="min-w-0 flex-1 text-left">
                       <div className="mb-1 truncate text-sm sm:text-base font-semibold" style={{ color: '#F1E1C7' }}>
-                        {currentTrack.title_ua || currentTrack.title}
+                        {currentTrack.title_uk || currentTrack.title}
                       </div>
                       <div className="truncate text-xs sm:text-sm" style={{ color: 'rgba(241, 225, 199, 0.7)' }}>
                         {currentTrack.artist || currentTrack.album || "Vedavoice"}
@@ -249,17 +249,17 @@ function LatestContent() {
   const latestContent: ContentItem[] = [...(audioTracks?.map((track: any) => ({
     id: track.id,
     type: "audio" as const,
-    title: track.title_ua,
-    subtitle: track.audio_playlists?.title_ua,
+    title: track.title_uk,
+    subtitle: track.audio_playlists?.title_uk,
     href: `/audiobooks/${track.playlist_id}`,
     duration: track.duration ? `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, "0")}` : undefined,
     created_at: track.created_at,
     audioData: {
       id: track.id,
-      title: track.title_ua,
-      title_ua: track.title_ua,
+      title: track.title_uk,
+      title_ua: track.title_uk,
       title_en: track.title_en,
-      subtitle: track.audio_playlists?.title_ua,
+      subtitle: track.audio_playlists?.title_uk,
       artist: "Шріла Прабгупада",
       // За замовчанням автор
       src: track.audio_url || "",
@@ -270,8 +270,8 @@ function LatestContent() {
   })) || []), ...(blogPosts?.map((post: any) => ({
     id: post.id,
     type: "blog" as const,
-    title: post.title_ua,
-    subtitle: post.excerpt_ua || undefined,
+    title: post.title_uk,
+    subtitle: post.excerpt_uk || undefined,
     href: `/blog/${post.slug}`,
     duration: post.read_time ? `${post.read_time} хв` : undefined,
     created_at: post.created_at
@@ -428,7 +428,7 @@ function FeaturedBooks() {
         {books.map(book => <a key={book.id} href={`/veda-reader/${book.slug}`} className="group cursor-pointer">
             {/* Book Cover */}
             <div className="relative aspect-[2/3] overflow-hidden rounded-lg shadow-md group-hover:shadow-xl transition-all duration-300">
-              {book.cover_image_url ? <img src={book.cover_image_url} alt={language === "ua" ? book.title_ua : book.title_en} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" /> : <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
+              {book.cover_image_url ? <img src={book.cover_image_url} alt={language === "uk" ? book.title_uk : book.title_en} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" /> : <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
                   <span className="text-3xl sm:text-5xl opacity-50">📖</span>
                 </div>}
 
@@ -438,7 +438,7 @@ function FeaturedBooks() {
 
             {/* Book Title - адаптивний розмір */}
             <h3 className="mt-2 sm:mt-3 text-xs sm:text-sm font-medium text-center line-clamp-2 text-foreground group-hover:text-primary transition-colors px-1">
-              {language === "ua" ? book.title_ua : book.title_en}
+              {language === "uk" ? book.title_uk : book.title_en}
             </h3>
           </a>)}
       </div>

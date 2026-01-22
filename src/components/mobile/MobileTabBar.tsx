@@ -76,7 +76,7 @@ export function MobileTabBar() {
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const active = isActive(tab);
-          const label = language === "ua" ? tab.labelUa : tab.labelEn;
+          const label = language === "uk" ? tab.labelUa : tab.labelEn;
 
           return (
             <button

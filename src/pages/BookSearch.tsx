@@ -276,7 +276,7 @@ export default function BookSearch() {
                       className="gap-1"
                     >
                       <Book className="h-3 w-3" />
-                      {language === 'ua' ? book.title_ua : book.title_en}
+                      {language === 'uk' ? book.title_uk : book.title_en}
                     </Button>
                   ))}
                   {selectedBooks.length > 0 && (
@@ -351,7 +351,7 @@ export default function BookSearch() {
                   )}
                 </p>
                 <code className="bg-muted px-2 py-1 rounded text-primary">
-                  {language === 'ua' ? '"чисте віддане служіння"' : '"Supreme Personality of Godhead"'}
+                  {language === 'uk' ? '"чисте віддане служіння"' : '"Supreme Personality of Godhead"'}
                 </code>
               </div>
 
@@ -364,7 +364,7 @@ export default function BookSearch() {
                   )}
                 </p>
                 <code className="bg-muted px-2 py-1 rounded text-primary">
-                  {language === 'ua' ? 'крішна арджуна' : 'krishna arjuna'}
+                  {language === 'uk' ? 'крішна арджуна' : 'krishna arjuna'}
                 </code>
               </div>
 
@@ -377,7 +377,7 @@ export default function BookSearch() {
                   )}
                 </p>
                 <code className="bg-muted px-2 py-1 rounded text-primary">
-                  {language === 'ua' ? 'крішна AND арджуна' : 'krishna AND arjuna'}
+                  {language === 'uk' ? 'крішна AND арджуна' : 'krishna AND arjuna'}
                 </code>
               </div>
 
@@ -390,7 +390,7 @@ export default function BookSearch() {
                   )}
                 </p>
                 <code className="bg-muted px-2 py-1 rounded text-primary">
-                  {language === 'ua' ? 'крішна -арджуна' : 'krishna -arjuna'}
+                  {language === 'uk' ? 'крішна -арджуна' : 'krishna -arjuna'}
                 </code>
               </div>
 
@@ -405,18 +405,18 @@ export default function BookSearch() {
                 <div className="space-y-1">
                   <div>
                     <code className="bg-muted px-2 py-1 rounded text-primary">
-                      {language === 'ua' ? 'крішн*' : 'hari*'}
+                      {language === 'uk' ? 'крішн*' : 'hari*'}
                     </code>
                     <span className="text-muted-foreground ml-2 text-xs">
-                      {language === 'ua' ? '→ крішна, крішни, крішною...' : '→ hari, harinama, haridasa...'}
+                      {language === 'uk' ? '→ крішна, крішни, крішною...' : '→ hari, harinama, haridasa...'}
                     </span>
                   </div>
                   <div>
                     <code className="bg-muted px-2 py-1 rounded text-primary">
-                      {language === 'ua' ? 'те?т' : 'te?t'}
+                      {language === 'uk' ? 'те?т' : 'te?t'}
                     </code>
                     <span className="text-muted-foreground ml-2 text-xs">
-                      {language === 'ua' ? '→ тест, текст (? = один символ)' : '→ test, text (? = one character)'}
+                      {language === 'uk' ? '→ тест, текст (? = один символ)' : '→ test, text (? = one character)'}
                     </span>
                   </div>
                 </div>
@@ -433,10 +433,10 @@ export default function BookSearch() {
                 <div className="space-y-1">
                   <div>
                     <code className="bg-muted px-2 py-1 rounded text-primary">
-                      {language === 'ua' ? '"крішна арджуна"~4' : '"paraphernalia king"~4'}
+                      {language === 'uk' ? '"крішна арджуна"~4' : '"paraphernalia king"~4'}
                     </code>
                     <span className="text-muted-foreground ml-2 text-xs">
-                      {language === 'ua' ? '→ слова в межах 4 позицій' : '→ words within 4 positions'}
+                      {language === 'uk' ? '→ слова в межах 4 позицій' : '→ words within 4 positions'}
                     </span>
                   </div>
                 </div>
@@ -451,7 +451,7 @@ export default function BookSearch() {
                   )}
                 </p>
                 <code className="bg-muted px-2 py-1 rounded text-primary">
-                  {language === 'ua' ? '"віддане служіння"~3 AND бгакт* -карма' : '"pure devotion"~3 AND krsn* -arjuna'}
+                  {language === 'uk' ? '"віддане служіння"~3 AND бгакт* -карма' : '"pure devotion"~3 AND krsn* -arjuna'}
                 </code>
               </div>
             </div>

@@ -83,7 +83,7 @@ export async function importLecture(
     // Підготувати дані для запису
     const lectureData = {
       title_en: data.metadata.title_en,
-      title_ua: data.metadata.title_ua || null,
+      title_ua: data.metadata.title_uk || null,
       lecture_date: data.metadata.lecture_date,
       location_en: data.metadata.location_en,
       location_ua: data.metadata.location_ua || null,
@@ -140,7 +140,7 @@ export async function importLecture(
         lecture_id: lectureId,
         paragraph_number: p.paragraph_number,
         content_en: p.content_en,
-        content_ua: p.content_ua || null,
+        content_ua: p.content_uk || null,
         audio_timecode: p.audio_timecode || null,
       }));
 

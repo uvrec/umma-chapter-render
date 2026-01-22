@@ -94,9 +94,9 @@ export default function SiteBanners() {
     <div className="w-full bg-amber-50/90 dark:bg-amber-900/20 backdrop-blur supports-[backdrop-filter]:backdrop-blur-sm border-b border-amber-200 dark:border-amber-800">
       <div className="mx-auto max-w-6xl px-4 py-2 space-y-2">
         {banners.map((b) => {
-          const title = language === "ua" ? b.title_ua || b.title_en : b.title_en || b.title_ua;
+          const title = language === "uk" ? b.title_uk || b.title_en : b.title_en || b.title_uk;
           const desc =
-            language === "ua" ? b.description_ua || b.description_en : b.description_en || b.description_ua;
+            language === "uk" ? b.description_uk || b.description_en : b.description_en || b.description_uk;
 
           return (
             <div
@@ -124,14 +124,14 @@ export default function SiteBanners() {
                     rel="noopener noreferrer"
                     className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-amber-900 underline underline-offset-4 hover:no-underline dark:text-amber-200"
                   >
-                    {language === "ua" ? "Детальніше" : "Learn more"}
+                    {language === "uk" ? "Детальніше" : "Learn more"}
                     <ExternalLink className="h-3.5 w-3.5" />
                   </a>
                 ) : null}
               </div>
 
               <button
-                aria-label={language === "ua" ? "Закрити банер" : "Dismiss banner"}
+                aria-label={language === "uk" ? "Закрити банер" : "Dismiss banner"}
                 onClick={() => handleDismiss(b.id)}
                 className="absolute right-1 top-1 inline-flex h-7 w-7 items-center justify-center rounded-md text-amber-800/80 hover:bg-amber-200/60 dark:text-amber-200/80 dark:hover:bg-amber-800/50"
               >

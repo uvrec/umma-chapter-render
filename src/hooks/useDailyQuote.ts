@@ -200,7 +200,7 @@ export function useDailyQuote() {
           verse: {
             verse_number: verse.verse_number,
             chapter_id: verse.chapter_id,
-            translation_ua: verse.translation_ua,
+            translation_ua: verse.translation_uk,
             translation_en: verse.translation_en,
             chapter: verse.chapter,
           },
@@ -252,17 +252,17 @@ export function useDailyQuote() {
   // Форматуємо цитату для відображення
   const formattedQuote = quote ? {
     // Очищаємо текст від HTML тегів (<p>, </p> тощо)
-    text: stripParagraphTags(language === 'ua'
-      ? (quote.quote_type === 'verse' ? quote.verse?.translation_ua : quote.quote_ua) || ''
+    text: stripParagraphTags(language === 'uk'
+      ? (quote.quote_type === 'verse' ? quote.verse?.translation_uk : quote.quote_ua) || ''
       : (quote.quote_type === 'verse' ? quote.verse?.translation_en : quote.quote_en) || ''),
 
-    author: language === 'ua' ? quote.author_ua : quote.author_en,
+    author: language === 'uk' ? quote.author_ua : quote.author_en,
 
     source: quote.quote_type === 'verse' && quote.verse?.chapter
       ? (() => {
           // Для книг з кантами book доступний через canto, інакше напряму
           const book = quote.verse.chapter.book || quote.verse.chapter.canto?.book;
-          const bookTitle = book?.[language === 'ua' ? 'title_ua' : 'title_en'] || book?.title_ua || '';
+          const bookTitle = book?.[language === 'uk' ? 'title_ua' : 'title_en'] || book?.title_uk || '';
           const chapterNumber = quote.verse.chapter.chapter_number;
           const verseNumber = quote.verse.verse_number;
 
@@ -274,7 +274,7 @@ export function useDailyQuote() {
 
           return `${bookTitle} ${chapterNumber}.${verseNumber}`;
         })()
-      : (language === 'ua' ? quote.source_ua : quote.source_en),
+      : (language === 'uk' ? quote.source_ua : quote.source_en),
 
     verseNumber: quote.quote_type === 'verse' ? quote.verse?.verse_number : null,
     sanskrit: quote.quote_type === 'verse' ? quote.verse?.sanskrit_ua : null,

@@ -104,10 +104,10 @@ export default function AudioCategories() {
   const handleEdit = (category: AudioCategory) => {
     setEditingCategory(category);
     setFormData({
-      name_ua: category.name_ua ?? "",
+      name_ua: category.name_uk ?? "",
       name_en: category.name_en ?? "",
       slug: category.slug ?? "",
-      description_ua: category.description_ua ?? "",
+      description_ua: category.description_uk ?? "",
       description_en: category.description_en ?? "",
       icon: category.icon ?? "",
       display_order: category.display_order ?? 0,
@@ -133,7 +133,7 @@ export default function AudioCategories() {
   const saveMutation = useMutation({
     mutationFn: async (data: FormState) => {
       // валідація
-      if (!data.name_ua.trim() || !data.name_en.trim()) {
+      if (!data.name_uk.trim() || !data.name_en.trim()) {
         throw new Error("Назви (UA/EN) обов’язкові");
       }
       if (!data.slug.trim()) {
@@ -145,10 +145,10 @@ export default function AudioCategories() {
       }
 
       const payload = {
-        name_ua: data.name_ua.trim(),
+        name_ua: data.name_uk.trim(),
         name_en: data.name_en.trim(),
         slug: data.slug.trim(),
-        description_ua: data.description_ua.trim() || null,
+        description_ua: data.description_uk.trim() || null,
         description_en: data.description_en.trim() || null,
         icon: data.icon.trim() || null,
         display_order: Number.isFinite(data.display_order) ? data.display_order : 0,
@@ -224,7 +224,7 @@ export default function AudioCategories() {
                   <Label htmlFor="name_ua">Назва (UA) *</Label>
                   <Input
                     id="name_ua"
-                    value={formData.name_ua}
+                    value={formData.name_uk}
                     onChange={(e) => setFormData((s) => ({ ...s, name_ua: e.target.value }))}
                     required
                   />
@@ -257,7 +257,7 @@ export default function AudioCategories() {
                   onClick={() =>
                     setFormData((s) => ({
                       ...s,
-                      slug: s.slug || generateSlug(s.name_ua || s.name_en),
+                      slug: s.slug || generateSlug(s.name_uk || s.name_en),
                     }))
                   }
                 >
@@ -301,7 +301,7 @@ export default function AudioCategories() {
                   <Label htmlFor="description_ua">Опис (UA)</Label>
                   <Textarea
                     id="description_ua"
-                    value={formData.description_ua}
+                    value={formData.description_uk}
                     onChange={(e) => setFormData((s) => ({ ...s, description_ua: e.target.value }))}
                     rows={3}
                   />
@@ -349,7 +349,7 @@ export default function AudioCategories() {
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle className="flex items-center gap-2">
                     <Icon className="w-5 h-5 opacity-80" />
-                    <span className="font-semibold">{category.name_ua}</span>
+                    <span className="font-semibold">{category.name_uk}</span>
                     <span className="text-muted-foreground">/ {category.name_en}</span>
                   </CardTitle>
                   <div className="flex gap-2">
@@ -381,9 +381,9 @@ export default function AudioCategories() {
                   <p>
                     <span className="text-foreground">Порядок:</span> {category.display_order}
                   </p>
-                  {category.description_ua && (
+                  {category.description_uk && (
                     <p>
-                      <span className="text-foreground">Опис:</span> {category.description_ua}
+                      <span className="text-foreground">Опис:</span> {category.description_uk}
                     </p>
                   )}
                 </CardContent>

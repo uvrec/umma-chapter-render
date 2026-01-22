@@ -69,7 +69,7 @@ type SearchMode = "contains" | "starts_with" | "exact";
 export default function SynonymsSearch() {
   const { language: contextLanguage } = useLanguage();
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchLanguage, setSearchLanguage] = useState<"ua" | "en">("ua");
+  const [searchLanguage, setSearchLanguage] = useState<"uk" | "en">("ua");
   const [searchMode, setSearchMode] = useState<SearchMode>("contains");
   const [results, setResults] = useState<SynonymSearchResult[]>([]);
   const [autocomplete, setAutocomplete] = useState<AutocompleteItem[]>([]);
@@ -84,7 +84,7 @@ export default function SynonymsSearch() {
 
   // Автокомпліт для швидкого введення
   const loadAutocomplete = useCallback(
-    debounce(async (term: string, lang: "ua" | "en") => {
+    debounce(async (term: string, lang: "uk" | "en") => {
       if (term.length < 2) {
         setAutocomplete([]);
         return;
@@ -212,7 +212,7 @@ export default function SynonymsSearch() {
                 </Label>
                 <RadioGroup
                   value={searchLanguage}
-                  onValueChange={(val) => setSearchLanguage(val as "ua" | "en")}
+                  onValueChange={(val) => setSearchLanguage(val as "uk" | "en")}
                   className="flex gap-4"
                 >
                   <div className="flex items-center space-x-2">

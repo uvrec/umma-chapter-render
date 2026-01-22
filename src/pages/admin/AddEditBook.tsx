@@ -102,9 +102,9 @@ export default function AddEditBook() {
   useEffect(() => {
     if (!book) return;
     setSlug(book.slug ?? "");
-    setTitleUa(book.title_ua ?? "");
+    setTitleUa(book.title_uk ?? "");
     setTitleEn(book.title_en ?? "");
-    setDescriptionUa(book.description_ua ?? "");
+    setDescriptionUa(book.description_uk ?? "");
     setDescriptionEn(book.description_en ?? "");
     setCoverImageUrl(book.cover_image_url ?? "");
     setCoverImagePath(

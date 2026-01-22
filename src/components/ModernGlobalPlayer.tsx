@@ -74,10 +74,10 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
     if (!currentTrack) return;
     if (isCurrentFavorite) {
       removeFavorite(currentTrack.id);
-      toast.success(language === 'ua' ? 'Видалено з улюблених' : 'Removed from favorites');
+      toast.success(language === 'uk' ? 'Видалено з улюблених' : 'Removed from favorites');
     } else {
       addFavorite(currentTrack);
-      toast.success(language === 'ua' ? 'Додано до улюблених' : 'Added to favorites');
+      toast.success(language === 'uk' ? 'Додано до улюблених' : 'Added to favorites');
     }
   };
 
@@ -132,9 +132,9 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
           setVerseData({
             sanskrit: data.sanskrit,
             transliteration: data.transliteration || data.transliteration_ua || data.transliteration_en,
-            translation_ua: data.translation_ua,
+            translation_ua: data.translation_uk,
             translation_en: data.translation_en,
-            synonyms_ua: data.synonyms_ua,
+            synonyms_ua: data.synonyms_uk,
             synonyms_en: data.synonyms_en,
           });
         }
@@ -240,10 +240,10 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                     <div className="w-24 h-px bg-white/30 mx-auto my-4" />
 
                     {/* Translation */}
-                    {(verseData.translation_ua || verseData.translation_en) && (
+                    {(verseData.translation_uk || verseData.translation_en) && (
                       <div className="mt-4">
                         <p className="text-base xl:text-lg text-white/90 leading-relaxed text-center max-w-lg mx-auto">
-                          {language === 'ua' ? verseData.translation_ua : verseData.translation_en}
+                          {language === 'uk' ? verseData.translation_uk : verseData.translation_en}
                         </p>
                       </div>
                     )}
@@ -273,7 +273,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                 {/* Track Info */}
                 <div className="mb-10">
                   <h2 className="text-4xl font-bold text-foreground mb-3 line-clamp-2">
-                    {currentTrack.title_ua || currentTrack.title}
+                    {currentTrack.title_uk || currentTrack.title}
                   </h2>
                   {currentTrack.artist && (
                     <p className="text-muted-foreground text-xl mb-2">
@@ -368,8 +368,8 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                         : 'text-muted-foreground hover:text-foreground hover:bg-foreground/10'
                     }`}
                     title={isCurrentFavorite
-                      ? (language === 'ua' ? 'Видалити з улюблених' : 'Remove from favorites')
-                      : (language === 'ua' ? 'Додати до улюблених' : 'Add to favorites')
+                      ? (language === 'uk' ? 'Видалити з улюблених' : 'Remove from favorites')
+                      : (language === 'uk' ? 'Додати до улюблених' : 'Add to favorites')
                     }
                   >
                     <Heart className={`w-6 h-6 ${isCurrentFavorite ? 'fill-current' : ''}`} />
@@ -421,7 +421,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                           className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition text-left"
                         >
                           <Timer className="w-5 h-5 text-muted-foreground" />
-                          <span>{language === 'ua' ? 'Таймер сну' : 'Sleep Timer'}</span>
+                          <span>{language === 'uk' ? 'Таймер сну' : 'Sleep Timer'}</span>
                         </button>
 
                         {/* Playback Speed */}
@@ -432,7 +432,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                           >
                             <div className="flex items-center gap-3">
                               <Gauge className="w-5 h-5 text-muted-foreground" />
-                              <span>{language === 'ua' ? 'Швидкість' : 'Speed'}</span>
+                              <span>{language === 'uk' ? 'Швидкість' : 'Speed'}</span>
                             </div>
                             <span className="text-primary font-medium">{playbackRate}x</span>
                           </button>
@@ -468,7 +468,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                             className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition text-left"
                           >
                             <ExternalLink className="w-5 h-5 text-muted-foreground" />
-                            <span>{language === 'ua' ? 'Перейти до вірша' : 'Go to verse'}</span>
+                            <span>{language === 'uk' ? 'Перейти до вірша' : 'Go to verse'}</span>
                           </button>
                         )}
                       </div>
@@ -519,10 +519,10 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                 <div className="w-16 h-px bg-border mx-auto my-4" />
 
                 {/* Translation */}
-                {(verseData.translation_ua || verseData.translation_en) && (
+                {(verseData.translation_uk || verseData.translation_en) && (
                   <div className="mb-4">
                     <p className="text-sm text-foreground/90 leading-relaxed text-center">
-                      {language === 'ua' ? verseData.translation_ua : verseData.translation_en}
+                      {language === 'uk' ? verseData.translation_uk : verseData.translation_en}
                     </p>
                   </div>
                 )}
@@ -549,7 +549,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
             {/* Track Info */}
             <div className="max-w-md mx-auto text-center mb-6">
               <h2 className="text-2xl font-bold text-foreground mb-2 line-clamp-2">
-                {currentTrack.title_ua || currentTrack.title}
+                {currentTrack.title_uk || currentTrack.title}
               </h2>
               {currentTrack.artist && (
                 <p className="text-muted-foreground text-lg mb-1">
@@ -694,7 +694,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                       className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition text-left"
                     >
                       <Timer className="w-5 h-5 text-muted-foreground" />
-                      <span className="text-sm">{language === 'ua' ? 'Таймер сну' : 'Sleep Timer'}</span>
+                      <span className="text-sm">{language === 'uk' ? 'Таймер сну' : 'Sleep Timer'}</span>
                     </button>
 
                     {/* Playback Speed */}
@@ -708,7 +708,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                     >
                       <div className="flex items-center gap-3">
                         <Gauge className="w-5 h-5 text-muted-foreground" />
-                        <span className="text-sm">{language === 'ua' ? 'Швидкість' : 'Speed'}</span>
+                        <span className="text-sm">{language === 'uk' ? 'Швидкість' : 'Speed'}</span>
                       </div>
                       <span className="text-primary font-medium text-sm">{playbackRate}x</span>
                     </button>
@@ -723,7 +723,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                         className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition text-left"
                       >
                         <ExternalLink className="w-5 h-5 text-muted-foreground" />
-                        <span className="text-sm">{language === 'ua' ? 'Перейти до вірша' : 'Go to verse'}</span>
+                        <span className="text-sm">{language === 'uk' ? 'Перейти до вірша' : 'Go to verse'}</span>
                       </button>
                     )}
                   </div>
@@ -769,7 +769,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                   
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-card-foreground truncate text-sm">
-                      {currentTrack.title_ua || currentTrack.title}
+                      {currentTrack.title_uk || currentTrack.title}
                     </p>
                     <p className="text-xs text-muted-foreground truncate">
                       {currentTrack.artist || currentTrack.subtitle || currentTrack.title_en || 'VedaVoice'}

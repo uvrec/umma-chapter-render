@@ -287,9 +287,9 @@ export function mergeRajaVidyaChapters(
   return {
     chapter_number: chapterNumber,
     chapter_type: 'text' as const,
-    title_ua: ua?.title_ua || '',
+    title_ua: ua?.title_uk || '',
     title_en: en?.title_en || '',
-    content_ua: ua?.content_ua || '',
+    content_ua: ua?.content_uk || '',
     content_en: en?.content_en || '',
     verses: [], // Raja Vidya - текстова книга без окремих віршів
   };

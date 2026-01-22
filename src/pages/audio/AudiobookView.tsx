@@ -114,7 +114,7 @@ export const AudiobookView = () => {
   const tracks =
     audiobook.tracks?.map((track) => ({
       id: track.id,
-      title: track.title_ua || track.title_en || "Без назви",
+      title: track.title_uk || track.title_en || "Без назви",
       duration: formatDuration(track.duration),
       src: track.audio_url!,
     })) ?? [];
@@ -140,7 +140,7 @@ export const AudiobookView = () => {
                   <div className="w-full max-w-xs mx-auto mb-6 bg-muted rounded-lg overflow-hidden">
                     <img
                       src={audiobook.cover_image_url}
-                      alt={audiobook.title_ua || audiobook.title_en || "Аудіокнига"}
+                      alt={audiobook.title_uk || audiobook.title_en || "Аудіокнига"}
                       className="w-full h-auto object-cover aspect-[3/4]"
                     />
                   </div>
@@ -149,7 +149,7 @@ export const AudiobookView = () => {
                 <div className="space-y-4">
                   <div>
                     <h1 className="text-2xl font-bold text-foreground mb-2">
-                      {audiobook.title_ua || audiobook.title_en || "Аудіокнига"}
+                      {audiobook.title_uk || audiobook.title_en || "Аудіокнига"}
                     </h1>
                     {audiobook.author && (
                       <div className="flex items-center gap-2 text-muted-foreground">
@@ -172,10 +172,10 @@ export const AudiobookView = () => {
                     )}
                   </div>
 
-                  {audiobook.description_ua && (
+                  {audiobook.description_uk && (
                     <div className="prose prose-sm text-foreground">
                       <h3 className="text-lg font-semibold mb-2">Про книгу</h3>
-                      <p className="text-muted-foreground leading-relaxed">{audiobook.description_ua}</p>
+                      <p className="text-muted-foreground leading-relaxed">{audiobook.description_uk}</p>
                     </div>
                   )}
 
@@ -194,7 +194,7 @@ export const AudiobookView = () => {
               {tracks.length > 0 ? (
                 <PlaylistPlayer
                   tracks={tracks}
-                  title={audiobook.title_ua || audiobook.title_en || "Аудіокнига"}
+                  title={audiobook.title_uk || audiobook.title_en || "Аудіокнига"}
                   albumCover={audiobook.cover_image_url || undefined}
                 />
               ) : (

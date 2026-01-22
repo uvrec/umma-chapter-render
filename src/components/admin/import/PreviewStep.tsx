@@ -25,7 +25,7 @@ interface PreviewStepProps {
 export function PreviewStep({ chapter, allChapters, onBack, onComplete }: PreviewStepProps) {
   const [editedChapter, setEditedChapter] = useState<ParsedChapter>({
     ...chapter,
-    title_ua: chapter.title_ua || `Глава ${chapter.chapter_number}`,
+    title_ua: chapter.title_uk || `Глава ${chapter.chapter_number}`,
     title_en: chapter.title_en || `Chapter ${chapter.chapter_number}`,
   });
   const [isImporting, setIsImporting] = useState(false);
@@ -86,9 +86,9 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
 
   // ✅ Коли завантажилася існуюча глава - зберегти її оригінальні назви
   useEffect(() => {
-    if (existingChapter?.title_ua || existingChapter?.title_en) {
+    if (existingChapter?.title_uk || existingChapter?.title_en) {
       setOriginalTitles({
-        ua: existingChapter.title_ua,
+        ua: existingChapter.title_uk,
         en: existingChapter.title_en,
       });
     }
@@ -127,9 +127,9 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
       console.log('🔍 PreviewStep: Перевірка назви', { title: s, original, chapterNum: n });
       
       // Отримуємо назви книги/канто для перевірки
-      const bookName = selectedBook?.title_ua || selectedBook?.title_en || '';
+      const bookName = selectedBook?.title_uk || selectedBook?.title_en || '';
       const cantoData = cantos?.find(c => c.id === selectedCantoId);
-      const cantoName = cantoData?.title_ua || '';
+      const cantoName = cantoData?.title_uk || '';
       
       // Стандартні fallback формати
       const patterns = [
@@ -181,9 +181,9 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
     };
 
     // Видалити назви якщо вони не змінені або є fallback
-    if (isFallbackOrUnchanged(safeChapter.title_ua, originalTitles.ua)) {
+    if (isFallbackOrUnchanged(safeChapter.title_uk, originalTitles.ua)) {
       console.log('🔍 PreviewStep: Видаляємо title_ua (fallback/unchanged)');
-      delete safeChapter.title_ua;
+      delete safeChapter.title_uk;
     }
     if (isFallbackOrUnchanged(safeChapter.title_en, originalTitles.en)) {
       console.log('🔍 PreviewStep: Видаляємо title_en (fallback/unchanged)');
@@ -192,9 +192,9 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
     
     console.log('🔍 PreviewStep: Відправляю главу', {
       chapter_number: safeChapter.chapter_number,
-      title_ua: safeChapter.title_ua,
+      title_ua: safeChapter.title_uk,
       title_en: safeChapter.title_en,
-      title_ua_deleted: !safeChapter.title_ua,
+      title_ua_deleted: !safeChapter.title_uk,
       title_en_deleted: !safeChapter.title_en,
       strategy: importStrategy,
       verses_count: safeChapter.verses?.length
@@ -248,7 +248,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
         const re = new RegExp(`^(Глава|Розділ|Chapter|Song|Пісня)\\s*${n}(?:\\s*[.:—-])?$`, "i");
         return re.test(v);
       };
-      if (isFallback(s.title_ua)) delete s.title_ua;
+      if (isFallback(s.title_uk)) delete s.title_uk;
       if (isFallback(s.title_en)) delete s.title_en;
       return s as ParsedChapter;
     };
@@ -300,7 +300,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
             <SelectContent>
               {books?.map((book) => (
                 <SelectItem key={book.id} value={book.id}>
-                  {book.title_ua}
+                  {book.title_uk}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -317,7 +317,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
               <SelectContent>
                 {cantos?.map((canto) => (
                   <SelectItem key={canto.id} value={canto.id}>
-                    Пісня {canto.canto_number}: {canto.title_ua}
+                    Пісня {canto.canto_number}: {canto.title_uk}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -350,7 +350,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
         <div>
           <Label>Назва глави (UA)</Label>
           <Input
-            value={editedChapter.title_ua || ""}
+            value={editedChapter.title_uk || ""}
             onChange={(e) => setEditedChapter({ ...editedChapter, title_ua: e.target.value })}
           />
         </div>
@@ -369,7 +369,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
           <h3 className="font-semibold">Текст глави</h3>
           <div className="p-4 border rounded-lg">
             <EnhancedInlineEditor
-              content={editedChapter.content_ua || ""}
+              content={editedChapter.content_uk || ""}
               onChange={(html) => setEditedChapter({ ...editedChapter, content_ua: html })}
               label="Текст українською (форматування зберігається)"
             />
@@ -408,7 +408,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
                     <div>
                       <Label className="text-xs">Синоніми (UA)</Label>
                       <Textarea
-                        value={verse.synonyms_ua || ""}
+                        value={verse.synonyms_uk || ""}
                         onChange={(e) => updateVerse(index, "synonyms_ua", e.target.value)}
                         rows={3}
                       />
@@ -416,7 +416,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
                     <div>
                       <Label className="text-xs">Переклад (UA)</Label>
                       <Textarea
-                        value={verse.translation_ua || ""}
+                        value={verse.translation_uk || ""}
                         onChange={(e) => updateVerse(index, "translation_ua", e.target.value)}
                         rows={3}
                       />

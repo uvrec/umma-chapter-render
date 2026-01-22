@@ -95,8 +95,8 @@ export const ContinueListening = () => {
     continueItems.push({
       id: item.track_id,
       type: "audio",
-      title: track?.title_ua || "Аудіо трек",
-      subtitle: track?.audio_playlists?.title_ua,
+      title: track?.title_uk || "Аудіо трек",
+      subtitle: track?.audio_playlists?.title_uk,
       href: catSlug && playlistSlug ? `/audiobooks/${catSlug}/${playlistSlug}` : `/audiobooks`,
       progress,
       timestamp: new Date(item.created_at).toLocaleString("uk-UA", {

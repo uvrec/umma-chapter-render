@@ -169,7 +169,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
       id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       trackId: track.id,
       title: track.title,
-      title_ua: track.title_ua,
+      title_ua: track.title_uk,
       src: track.src,
       coverImage: track.coverImage,
       verseId: track.verseId,
@@ -697,7 +697,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
     // Media Session API
     if ("mediaSession" in navigator && track) {
       navigator.mediaSession.metadata = new MediaMetadata({
-        title: track.title_ua || track.title,
+        title: track.title_uk || track.title,
         artist: track.subtitle || track.artist || "VedaVoice",
         album: track.album || "Vedabase Audio",
         artwork: track.coverImage ? [{ src: track.coverImage, sizes: "512x512", type: "image/jpeg" }] : [],

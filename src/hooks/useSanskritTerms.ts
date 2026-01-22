@@ -110,9 +110,9 @@ export const useSanskritTerms = (opts: Options = {}) => {
 
       return {
         ...verse,
-        book: bookNode?.title_ua || bookNode?.title_en || "",
+        book: bookNode?.title_uk || bookNode?.title_en || "",
         book_slug: bookSlug,
-        synonyms: verse.synonyms_ua || verse.synonyms_en || "",
+        synonyms: verse.synonyms_uk || verse.synonyms_en || "",
         verseLink,
       };
     });

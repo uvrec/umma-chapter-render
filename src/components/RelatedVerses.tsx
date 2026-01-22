@@ -77,7 +77,7 @@ function buildVerseUrl(ref: CrossReference): string {
 /**
  * Format verse reference for display
  */
-function formatReference(ref: CrossReference, language: "ua" | "en"): string {
+function formatReference(ref: CrossReference, language: "uk" | "en"): string {
   const bookAbbr = BOOK_ABBR[ref.bookSlug]?.[language] || ref.bookSlug.toUpperCase();
 
   if (ref.cantoNumber) {
@@ -105,7 +105,7 @@ export function RelatedVerses({
     queryKey: ["related-verses", verseId, language, limit],
     queryFn: () =>
       getVerseReferences(verseId, {
-        language: language as "ua" | "en",
+        language: language as "uk" | "en",
         limit,
       }),
     enabled: !!verseId,
@@ -174,7 +174,7 @@ export function RelatedVerses({
                 <RelatedVerseCard
                   key={ref.id}
                   reference={ref}
-                  language={language as "ua" | "en"}
+                  language={language as "uk" | "en"}
                 />
               ))}
             </div>
@@ -193,7 +193,7 @@ function RelatedVerseCard({
   language,
 }: {
   reference: CrossReference;
-  language: "ua" | "en";
+  language: "uk" | "en";
 }) {
   const url = buildVerseUrl(reference);
   const formattedRef = formatReference(reference, language);

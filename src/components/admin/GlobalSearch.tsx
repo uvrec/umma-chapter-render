@@ -54,7 +54,7 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
         searchResults.push({
           type: "book",
           id: book.id,
-          title: book.title_ua,
+          title: book.title_uk,
           subtitle: book.has_cantos ? "Книга з піснями" : "Книга",
           href: book.has_cantos
             ? `/admin/cantos/${book.id}`
@@ -70,12 +70,12 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
         .limit(5);
 
       chapters?.forEach((chapter: any) => {
-        const bookTitle = chapter.books?.title_ua || "";
-        const cantoTitle = chapter.cantos?.title_ua || "";
+        const bookTitle = chapter.books?.title_uk || "";
+        const cantoTitle = chapter.cantos?.title_uk || "";
         searchResults.push({
           type: "chapter",
           id: chapter.id,
-          title: `${chapter.chapter_number}. ${chapter.title_ua}`,
+          title: `${chapter.chapter_number}. ${chapter.title_uk}`,
           subtitle: cantoTitle ? `${bookTitle} → ${cantoTitle}` : bookTitle,
           href: `/admin/scripture?chapterId=${chapter.id}`,
         });
@@ -91,8 +91,8 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
         .limit(5);
 
       verses?.forEach((verse) => {
-        const previewText = verse.translation_ua
-          ? verse.translation_ua.substring(0, 60) + "..."
+        const previewText = verse.translation_uk
+          ? verse.translation_uk.substring(0, 60) + "..."
           : "";
         searchResults.push({
           type: "verse",
@@ -114,7 +114,7 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
         searchResults.push({
           type: "blog_post",
           id: post.id,
-          title: post.title_ua,
+          title: post.title_uk,
           subtitle: "Пост блогу",
           href: `/admin/blog-posts/${post.id}/edit`,
         });
@@ -131,7 +131,7 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
         searchResults.push({
           type: "playlist",
           id: playlist.id,
-          title: language === 'ua' ? playlist.title_ua : playlist.title_en,
+          title: language === 'uk' ? playlist.title_uk : playlist.title_en,
           subtitle: "Аудіо плейліст",
           href: `/admin/audio-playlists/${playlist.id}`,
         });

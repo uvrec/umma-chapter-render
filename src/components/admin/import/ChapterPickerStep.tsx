@@ -98,11 +98,11 @@ export function ChapterPickerStep({ chapters, onNext, onBack }: ChapterPickerSte
                             Глава {chapter.chapter_number}
                             {chapter.chapter_type === "text" && " (текстова)"}
                           </p>
-                          <h3 className="font-semibold">{chapter.title_ua || `Глава ${chapter.chapter_number}`}</h3>
+                          <h3 className="font-semibold">{chapter.title_uk || `Глава ${chapter.chapter_number}`}</h3>
                           <p className="text-sm text-muted-foreground">
                             {chapter.chapter_type === "verses"
                               ? `${chapter.verses?.length ?? 0} віршів`
-                              : `Текстова глава (${(chapter.content_ua || "").length} символів)`}
+                              : `Текстова глава (${(chapter.content_uk || "").length} символів)`}
                           </p>
                         </div>
                       </div>
@@ -139,7 +139,7 @@ export function ChapterPickerStep({ chapters, onNext, onBack }: ChapterPickerSte
                 <div
                   dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(
-                      selectedChapter.content_ua || '<p class="text-muted-foreground">Порожній текст</p>',
+                      selectedChapter.content_uk || '<p class="text-muted-foreground">Порожній текст</p>',
                       {
                         ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'a', 'div', 'span'],
                         ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
@@ -184,7 +184,7 @@ export function ChapterPickerStep({ chapters, onNext, onBack }: ChapterPickerSte
 function PreviewVerse({ verse }: { verse: ParsedVerse }) {
   const num = verse.verse_number ? String(verse.verse_number) : "—";
   const sans = (verse.sanskrit || "").trim();
-  const tr = (verse.translation_ua || "").trim();
+  const tr = (verse.translation_uk || "").trim();
 
   return (
     <div className="rounded-md border p-3">
