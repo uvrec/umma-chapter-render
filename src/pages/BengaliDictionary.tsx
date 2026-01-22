@@ -15,7 +15,7 @@ import { Footer } from "@/components/Footer";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, BookOpen, Languages, Info } from "lucide-react";
+import { Search, BookOpen, Languages } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
 
 interface LexiconEntry {
@@ -190,30 +190,6 @@ export const BengaliDictionary = () => {
               </p>
             </div>
           )}
-
-          {/* Attribution */}
-          <div className="mt-12 rounded-lg border border-border bg-muted/30 p-4">
-            <div className="flex items-start gap-2">
-              <Info className="mt-0.5 h-4 w-4 text-muted-foreground" />
-              <div className="text-sm text-muted-foreground">
-                <p className="font-medium">
-                  {language === "uk" ? "Джерело даних:" : "Data source:"}
-                </p>
-                <p>
-                  MinhasKamal/BengaliDictionary{" "}
-                  <a
-                    href="https://github.com/MinhasKamal/BengaliDictionary"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline"
-                  >
-                    GitHub
-                  </a>
-                </p>
-                <p className="mt-1">License: GPL-3.0</p>
-              </div>
-            </div>
-          </div>
         </div>
       </main>
       <Footer />
