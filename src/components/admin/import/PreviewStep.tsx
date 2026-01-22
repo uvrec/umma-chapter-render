@@ -25,7 +25,7 @@ interface PreviewStepProps {
 export function PreviewStep({ chapter, allChapters, onBack, onComplete }: PreviewStepProps) {
   const [editedChapter, setEditedChapter] = useState<ParsedChapter>({
     ...chapter,
-    title_ua: chapter.title_uk || `Глава ${chapter.chapter_number}`,
+    title_uk: chapter.title_uk || `Глава ${chapter.chapter_number}`,
     title_en: chapter.title_en || `Chapter ${chapter.chapter_number}`,
   });
   const [isImporting, setIsImporting] = useState(false);
@@ -42,8 +42,8 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
     queryFn: async () => {
       const { data, error } = await supabase
         .from("books")
-        .select("id, title_ua, title_en, has_cantos")
-        .order("title_ua");
+        .select("id, title_uk, title_en, has_cantos")
+        .order("title_uk");
       if (error) throw error;
       return data;
     },
@@ -55,7 +55,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
     queryFn: async () => {
       const { data, error } = await supabase
         .from("cantos")
-        .select("id, canto_number, title_ua")
+        .select("id, canto_number, title_uk")
         .eq("book_id", selectedBookId)
         .order("canto_number");
       if (error) throw error;
@@ -70,7 +70,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
     queryFn: async () => {
       let query = supabase
         .from("chapters")
-        .select("id, title_ua, title_en")
+        .select("id, title_uk, title_en")
         .eq("chapter_number", editedChapter.chapter_number);
       
       if (selectedCantoId) {

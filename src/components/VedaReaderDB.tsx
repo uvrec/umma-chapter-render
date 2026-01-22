@@ -144,7 +144,7 @@ export const VedaReaderDB = () => {
       const {
         data,
         error
-      } = await supabase.from("books").select("id, slug, title_ua, title_en, has_cantos").eq("slug", bookId).maybeSingle();
+      } = await supabase.from("books").select("id, slug, title_uk, title_en, has_cantos").eq("slug", bookId).maybeSingle();
       if (error) throw error;
       return data;
     }
@@ -162,7 +162,7 @@ export const VedaReaderDB = () => {
       const {
         data,
         error
-      } = await supabase.from("cantos").select("id, canto_number, title_ua, title_en").eq("book_id", book.id).eq("canto_number", parseInt(cantoNumber)).maybeSingle();
+      } = await supabase.from("cantos").select("id, canto_number, title_uk, title_en").eq("book_id", book.id).eq("canto_number", parseInt(cantoNumber)).maybeSingle();
       if (error) throw error;
       return data;
     }

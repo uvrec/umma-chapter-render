@@ -103,10 +103,10 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
   const fallbackSuggestions = async (prefix: string): Promise<SuggestionResult[]> => {
     const { data } = await supabase
       .from('verses')
-      .select('translation_ua, translation_en')
+      .select('translation_uk, translation_en')
       .or(
         language === 'uk'
-          ? `translation_ua.ilike.%${prefix}%`
+          ? `translation_uk.ilike.%${prefix}%`
           : `translation_en.ilike.%${prefix}%`
       )
       .limit(6);
@@ -225,11 +225,11 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
       // Пошук у блозі
       const { data: posts } = await supabase
         .from('blog_posts')
-        .select('id, slug, title_ua, title_en, excerpt_ua, excerpt_en')
+        .select('id, slug, title_uk, title_en, excerpt_uk, excerpt_en')
         .eq('is_published', true)
         .or(
           language === 'uk'
-            ? `title_ua.ilike.${pattern},content_ua.ilike.${pattern}`
+            ? `title_uk.ilike.${pattern},content_uk.ilike.${pattern}`
             : `title_en.ilike.${pattern},content_en.ilike.${pattern}`
         )
         .limit(5);

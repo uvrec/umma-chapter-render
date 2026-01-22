@@ -15,7 +15,7 @@ export interface AudioTrack {
   // Supabase integration fields
   playlist_id?: string;
   track_number?: number;
-  title_ua?: string;
+  title_uk?: string;
   title_en?: string;
   // Verse sync fields
   verseId?: string;         // ID of the verse this audio belongs to
@@ -39,7 +39,7 @@ export interface AudioFavorite {
   id: string;
   trackId: string;
   title: string;
-  title_ua?: string;
+  title_uk?: string;
   src: string;
   coverImage?: string;
   verseId?: string;
