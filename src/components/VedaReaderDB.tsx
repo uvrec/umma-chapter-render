@@ -818,12 +818,13 @@ export const VedaReaderDB = () => {
       // Використовуємо перший прямокутник для позиції (початок виділення)
       const firstRect = rects[0];
       tooltipX = firstRect.left + firstRect.width / 2;
-      tooltipY = firstRect.top + window.scrollY;
+      // ✅ FIX: Не додаємо scrollY, бо тултіп має position: fixed (відносно viewport)
+      tooltipY = firstRect.top;
     } else {
       // Fallback на getBoundingClientRect
       const rect = range.getBoundingClientRect();
       tooltipX = rect.left + rect.width / 2;
-      tooltipY = rect.top + window.scrollY;
+      tooltipY = rect.top;
     }
 
     // ✅ ВИПРАВЛЕНО: Безпечне отримання контексту для multi-element selections
