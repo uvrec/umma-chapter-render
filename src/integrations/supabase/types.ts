@@ -4428,14 +4428,6 @@ export type Database = {
         }
         Relationships: []
       }
-      glossary_stats_cache_ua: {
-        Row: {
-          book_slug: string | null
-          book_title: string | null
-          term: string | null
-        }
-        Relationships: []
-      }
       glossary_stats_cache_uk: {
         Row: {
           book_slug: string | null
