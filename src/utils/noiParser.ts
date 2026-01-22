@@ -13,7 +13,7 @@ export interface NoIVerseData {
   commentary_en: string;
 }
 
-export interface NoIVerseDataUA {
+export interface NoIVerseDataUK {
   synonyms_uk: string;
   translation_uk: string;
   commentary_uk: string;
@@ -197,7 +197,7 @@ export function parseNoIVedabase(html: string, url: string): NoIVerseData | null
 /**
  * Парсить NoI вірш з Gitabase (UK)
  */
-export function parseNoIGitabase(html: string, url: string): NoIVerseDataUA | null {
+export function parseNoIGitabase(html: string, url: string): NoIVerseDataUK | null {
   try {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');

@@ -43,23 +43,23 @@ interface CalendarEvent {
   festival_id: string | null;
   appearance_day_id: string | null;
   ekadashi_info?: {
-    name_ua: string;
+    name_uk: string;
     name_en: string;
-    glory_text_ua: string;
+    glory_text_uk: string;
     glory_text_en: string;
-    fasting_rules_ua: string;
+    fasting_rules_uk: string;
     fasting_rules_en: string;
   };
   vaishnava_festivals?: {
-    name_ua: string;
+    name_uk: string;
     name_en: string;
-    description_ua: string;
+    description_uk: string;
     description_en: string;
   };
   appearance_days?: {
-    name_ua: string;
+    name_uk: string;
     name_en: string;
-    description_ua: string;
+    description_uk: string;
     description_en: string;
     fasting_type: string;
   };
@@ -120,53 +120,53 @@ function isNotificationTime(notificationTime: string, timezone: string): boolean
  */
 function formatNotificationMessage(
   event: CalendarEvent,
-  lang: 'ua' | 'en' = 'ua'
+  lang: 'uk' | 'en' = 'uk'
 ): { subject: string; body: string } {
   let eventName = '';
   let eventDescription = '';
   let fastingInfo = '';
 
   if (event.ekadashi_info) {
-    eventName = lang === 'ua' ? event.ekadashi_info.name_ua : event.ekadashi_info.name_en;
-    eventDescription = lang === 'ua'
-      ? event.ekadashi_info.glory_text_ua
+    eventName = lang === 'uk' ? event.ekadashi_info.name_uk : event.ekadashi_info.name_en;
+    eventDescription = lang === 'uk'
+      ? event.ekadashi_info.glory_text_uk
       : event.ekadashi_info.glory_text_en;
-    fastingInfo = lang === 'ua'
-      ? event.ekadashi_info.fasting_rules_ua
+    fastingInfo = lang === 'uk'
+      ? event.ekadashi_info.fasting_rules_uk
       : event.ekadashi_info.fasting_rules_en;
   } else if (event.vaishnava_festivals) {
-    eventName = lang === 'ua'
-      ? event.vaishnava_festivals.name_ua
+    eventName = lang === 'uk'
+      ? event.vaishnava_festivals.name_uk
       : event.vaishnava_festivals.name_en;
-    eventDescription = lang === 'ua'
-      ? event.vaishnava_festivals.description_ua
+    eventDescription = lang === 'uk'
+      ? event.vaishnava_festivals.description_uk
       : event.vaishnava_festivals.description_en;
   } else if (event.appearance_days) {
-    eventName = lang === 'ua'
-      ? event.appearance_days.name_ua
+    eventName = lang === 'uk'
+      ? event.appearance_days.name_uk
       : event.appearance_days.name_en;
-    eventDescription = lang === 'ua'
-      ? event.appearance_days.description_ua
+    eventDescription = lang === 'uk'
+      ? event.appearance_days.description_uk
       : event.appearance_days.description_en;
-    fastingInfo = lang === 'ua'
+    fastingInfo = lang === 'uk'
       ? `Тип посту: ${event.appearance_days.fasting_type}`
       : `Fasting type: ${event.appearance_days.fasting_type}`;
   }
 
   // Format date
   const eventDate = new Date(event.event_date);
-  const dateFormatted = eventDate.toLocaleDateString(lang === 'ua' ? 'uk-UA' : 'en-US', {
+  const dateFormatted = eventDate.toLocaleDateString(lang === 'uk' ? 'uk-UA' : 'en-US', {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
     year: 'numeric',
   });
 
-  const subject = lang === 'ua'
+  const subject = lang === 'uk'
     ? `Завтра: ${eventName}`
     : `Tomorrow: ${eventName}`;
 
-  let body = lang === 'ua'
+  let body = lang === 'uk'
     ? `Шановний відданий,\n\nЗавтра, ${dateFormatted}, відбувається ${eventName}.\n\n`
     : `Dear devotee,\n\nTomorrow, ${dateFormatted}, is ${eventName}.\n\n`;
 
@@ -175,17 +175,17 @@ function formatNotificationMessage(
   }
 
   if (fastingInfo) {
-    body += (lang === 'ua' ? 'Правила посту:\n' : 'Fasting rules:\n') + fastingInfo + '\n\n';
+    body += (lang === 'uk' ? 'Правила посту:\n' : 'Fasting rules:\n') + fastingInfo + '\n\n';
   }
 
   // Add sunrise/parana info for Ekadashi
   if (event.ekadashi_info && event.sunrise_time && event.parana_start_time) {
-    body += lang === 'ua'
+    body += lang === 'uk'
       ? `Схід сонця: ${event.sunrise_time}\nПарана (переривання посту): ${event.parana_start_time} - ${event.parana_end_time}\n\n`
       : `Sunrise: ${event.sunrise_time}\nParana (breaking fast): ${event.parana_start_time} - ${event.parana_end_time}\n\n`;
   }
 
-  body += lang === 'ua'
+  body += lang === 'uk'
     ? 'Харе Крішна!\n\n— Ваш Вайшнавський Календар'
     : 'Hare Krishna!\n\n— Your Vaishnava Calendar';
 
@@ -313,23 +313,23 @@ async function sendNotifications(): Promise<NotificationResult> {
         parana_start_time,
         parana_end_time,
         ekadashi_info (
-          name_ua,
+          name_uk,
           name_en,
-          glory_text_ua,
+          glory_text_uk,
           glory_text_en,
-          fasting_rules_ua,
+          fasting_rules_uk,
           fasting_rules_en
         ),
         vaishnava_festivals (
-          name_ua,
+          name_uk,
           name_en,
-          description_ua,
+          description_uk,
           description_en
         ),
         appearance_days (
-          name_ua,
+          name_uk,
           name_en,
-          description_ua,
+          description_uk,
           description_en,
           fasting_type
         )
@@ -373,7 +373,7 @@ async function sendNotifications(): Promise<NotificationResult> {
       }
 
       // Format and send notification
-      const { subject, body } = formatNotificationMessage(event, 'ua');
+      const { subject, body } = formatNotificationMessage(event, 'uk');
       const emailResult = await sendEmailNotification(userEmail, subject, body);
 
       // Log the notification attempt

@@ -12,7 +12,7 @@
 
 CREATE OR REPLACE FUNCTION public.search_suggest_terms(
   search_prefix text,
-  language_code text DEFAULT 'ua',
+  language_code text DEFAULT 'uk',
   limit_count integer DEFAULT 10
 )
 RETURNS TABLE(
@@ -39,7 +39,7 @@ BEGIN
       string_to_array(
         COALESCE(
           CASE
-            WHEN language_code = 'ua' THEN v.synonyms_uk
+            WHEN language_code = 'uk' THEN v.synonyms_uk
             ELSE v.synonyms_en
           END,
           ''
@@ -49,8 +49,8 @@ BEGIN
     ) AS line
     WHERE v.deleted_at IS NULL
       AND (
-        (language_code = 'ua' AND v.synonyms_uk IS NOT NULL) OR
-        (language_code <> 'ua' AND v.synonyms_en IS NOT NULL)
+        (language_code = 'uk' AND v.synonyms_uk IS NOT NULL) OR
+        (language_code <> 'uk' AND v.synonyms_en IS NOT NULL)
       )
       AND LOWER(line) LIKE LOWER(search_prefix) || '%'
   )
@@ -72,7 +72,7 @@ $$;
 
 CREATE OR REPLACE FUNCTION public.unified_search(
   search_query text,
-  language_code text DEFAULT 'ua',
+  language_code text DEFAULT 'uk',
   search_types text[] DEFAULT ARRAY['verses', 'blog', 'glossary'],
   limit_per_type integer DEFAULT 10,
   overall_limit integer DEFAULT NULL  -- NULL = no overall limit, uses limit_per_type * types count
@@ -98,7 +98,7 @@ DECLARE
   pattern text;
 BEGIN
   -- Конфіг для мови (simple_unaccent для accent-insensitive пошуку українською)
-  IF language_code = 'ua' THEN
+  IF language_code = 'uk' THEN
     search_config := 'public.simple_unaccent';
   ELSE
     search_config := 'english';
@@ -118,11 +118,11 @@ BEGIN
         THEN ca.canto_number || '.' || ch.chapter_number || '.' || v.verse_number
         ELSE ch.chapter_number || '.' || v.verse_number
       END as title,
-    CASE WHEN language_code = 'ua' THEN ch.title_uk ELSE ch.title_en END as subtitle,
+    CASE WHEN language_code = 'uk' THEN ch.title_uk ELSE ch.title_en END as subtitle,
     ts_headline(
       search_config,
       COALESCE(
-        CASE WHEN language_code = 'ua' THEN v.translation_uk ELSE v.translation_en END,
+        CASE WHEN language_code = 'uk' THEN v.translation_uk ELSE v.translation_en END,
         ''
       ),
       ts_query,
@@ -136,9 +136,9 @@ BEGIN
     END as href,
     -- Уніфіковано з search_verses_fulltext: використовуємо нормалізацію 32
     CASE
-      WHEN language_code = 'ua' AND v.search_vector_uk IS NOT NULL THEN
+      WHEN language_code = 'uk' AND v.search_vector_uk IS NOT NULL THEN
         ts_rank_cd(v.search_vector_uk, ts_query, 32)::numeric
-      WHEN language_code != 'ua' AND v.search_vector_en IS NOT NULL THEN
+      WHEN language_code != 'uk' AND v.search_vector_en IS NOT NULL THEN
         ts_rank_cd(v.search_vector_en, ts_query, 32)::numeric
       ELSE 0.5::numeric
     END as relevance,
@@ -151,11 +151,11 @@ BEGIN
     AND v.deleted_at IS NULL
     AND 'verses' = ANY(search_types)
     AND (
-      (language_code = 'ua' AND v.search_vector_uk @@ ts_query)
-      OR (language_code != 'ua' AND v.search_vector_en @@ ts_query)
+      (language_code = 'uk' AND v.search_vector_uk @@ ts_query)
+      OR (language_code != 'uk' AND v.search_vector_en @@ ts_query)
       OR (length(search_query) <= 3 AND (
-        (language_code = 'ua' AND v.translation_uk ILIKE pattern) OR
-        (language_code != 'ua' AND v.translation_en ILIKE pattern)
+        (language_code = 'uk' AND v.translation_uk ILIKE pattern) OR
+        (language_code != 'uk' AND v.translation_en ILIKE pattern)
       ))
     )
   ORDER BY relevance DESC
@@ -167,12 +167,12 @@ BEGIN
   (SELECT
     'blog'::text as result_type,
     bp.id as result_id,
-    CASE WHEN language_code = 'ua' THEN bp.title_uk ELSE bp.title_en END as title,
-    CASE WHEN language_code = 'ua' THEN bp.excerpt_uk ELSE bp.excerpt_en END as subtitle,
+    CASE WHEN language_code = 'uk' THEN bp.title_uk ELSE bp.title_en END as title,
+    CASE WHEN language_code = 'uk' THEN bp.excerpt_uk ELSE bp.excerpt_en END as subtitle,
     ts_headline(
       search_config,
       COALESCE(
-        CASE WHEN language_code = 'ua' THEN bp.content_uk ELSE bp.content_en END,
+        CASE WHEN language_code = 'uk' THEN bp.content_uk ELSE bp.content_en END,
         ''
       ),
       ts_query,
@@ -181,9 +181,9 @@ BEGIN
     '/blog/' || bp.slug as href,
     -- Уніфіковано з search_verses_fulltext: використовуємо нормалізацію 32
     CASE
-      WHEN language_code = 'ua' AND bp.search_vector_uk IS NOT NULL THEN
+      WHEN language_code = 'uk' AND bp.search_vector_uk IS NOT NULL THEN
         ts_rank_cd(bp.search_vector_uk, ts_query, 32)::numeric
-      WHEN language_code != 'ua' AND bp.search_vector_en IS NOT NULL THEN
+      WHEN language_code != 'uk' AND bp.search_vector_en IS NOT NULL THEN
         ts_rank_cd(bp.search_vector_en, ts_query, 32)::numeric
       ELSE 0.5::numeric
     END as relevance,
@@ -192,11 +192,11 @@ BEGIN
   WHERE bp.is_published = true
     AND 'blog' = ANY(search_types)
     AND (
-      (language_code = 'ua' AND bp.search_vector_uk @@ ts_query)
-      OR (language_code != 'ua' AND bp.search_vector_en @@ ts_query)
+      (language_code = 'uk' AND bp.search_vector_uk @@ ts_query)
+      OR (language_code != 'uk' AND bp.search_vector_en @@ ts_query)
       OR (length(search_query) <= 3 AND (
-        (language_code = 'ua' AND (bp.title_uk ILIKE pattern OR bp.content_uk ILIKE pattern)) OR
-        (language_code != 'ua' AND (bp.title_en ILIKE pattern OR bp.content_en ILIKE pattern))
+        (language_code = 'uk' AND (bp.title_uk ILIKE pattern OR bp.content_uk ILIKE pattern)) OR
+        (language_code != 'uk' AND (bp.title_en ILIKE pattern OR bp.content_en ILIKE pattern))
       ))
     )
   ORDER BY relevance DESC

@@ -25,7 +25,7 @@ CREATE INDEX IF NOT EXISTS idx_verses_synonyms_en_pattern
 
 CREATE OR REPLACE FUNCTION search_synonyms(
   search_term TEXT,
-  search_language TEXT DEFAULT 'ua',
+  search_language TEXT DEFAULT 'uk',
   search_mode TEXT DEFAULT 'contains', -- contains, starts_with, exact
   limit_count INTEGER DEFAULT 50,
   offset_count INTEGER DEFAULT 0
@@ -49,7 +49,7 @@ DECLARE
   tsconfig TEXT;
 BEGIN
   -- Визначаємо мову та колонки
-  IF search_language = 'ua' THEN
+  IF search_language = 'uk' THEN
     synonyms_column := 'synonyms_uk';
     translation_column := 'translation_uk';
     transliteration_column := 'transliteration_uk';
@@ -66,7 +66,7 @@ BEGIN
     SELECT
       v.id AS verse_id,
       b.slug AS book_slug,
-      CASE WHEN $2 = 'ua' THEN b.title_uk ELSE b.title_en END AS book_title,
+      CASE WHEN $2 = 'uk' THEN b.title_uk ELSE b.title_en END AS book_title,
       c.chapter_number,
       v.verse_number,
       v.sanskrit,
@@ -123,7 +123,7 @@ $$ LANGUAGE plpgsql STABLE;
 -- ============================================================================
 
 CREATE OR REPLACE FUNCTION get_unique_synonym_terms(
-  search_language TEXT DEFAULT 'ua',
+  search_language TEXT DEFAULT 'uk',
   prefix_filter TEXT DEFAULT NULL,
   limit_count INTEGER DEFAULT 100
 )
@@ -134,7 +134,7 @@ RETURNS TABLE (
 DECLARE
   synonyms_column TEXT;
 BEGIN
-  IF search_language = 'ua' THEN
+  IF search_language = 'uk' THEN
     synonyms_column := 'synonyms_uk';
   ELSE
     synonyms_column := 'synonyms_en';

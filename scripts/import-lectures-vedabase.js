@@ -218,7 +218,7 @@ function parseLecture(html, slug) {
       paragraphs.push({
         paragraph_number: paragraphNumber++,
         content_en: text,
-        content_ua: null,
+        content_uk: null,
         audio_timecode: null,
       });
     }
@@ -227,10 +227,10 @@ function parseLecture(html, slug) {
   const metadata = {
     slug,
     title_en: title,
-    title_ua: transliterateTitle(title),
+    title_uk: transliterateTitle(title),
     lecture_date: lectureDate,
     location_en: location,
-    location_ua: LOCATION_TRANSLATIONS[location] || null,
+    location_uk: LOCATION_TRANSLATIONS[location] || null,
     lecture_type: lectureType,
     audio_url: audioUrl,
     book_slug: bookSlug,

@@ -12,7 +12,7 @@
 -- 1. Функція для отримання статистики глосарію
 -- ВИПРАВЛЕНО: Тепер підраховує терміни з ОБОХ колонок (synonyms_uk та synonyms_en)
 CREATE OR REPLACE FUNCTION public.get_glossary_stats(
-  search_language text DEFAULT 'ua'
+  search_language text DEFAULT 'uk'
 )
 RETURNS TABLE(
   total_terms bigint,
@@ -31,7 +31,7 @@ BEGIN
       -- Parse terms from synonyms_uk
       SELECT
         b.slug as book_slug,
-        CASE WHEN search_language = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
+        CASE WHEN search_language = 'uk' THEN b.title_uk ELSE b.title_en END as book_title,
         TRIM(part) as synonym_part
       FROM public.verses v
       JOIN public.chapters ch ON ch.id = v.chapter_id
@@ -51,7 +51,7 @@ BEGIN
       -- Parse terms from synonyms_en
       SELECT
         b.slug as book_slug,
-        CASE WHEN search_language = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
+        CASE WHEN search_language = 'uk' THEN b.title_uk ELSE b.title_en END as book_title,
         TRIM(part) as synonym_part
       FROM public.verses v
       JOIN public.chapters ch ON ch.id = v.chapter_id
@@ -131,7 +131,7 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_glossary_terms_grouped(
   search_term text DEFAULT NULL,
   search_translation text DEFAULT NULL,
-  search_language text DEFAULT 'ua',
+  search_language text DEFAULT 'uk',
   search_mode text DEFAULT 'contains',
   book_filter text DEFAULT NULL,
   page_number integer DEFAULT 1,
@@ -171,7 +171,7 @@ BEGIN
     WITH parsed_terms AS (
       -- Search in synonyms_uk column
       SELECT
-        CASE WHEN search_language = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
+        CASE WHEN search_language = 'uk' THEN b.title_uk ELSE b.title_en END as book_title,
         TRIM(part) as synonym_part
       FROM public.verses v
       JOIN public.chapters ch ON ch.id = v.chapter_id
@@ -191,7 +191,7 @@ BEGIN
 
       -- Search in synonyms_en column
       SELECT
-        CASE WHEN search_language = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
+        CASE WHEN search_language = 'uk' THEN b.title_uk ELSE b.title_en END as book_title,
         TRIM(part) as synonym_part
       FROM public.verses v
       JOIN public.chapters ch ON ch.id = v.chapter_id
@@ -284,7 +284,7 @@ $$;
 -- ВИПРАВЛЕНО: Тепер шукає в ОБОХ колонках (synonyms_uk та synonyms_en)
 CREATE OR REPLACE FUNCTION public.get_glossary_term_details(
   term_text text,
-  search_language text DEFAULT 'ua'
+  search_language text DEFAULT 'uk'
 )
 RETURNS TABLE(
   term text,
@@ -313,12 +313,12 @@ BEGIN
         v.verse_number,
         v.sanskrit,
         COALESCE(
-          CASE WHEN search_language = 'ua' THEN v.transliteration_uk ELSE v.transliteration_en END,
+          CASE WHEN search_language = 'uk' THEN v.transliteration_uk ELSE v.transliteration_en END,
           v.transliteration
         ) as transliteration,
         ch.chapter_number,
         ca.canto_number,
-        CASE WHEN search_language = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
+        CASE WHEN search_language = 'uk' THEN b.title_uk ELSE b.title_en END as book_title,
         b.slug as book_slug,
         TRIM(part) as synonym_part
       FROM public.verses v
@@ -343,12 +343,12 @@ BEGIN
         v.verse_number,
         v.sanskrit,
         COALESCE(
-          CASE WHEN search_language = 'ua' THEN v.transliteration_uk ELSE v.transliteration_en END,
+          CASE WHEN search_language = 'uk' THEN v.transliteration_uk ELSE v.transliteration_en END,
           v.transliteration
         ) as transliteration,
         ch.chapter_number,
         ca.canto_number,
-        CASE WHEN search_language = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
+        CASE WHEN search_language = 'uk' THEN b.title_uk ELSE b.title_en END as book_title,
         b.slug as book_slug,
         TRIM(part) as synonym_part
       FROM public.verses v
@@ -433,7 +433,7 @@ $$;
 CREATE OR REPLACE FUNCTION public.search_glossary_terms_v2(
   search_term text DEFAULT NULL,
   search_translation text DEFAULT NULL,
-  search_language text DEFAULT 'ua',
+  search_language text DEFAULT 'uk',
   search_mode text DEFAULT 'contains',
   book_filter text DEFAULT NULL,
   page_number integer DEFAULT 1,
@@ -482,7 +482,7 @@ BEGIN
         v.verse_number,
         ch.chapter_number,
         ca.canto_number,
-        CASE WHEN search_language = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
+        CASE WHEN search_language = 'uk' THEN b.title_uk ELSE b.title_en END as book_title,
         b.slug as book_slug,
         TRIM(part) as synonym_part
       FROM public.verses v
@@ -509,7 +509,7 @@ BEGIN
         v.verse_number,
         ch.chapter_number,
         ca.canto_number,
-        CASE WHEN search_language = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
+        CASE WHEN search_language = 'uk' THEN b.title_uk ELSE b.title_en END as book_title,
         b.slug as book_slug,
         TRIM(part) as synonym_part
       FROM public.verses v

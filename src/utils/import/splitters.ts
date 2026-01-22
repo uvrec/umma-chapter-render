@@ -150,20 +150,20 @@ export function splitIntoChapters(
     
     // Determine chapter type
     let chapterType: ChapterType;
-    let contentUa: string | undefined;
+    let contentUk: string | undefined;
     
     if (isIntroChapter) {
       // Вступні розділи завжди текстові
       chapterType = 'text';
-      contentUa = chapterText.trim();
+      contentUk = chapterText.trim();
     } else if (verses.length > 0) {
       // Has verses, treat as verse chapter
       chapterType = 'verses';
-      contentUa = undefined;
+      contentUk = undefined;
     } else {
       // No verses found, treat as text
       chapterType = 'text';
-      contentUa = chapterText.trim();
+      contentUk = chapterText.trim();
     }
     
     if (DEBUG) {
@@ -176,7 +176,7 @@ export function splitIntoChapters(
       chapter_type: chapterType,
       title_uk: chapterTitle,
       verses: verses,
-      content_uk: contentUa
+      content_uk: contentUk
     });
   });
   

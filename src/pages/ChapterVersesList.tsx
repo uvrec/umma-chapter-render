@@ -623,15 +623,15 @@ export const ChapterVersesList = () => {
               }
               return paragraphs.filter(p => p.length > 0);
             };
-            const paragraphsUa = splitHtmlIntoParagraphs(effectiveChapterObj.content_uk || "");
+            const paragraphsUk = splitHtmlIntoParagraphs(effectiveChapterObj.content_uk || "");
             const paragraphsEn = splitHtmlIntoParagraphs(effectiveChapterObj.content_en || "");
 
             // Вирівнювання: довший переклад (зазвичай УКР) задає довжину
-            const maxLen = Math.max(paragraphsUa.length, paragraphsEn.length);
-            const alignedUa = [...paragraphsUa, ...Array(maxLen - paragraphsUa.length).fill("")];
+            const maxLen = Math.max(paragraphsUk.length, paragraphsEn.length);
+            const alignedUk = [...paragraphsUk, ...Array(maxLen - paragraphsUk.length).fill("")];
             const alignedEn = [...paragraphsEn, ...Array(maxLen - paragraphsEn.length).fill("")];
             return <div className="space-y-4" style={readerTextStyle}>
-                      {alignedUa.map((paraUa, idx) => {
+                      {alignedUk.map((paraUk, idx) => {
                         const paraEn = alignedEn[idx];
                         return (
                           <div
@@ -641,7 +641,7 @@ export const ChapterVersesList = () => {
                             <div
                               className="prose prose-slate dark:prose-invert max-w-none"
                               dangerouslySetInnerHTML={{
-                                __html: sanitizeForRender(paraUa || '<span class="italic text-muted-foreground">—</span>'),
+                                __html: sanitizeForRender(paraUk || '<span class="italic text-muted-foreground">—</span>'),
                               }}
                             />
                             <div
@@ -718,7 +718,7 @@ export const ChapterVersesList = () => {
           })}
             </div> : <div className="space-y-6">
               {verses.map((verse: Verse) => {
-            const translationUa = verse.translation_uk || "";
+            const translationUk = verse.translation_uk || "";
             const translationEn = verse.translation_en || "";
             return <div key={verse.id} className="space-y-3">
                     {dualLanguageMode ? <div className="grid gap-6 md:grid-cols-2">
@@ -759,7 +759,7 @@ export const ChapterVersesList = () => {
                               )}
                             </div>}
                           <p className="text-foreground text-justify" style={readerTextStyle}>
-                            {stripParagraphTags(translationUa) || <span className="italic text-muted-foreground">Немає перекладу</span>}
+                            {stripParagraphTags(translationUk) || <span className="italic text-muted-foreground">Немає перекладу</span>}
                           </p>
                         </div>
 
@@ -808,7 +808,7 @@ export const ChapterVersesList = () => {
                             )}
                           </div>}
                         <p className="text-foreground" style={readerTextStyle}>
-                          {language === "uk" ? stripParagraphTags(translationUa) || <span className="italic text-muted-foreground">Немає перекладу</span> : stripParagraphTags(translationEn) || <span className="italic text-muted-foreground">No translation</span>}
+                          {language === "uk" ? stripParagraphTags(translationUk) || <span className="italic text-muted-foreground">Немає перекладу</span> : stripParagraphTags(translationEn) || <span className="italic text-muted-foreground">No translation</span>}
                         </p>
                       </div>}
 

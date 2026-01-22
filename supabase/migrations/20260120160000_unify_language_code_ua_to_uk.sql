@@ -5,7 +5,7 @@
 -- to 'uk' (language code) for consistency with ISO 639-1.
 --
 -- Changes:
--- 1. Function parameters: DEFAULT 'ua' → DEFAULT 'uk'
+-- 1. Function parameters: DEFAULT 'uk' → DEFAULT 'uk'
 -- 2. Comparisons: = 'ua' → = 'uk'
 -- 3. CHECK constraints: ('ua', 'en') → ('uk', 'en')
 -- 4. Backward compatibility: accepts 'ua' and maps to 'uk'
