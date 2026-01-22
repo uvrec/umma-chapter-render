@@ -1,4 +1,4 @@
-import Sanscript from "sanscript";
+import Sanscript from "@indic-transliteration/sanscript";
 
 /**
  * ✅ ВИПРАВЛЕНИЙ textNormalizer.ts
@@ -219,8 +219,8 @@ export function convertIASTtoUkrainian(text: string): string {
     "\uF10D": "м̐", // Private Use Area (from some fonts) → м̐
 
     // oṃ (ॐ) - Om з правильним чандрабінду замість анусвара
-    "oṃ": "ом̐", // ॐ → ом̐ (з чандрабінду, не м̣)
-    "Oṃ": "Ом̐", // Oṃ → Ом̐
+    oṃ: "ом̐", // ॐ → ом̐ (з чандрабінду, не м̣)
+    Oṃ: "Ом̐", // Oṃ → Ом̐
 
     // Тильда від Sanscript для Деванагарі чандрабінду (ँ)
     // Sanscript конвертує: मँ → ma~, लँ → la~, इदँ → ida~
@@ -461,22 +461,22 @@ export function devanagariToIAST(text: string, options?: TransliterationOptions)
  */
 const BENGALI_VA_WORDS: Record<string, string> = {
   // Слова де ব = va (не ba)
-  "bande": "vande",           // বন্দে → vande (не bande)
-  "bandana": "vandana",       // বন্দনা → vandana
-  "baikuntha": "vaikuṇṭha",   // বৈকুণ্ঠ → vaikuṇṭha
-  "baisnaba": "vaiṣṇava",     // বৈষ্ণব → vaiṣṇava
-  "baishya": "vaiśya",        // বৈশ্য → vaiśya
-  "beda": "veda",             // বেদ → veda
-  "bedanta": "vedānta",       // বেদান্ত → vedānta
-  "bisnu": "viṣṇu",           // বিষ্ণু → viṣṇu
-  "bisnupriya": "viṣṇupriyā", // বিষ্ণুপ্রিয়া
-  "brindaban": "vṛndāvana",   // বৃন্দাবন → vṛndāvana
-  "braja": "vraja",           // ব্রজ → vraja
-  "brata": "vrata",           // ব্রত → vrata
-  "byasa": "vyāsa",           // ব্যাস → vyāsa
-  "babhrubahana": "vabhru­vāhana",
-  "basudeb": "vāsudeva",      // বাসুদেব → vāsudeva
-  "basudeba": "vāsudeva",
+  bande: "vande", // বন্দে → vande (не bande)
+  bandana: "vandana", // বন্দনা → vandana
+  baikuntha: "vaikuṇṭha", // বৈকুণ্ঠ → vaikuṇṭha
+  baisnaba: "vaiṣṇava", // বৈষ্ণব → vaiṣṇava
+  baishya: "vaiśya", // বৈশ্য → vaiśya
+  beda: "veda", // বেদ → veda
+  bedanta: "vedānta", // বেদান্ত → vedānta
+  bisnu: "viṣṇu", // বিষ্ণু → viṣṇu
+  bisnupriya: "viṣṇupriyā", // বিষ্ণুপ্রিয়া
+  brindaban: "vṛndāvana", // বৃন্দাবন → vṛndāvana
+  braja: "vraja", // ব্রজ → vraja
+  brata: "vrata", // ব্রত → vrata
+  byasa: "vyāsa", // ব্যাস → vyāsa
+  babhrubahana: "vabhru­vāhana",
+  basudeb: "vāsudeva", // বাসুদেব → vāsudeva
+  basudeba: "vāsudeva",
 };
 
 /**
@@ -566,11 +566,7 @@ export type IndicScript =
  * indicToIAST("कृष्ण", "devanagari") // → "kṛṣṇa"
  * indicToIAST("કૃષ્ણ", "gujarati") // → "kṛṣṇa"
  */
-export function indicToIAST(
-  text: string,
-  script: IndicScript,
-  options?: TransliterationOptions
-): string {
+export function indicToIAST(text: string, script: IndicScript, options?: TransliterationOptions): string {
   if (!text) return text;
 
   const opts = { ...DEFAULT_OPTIONS, ...options };
