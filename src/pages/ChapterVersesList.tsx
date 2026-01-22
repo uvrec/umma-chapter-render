@@ -21,6 +21,8 @@ import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { stripParagraphTags, sanitizeForRender } from "@/utils/import/normalizers";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
+import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
+import { useTrackpadNavigation } from "@/hooks/useTrackpadNavigation";
 import { ChapterSchema, BreadcrumbSchema } from "@/components/StructuredData";
 import { getChapterOgImage } from "@/utils/og-image";
 import { Helmet } from "react-helmet-async";
@@ -395,6 +397,37 @@ export const ChapterVersesList = () => {
       navigate(getLocalizedPath(`/lib/${bookId}/${chapterNum}`));
     }
   };
+
+  // Swipe/trackpad navigation handlers
+  const handlePrevChapter = useCallback(() => {
+    if (adjacentChapters?.prev) {
+      handleNavigate(adjacentChapters.prev.chapter_number);
+    }
+  }, [adjacentChapters?.prev]);
+
+  const handleNextChapter = useCallback(() => {
+    if (adjacentChapters?.next) {
+      handleNavigate(adjacentChapters.next.chapter_number);
+    }
+  }, [adjacentChapters?.next]);
+
+  // Touch swipe navigation (mobile)
+  useSwipeNavigation({
+    onSwipeLeft: handleNextChapter,
+    onSwipeRight: handlePrevChapter,
+    threshold: 80,
+    velocityThreshold: 0.3,
+    enabled: isMobile && !!(adjacentChapters?.prev || adjacentChapters?.next),
+  });
+
+  // Trackpad swipe navigation (desktop)
+  useTrackpadNavigation({
+    onSwipeLeft: handleNextChapter,
+    onSwipeRight: handlePrevChapter,
+    threshold: 50,
+    enabled: !isMobile && !!(adjacentChapters?.prev || adjacentChapters?.next),
+  });
+
   const readerTextStyle = {
     fontSize: `${fontSize}px`,
     lineHeight: lineHeight
