@@ -1,4 +1,4 @@
-import Sanscript from "@indic-transliteration/sanscript";
+import Sanscript from "sanscript";
 
 /**
  * ✅ ВИПРАВЛЕНИЙ textNormalizer.ts
