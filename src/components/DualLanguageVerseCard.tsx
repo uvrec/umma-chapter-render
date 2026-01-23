@@ -399,7 +399,7 @@ export const DualLanguageVerseCard = ({
 
         {/* НАВІГАЦІЯ МІЖ ВІРШАМИ - приховано на мобільних (є свайп) */}
         {onPrevVerse && onNextVerse && !isMobile && (
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-4">
             <Button variant="outline" onClick={onPrevVerse} disabled={isPrevDisabled}>
               <ChevronLeft className="mr-2 h-4 w-4" />
               {prevLabel}
@@ -432,7 +432,7 @@ export const DualLanguageVerseCard = ({
 
         {/* САНСКРИТ */}
         {textDisplaySettings.showSanskrit && (isEditing || sanskritTextUk || sanskritTextEn) && (
-          <div className="mb-10">
+          <div className="mb-6">
             {/* Аудіо кнопка для санскриту */}
             <div className="mb-4 flex justify-center">
               <button
