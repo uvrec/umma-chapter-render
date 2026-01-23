@@ -26,30 +26,10 @@ type SpinePanel = "none" | "toc" | "typography" | "search" | "settings";
 
 // Spine themes mapped to app themes (mobile only: craft, nord, solarized-light, solarized-dark)
 const SPINE_THEME_MAP = [
-  {
-    id: "craft",
-    appTheme: "craft" as const,
-    gradient: "from-amber-400 via-orange-500 to-red-500",
-    label: "Крафт",
-  },
-  {
-    id: "nord",
-    appTheme: "nord" as const,
-    gradient: "from-teal-400 via-cyan-500 to-blue-500",
-    label: "Nord",
-  },
-  {
-    id: "solarized-light",
-    appTheme: "solarized-light" as const,
-    gradient: "from-pink-400 via-rose-500 to-red-500",
-    label: "Solarized",
-  },
-  {
-    id: "solarized-dark",
-    appTheme: "solarized-dark" as const,
-    gradient: "from-emerald-400 via-teal-500 to-cyan-600",
-    label: "Solarized Dark",
-  },
+  { id: "craft", appTheme: "craft" as const, gradient: "from-amber-400 via-orange-500 to-red-500" },
+  { id: "nord", appTheme: "nord" as const, gradient: "from-teal-400 via-cyan-500 to-blue-500" },
+  { id: "solarized-light", appTheme: "solarized-light" as const, gradient: "from-pink-400 via-rose-500 to-red-500" },
+  { id: "solarized-dark", appTheme: "solarized-dark" as const, gradient: "from-emerald-400 via-teal-500 to-cyan-600" },
 ] as const;
 
 const SPINE_THEME_STORAGE_KEY = "vv_spine_theme";
@@ -266,12 +246,8 @@ export function SpineNavigation({
               <ChevronUp className="h-6 w-6" />
             </button>
 
-            {/* Theme indicator */}
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-white/40 text-xs text-center px-2 writing-vertical">
-                {spineTheme.label}
-              </div>
-            </div>
+            {/* Spacer */}
+            <div className="flex-1" />
 
             {/* Theme down button */}
             <button
