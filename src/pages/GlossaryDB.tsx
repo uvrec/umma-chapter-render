@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
-import { Search, Loader2, ChevronDown, BookOpen, Plus, GraduationCap, Star, Check } from "lucide-react";
+import { Search, Loader2, ChevronDown, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/Header";
@@ -280,6 +280,27 @@ export default function GlossaryDB() {
   const allGroupedTerms = groupedData?.pages.flatMap((page) => page.terms) || [];
   const totalUniqueTerms = groupedData?.pages[0]?.totalCount || 0;
 
+  // Auto-fetch details for single-usage terms
+  useEffect(() => {
+    const singleUsageTerms = allGroupedTerms.filter(
+      (t) => t.usage_count === 1 && !expandedTermDetails[t.term] && !loadingTerms.has(t.term)
+    );
+
+    singleUsageTerms.slice(0, 20).forEach(async (term) => {
+      setLoadingTerms((prev) => new Set(prev).add(term.term));
+      try {
+        const details = await fetchTermDetails(term.term);
+        setExpandedTermDetails((prev) => ({ ...prev, [term.term]: details }));
+      } finally {
+        setLoadingTerms((prev) => {
+          const next = new Set(prev);
+          next.delete(term.term);
+          return next;
+        });
+      }
+    });
+  }, [allGroupedTerms]);
+
   const handleSearch = () => {
     if (searchTerm) {
       setSearchParams({ search: searchTerm });
@@ -386,131 +407,102 @@ export default function GlossaryDB() {
               </div>
             ) : (
               <>
-                {allGroupedTerms.map((groupedTerm) => (
-                  <div key={groupedTerm.term} className="border-b border-border/50 last:border-0">
-                    {/* Term row */}
-                    <button
-                      onClick={() => toggleTermExpanded(groupedTerm.term)}
-                      className="w-full py-3 flex items-center justify-between hover:bg-muted/30 transition-colors text-left px-2 -mx-2 rounded"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <span className="text-primary font-medium">{groupedTerm.term}</span>
-                        {groupedTerm.sample_meanings && groupedTerm.sample_meanings.length > 0 && (
-                          <span className="text-muted-foreground ml-3">
-                            {groupedTerm.sample_meanings.slice(0, 2).join("; ")}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-3 ml-4 shrink-0">
-                        <span className="text-xs text-muted-foreground">
-                          {groupedTerm.usage_count} {t("використ.", "uses")}
-                        </span>
-                        <ChevronDown
-                          className={`h-4 w-4 text-muted-foreground transition-transform ${
-                            expandedTerms.has(groupedTerm.term) ? "rotate-180" : ""
-                          }`}
-                        />
-                      </div>
-                    </button>
+                {allGroupedTerms.map((groupedTerm) => {
+                  const singleUsageDetails = groupedTerm.usage_count === 1 ? expandedTermDetails[groupedTerm.term]?.[0] : null;
+                  const isMultiUsage = groupedTerm.usage_count > 1;
 
-                    {/* Expanded details */}
-                    {expandedTerms.has(groupedTerm.term) && (
-                      <div className="pb-4 pl-4">
+                  return (
+                  <div key={groupedTerm.term}>
+                    {/* Term row */}
+                    {singleUsageDetails ? (
+                      // Single usage - show inline with direct link
+                      <div className="py-2.5 flex items-center justify-between text-left group">
+                        <div className="flex-1 min-w-0">
+                          <span className="text-primary font-medium">{groupedTerm.term}</span>
+                          <span className="text-muted-foreground mx-2">—</span>
+                          <span className="text-foreground">{singleUsageDetails.meaning || groupedTerm.sample_meanings?.[0] || "—"}</span>
+                        </div>
+                        <Link
+                          to={getLocalizedPath(singleUsageDetails.verse_link)}
+                          className="ml-4 text-sm text-muted-foreground hover:text-primary transition-colors shrink-0"
+                        >
+                          {singleUsageDetails.canto_number ? `${singleUsageDetails.canto_number}.` : ""}
+                          {singleUsageDetails.chapter_number}.{singleUsageDetails.verse_number}
+                        </Link>
+                      </div>
+                    ) : (
+                      // Multi usage or loading - expandable row
+                      <button
+                        onClick={() => toggleTermExpanded(groupedTerm.term)}
+                        className="w-full py-2.5 flex items-center justify-between hover:bg-muted/30 transition-colors text-left"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <span className="text-primary font-medium">{groupedTerm.term}</span>
+                          {groupedTerm.sample_meanings && groupedTerm.sample_meanings.length > 0 && (
+                            <span className="text-muted-foreground ml-3">
+                              {groupedTerm.sample_meanings.slice(0, 2).join("; ")}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 ml-4 shrink-0">
+                          {loadingTerms.has(groupedTerm.term) ? (
+                            <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+                          ) : isMultiUsage && (
+                            <>
+                              <span className="text-xs text-muted-foreground">
+                                {groupedTerm.usage_count}
+                              </span>
+                              <ChevronDown
+                                className={`h-4 w-4 text-muted-foreground transition-transform ${
+                                  expandedTerms.has(groupedTerm.term) ? "rotate-180" : ""
+                                }`}
+                              />
+                            </>
+                          )}
+                        </div>
+                      </button>
+                    )}
+
+                    {/* Expanded details - only for multi-usage terms */}
+                    {isMultiUsage && expandedTerms.has(groupedTerm.term) && (
+                      <div className="pb-3 pl-4 space-y-1">
                         {loadingTerms.has(groupedTerm.term) ? (
                           <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                         ) : expandedTermDetails[groupedTerm.term] ? (
-                          <div className="space-y-2">
-                            {/* Etymology */}
+                          <>
+                            {/* Etymology - minimal */}
                             {lexiconAvailable && etymologyData[groupedTerm.term]?.length > 0 && (
-                              <div className="text-sm text-muted-foreground mb-3 pb-3 border-b border-border/30">
-                                {etymologyData[groupedTerm.term].slice(0, 2).map((entry, i) => (
-                                  <div key={i} className="flex items-baseline gap-2">
-                                    {entry.word_devanagari && (
-                                      <span className="text-base">{entry.word_devanagari}</span>
-                                    )}
-                                    {entry.grammar && (
-                                      <span className="text-xs">
-                                        ({getGrammarLabel(entry.grammar, language as "uk" | "en") || entry.grammar})
-                                      </span>
-                                    )}
+                              <div className="text-sm text-muted-foreground pb-2 mb-2">
+                                {etymologyData[groupedTerm.term].slice(0, 1).map((entry, i) => (
+                                  <span key={i}>
+                                    {entry.word_devanagari && <span className="mr-2">{entry.word_devanagari}</span>}
+                                    {entry.grammar && <span className="text-xs mr-2">({getGrammarLabel(entry.grammar, language as "uk" | "en") || entry.grammar})</span>}
                                     {entry.meanings && <span className="text-foreground/70">{entry.meanings}</span>}
-                                  </div>
+                                  </span>
                                 ))}
-                                <Link
-                                  to={getDictionaryLink(groupedTerm.term)}
-                                  className="text-xs text-primary hover:underline"
-                                >
-                                  {t("Детальніше", "More")} →
-                                </Link>
                               </div>
                             )}
 
-                            {/* Verses list */}
+                            {/* Verses list - minimal */}
                             {expandedTermDetails[groupedTerm.term].map((item, idx) => (
-                              <div key={idx} className="flex items-start justify-between gap-4 py-1 group">
-                                <div className="flex-1 min-w-0">
-                                  <span className="text-foreground">{item.meaning || "—"}</span>
-                                  <Link
-                                    to={getLocalizedPath(item.verse_link)}
-                                    className="ml-2 text-sm text-primary hover:underline"
-                                  >
-                                    {item.book_title}, {item.canto_number ? `${item.canto_number}.` : ""}
-                                    {item.chapter_number}.{item.verse_number}
-                                  </Link>
-                                </div>
-                                {/* Actions */}
-                                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleAddToLearning(item);
-                                    }}
-                                    className={`p-1 rounded transition-colors ${
-                                      isInLearning(item.term)
-                                        ? "text-green-600"
-                                        : "text-muted-foreground hover:text-primary"
-                                    }`}
-                                    title={
-                                      isInLearning(item.term)
-                                        ? t("Вже у вивченні", "In learning")
-                                        : t("Вивчати", "Learn")
-                                    }
-                                  >
-                                    {isInLearning(item.term) ? (
-                                      <Check className="h-4 w-4" />
-                                    ) : (
-                                      <GraduationCap className="h-4 w-4" />
-                                    )}
-                                  </button>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleSaveTerm(item);
-                                    }}
-                                    className={`p-1 rounded transition-colors ${
-                                      isSaved(item.term, item.verse_link)
-                                        ? "text-amber-500"
-                                        : "text-muted-foreground hover:text-amber-500"
-                                    }`}
-                                    title={
-                                      isSaved(item.term, item.verse_link)
-                                        ? t("Збережено", "Saved")
-                                        : t("Зберегти", "Save")
-                                    }
-                                  >
-                                    <Star
-                                      className={`h-4 w-4 ${isSaved(item.term, item.verse_link) ? "fill-current" : ""}`}
-                                    />
-                                  </button>
-                                </div>
+                              <div key={idx} className="flex items-center justify-between gap-4 py-0.5 text-sm">
+                                <span className="text-foreground flex-1 min-w-0 truncate">{item.meaning || "—"}</span>
+                                <Link
+                                  to={getLocalizedPath(item.verse_link)}
+                                  className="text-muted-foreground hover:text-primary transition-colors shrink-0"
+                                >
+                                  {item.canto_number ? `${item.canto_number}.` : ""}
+                                  {item.chapter_number}.{item.verse_number}
+                                </Link>
                               </div>
                             ))}
-                          </div>
+                          </>
                         ) : null}
                       </div>
                     )}
                   </div>
-                ))}
+                  );
+                })}
 
                 {/* Load more */}
                 {hasNextPage && (
