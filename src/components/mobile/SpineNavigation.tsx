@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useMobileReading } from "@/contexts/MobileReadingContext";
 import { SpineTypographyPanel } from "./SpineTypographyPanel";
 import { SpineSearchOverlay } from "./SpineSearchOverlay";
 import { SpineSettingsPanel } from "./SpineSettingsPanel";
@@ -82,6 +83,7 @@ export function SpineNavigation({
   const navigate = useNavigate();
   const location = useLocation();
   const { language, getLocalizedPath, t } = useLanguage();
+  const { isFullscreen, exitFullscreen, shouldOpenSearch, resetSearchTrigger } = useMobileReading();
 
   // Spine theme state
   const [spineThemeIndex, setSpineThemeIndex] = useState(() => {
@@ -99,6 +101,14 @@ export function SpineNavigation({
   useEffect(() => {
     localStorage.setItem(SPINE_THEME_STORAGE_KEY, String(spineThemeIndex));
   }, [spineThemeIndex]);
+
+  // Open search when triggered by double-tap
+  useEffect(() => {
+    if (shouldOpenSearch) {
+      setActivePanel("search");
+      resetSearchTrigger();
+    }
+  }, [shouldOpenSearch, resetSearchTrigger]);
 
   // Handle swipe on spine to change theme
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -175,15 +185,21 @@ export function SpineNavigation({
     },
   ];
 
-  // Don't render if collapsed
-  if (!isExpanded) {
+  // Don't render if collapsed (manual) or fullscreen reading mode
+  if (!isExpanded || isFullscreen) {
     return (
       <button
-        onClick={() => setIsExpanded(true)}
-        className="fixed left-0 top-1/2 -translate-y-1/2 z-[60]
-          w-2 h-20 bg-brand-500 rounded-r-full
-          hover:w-3 transition-all duration-200
-          active:bg-brand-600"
+        onClick={() => {
+          setIsExpanded(true);
+          exitFullscreen();
+        }}
+        className={cn(
+          "fixed left-0 top-1/2 -translate-y-1/2 z-[60]",
+          "w-2 h-20 bg-brand-500 rounded-r-full",
+          "hover:w-3 transition-all duration-300",
+          "active:bg-brand-600",
+          isFullscreen ? "opacity-30 hover:opacity-60" : "opacity-100"
+        )}
         aria-label={t("Відкрити навігацію", "Open navigation")}
       />
     );

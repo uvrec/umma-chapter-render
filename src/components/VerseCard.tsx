@@ -21,6 +21,8 @@ import { parseSynonymPairs } from "@/utils/glossaryParser";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { applyDropCap } from "@/utils/text/dropCap";
 import { useAudioSyncSimple } from "@/hooks/useAudioSync";
+import { useMobileReading } from "@/contexts/MobileReadingContext";
+import { useTapGesture } from "@/hooks/useTapGesture";
 
 /* =========================
    Типи пропсів
@@ -127,6 +129,28 @@ export const VerseCard = ({
 }: VerseCardProps) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { enterFullscreen, triggerSearch, showTooltip } = useMobileReading();
+
+  // Tap gesture handlers for mobile reading mode
+  const { handlers: tapHandlers } = useTapGesture({
+    onSingleTap: () => {
+      if (isMobile) {
+        enterFullscreen();
+      }
+    },
+    onDoubleTap: () => {
+      if (isMobile) {
+        triggerSearch();
+      }
+    },
+    onTripleTap: (position) => {
+      if (isMobile && translation) {
+        // Show short excerpt of translation
+        const shortText = stripParagraphTags(translation).substring(0, 100) + (translation.length > 100 ? "..." : "");
+        showTooltip(shortText, position);
+      }
+    },
+  });
 
   // Ref для запобігання подвійному спрацюванню на мобільних (touch + click)
   const glossaryNavigationRef = useRef<boolean>(false);
@@ -633,6 +657,7 @@ export const VerseCard = ({
               <p
                 className="text-foreground text-justify font-bold"
                 style={{ fontSize: `${fontSize}px`, lineHeight }}
+                {...(isMobile ? tapHandlers : {})}
               >
                 {stripParagraphTags(translation)}
               </p>
@@ -674,6 +699,7 @@ export const VerseCard = ({
                 className="text-foreground text-justify purport first"
                 style={{ fontSize: `${fontSize}px`, lineHeight }}
                 dangerouslySetInnerHTML={{ __html: applyDropCap(sanitizeForRender(commentary || "")) }}
+                {...(isMobile ? tapHandlers : {})}
               />
             )}
           </div>
