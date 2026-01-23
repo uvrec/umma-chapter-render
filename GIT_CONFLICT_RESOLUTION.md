@@ -131,7 +131,7 @@ All commits pushed to `origin/claude/import-pdf-supabase-01HdZ8GMW1t2rCkMZ7d4GHg
 
 ### Pending Implementation:
 
-1. **Fix synonyms_ua Generation**: Implement fallback to English translations for books without Gitabase
+1. **Fix synonyms_uk Generation**: Implement fallback to English translations for books without Gitabase
    - Modify `mergeSynonyms()` in `dualSourceParser.ts`
    - Or implement `generateSynonymsUA()` as shown in guide
 

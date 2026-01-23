@@ -12,12 +12,12 @@
 
 **Таблиця:** `letters`
 - `slug` (унікальний, наприклад: 'letter-to-mahatma-gandhi')
-- `recipient_en/ua` - отримувач листа
+- `recipient_en/uk` - отримувач листа
 - `letter_date` - дата листа
-- `location_en/ua` - локація написання
+- `location_en/uk` - локація написання
 - `reference` - vedabase reference ('47-07-12')
 - `address_block` - адреса отримувача
-- `content_en/ua` - текст листа
+- `content_en/uk` - текст листа
 
 **Індекси:** дата, отримувач, локація, reference
 
@@ -42,15 +42,15 @@ python tools/letter_translator.py \
   "metadata": {
     "slug": "letter-to-mahatma-gandhi",
     "recipient_en": "Mahatma Gandhi",
-    "recipient_ua": "Махатма Ґанді",
+    "recipient_uk": "Махатма Ґанді",
     "letter_date": "1947-07-12",
     "location_en": "Cawnpore",
-    "location_ua": "Канпур",
+    "location_uk": "Канпур",
     "reference": "47-07-12",
     "address_block": "Mahatma Gandhijee\nBhangi Colony\nNew Delhi."
   },
   "content_en": "Dear Friend Mahatmajee, ...",
-  "content_ua": "Шановний друже Махатмаджі, ...",
+  "content_uk": "Шановний друже Махатмаджі, ...",
   "sanskrit_terms": ["Bhagavad-gītā", "dharma", ...]
 }
 ```
@@ -68,7 +68,7 @@ python tools/letter_translator.py \
     --input tools/outputs/letters/letter-to-mahatma-gandhi.json
 
 # 3. Результат
-# tools/outputs/letters/letter-to-mahatma-gandhi_ua.json
+# tools/outputs/letters/letter-to-mahatma-gandhi_uk.json
 ```
 
 ### Масовий імпорт

@@ -5,7 +5,7 @@
 Після помилкового імпорту деякі вірші Śrīmad-Bhāgavatam були позначені як:
 - **Видалені** (`deleted_at` NOT NULL) - м'яке видалення
 - **Неопубліковані** (`is_published = false`)
-- **Порожні** (`translation_ua` та `translation_en` порожні)
+- **Порожні** (`translation_uk` та `translation_en` порожні)
 
 Вірші **існують в базі даних**, але не показуються на сайті через фільтри в коді:
 - `src/pages/ChapterVersesList.tsx:126-127`
@@ -115,7 +115,7 @@ python3 check_db_state.py
 5. В результаті вірші стали:
    - `deleted_at` NOT NULL (видалені)
    - `is_published = false` (неопубліковані)
-   - Порожні `translation_ua/translation_en`
+   - Порожні `translation_uk/translation_en`
 
 6. Код було видалено в commit `445fb05`, але БД не відновилась автоматично
 

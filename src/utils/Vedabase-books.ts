@@ -728,13 +728,13 @@ export function buildVedabaseUrl(
  * Побудувати URL для Gitabase
  * ВАЖЛИВО: Gitabase Ukrainian доступний ТІЛЬКИ для CC та NoI!
  * @example buildGitabaseUrl('CC', { chapter: 1, verse: '1' })
- * // => 'https://gitabase.com/ua/CC/1/1'
+ * // => 'https://gitabase.com/uk/CC/1/1'
  */
 export function buildGitabaseUrl(
   bookSlug: string,
   options: { lila?: number | string; chapter?: number; verse?: string | number } = {},
 ) {
-  let url = `https://gitabase.com/ua/${bookSlug.toUpperCase()}`;
+  let url = `https://gitabase.com/uk/${bookSlug.toUpperCase()}`;
   if (options.lila) url += `/${options.lila}`;
   if (options.chapter) url += `/${options.chapter}`;
   if (options.verse) url += `/${options.verse}`;

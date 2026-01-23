@@ -55,14 +55,14 @@ settings = Settings()
 
 # Book metadata for better context
 BOOK_METADATA = {
-    "bg": {"title_ua": "Бгаґавад-ґіта як вона є", "title_en": "Bhagavad-gita As It Is", "author": "Шріла Прабгупада"},
-    "sb": {"title_ua": "Шрімад-Бгаґаватам", "title_en": "Srimad-Bhagavatam", "author": "Шріла Прабгупада"},
-    "cc": {"title_ua": "Чайтанья-чарітамріта", "title_en": "Caitanya-caritamrta", "author": "Шріла Прабгупада"},
-    "noi": {"title_ua": "Нектар настанов", "title_en": "Nectar of Instruction", "author": "Шріла Прабгупада"},
-    "nod": {"title_ua": "Нектар відданості", "title_en": "Nectar of Devotion", "author": "Шріла Прабгупада"},
-    "iso": {"title_ua": "Шрі Ішопанішад", "title_en": "Sri Isopanisad", "author": "Шріла Прабгупада"},
-    "kb": {"title_ua": "Крішна - Верховний Бог-Особа", "title_en": "Krishna Book", "author": "Шріла Прабгупада"},
-    "tlk": {"title_ua": "Вчення Господа Капіли", "title_en": "Teachings of Lord Kapila", "author": "Шріла Прабгупада"},
-    "bs": {"title_ua": "Брахма-самхіта", "title_en": "Brahma-samhita", "author": "Шріла Прабгупада"},
-    "saranagati": {"title_ua": "Шаранаґаті", "title_en": "Saranagati", "author": "Бгактівінода Тхакур"},
+    "bg": {"title_uk": "Бгаґавад-ґіта як вона є", "title_en": "Bhagavad-gita As It Is", "author": "Шріла Прабгупада"},
+    "sb": {"title_uk": "Шрімад-Бгаґаватам", "title_en": "Srimad-Bhagavatam", "author": "Шріла Прабгупада"},
+    "cc": {"title_uk": "Чайтанья-чарітамріта", "title_en": "Caitanya-caritamrta", "author": "Шріла Прабгупада"},
+    "noi": {"title_uk": "Нектар настанов", "title_en": "Nectar of Instruction", "author": "Шріла Прабгупада"},
+    "nod": {"title_uk": "Нектар відданості", "title_en": "Nectar of Devotion", "author": "Шріла Прабгупада"},
+    "iso": {"title_uk": "Шрі Ішопанішад", "title_en": "Sri Isopanisad", "author": "Шріла Прабгупада"},
+    "kb": {"title_uk": "Крішна - Верховний Бог-Особа", "title_en": "Krishna Book", "author": "Шріла Прабгупада"},
+    "tlk": {"title_uk": "Вчення Господа Капіли", "title_en": "Teachings of Lord Kapila", "author": "Шріла Прабгупада"},
+    "bs": {"title_uk": "Брахма-самхіта", "title_en": "Brahma-samhita", "author": "Шріла Прабгупада"},
+    "saranagati": {"title_uk": "Шаранаґаті", "title_en": "Saranagati", "author": "Бгактівінода Тхакур"},
 }

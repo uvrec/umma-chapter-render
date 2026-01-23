@@ -10,12 +10,12 @@
 ### BUG #1: UnboundLocalError в playwright_parser.py
 
 **Локація:** `tools/playwright_parser.py:529`  
-**Проблема:** Змінна `transliteration_ua` використовувалася до ініціалізації  
-**Виправлення:** Додано `transliteration_ua = ""` на початку функції `parse_gitabase_verse()`
+**Проблема:** Змінна `transliteration_uk` використовувалася до ініціалізації  
+**Виправлення:** Додано `transliteration_uk = ""` на початку функції `parse_gitabase_verse()`
 
 ```python
 # ✅ FIX: Initialize to avoid UnboundLocalError
-transliteration_ua = ""
+transliteration_uk = ""
 ```
 
 ---
@@ -27,7 +27,7 @@ transliteration_ua = ""
 - Parser (`playwright_parser.py`) повертає ТІЛЬКИ українські **значення** з Gitabase (без термінів)
 - Формат: `"я складаю поклони ; духовним вчителям ; ..."`
 - Нормалізатор НЕ додавав українські **терміни** назад
-- Результат: synonyms_ua був НЕПОВНИМ
+- Результат: synonyms_uk був НЕПОВНИМ
 
 **Виправлення:** Додано MERGE логіку:
 
@@ -40,16 +40,16 @@ transliteration_ua = ""
    - `gurun` → `ґурун`
    - Використання: `convert_english_to_ukrainian_translit()` + `normalize_diacritics()`
 
-3. **Об'єднати з українськими значеннями** з `synonyms_ua` (Gitabase)
+3. **Об'єднати з українськими значеннями** з `synonyms_uk` (Gitabase)
    - Українські значення: `["я складаю поклони", "духовним вчителям", ...]`
    - Результат: `"ванде — я складаю поклони; ґурун — духовним вчителям"`
 
 ```python
 # ✅ MERGE: Parser повертає ТІЛЬКИ українські значення (без термінів)
-if verse.get('synonyms_ua') and verse.get('synonyms_en'):
+if verse.get('synonyms_uk') and verse.get('synonyms_en'):
     # Витягуємо IAST терміни з synonyms_en
     en_pairs = [p.strip() for p in verse['synonyms_en'].split(';') if p.strip()]
-    ua_values = [v.strip() for v in verse['synonyms_ua'].split(';') if v.strip()]
+    ua_values = [v.strip() for v in verse['synonyms_uk'].split(';') if v.strip()]
     
     merged_pairs = []
     for i, en_pair in enumerate(en_pairs):
@@ -65,7 +65,7 @@ if verse.get('synonyms_ua') and verse.get('synonyms_en'):
             if ua_value:
                 merged_pairs.append(f'{ua_term} — {ua_value}')
     
-    normalized['synonyms_ua'] = normalize_verse_field('; '.join(merged_pairs), 'synonyms')
+    normalized['synonyms_uk'] = normalize_verse_field('; '.join(merged_pairs), 'synonyms')
 ```
 
 ---

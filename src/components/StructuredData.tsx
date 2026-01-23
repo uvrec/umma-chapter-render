@@ -344,7 +344,7 @@ export function OrganizationSchema({ language = 'uk' }: OrganizationSchemaProps)
     url: BASE_URL,
     logo: LOGO_URL,
     sameAs: [
-      'https://t.me/prabhupada_ua',
+      'https://t.me/prabhupada_uk',
       'https://www.instagram.com/prabhupada.ua/',
       'https://www.youtube.com/@prabhupadasolovyinoyu',
     ],

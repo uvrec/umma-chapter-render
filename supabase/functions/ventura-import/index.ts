@@ -392,7 +392,7 @@ function extractChapterNumber(text: string): number {
 
 interface Verse {
   verse_number: string;
-  transliteration_ua?: string;
+  transliteration_uk?: string;
   synonyms_uk?: string;
   translation_uk?: string;
   commentary_uk?: string;
@@ -443,8 +443,8 @@ function parseVentura(text: string): Chapter {
     } else if (['v-uvaca', 'v-anustubh', 'v-tristubh'].includes(currentTag)) {
       if (currentVerse) {
         const translit = processTransliteration(content);
-        currentVerse.transliteration_ua = currentVerse.transliteration_ua
-          ? currentVerse.transliteration_ua + '\n' + translit
+        currentVerse.transliteration_uk = currentVerse.transliteration_uk
+          ? currentVerse.transliteration_uk + '\n' + translit
           : translit;
       }
     } else if (currentTag === 'eqs') {

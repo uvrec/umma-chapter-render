@@ -23,12 +23,12 @@ Notes:
 
 МАППІНГ ПОЛІВ (для джерел EN + Sanskrit/Bengali):
 =================================================
-- sanskrit_en / sanskrit_ua — Bengali/Sanskrit (Devanagari script), однаковий вміст
+- sanskrit_en / sanskrit_uk — Bengali/Sanskrit (Devanagari script), однаковий вміст
 - transliteration_en — IAST транслітерація (латинка з діакритикою)
-- transliteration_ua — українська кирилична транслітерація з діакритикою
+- transliteration_uk — українська кирилична транслітерація з діакритикою
   (конвертується з IAST за допомогою tools/translit_normalizer.py)
 - translation_en / purport_en — англійський переклад та пояснення
-- translation_ua / purport_ua — український переклад та пояснення
+- translation_uk / purport_uk — український переклад та пояснення
 
 AUTOREPLACE та TRANSLIT_FIXES нижче - локальні виправлення для цього імпортера.
 Централізовані правила - у translit_normalizer.py
@@ -117,14 +117,14 @@ class CCImporter:
     def parse_gitabase_verse(self, html: str) -> Dict[str, Optional[str]]:
         """Parse Ukrainian translation / transliteration / word-by-word / commentary from gitabase page HTML.
         Uses page-specific selectors (tlabel/dia_text/div_translit) for Gitabase.
-        Returns dict with keys: transliteration, word_by_word, translation_ua, commentary_ua
+        Returns dict with keys: transliteration, word_by_word, translation_uk, commentary_uk
         """
         soup = BeautifulSoup(html, "lxml")
         result = {
             "transliteration": None,
             "word_by_word": None,
-            "translation_ua": None,
-            "commentary_ua": None,
+            "translation_uk": None,
+            "commentary_uk": None,
         }
 
         # --- Transliteration ---
@@ -166,7 +166,7 @@ class CCImporter:
                         else:
                             txt = sibling.get_text(separator=' ').strip()
                         if txt:
-                            result['translation_ua'] = self._apply_replacements(txt)
+                            result['translation_uk'] = self._apply_replacements(txt)
                             break
         except Exception:
             pass
@@ -180,23 +180,23 @@ class CCImporter:
                     if sibling:
                         txt = sibling.get_text(separator='\n').strip()
                         if txt:
-                            result['commentary_ua'] = self._apply_replacements(txt)
+                            result['commentary_uk'] = self._apply_replacements(txt)
                             break
         except Exception:
             pass
 
         # Fallbacks
-        if not result['translation_ua'] or not result['commentary_ua']:
+        if not result['translation_uk'] or not result['commentary_uk']:
             paragraphs = [p.get_text(separator=' ').strip() for p in soup.find_all(['p','div','li','span'])]
-            if not result['translation_ua']:
+            if not result['translation_uk']:
                 cyr = [p for p in paragraphs if re.search(r"[А-Яа-яІіЇїЄєҐґ]", p) and len(p) > 30]
                 if cyr:
                     cyr.sort(key=lambda s: len(s), reverse=True)
-                    result['translation_ua'] = self._apply_replacements(cyr[0])
-            if not result['commentary_ua']:
+                    result['translation_uk'] = self._apply_replacements(cyr[0])
+            if not result['commentary_uk']:
                 for p in paragraphs:
                     if 'пояснен' in p.lower() or 'коментар' in p.lower():
-                        result['commentary_ua'] = self._apply_replacements(p)
+                        result['commentary_uk'] = self._apply_replacements(p)
                         break
 
         return result
@@ -219,7 +219,7 @@ class CCImporter:
             except Exception:
                 gitabase_url = gitabase_base_url
         else:
-            gitabase_url = f"https://gitabase.com/ua/CC/{chapter}/{verse}"
+            gitabase_url = f"https://gitabase.com/uk/CC/{chapter}/{verse}"
 
         print(f"Importing lila={lila_num} chapter={chapter} verse={verse}")
         out = {
@@ -228,9 +228,9 @@ class CCImporter:
             'verse_number': str(verse),
             'sanskrit': None,
             'transliteration': None,
-            'synonyms_ua': None,
-            'translation_ua': None,
-            'commentary_ua': None,
+            'synonyms_uk': None,
+            'translation_uk': None,
+            'commentary_uk': None,
             'missing': [],
             'source': {
                 'vedabase_url': vedabase_url,
@@ -256,7 +256,7 @@ class CCImporter:
             try:
                 syn = self.extract_vedabase_synonyms(ved_html)
                 if syn:
-                    out['synonyms_ua'] = syn
+                    out['synonyms_uk'] = syn
             except Exception:
                 pass
         else:
@@ -271,26 +271,26 @@ class CCImporter:
                 # Prefer embedded JSON-like extraction (more reliable for client-rendered sites)
                 g_translation = self.extract_gitabase_translation(git_html)
                 if g_translation:
-                    out['translation_ua'] = g_translation
+                    out['translation_uk'] = g_translation
                 g_comment = self.extract_gitabase_commentary(git_html)
                 if g_comment:
-                    out['commentary_ua'] = g_comment
+                    out['commentary_uk'] = g_comment
 
                 # Fallback to HTML heuristics
                 parsed = self.parse_gitabase_verse(git_html)
                 for k, v in parsed.items():
                     if v and not out.get(k):
                         out[k] = v
-                # fill synonyms_ua heuristically from word_by_word if present
-                if not out.get('synonyms_ua') and parsed.get('word_by_word'):
-                    out['synonyms_ua'] = parsed.get('word_by_word')
+                # fill synonyms_uk heuristically from word_by_word if present
+                if not out.get('synonyms_uk') and parsed.get('word_by_word'):
+                    out['synonyms_uk'] = parsed.get('word_by_word')
             except Exception as e:
                 print(f"[import_verse] Gitabase parse error: {e}")
         else:
             out['missing'].append('gitabase_fetch')
 
         # apply replacements to all text fields
-        for k in ['sanskrit','transliteration','synonyms_ua','translation_ua','commentary_ua']:
+        for k in ['sanskrit','transliteration','synonyms_uk','translation_uk','commentary_uk']:
             out[k] = self._apply_replacements(out.get(k)) if out.get(k) else None
 
         return out

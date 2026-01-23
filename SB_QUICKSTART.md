@@ -72,11 +72,11 @@ python3 import_sb_pdf.py \
 ```bash
 # У базі (якщо встановлено psql)
 psql $DATABASE_URL -c "
-  SELECT c.chapter_number, c.title_ua, COUNT(v.id) as verses
+  SELECT c.chapter_number, c.title_uk, COUNT(v.id) as verses
   FROM chapters c
   LEFT JOIN verses v ON v.chapter_id = c.id
   WHERE c.canto_id IN (SELECT id FROM cantos WHERE canto_number = 3)
-  GROUP BY c.chapter_number, c.title_ua
+  GROUP BY c.chapter_number, c.title_uk
   ORDER BY c.chapter_number;
 "
 

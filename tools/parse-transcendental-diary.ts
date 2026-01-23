@@ -54,9 +54,9 @@ interface IntroPage {
 interface BookData {
   book_slug: string;
   book_title_en: string;
-  book_title_ua: string;
+  book_title_uk: string;
   author_en: string;
-  author_ua: string;
+  author_uk: string;
   description_en?: string;
   volumes: Volume[];
 }
@@ -539,9 +539,9 @@ async function parseAllVolumes(useCache: boolean = true): Promise<BookData> {
   const bookData: BookData = {
     book_slug: "td",
     book_title_en: "Transcendental Diary",
-    book_title_ua: "Трансцендентний щоденник",
+    book_title_uk: "Трансцендентний щоденник",
     author_en: "Hari Sauri dasa",
-    author_ua: "Харі Шаурі дас",
+    author_uk: "Харі Шаурі дас",
     description_en:
       "A personal account of traveling with His Divine Grace A.C. Bhaktivedanta Swami Prabhupada from November 1975 to November 1977.",
     volumes: [],
@@ -630,9 +630,9 @@ Examples:
     bookData = {
       book_slug: "td",
       book_title_en: "Transcendental Diary",
-      book_title_ua: "Трансцендентний щоденник",
+      book_title_uk: "Трансцендентний щоденник",
       author_en: "Hari Sauri dasa",
-      author_ua: "Харі Шаурі дас",
+      author_uk: "Харі Шаурі дас",
       volumes: [volume],
     };
   } else {

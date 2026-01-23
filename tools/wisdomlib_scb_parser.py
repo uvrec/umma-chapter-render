@@ -16,12 +16,12 @@ Usage:
 
 МАППІНГ ПОЛІВ (для джерел EN + Sanskrit/Bengali):
 =================================================
-- sanskrit_en / sanskrit_ua — Bengali/Sanskrit (Devanagari script), однаковий вміст
+- sanskrit_en / sanskrit_uk — Bengali/Sanskrit (Devanagari script), однаковий вміст
 - transliteration_en — IAST транслітерація (латинка з діакритикою)
-- transliteration_ua — українська кирилична транслітерація з діакритикою
+- transliteration_uk — українська кирилична транслітерація з діакритикою
   (конвертується з IAST за допомогою tools/translit_normalizer.py)
 - translation_en / purport_en — англійський переклад та пояснення
-- translation_ua / purport_ua — український переклад та пояснення
+- translation_uk / purport_uk — український переклад та пояснення
 """
 
 import re
@@ -50,19 +50,19 @@ KHANDA_CONFIG = {
     "adi": {
         "number": 1,
         "title_en": "Ādi-khaṇḍa",
-        "title_ua": "Аді-кханда",
+        "title_uk": "Аді-кханда",
         "index_url": f"{BASE_URL}/hinduism/book/chaitanya-bhagavata/d/doc1092508.html",
     },
     "madhya": {
         "number": 2,
         "title_en": "Madhya-khaṇḍa",
-        "title_ua": "Мадг'я-кханда",
+        "title_uk": "Мадг'я-кханда",
         "index_url": f"{BASE_URL}/hinduism/book/chaitanya-bhagavata/d/doc1098648.html",
     },
     "antya": {
         "number": 3,
         "title_en": "Antya-khaṇḍa",
-        "title_ua": "Антья-кханда",
+        "title_uk": "Антья-кханда",
         "index_url": f"{BASE_URL}/hinduism/book/chaitanya-bhagavata/d/doc1108917.html",
     },
 }
@@ -182,7 +182,7 @@ class Chapter:
     khanda_number: int
     khanda_name: str
     title_en: str
-    title_ua: str = ""
+    title_uk: str = ""
     content_en: Optional[str] = None  # Introduction
     verses: List[Verse] = field(default_factory=list)
     url: Optional[str] = None
@@ -546,11 +546,11 @@ def generate_cantos_sql(book_id: str) -> str:
     
     for name, config in KHANDA_CONFIG.items():
         lines.append(f"-- {config['title_en']}")
-        lines.append(f"""INSERT INTO cantos (book_id, canto_number, title_en, title_ua, is_published)
-VALUES ('{book_id}', {config['number']}, '{escape_sql(config['title_en'])}', '{escape_sql(config['title_ua'])}', true)
+        lines.append(f"""INSERT INTO cantos (book_id, canto_number, title_en, title_uk, is_published)
+VALUES ('{book_id}', {config['number']}, '{escape_sql(config['title_en'])}', '{escape_sql(config['title_uk'])}', true)
 ON CONFLICT (book_id, canto_number) DO UPDATE SET 
     title_en = EXCLUDED.title_en,
-    title_ua = EXCLUDED.title_ua;
+    title_uk = EXCLUDED.title_uk;
 """)
     
     return "\n".join(lines)
@@ -571,8 +571,8 @@ DECLARE
     v_chapter_id UUID;
 BEGIN
     -- Insert chapter
-    INSERT INTO chapters (book_id, canto_id, chapter_number, title_en, title_ua, content_en, is_published)
-    VALUES ('{book_id}', '{canto_id}', {chapter.chapter_number}, '{escape_sql(chapter.title_en)}', '{escape_sql(chapter.title_ua)}', '{content_en}', true)
+    INSERT INTO chapters (book_id, canto_id, chapter_number, title_en, title_uk, content_en, is_published)
+    VALUES ('{book_id}', '{canto_id}', {chapter.chapter_number}, '{escape_sql(chapter.title_en)}', '{escape_sql(chapter.title_uk)}', '{content_en}', true)
     ON CONFLICT (canto_id, chapter_number) DO UPDATE SET
         title_en = EXCLUDED.title_en,
         content_en = EXCLUDED.content_en

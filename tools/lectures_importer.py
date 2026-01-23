@@ -26,12 +26,12 @@ Notes:
 
 МАППІНГ ПОЛІВ (для джерел EN + Sanskrit/Bengali):
 =================================================
-- sanskrit_en / sanskrit_ua — Bengali/Sanskrit (Devanagari script), однаковий вміст
+- sanskrit_en / sanskrit_uk — Bengali/Sanskrit (Devanagari script), однаковий вміст
 - transliteration_en — IAST транслітерація (латинка з діакритикою)
-- transliteration_ua — українська кирилична транслітерація з діакритикою
+- transliteration_uk — українська кирилична транслітерація з діакритикою
   (конвертується з IAST за допомогою tools/translit_normalizer.py)
 - translation_en / purport_en — англійський переклад та пояснення
-- translation_ua / purport_ua — український переклад та пояснення
+- translation_uk / purport_uk — український переклад та пояснення
 """
 
 import requests
@@ -376,25 +376,25 @@ class LecturesImporter:
 
         return None
 
-    def translate_metadata_to_ua(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
+    def translate_metadata_to_uk(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
         """Перекласти метадані на українську"""
         ua_metadata = metadata.copy()
 
         # Перекласти тип лекції
         lecture_type = metadata.get("lecture_type", "Lecture")
-        ua_metadata["lecture_type_ua"] = LECTURE_TYPE_TRANSLATIONS.get(
+        ua_metadata["lecture_type_uk"] = LECTURE_TYPE_TRANSLATIONS.get(
             lecture_type, lecture_type
         )
 
         # Перекласти локацію
         location_en = metadata.get("location_en", "")
-        ua_metadata["location_ua"] = LOCATION_TRANSLATIONS.get(
+        ua_metadata["location_uk"] = LOCATION_TRANSLATIONS.get(
             location_en, location_en
         )
 
         # Перекласти заголовок (базова транслітерація санскритських термінів)
         title_en = metadata.get("title_en", "")
-        ua_metadata["title_ua"] = self._transliterate_title(title_en)
+        ua_metadata["title_uk"] = self._transliterate_title(title_en)
 
         return ua_metadata
 
@@ -450,19 +450,19 @@ class LecturesImporter:
             print(f"[WARNING] Не знайдено параграфів для {slug}")
 
         # Переклад метаданих на українську
-        ua_metadata = self.translate_metadata_to_ua(metadata)
+        ua_metadata = self.translate_metadata_to_uk(metadata)
 
         # Формування результату
         result = {
             "metadata": {
                 "slug": slug,
                 "title_en": metadata["title_en"],
-                "title_ua": ua_metadata["title_ua"],
+                "title_uk": ua_metadata["title_uk"],
                 "lecture_date": metadata["lecture_date"],
                 "location_en": metadata["location_en"],
-                "location_ua": ua_metadata["location_ua"],
+                "location_uk": ua_metadata["location_uk"],
                 "lecture_type": metadata["lecture_type"],
-                "lecture_type_ua": ua_metadata["lecture_type_ua"],
+                "lecture_type_uk": ua_metadata["lecture_type_uk"],
                 "audio_url": metadata["audio_url"],
                 "book_slug": metadata["book_slug"],
                 "chapter_number": metadata["chapter_number"],

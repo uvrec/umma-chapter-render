@@ -110,10 +110,10 @@ class ContentTranslator:
 
         if content_type == "lectures":
             self.input_dir = Path("tools/outputs/lectures")
-            self.output_dir = Path("tools/outputs/lectures_ua")
+            self.output_dir = Path("tools/outputs/lectures_uk")
         else:
             self.input_dir = Path("tools/outputs/letters")
-            self.output_dir = Path("tools/outputs/letters_ua")
+            self.output_dir = Path("tools/outputs/letters_uk")
 
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -224,7 +224,7 @@ class ContentTranslator:
             for paragraph in result["paragraphs"]:
                 if "content_en" in paragraph:
                     content_en = paragraph["content_en"]
-                    paragraph["content_ua"] = self.translate_text(content_en)
+                    paragraph["content_uk"] = self.translate_text(content_en)
 
         return result
 
@@ -234,7 +234,7 @@ class ContentTranslator:
 
         # Переклад контенту
         if "content_en" in result:
-            result["content_ua"] = self.translate_text(result["content_en"])
+            result["content_uk"] = self.translate_text(result["content_en"])
 
         return result
 
