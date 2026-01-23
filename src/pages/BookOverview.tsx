@@ -294,16 +294,9 @@ export const BookOverview = () => {
         <meta name="description" content={bookDescription || `${bookTitle} - ${t('священне писання ведичної традиції', 'sacred scripture of the Vedic tradition')}`} />
       </Helmet>
 
-      {/* Book Title and Author - minimalist */}
+      {/* Book Title - minimalist */}
       <div className="px-4 pt-6 pb-4 text-center">
-        <h1 className="text-2xl font-bold text-primary mb-2">{bookTitle}</h1>
-        {bookDescription && (
-          <div className="text-sm text-muted-foreground">
-            {bookDescription.split(',').map((author, i) => (
-              <div key={i}>{author.trim().replace(/^Автор:\s*/i, '')}</div>
-            ))}
-          </div>
-        )}
+        <h1 className="text-2xl font-bold text-primary">{bookTitle}</h1>
       </div>
 
       {/* Intro chapters - simple list */}
