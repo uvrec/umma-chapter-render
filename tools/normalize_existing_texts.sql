@@ -118,21 +118,21 @@ $$ LANGUAGE plpgsql IMMUTABLE;
 
 -- Нормалізація перекладів
 UPDATE verses
-SET translation_ua = normalize_ukrainian_text(translation_ua)
-WHERE translation_ua IS NOT NULL 
-  AND translation_ua != '';
+SET translation_uk = normalize_ukrainian_text(translation_uk)
+WHERE translation_uk IS NOT NULL 
+  AND translation_uk != '';
 
 -- Нормалізація коментарів
 UPDATE verses
-SET commentary_ua = normalize_ukrainian_text(commentary_ua)
-WHERE commentary_ua IS NOT NULL 
-  AND commentary_ua != '';
+SET commentary_uk = normalize_ukrainian_text(commentary_uk)
+WHERE commentary_uk IS NOT NULL 
+  AND commentary_uk != '';
 
--- Нормалізація synonyms_ua
+-- Нормалізація synonyms_uk
 UPDATE verses
-SET synonyms_ua = normalize_ukrainian_text(synonyms_ua)
-WHERE synonyms_ua IS NOT NULL 
-  AND synonyms_ua != '';
+SET synonyms_uk = normalize_ukrainian_text(synonyms_uk)
+WHERE synonyms_uk IS NOT NULL 
+  AND synonyms_uk != '';
 
 
 -- ============================================================================
@@ -142,13 +142,13 @@ WHERE synonyms_ua IS NOT NULL
 -- Перевірка кількості віршів що будуть змінені (ВИКОНАТИ ПЕРЕД UPDATE)
 SELECT 
     COUNT(*) as total_verses,
-    COUNT(CASE WHEN translation_ua != normalize_ukrainian_text(translation_ua) THEN 1 END) as translation_changes,
-    COUNT(CASE WHEN commentary_ua != normalize_ukrainian_text(commentary_ua) THEN 1 END) as commentary_changes,
-    COUNT(CASE WHEN synonyms_ua != normalize_ukrainian_text(synonyms_ua) THEN 1 END) as synonyms_changes
+    COUNT(CASE WHEN translation_uk != normalize_ukrainian_text(translation_uk) THEN 1 END) as translation_changes,
+    COUNT(CASE WHEN commentary_uk != normalize_ukrainian_text(commentary_uk) THEN 1 END) as commentary_changes,
+    COUNT(CASE WHEN synonyms_uk != normalize_ukrainian_text(synonyms_uk) THEN 1 END) as synonyms_changes
 FROM verses
-WHERE translation_ua IS NOT NULL 
-   OR commentary_ua IS NOT NULL 
-   OR synonyms_ua IS NOT NULL;
+WHERE translation_uk IS NOT NULL 
+   OR commentary_uk IS NOT NULL 
+   OR synonyms_uk IS NOT NULL;
 
 
 -- ============================================================================
@@ -158,17 +158,17 @@ WHERE translation_ua IS NOT NULL
 -- Тестування функції на одному віршу
 SELECT 
     verse_number,
-    translation_ua as original,
-    normalize_ukrainian_text(translation_ua) as normalized
+    translation_uk as original,
+    normalize_ukrainian_text(translation_uk) as normalized
 FROM verses
 WHERE book_id = 1 AND chapter_id = 1 AND verse_number = 1;
 
 -- Пошук віршів з конкретними помилками
-SELECT verse_number, translation_ua
+SELECT verse_number, translation_uk
 FROM verses
-WHERE translation_ua LIKE '%Чайтан''я%' 
-   OR translation_ua LIKE '%н''%'
-   OR translation_ua LIKE '%тг%'
+WHERE translation_uk LIKE '%Чайтан''я%' 
+   OR translation_uk LIKE '%н''%'
+   OR translation_uk LIKE '%тг%'
 LIMIT 10;
 
 

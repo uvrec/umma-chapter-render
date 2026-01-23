@@ -7,7 +7,7 @@
 SELECT
     id,
     slug,
-    title_ua,
+    title_uk,
     title_en,
     is_published,
     has_cantos
@@ -38,12 +38,12 @@ SELECT
     COUNT(*) FILTER (WHERE deleted_at IS NOT NULL) as deleted,
     COUNT(*) FILTER (WHERE is_published = true) as published,
     COUNT(*) FILTER (WHERE is_published = false) as unpublished,
-    COUNT(*) FILTER (WHERE translation_ua IS NULL OR translation_ua = '') as empty_ua,
+    COUNT(*) FILTER (WHERE translation_uk IS NULL OR translation_uk = '') as empty_uk,
     COUNT(*) FILTER (WHERE translation_en IS NULL OR translation_en = '') as empty_en,
     COUNT(*) FILTER (WHERE
         deleted_at IS NULL
         AND is_published = true
-        AND (translation_ua IS NOT NULL AND translation_ua != '')
+        AND (translation_uk IS NOT NULL AND translation_uk != '')
     ) as visible_verses
 FROM verses
 WHERE chapter_id IN (SELECT id FROM all_chapters);
@@ -56,7 +56,7 @@ WITH book_info AS (
 )
 SELECT
     c.canto_number,
-    c.title_ua as canto_title,
+    c.title_uk as canto_title,
     COUNT(DISTINCT ch.id) as chapters_count,
     COUNT(v.id) as total_verses,
     COUNT(v.id) FILTER (WHERE v.deleted_at IS NULL AND v.is_published = true) as visible_verses,
@@ -66,7 +66,7 @@ FROM cantos c
 LEFT JOIN chapters ch ON ch.canto_id = c.id
 LEFT JOIN verses v ON v.chapter_id = ch.id
 WHERE c.book_id = (SELECT id FROM book_info)
-GROUP BY c.canto_number, c.title_ua
+GROUP BY c.canto_number, c.title_uk
 ORDER BY c.canto_number;
 
 -- ============================================================
@@ -80,17 +80,17 @@ WITH book_info AS (
 SELECT
     canto.canto_number,
     ch.chapter_number,
-    ch.title_ua as chapter_title,
+    ch.title_uk as chapter_title,
     COUNT(v.id) as total_verses,
     COUNT(v.id) FILTER (WHERE v.deleted_at IS NULL AND v.is_published = true) as visible,
     COUNT(v.id) FILTER (WHERE v.deleted_at IS NOT NULL) as deleted,
     COUNT(v.id) FILTER (WHERE v.is_published = false) as unpublished,
-    COUNT(v.id) FILTER (WHERE v.translation_ua IS NULL OR v.translation_ua = '') as empty_ua
+    COUNT(v.id) FILTER (WHERE v.translation_uk IS NULL OR v.translation_uk = '') as empty_uk
 FROM chapters ch
 JOIN cantos canto ON canto.id = ch.canto_id
 LEFT JOIN verses v ON v.chapter_id = ch.id
 WHERE canto.book_id = (SELECT id FROM book_info)
-GROUP BY canto.canto_number, ch.chapter_number, ch.title_ua
+GROUP BY canto.canto_number, ch.chapter_number, ch.title_uk
 HAVING
     COUNT(v.id) FILTER (WHERE v.deleted_at IS NOT NULL) > 0
     OR COUNT(v.id) FILTER (WHERE v.is_published = false) > 0
@@ -108,7 +108,7 @@ all_cantos AS (
     SELECT id FROM cantos WHERE book_id = (SELECT id FROM book_info)
 ),
 all_chapters AS (
-    SELECT ch.id, canto.canto_number, ch.chapter_number, ch.title_ua
+    SELECT ch.id, canto.canto_number, ch.chapter_number, ch.title_uk
     FROM chapters ch
     JOIN cantos canto ON canto.id = ch.canto_id
     WHERE ch.canto_id IN (SELECT id FROM all_cantos)
@@ -119,12 +119,12 @@ SELECT
     v.verse_number,
     v.is_published,
     v.deleted_at IS NOT NULL as is_deleted,
-    LENGTH(v.translation_ua) as ua_length,
+    LENGTH(v.translation_uk) as ua_length,
     LENGTH(v.translation_en) as en_length,
     CASE
         WHEN v.deleted_at IS NOT NULL THEN 'DELETED'
         WHEN v.is_published = false THEN 'UNPUBLISHED'
-        WHEN (v.translation_ua IS NULL OR v.translation_ua = '')
+        WHEN (v.translation_uk IS NULL OR v.translation_uk = '')
              AND (v.translation_en IS NULL OR v.translation_en = '') THEN 'EMPTY_TRANSLATIONS'
         ELSE 'OK'
     END as problem
@@ -133,7 +133,7 @@ JOIN all_chapters ac ON ac.id = v.chapter_id
 WHERE
     v.deleted_at IS NOT NULL
     OR v.is_published = false
-    OR (v.translation_ua IS NULL OR v.translation_ua = '')
+    OR (v.translation_uk IS NULL OR v.translation_uk = '')
 ORDER BY ac.canto_number, ac.chapter_number, v.verse_number
 LIMIT 20;
 
