@@ -26,6 +26,36 @@ import { getChapterOgImage } from "@/utils/og-image";
 import { Helmet } from "react-helmet-async";
 import { SITE_CONFIG } from "@/lib/constants";
 
+/**
+ * Safety check: detect if chapter content looks like incorrectly imported verse text
+ * This prevents showing full verse content as a "chapter introduction"
+ */
+function isLikelyMisimportedVerseContent(content: string | null | undefined): boolean {
+  if (!content) return false;
+  const text = content.toLowerCase();
+
+  // Check for verse number patterns (e.g., "вірш 1", "verse 1", "text 1")
+  const versePatterns = /\b(вірш|verse|text)\s+\d+/i;
+  const hasVerseNumbers = versePatterns.test(text);
+
+  // Check for multiple numbered items (indication of verse list)
+  const multipleNumbers = (text.match(/\b\d+\s*[-–—.):]/g) || []).length > 3;
+
+  // Check for Sanskrit/Devanagari characters (more than 50 chars indicates full text)
+  const devanagariChars = (content.match(/[\u0900-\u097F]/g) || []).length;
+  const hasSignificantSanskrit = devanagariChars > 50;
+
+  // Check if content is suspiciously long for an introduction (>5000 chars)
+  const isTooLong = content.length > 5000;
+
+  // Content from wrong chapter (e.g., "глава перша" in chapter 10)
+  const hasChapterMismatch = /глава\s+(перш|друг|трет|четверт|п'ят)/i.test(text);
+
+  return (hasVerseNumbers && (multipleNumbers || isTooLong)) ||
+         hasSignificantSanskrit ||
+         hasChapterMismatch;
+}
+
 // Type for verse data
 interface Verse {
   id: string;
@@ -77,13 +107,15 @@ export const ChapterVersesList = () => {
     lineHeight,
     dualLanguageMode,
     showNumbers,
-    flowMode
+    flowMode,
+    fullscreenMode,
+    setFullscreenMode
   } = useReaderSettings();
   const isMobile = useIsMobile();
 
   // Editing state
   const [isEditingContent, setIsEditingContent] = useState(false);
-  const [editedContentUa, setEditedContentUa] = useState("");
+  const [editedContentUk, setEditedContentUk] = useState("");
   const [editedContentEn, setEditedContentEn] = useState("");
   const [verseToDelete, setVerseToDelete] = useState<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -280,7 +312,7 @@ export const ChapterVersesList = () => {
       const {
         error
       } = await supabase.from("chapters").update({
-        content_uk: editedContentUa,
+        content_uk: editedContentUk,
         content_en: editedContentEn
       }).eq("id", effectiveChapterObj.id);
       if (error) throw error;
@@ -329,7 +361,7 @@ export const ChapterVersesList = () => {
 
   useEffect(() => {
     if (effectiveChapterObj) {
-      setEditedContentUa(effectiveChapterObj.content_uk || "");
+      setEditedContentUk(effectiveChapterObj.content_uk || "");
       setEditedContentEn(effectiveChapterObj.content_en || "");
     }
   }, [effectiveChapterObj]);
@@ -528,7 +560,9 @@ export const ChapterVersesList = () => {
             </h1>
           </div>
 
-          {effectiveChapterObj && (effectiveChapterObj.content_uk || effectiveChapterObj.content_en) && (
+          {effectiveChapterObj && (effectiveChapterObj.content_uk || effectiveChapterObj.content_en) &&
+           !isLikelyMisimportedVerseContent(effectiveChapterObj.content_uk) &&
+           !isLikelyMisimportedVerseContent(effectiveChapterObj.content_en) && (
             <div className="mb-8">
               {user && !isEditingContent && (
                 <div className="mb-4 flex justify-end">
@@ -542,7 +576,7 @@ export const ChapterVersesList = () => {
               {isEditingContent ? (
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
-                    <EnhancedInlineEditor content={editedContentUa} onChange={setEditedContentUa} label="Українська" />
+                    <EnhancedInlineEditor content={editedContentUk} onChange={setEditedContentUk} label="Українська" />
                     <EnhancedInlineEditor content={editedContentEn} onChange={setEditedContentEn} label="English" />
                   </div>
                   <div className="flex gap-2">
@@ -552,7 +586,7 @@ export const ChapterVersesList = () => {
                     </Button>
                     <Button variant="outline" onClick={() => {
                 setIsEditingContent(false);
-                setEditedContentUa(effectiveChapterObj.content_uk || "");
+                setEditedContentUk(effectiveChapterObj.content_uk || "");
                 setEditedContentEn(effectiveChapterObj.content_en || "");
               }} className="gap-2">
                       <X className="h-4 w-4" />
@@ -589,15 +623,15 @@ export const ChapterVersesList = () => {
               }
               return paragraphs.filter(p => p.length > 0);
             };
-            const paragraphsUa = splitHtmlIntoParagraphs(effectiveChapterObj.content_uk || "");
+            const paragraphsUk = splitHtmlIntoParagraphs(effectiveChapterObj.content_uk || "");
             const paragraphsEn = splitHtmlIntoParagraphs(effectiveChapterObj.content_en || "");
 
             // Вирівнювання: довший переклад (зазвичай УКР) задає довжину
-            const maxLen = Math.max(paragraphsUa.length, paragraphsEn.length);
-            const alignedUa = [...paragraphsUa, ...Array(maxLen - paragraphsUa.length).fill("")];
+            const maxLen = Math.max(paragraphsUk.length, paragraphsEn.length);
+            const alignedUk = [...paragraphsUk, ...Array(maxLen - paragraphsUk.length).fill("")];
             const alignedEn = [...paragraphsEn, ...Array(maxLen - paragraphsEn.length).fill("")];
             return <div className="space-y-4" style={readerTextStyle}>
-                      {alignedUa.map((paraUa, idx) => {
+                      {alignedUk.map((paraUk, idx) => {
                         const paraEn = alignedEn[idx];
                         return (
                           <div
@@ -607,7 +641,7 @@ export const ChapterVersesList = () => {
                             <div
                               className="prose prose-slate dark:prose-invert max-w-none"
                               dangerouslySetInnerHTML={{
-                                __html: sanitizeForRender(paraUa || '<span class="italic text-muted-foreground">—</span>'),
+                                __html: sanitizeForRender(paraUk || '<span class="italic text-muted-foreground">—</span>'),
                               }}
                             />
                             <div
@@ -639,7 +673,11 @@ export const ChapterVersesList = () => {
 
           {/* Mobile Bible-style: суцільний текст з маленькими номерами */}
           {isMobile ? (
-            <div className="prose prose-lg max-w-none" style={readerTextStyle}>
+            <div
+              className="prose prose-lg max-w-none"
+              style={readerTextStyle}
+              onClick={() => setFullscreenMode(!fullscreenMode)}
+            >
               <p className="text-foreground text-justify leading-relaxed">
                 {verses.map((verse: Verse) => {
                   const text = language === "uk" ? verse.translation_uk : verse.translation_en;
@@ -654,7 +692,10 @@ export const ChapterVersesList = () => {
                     >
                       <sup
                         className="text-primary font-bold text-xs mr-0.5 cursor-pointer hover:text-primary/80"
-                        onClick={() => navigate(getVerseUrl(verse.verse_number))}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(getVerseUrl(verse.verse_number));
+                        }}
                       >
                         {verse.verse_number}
                       </sup>
@@ -677,7 +718,7 @@ export const ChapterVersesList = () => {
           })}
             </div> : <div className="space-y-6">
               {verses.map((verse: Verse) => {
-            const translationUa = verse.translation_uk || "";
+            const translationUk = verse.translation_uk || "";
             const translationEn = verse.translation_en || "";
             return <div key={verse.id} className="space-y-3">
                     {dualLanguageMode ? <div className="grid gap-6 md:grid-cols-2">
@@ -718,7 +759,7 @@ export const ChapterVersesList = () => {
                               )}
                             </div>}
                           <p className="text-foreground text-justify" style={readerTextStyle}>
-                            {stripParagraphTags(translationUa) || <span className="italic text-muted-foreground">Немає перекладу</span>}
+                            {stripParagraphTags(translationUk) || <span className="italic text-muted-foreground">Немає перекладу</span>}
                           </p>
                         </div>
 
@@ -767,7 +808,7 @@ export const ChapterVersesList = () => {
                             )}
                           </div>}
                         <p className="text-foreground" style={readerTextStyle}>
-                          {language === "uk" ? stripParagraphTags(translationUa) || <span className="italic text-muted-foreground">Немає перекладу</span> : stripParagraphTags(translationEn) || <span className="italic text-muted-foreground">No translation</span>}
+                          {language === "uk" ? stripParagraphTags(translationUk) || <span className="italic text-muted-foreground">Немає перекладу</span> : stripParagraphTags(translationEn) || <span className="italic text-muted-foreground">No translation</span>}
                         </p>
                       </div>}
 

@@ -368,9 +368,9 @@ DROP INDEX CONCURRENTLY IF EXISTS public.idx_verses_translation_ua_not_null;
 DROP INDEX CONCURRENTLY IF EXISTS public.idx_verses_transliteration_ua;
 
 -- glossary_stats_cache indexes (if they exist)
-DROP INDEX CONCURRENTLY IF EXISTS public.idx_glossary_stats_cache_ua_book;
-DROP INDEX CONCURRENTLY IF EXISTS public.idx_glossary_stats_cache_ua_term;
-DROP INDEX CONCURRENTLY IF EXISTS public.idx_glossary_stats_cache_ua_unique;
+DROP INDEX CONCURRENTLY IF EXISTS public.idx_glossary_stats_cache_uk_book;
+DROP INDEX CONCURRENTLY IF EXISTS public.idx_glossary_stats_cache_uk_term;
+DROP INDEX CONCURRENTLY IF EXISTS public.idx_glossary_stats_cache_uk_unique;
 
 -- =====================================================
 -- VERIFICATION QUERIES

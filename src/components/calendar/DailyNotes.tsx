@@ -51,7 +51,7 @@ const moodIcons: Record<Mood, { icon: React.ReactNode; color: string; label_uk: 
 };
 
 export function DailyNotes({ selectedDate, className }: DailyNotesProps) {
-  const { t, language } = useLanguage();
+  const { t, language, getLocalizedPath } = useLanguage();
   const date = selectedDate || new Date();
   const dateStr = format(date, 'yyyy-MM-dd');
 
@@ -107,9 +107,9 @@ export function DailyNotes({ selectedDate, className }: DailyNotesProps) {
   // Build verse link
   const buildVerseLink = (bookSlug: string, cantoNumber: number | undefined, chapterNumber: number, verseNumber: string) => {
     if (cantoNumber) {
-      return `/lib/${bookSlug}/${cantoNumber}/${chapterNumber}/${verseNumber}`;
+      return getLocalizedPath(`/lib/${bookSlug}/${cantoNumber}/${chapterNumber}/${verseNumber}`);
     }
-    return `/lib/${bookSlug}/${chapterNumber}/${verseNumber}`;
+    return getLocalizedPath(`/lib/${bookSlug}/${chapterNumber}/${verseNumber}`);
   };
 
   const dateFormatted = format(date, 'd MMMM yyyy', {

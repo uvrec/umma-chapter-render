@@ -4,7 +4,7 @@
  */
 
 export { BG_INTRODUCTION_EN } from "./bg-introduction-en";
-export { BG_INTRODUCTION_UK } from "./bg-introduction-ua";
+export { BG_INTRODUCTION_UK } from "./bg-introduction-uk";
 
 // Типи
 export interface LecturePrayer {
@@ -34,7 +34,7 @@ export const AVAILABLE_LECTURES = [
   {
     slug: "660219bg-new-york",
     titleEn: "Introduction to Gītopaniṣad",
-    titleUa: "Вступ до «Ґітопанішад»",
+    titleUk: "Вступ до «Ґітопанішад»",
     date: "1966-02-19",
     location: "New York",
     type: "Bhagavad-gita",

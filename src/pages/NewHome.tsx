@@ -23,6 +23,8 @@ import { HomeSearchBar } from "@/components/HomeSearchBar";
 import { QuickActions } from "@/components/QuickActions";
 import { openExternal } from "@/lib/openExternal";
 import { useAudio } from "@/contexts/ModernAudioContext";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileLibraryList } from "@/components/mobile/MobileLibraryList";
 
 // --- Types ---
 type ContentItem = {
@@ -131,9 +133,6 @@ function Hero() {
             </div>
           </div>
 
-          {/* Search Bar */}
-          <HomeSearchBar className="mb-6 sm:mb-8" />
-
           {isAdmin && <InlineBannerEditor settings={inlineSettings} onUpdate={() => refetch()} />}
 
           {/* Continue Listening - в стилі цитати */}
@@ -167,9 +166,14 @@ function Hero() {
             </div>}
         </div>
 
-        {/* Daily Quote Banner - адаптивна ширина */}
+        {/* Daily Quote Banner - moved above search */}
         <div className="mt-1.5 sm:mt-3.5 mx-auto max-w-5xl sm:max-w-6xl px-2 sm:px-4">
           <DailyQuoteBanner />
+        </div>
+
+        {/* Search Bar - moved below daily quote */}
+        <div className="mt-4 sm:mt-6 mx-auto max-w-5xl sm:max-w-6xl px-2 sm:px-4">
+          <HomeSearchBar className="mb-2 sm:mb-4" />
         </div>
       </div>
 
@@ -476,7 +480,43 @@ function SupportSection() {
 
 // --- Main Page ---
 export const NewHome = () => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
+  const isMobile = useIsMobile();
+
+  // Fetch books with chapter counts for mobile home view
+  const { data: mobileBooks = [], isLoading: mobileBooksLoading } = useQuery({
+    queryKey: ['home-mobile-books'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('books')
+        .select('id, slug, title_uk, title_en, has_cantos')
+        .eq('is_published', true)
+        .order('display_order');
+      if (error) throw error;
+
+      // Fetch chapter/canto counts
+      const booksWithCounts = await Promise.all(
+        (data || []).map(async (book) => {
+          if (book.has_cantos) {
+            const { count } = await supabase
+              .from('cantos')
+              .select('*', { count: 'exact', head: true })
+              .eq('book_id', book.id);
+            return { ...book, chapter_count: count || 0 };
+          } else {
+            const { count } = await supabase
+              .from('chapters')
+              .select('*', { count: 'exact', head: true })
+              .eq('book_id', book.id);
+            return { ...book, chapter_count: count || 0 };
+          }
+        })
+      );
+
+      return booksWithCounts;
+    },
+    enabled: isMobile, // Only fetch when on mobile
+  });
 
   const title = language === 'uk'
     ? "Прабгупада солов'їною — Ведичні писання українською"
@@ -486,6 +526,22 @@ export const NewHome = () => {
     : "Bhagavad-gita, Srimad-Bhagavatam and other sacred texts of the Vedic tradition in Ukrainian with Srila Prabhupada's commentaries.";
   const canonicalUrl = `${SITE_CONFIG.baseUrl}/${language}`;
 
+  // Mobile: Show library list as home page
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Helmet>
+          <title>{title}</title>
+          <meta name="description" content={description} />
+        </Helmet>
+        <WebsiteSchema />
+        <OrganizationSchema language={language} />
+        <MobileLibraryList books={mobileBooks} isLoading={mobileBooksLoading} />
+      </div>
+    );
+  }
+
+  // Desktop: Full home page
   return <div className="min-h-screen bg-background">
       {/* SEO Metadata */}
       <Helmet>

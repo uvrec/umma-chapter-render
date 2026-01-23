@@ -262,21 +262,21 @@ export default function BlogPost() {
     );
   }
 
-  const titleUa = post.title_uk;
+  const titleUk = post.title_uk;
   const titleEn = post.title_en;
-  const contentUa = post.content_uk;
+  const contentUk = post.content_uk;
   const contentEn = post.content_en;
-  const excerptUa = post.excerpt_uk;
+  const excerptUk = post.excerpt_uk;
   const excerptEn = post.excerpt_en;
-  const metaDescUa = post.meta_description_uk;
+  const metaDescUk = post.meta_description_uk;
   const metaDescEn = post.meta_description_en;
 
   // Для SEO та соцмереж - одна мова
-  const title = language === "uk" ? titleUa : titleEn;
-  const excerpt = language === "uk" ? excerptUa : excerptEn;
-  const metaDesc = language === "uk" ? metaDescUa : metaDescEn;
+  const title = language === "uk" ? titleUk : titleEn;
+  const excerpt = language === "uk" ? excerptUk : excerptEn;
+  const metaDesc = language === "uk" ? metaDescUk : metaDescEn;
 
-  const hasContentUa = contentUa && contentUa.trim().length > 20;
+  const hasContentUk = contentUk && contentUk.trim().length > 20;
   const hasContentEn = contentEn && contentEn.trim().length > 20;
 
   const handleShare = async () => {
@@ -432,7 +432,7 @@ export default function BlogPost() {
               <div>
                 <header className="mb-8">
                   {post.category && <Badge className="mb-4">{post.category.name_uk}</Badge>}
-                  <h1 className="blog-title mb-4">{titleUa}</h1>
+                  <h1 className="blog-title mb-4">{titleUk}</h1>
 
                   <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-4">
                     <div className="flex items-center gap-1">
@@ -462,25 +462,25 @@ export default function BlogPost() {
                 </header>
 
                 <div className="blog-body prose prose-lg prose-slate dark:prose-invert max-w-none">
-                  {hasContentUa ? (
+                  {hasContentUk ? (
                     post.content_mode === "poetry" ? (
                       <BlogPoetryContent
                         sanskrit={post.sanskrit}
                         transliteration={post.transliteration}
                         synonyms={post.synonyms_uk}
                         poetryTranslation={post.poetry_translation_uk}
-                        commentary={contentUa}
+                        commentary={contentUk}
                         displayBlocks={displayBlocks}
                         language="uk"
                       />
                     ) : isAdmin ? (
                       <EnhancedInlineEditor
-                        content={contentUa}
+                        content={contentUk}
                         onChange={(value) => handleContentUpdate("content_uk", value)}
                         label="Контент (UK)"
                       />
                     ) : (
-                      <TiptapRenderer content={contentUa} displayBlocks={displayBlocks} className="!max-w-none" />
+                      <TiptapRenderer content={contentUk} displayBlocks={displayBlocks} className="!max-w-none" />
                     )
                   ) : (
                     <div className="text-center py-12 text-muted-foreground">
@@ -602,25 +602,25 @@ export default function BlogPost() {
 
               <div className="blog-body prose prose-lg prose-slate dark:prose-invert max-w-none">
                 {language === "uk" ? (
-                  hasContentUa ? (
+                  hasContentUk ? (
                     post.content_mode === "poetry" ? (
                       <BlogPoetryContent
                         sanskrit={post.sanskrit}
                         transliteration={post.transliteration}
                         synonyms={post.synonyms_uk}
                         poetryTranslation={post.poetry_translation_uk}
-                        commentary={contentUa}
+                        commentary={contentUk}
                         displayBlocks={displayBlocks}
                         language="uk"
                       />
                     ) : isAdmin ? (
                       <EnhancedInlineEditor
-                        content={contentUa}
+                        content={contentUk}
                         onChange={(value) => handleContentUpdate("content_uk", value)}
                         label="Контент (UK)"
                       />
                     ) : (
-                      <TiptapRenderer content={contentUa} displayBlocks={displayBlocks} className="!max-w-none" />
+                      <TiptapRenderer content={contentUk} displayBlocks={displayBlocks} className="!max-w-none" />
                     )
                   ) : (
                     <div className="text-center py-12 text-muted-foreground">
@@ -636,10 +636,6 @@ export default function BlogPost() {
                       synonyms={post.synonyms_en}
                       poetryTranslation={post.poetry_translation_en}
                       commentary={contentEn}
-                      audioSanskritUrl={post.audio_sanskrit_url}
-                      audioTransliterationUrl={post.audio_transliteration_url}
-                      audioPoetryTranslationUrl={post.audio_poetry_translation_en_url}
-                      audioCommentaryUrl={post.audio_commentary_en_url}
                       displayBlocks={displayBlocks}
                       language="en"
                     />

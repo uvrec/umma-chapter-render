@@ -93,7 +93,7 @@ export function RelatedVerses({
   defaultExpanded = false,
   limit = 5,
 }: RelatedVersesProps) {
-  const { language, t } = useLanguage();
+  const { language, t, getLocalizedPath } = useLanguage();
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   // Fetch related verses
@@ -175,6 +175,7 @@ export function RelatedVerses({
                   key={ref.id}
                   reference={ref}
                   language={language as "uk" | "en"}
+                  getLocalizedPath={getLocalizedPath}
                 />
               ))}
             </div>
@@ -191,11 +192,13 @@ export function RelatedVerses({
 function RelatedVerseCard({
   reference,
   language,
+  getLocalizedPath,
 }: {
   reference: CrossReference;
   language: "uk" | "en";
+  getLocalizedPath: (path: string) => string;
 }) {
-  const url = buildVerseUrl(reference);
+  const url = getLocalizedPath(buildVerseUrl(reference));
   const formattedRef = formatReference(reference, language);
   const typeLabel = reference.referenceType
     ? REFERENCE_LABELS[reference.referenceType]?.[language]

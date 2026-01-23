@@ -13,9 +13,9 @@ export function LocalChat() {
   return (
     <>
       <PageMeta
-        titleUa="Локальна AI | Vedavoice"
+        titleUk="Локальна AI | Vedavoice"
         titleEn="Local AI | Vedavoice"
-        metaDescriptionUa="Локальна AI-система для вивчення вчень Шріли Прабгупади. Працює на вашому комп'ютері без інтернету."
+        metaDescriptionUk="Локальна AI-система для вивчення вчень Шріли Прабгупади. Працює на вашому комп'ютері без інтернету."
         metaDescriptionEn="Local AI system for studying Srila Prabhupada's teachings. Runs on your computer without internet."
         language={language}
       />

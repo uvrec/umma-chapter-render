@@ -9,19 +9,19 @@ interface ResponseLevelBadgeProps {
 
 const levelConfig = {
   direct: {
-    labelUa: 'Пряма цитата',
+    labelUk: 'Пряма цитата',
     labelEn: 'Direct Quote',
     icon: '🟢',
     className: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
   },
   synthesis: {
-    labelUa: 'Синтез',
+    labelUk: 'Синтез',
     labelEn: 'Synthesis',
     icon: '🟡',
     className: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-800',
   },
   insufficient: {
-    labelUa: 'Недостатньо даних',
+    labelUk: 'Недостатньо даних',
     labelEn: 'Insufficient Data',
     icon: '🔴',
     className: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 border-red-200 dark:border-red-800',
@@ -42,7 +42,7 @@ export function ResponseLevelBadge({ level, className }: ResponseLevelBadgeProps
       )}
     >
       <span className="mr-1">{config.icon}</span>
-      {language === 'uk' ? config.labelUa : config.labelEn}
+      {language === 'uk' ? config.labelUk : config.labelEn}
     </Badge>
   );
 }

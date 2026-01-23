@@ -29,7 +29,7 @@ interface Verse {
   commentary_en?: string;
   full_verse_audio_url?: string;
   recitation_audio_url?: string;
-  explanation_ua_audio_url?: string;
+  explanation_uk_audio_url?: string;
   explanation_en_audio_url?: string;
 }
 
@@ -56,11 +56,11 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
 
   // Form fields - Ukrainian
   const [verseNumber, setVerseNumber] = useState("");
-  const [sanskritUa, setSanskritUa] = useState("");
-  const [transliterationUa, setTransliterationUa] = useState("");
-  const [synonymsUa, setSynonymsUa] = useState("");
-  const [translationUa, setTranslationUa] = useState("");
-  const [commentaryUa, setCommentaryUa] = useState("");
+  const [sanskritUk, setSanskritUk] = useState("");
+  const [transliterationUk, setTransliterationUk] = useState("");
+  const [synonymsUk, setSynonymsUk] = useState("");
+  const [translationUk, setTranslationUk] = useState("");
+  const [commentaryUk, setCommentaryUk] = useState("");
 
   // Form fields - English
   const [sanskritEn, setSanskritEn] = useState("");
@@ -72,7 +72,7 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
   // Audio fields
   const [fullVerseAudioUrl, setFullVerseAudioUrl] = useState("");
   const [recitationAudioUrl, setRecitationAudioUrl] = useState("");
-  const [explanationUaAudioUrl, setExplanationUaAudioUrl] = useState("");
+  const [explanationUkAudioUrl, setExplanationUkAudioUrl] = useState("");
   const [explanationEnAudioUrl, setExplanationEnAudioUrl] = useState("");
   const [isAudioOpen, setIsAudioOpen] = useState(false);
 
@@ -83,11 +83,11 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
       setVerse(null);
       setVerseLocation(null);
       setVerseNumber("");
-      setSanskritUa("");
-      setTransliterationUa("");
-      setSynonymsUa("");
-      setTranslationUa("");
-      setCommentaryUa("");
+      setSanskritUk("");
+      setTransliterationUk("");
+      setSynonymsUk("");
+      setTranslationUk("");
+      setCommentaryUk("");
       setSanskritEn("");
       setTransliterationEn("");
       setSynonymsEn("");
@@ -96,7 +96,7 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
       // Reset audio fields
       setFullVerseAudioUrl("");
       setRecitationAudioUrl("");
-      setExplanationUaAudioUrl("");
+      setExplanationUkAudioUrl("");
       setExplanationEnAudioUrl("");
       return;
     }
@@ -128,11 +128,11 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
         setVerse(data);
         setVerseNumber(data.verse_number || "");
         // Ukrainian fields
-        setSanskritUa(data.sanskrit_uk || (data as any).sanskrit || "");
-        setTransliterationUa(data.transliteration_uk || "");
-        setSynonymsUa(data.synonyms_uk || "");
-        setTranslationUa(data.translation_uk || "");
-        setCommentaryUa(data.commentary_uk || "");
+        setSanskritUk(data.sanskrit_uk || (data as any).sanskrit || "");
+        setTransliterationUk(data.transliteration_uk || "");
+        setSynonymsUk(data.synonyms_uk || "");
+        setTranslationUk(data.translation_uk || "");
+        setCommentaryUk(data.commentary_uk || "");
         // English fields
         setSanskritEn(data.sanskrit_en || (data as any).sanskrit || "");
         setTransliterationEn(data.transliteration_en || "");
@@ -142,11 +142,11 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
         // Audio fields
         setFullVerseAudioUrl(data.full_verse_audio_url || "");
         setRecitationAudioUrl(data.recitation_audio_url || "");
-        setExplanationUaAudioUrl(data.explanation_ua_audio_url || "");
+        setExplanationUkAudioUrl(data.explanation_uk_audio_url || "");
         setExplanationEnAudioUrl(data.explanation_en_audio_url || "");
         // Auto-open audio section if verse has audio
         if (data.full_verse_audio_url || data.recitation_audio_url ||
-            data.explanation_ua_audio_url || data.explanation_en_audio_url) {
+            data.explanation_uk_audio_url || data.explanation_en_audio_url) {
           setIsAudioOpen(true);
         }
 
@@ -211,11 +211,11 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
       const verseData = {
         verse_number: verseNumber,
         // Ukrainian fields
-        sanskrit_uk: sanskritUa || null,
-        transliteration_uk: transliterationUa || null,
-        synonyms_uk: synonymsUa || null,
-        translation_uk: translationUa || null,
-        commentary_uk: commentaryUa || null,
+        sanskrit_uk: sanskritUk || null,
+        transliteration_uk: transliterationUk || null,
+        synonyms_uk: synonymsUk || null,
+        translation_uk: translationUk || null,
+        commentary_uk: commentaryUk || null,
         // English fields
         sanskrit_en: sanskritEn || null,
         transliteration_en: transliterationEn || null,
@@ -225,7 +225,7 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
         // Audio fields
         full_verse_audio_url: fullVerseAudioUrl || null,
         recitation_audio_url: recitationAudioUrl || null,
-        explanation_ua_audio_url: explanationUaAudioUrl || null,
+        explanation_uk_audio_url: explanationUkAudioUrl || null,
         explanation_en_audio_url: explanationEnAudioUrl || null,
       };
 
@@ -366,8 +366,8 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
                 <Label htmlFor="quick-sanskrit-ua">Санскрит</Label>
                 <Textarea
                   id="quick-sanskrit-ua"
-                  value={sanskritUa}
-                  onChange={(e) => setSanskritUa(e.target.value)}
+                  value={sanskritUk}
+                  onChange={(e) => setSanskritUk(e.target.value)}
                   placeholder="देहिनोऽस्मिन्..."
                   rows={3}
                   className="font-sanskrit"
@@ -378,8 +378,8 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
                 <Label htmlFor="quick-transliteration-ua">Транслітерація</Label>
                 <Textarea
                   id="quick-transliteration-ua"
-                  value={transliterationUa}
-                  onChange={(e) => setTransliterationUa(e.target.value)}
+                  value={transliterationUk}
+                  onChange={(e) => setTransliterationUk(e.target.value)}
                   placeholder="dehino 'smin..."
                   rows={2}
                 />
@@ -389,8 +389,8 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
                 <Label htmlFor="quick-synonyms-ua">Синоніми</Label>
                 <Textarea
                   id="quick-synonyms-ua"
-                  value={synonymsUa}
-                  onChange={(e) => setSynonymsUa(e.target.value)}
+                  value={synonymsUk}
+                  onChange={(e) => setSynonymsUk(e.target.value)}
                   placeholder="деха – тіло; асмін – в цьому..."
                   rows={3}
                 />
@@ -400,8 +400,8 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
                 <Label htmlFor="quick-translation-ua">Переклад</Label>
                 <Textarea
                   id="quick-translation-ua"
-                  value={translationUa}
-                  onChange={(e) => setTranslationUa(e.target.value)}
+                  value={translationUk}
+                  onChange={(e) => setTranslationUk(e.target.value)}
                   placeholder="Як душа..."
                   rows={4}
                 />
@@ -411,8 +411,8 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
                 <Label htmlFor="quick-commentary-ua">Коментар</Label>
                 <Textarea
                   id="quick-commentary-ua"
-                  value={commentaryUa}
-                  onChange={(e) => setCommentaryUa(e.target.value)}
+                  value={commentaryUk}
+                  onChange={(e) => setCommentaryUk(e.target.value)}
                   placeholder="В цьому вірші..."
                   rows={6}
                 />
@@ -490,9 +490,9 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
                 <span className="flex items-center gap-2">
                   <Volume2 className="h-4 w-4" />
                   Аудіо
-                  {(fullVerseAudioUrl || recitationAudioUrl || explanationUaAudioUrl || explanationEnAudioUrl) && (
+                  {(fullVerseAudioUrl || recitationAudioUrl || explanationUkAudioUrl || explanationEnAudioUrl) && (
                     <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded">
-                      {[fullVerseAudioUrl, recitationAudioUrl, explanationUaAudioUrl, explanationEnAudioUrl].filter(Boolean).length}
+                      {[fullVerseAudioUrl, recitationAudioUrl, explanationUkAudioUrl, explanationEnAudioUrl].filter(Boolean).length}
                     </span>
                   )}
                 </span>
@@ -521,8 +521,8 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
               {/* Explanation Audio - Ukrainian */}
               <AudioUploader
                 label="Пояснення (українською)"
-                value={explanationUaAudioUrl}
-                onChange={setExplanationUaAudioUrl}
+                value={explanationUkAudioUrl}
+                onChange={setExplanationUkAudioUrl}
                 compact={true}
                 showManualInput={false}
               />

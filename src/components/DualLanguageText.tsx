@@ -8,11 +8,11 @@ interface Paragraph {
 }
 
 interface DualLanguageTextProps {
-  uaParagraphs: Paragraph[] | null;
+  ukParagraphs: Paragraph[] | null;
   enParagraphs: Paragraph[] | null;
   className?: string;
   /** Fallback якщо paragraphs відсутні */
-  uaText?: string;
+  ukText?: string;
   enText?: string;
   /** Enable drop-cap styling for the first paragraph */
   enableDropCap?: boolean;
@@ -61,10 +61,10 @@ function parseTextToParagraphs(text?: string): Paragraph[] {
  * Стилі (fontSize, lineHeight) успадковуються від батьківського компонента
  */
 export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
-  uaParagraphs,
+  ukParagraphs,
   enParagraphs,
   className = "",
-  uaText,
+  ukText,
   enText,
   enableDropCap = false,
   bold = false,
@@ -72,12 +72,12 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
   lineHeight,
 }) => {
   // Використовуємо передані параграфи або парсимо текст
-  const uaParas = uaParagraphs && uaParagraphs.length > 0 ? uaParagraphs : parseTextToParagraphs(uaText);
+  const ukParas = ukParagraphs && ukParagraphs.length > 0 ? ukParagraphs : parseTextToParagraphs(ukText);
 
   const enParas = enParagraphs && enParagraphs.length > 0 ? enParagraphs : parseTextToParagraphs(enText);
 
   // Вирівняти кількість параграфів (додати порожні якщо потрібно)
-  const maxLength = Math.max(uaParas.length, enParas.length);
+  const maxLength = Math.max(ukParas.length, enParas.length);
 
   // Якщо немає тексту - нічого не рендеримо
   if (maxLength === 0) return null;
@@ -86,7 +86,7 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
     <div className={`space-y-4 ${className}`}>
       {Array.from({ length: maxLength }).map((_, idx) => {
         // Apply drop-cap to first paragraph only if enabled and text exists
-        const uaContent = uaParas[idx]?.text || "&nbsp;";
+        const uaContent = ukParas[idx]?.text || "&nbsp;";
         const enContent = enParas[idx]?.text || "&nbsp;";
         const isFirstParagraph = idx === 0;
 

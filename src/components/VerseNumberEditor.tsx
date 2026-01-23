@@ -11,11 +11,27 @@ interface VerseNumberEditorProps {
   verseId: string;
   currentNumber: string;
   onUpdate?: () => void;
+  bookSlug?: string; // для визначення префіксу (ШБ, БҐ, etc.)
 }
+
+/* Префікси книг */
+const getBookPrefix = (slug: string | undefined): string => {
+  const prefixes: Record<string, string> = {
+    sb: "ШБ",
+    bg: "БҐ",
+    cc: "ЧЧ",
+    noi: "НВ",
+    iso: "Ішо",
+    nod: "НВ",
+  };
+  return slug ? prefixes[slug] || slug.toUpperCase() : "";
+};
+
 export const VerseNumberEditor = ({
   verseId,
   currentNumber,
-  onUpdate
+  onUpdate,
+  bookSlug
 }: VerseNumberEditorProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newNumber, setNewNumber] = useState(currentNumber);
@@ -58,16 +74,19 @@ export const VerseNumberEditor = ({
     setNewNumber(currentNumber);
     setIsEditing(false);
   };
+  const prefix = getBookPrefix(bookSlug);
   if (!isEditing) {
     return <div className="flex items-center gap-2">
-        <span className="font-semibold text-5xl text-center" style={{ color: "rgb(188, 115, 26)" }}>ВІРШ {currentNumber}</span>
-        <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)} className="h-7 w-7 p-0" title="Редагувати номер вірша">
+        <span className="font-semibold text-2xl md:text-5xl text-center whitespace-nowrap" style={{ color: "rgb(188, 115, 26)" }}>{prefix} {currentNumber}</span>
+        {/* Hide edit button on mobile - use desktop for admin editing */}
+        <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)} className="hidden md:inline-flex h-7 w-7 p-0" title="Редагувати номер вірша">
           <Edit2 className="h-3.5 w-3.5" />
         </Button>
       </div>;
   }
-  return <div className="flex items-center gap-2">
-      <span className="text-sm text-muted-foreground">ВІРШ</span>
+  // Editing mode - only shown on desktop anyway since button is hidden on mobile
+  return <div className="hidden md:flex items-center gap-2">
+      <span className="text-sm text-muted-foreground">{prefix}</span>
       <Input value={newNumber} onChange={e => setNewNumber(e.target.value)} className="h-8 w-24 text-sm" placeholder="1 або 16-18" disabled={isSaving} />
       <Button variant="default" size="sm" onClick={handleSave} disabled={isSaving || newNumber === currentNumber} className="h-8 w-8 p-0" title="Зберегти">
         <Check className="h-4 w-4" />

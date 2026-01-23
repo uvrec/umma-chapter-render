@@ -214,7 +214,7 @@ DECLARE
   search_config text;
 BEGIN
   -- Визначаємо конфіг для мови (simple_unaccent для accent-insensitive пошуку українською)
-  IF language_code = 'ua' THEN
+  IF language_code = 'uk' THEN
     search_config := 'public.simple_unaccent';
   ELSE
     search_config := 'english';
@@ -232,48 +232,48 @@ BEGIN
     v.verse_number::text,
     v.chapter_id,
     ch.chapter_number,
-    CASE WHEN language_code = 'ua' THEN ch.title_uk ELSE ch.title_en END as chapter_title,
+    CASE WHEN language_code = 'uk' THEN ch.title_uk ELSE ch.title_en END as chapter_title,
     b.id as book_id,
-    CASE WHEN language_code = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
+    CASE WHEN language_code = 'uk' THEN b.title_uk ELSE b.title_en END as book_title,
     b.slug as book_slug,
     ch.canto_id as canto_id,
     ca.canto_number::integer as canto_number,
-    CASE WHEN language_code = 'ua' THEN ca.title_uk ELSE ca.title_en END as canto_title,
+    CASE WHEN language_code = 'uk' THEN ca.title_uk ELSE ca.title_en END as canto_title,
     (CASE WHEN include_sanskrit THEN v.sanskrit ELSE NULL END) as sanskrit,
     (CASE WHEN include_transliteration THEN COALESCE(
-      CASE WHEN language_code = 'ua' THEN v.transliteration_uk ELSE v.transliteration_en END,
+      CASE WHEN language_code = 'uk' THEN v.transliteration_uk ELSE v.transliteration_en END,
       v.transliteration
     ) ELSE NULL END) as transliteration,
     (CASE WHEN include_synonyms
-          THEN (CASE WHEN language_code = 'ua' THEN v.synonyms_uk ELSE v.synonyms_en END)
+          THEN (CASE WHEN language_code = 'uk' THEN v.synonyms_uk ELSE v.synonyms_en END)
           ELSE NULL END) as synonyms,
     (CASE WHEN include_translation
-          THEN (CASE WHEN language_code = 'ua' THEN v.translation_uk ELSE v.translation_en END)
+          THEN (CASE WHEN language_code = 'uk' THEN v.translation_uk ELSE v.translation_en END)
           ELSE NULL END) as translation,
     (CASE WHEN include_commentary
-          THEN (CASE WHEN language_code = 'ua' THEN v.commentary_uk ELSE v.commentary_en END)
+          THEN (CASE WHEN language_code = 'uk' THEN v.commentary_uk ELSE v.commentary_en END)
           ELSE NULL END) as commentary,
     -- Обчислюємо релевантність на основі FTS рангу
     CASE
-      WHEN language_code = 'ua' AND v.search_vector_uk IS NOT NULL THEN
+      WHEN language_code = 'uk' AND v.search_vector_uk IS NOT NULL THEN
         ts_rank_cd(v.search_vector_uk, ts_query, 32)::numeric
-      WHEN language_code != 'ua' AND v.search_vector_en IS NOT NULL THEN
+      WHEN language_code != 'uk' AND v.search_vector_en IS NOT NULL THEN
         ts_rank_cd(v.search_vector_en, ts_query, 32)::numeric
       ELSE 1::numeric
     END as relevance_rank,
     -- Визначаємо де знайдено
     ARRAY_REMOVE(ARRAY[
       CASE WHEN include_translation AND (
-        (language_code = 'ua' AND v.translation_uk ILIKE pattern) OR
-        (language_code <> 'ua' AND v.translation_en ILIKE pattern)
+        (language_code = 'uk' AND v.translation_uk ILIKE pattern) OR
+        (language_code <> 'uk' AND v.translation_en ILIKE pattern)
       ) THEN 'translation' ELSE NULL END,
       CASE WHEN include_commentary AND (
-        (language_code = 'ua' AND v.commentary_uk ILIKE pattern) OR
-        (language_code <> 'ua' AND v.commentary_en ILIKE pattern)
+        (language_code = 'uk' AND v.commentary_uk ILIKE pattern) OR
+        (language_code <> 'uk' AND v.commentary_en ILIKE pattern)
       ) THEN 'commentary' ELSE NULL END,
       CASE WHEN include_synonyms AND (
-        (language_code = 'ua' AND v.synonyms_uk ILIKE pattern) OR
-        (language_code <> 'ua' AND v.synonyms_en ILIKE pattern)
+        (language_code = 'uk' AND v.synonyms_uk ILIKE pattern) OR
+        (language_code <> 'uk' AND v.synonyms_en ILIKE pattern)
       ) THEN 'synonyms' ELSE NULL END,
       CASE WHEN include_transliteration AND (
         v.transliteration ILIKE pattern OR
@@ -286,8 +286,8 @@ BEGIN
     ts_headline(
       search_config,
       COALESCE(
-        CASE WHEN language_code = 'ua' THEN v.translation_uk ELSE v.translation_en END,
-        CASE WHEN language_code = 'ua' THEN v.commentary_uk ELSE v.commentary_en END,
+        CASE WHEN language_code = 'uk' THEN v.translation_uk ELSE v.translation_en END,
+        CASE WHEN language_code = 'uk' THEN v.commentary_uk ELSE v.commentary_en END,
         ''
       ),
       ts_query,
@@ -301,21 +301,21 @@ BEGIN
     AND v.deleted_at IS NULL
     AND (
       -- Спочатку пробуємо FTS пошук
-      (language_code = 'ua' AND v.search_vector_uk @@ ts_query)
-      OR (language_code != 'ua' AND v.search_vector_en @@ ts_query)
+      (language_code = 'uk' AND v.search_vector_uk @@ ts_query)
+      OR (language_code != 'uk' AND v.search_vector_en @@ ts_query)
       -- Fallback на ILIKE для коротких запитів
       OR (length(search_query) <= 3 AND (
         (include_translation AND (
-          (language_code = 'ua' AND v.translation_uk ILIKE pattern) OR
-          (language_code <> 'ua' AND v.translation_en ILIKE pattern)
+          (language_code = 'uk' AND v.translation_uk ILIKE pattern) OR
+          (language_code <> 'uk' AND v.translation_en ILIKE pattern)
         ))
         OR (include_commentary AND (
-          (language_code = 'ua' AND v.commentary_uk ILIKE pattern) OR
-          (language_code <> 'ua' AND v.commentary_en ILIKE pattern)
+          (language_code = 'uk' AND v.commentary_uk ILIKE pattern) OR
+          (language_code <> 'uk' AND v.commentary_en ILIKE pattern)
         ))
         OR (include_synonyms AND (
-          (language_code = 'ua' AND v.synonyms_uk ILIKE pattern) OR
-          (language_code <> 'ua' AND v.synonyms_en ILIKE pattern)
+          (language_code = 'uk' AND v.synonyms_uk ILIKE pattern) OR
+          (language_code <> 'uk' AND v.synonyms_en ILIKE pattern)
         ))
         OR (include_transliteration AND (
           v.transliteration ILIKE pattern OR
@@ -337,7 +337,7 @@ $$;
 
 CREATE OR REPLACE FUNCTION public.search_glossary_terms(
   search_term text,
-  search_language text DEFAULT 'ua',
+  search_language text DEFAULT 'uk',
   search_mode text DEFAULT 'contains', -- 'contains', 'exact', 'starts_with'
   book_filter uuid DEFAULT NULL,
   limit_count integer DEFAULT 100
@@ -364,7 +364,7 @@ DECLARE
   pattern text;
 BEGIN
   -- Вибираємо колонку синонімів залежно від мови
-  IF search_language = 'ua' THEN
+  IF search_language = 'uk' THEN
     synonyms_col := 'synonyms_uk';
   ELSE
     synonyms_col := 'synonyms_en';
@@ -387,7 +387,7 @@ BEGIN
         ch.chapter_number,
         ca.canto_number,
         b.id as book_id,
-        CASE WHEN $2 = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
+        CASE WHEN $2 = 'uk' THEN b.title_uk ELSE b.title_en END as book_title,
         b.slug as book_slug,
         -- Парсимо кожен рядок синонімів
         line as synonym_line
@@ -465,7 +465,7 @@ $$;
 
 CREATE OR REPLACE FUNCTION public.unified_search(
   search_query text,
-  language_code text DEFAULT 'ua',
+  language_code text DEFAULT 'uk',
   search_types text[] DEFAULT ARRAY['verses', 'blog', 'glossary'],
   limit_per_type integer DEFAULT 10,
   overall_limit integer DEFAULT NULL  -- NULL = no overall limit, uses limit_per_type * types count
@@ -491,7 +491,7 @@ DECLARE
   pattern text;
 BEGIN
   -- Конфіг для мови (simple_unaccent для accent-insensitive пошуку українською)
-  IF language_code = 'ua' THEN
+  IF language_code = 'uk' THEN
     search_config := 'public.simple_unaccent';
   ELSE
     search_config := 'english';
@@ -511,11 +511,11 @@ BEGIN
         THEN ca.canto_number || '.' || ch.chapter_number || '.' || v.verse_number
         ELSE ch.chapter_number || '.' || v.verse_number
       END as title,
-    CASE WHEN language_code = 'ua' THEN ch.title_uk ELSE ch.title_en END as subtitle,
+    CASE WHEN language_code = 'uk' THEN ch.title_uk ELSE ch.title_en END as subtitle,
     ts_headline(
       search_config,
       COALESCE(
-        CASE WHEN language_code = 'ua' THEN v.translation_uk ELSE v.translation_en END,
+        CASE WHEN language_code = 'uk' THEN v.translation_uk ELSE v.translation_en END,
         ''
       ),
       ts_query,
@@ -528,9 +528,9 @@ BEGIN
         '/veda-reader/' || b.slug || '/' || ch.chapter_number || '/' || v.verse_number
     END as href,
     CASE
-      WHEN language_code = 'ua' AND v.search_vector_uk IS NOT NULL THEN
+      WHEN language_code = 'uk' AND v.search_vector_uk IS NOT NULL THEN
         ts_rank_cd(v.search_vector_uk, ts_query)::numeric
-      WHEN language_code != 'ua' AND v.search_vector_en IS NOT NULL THEN
+      WHEN language_code != 'uk' AND v.search_vector_en IS NOT NULL THEN
         ts_rank_cd(v.search_vector_en, ts_query)::numeric
       ELSE 0.5::numeric
     END as relevance,
@@ -543,11 +543,11 @@ BEGIN
     AND v.deleted_at IS NULL
     AND 'verses' = ANY(search_types)
     AND (
-      (language_code = 'ua' AND v.search_vector_uk @@ ts_query)
-      OR (language_code != 'ua' AND v.search_vector_en @@ ts_query)
+      (language_code = 'uk' AND v.search_vector_uk @@ ts_query)
+      OR (language_code != 'uk' AND v.search_vector_en @@ ts_query)
       OR (length(search_query) <= 3 AND (
-        (language_code = 'ua' AND v.translation_uk ILIKE pattern) OR
-        (language_code != 'ua' AND v.translation_en ILIKE pattern)
+        (language_code = 'uk' AND v.translation_uk ILIKE pattern) OR
+        (language_code != 'uk' AND v.translation_en ILIKE pattern)
       ))
     )
   ORDER BY relevance DESC
@@ -559,12 +559,12 @@ BEGIN
   (SELECT
     'blog'::text as result_type,
     bp.id as result_id,
-    CASE WHEN language_code = 'ua' THEN bp.title_uk ELSE bp.title_en END as title,
-    CASE WHEN language_code = 'ua' THEN bp.excerpt_uk ELSE bp.excerpt_en END as subtitle,
+    CASE WHEN language_code = 'uk' THEN bp.title_uk ELSE bp.title_en END as title,
+    CASE WHEN language_code = 'uk' THEN bp.excerpt_uk ELSE bp.excerpt_en END as subtitle,
     ts_headline(
       search_config,
       COALESCE(
-        CASE WHEN language_code = 'ua' THEN bp.content_uk ELSE bp.content_en END,
+        CASE WHEN language_code = 'uk' THEN bp.content_uk ELSE bp.content_en END,
         ''
       ),
       ts_query,
@@ -572,9 +572,9 @@ BEGIN
     ) as snippet,
     '/blog/' || bp.slug as href,
     CASE
-      WHEN language_code = 'ua' AND bp.search_vector_uk IS NOT NULL THEN
+      WHEN language_code = 'uk' AND bp.search_vector_uk IS NOT NULL THEN
         ts_rank_cd(bp.search_vector_uk, ts_query)::numeric
-      WHEN language_code != 'ua' AND bp.search_vector_en IS NOT NULL THEN
+      WHEN language_code != 'uk' AND bp.search_vector_en IS NOT NULL THEN
         ts_rank_cd(bp.search_vector_en, ts_query)::numeric
       ELSE 0.5::numeric
     END as relevance,
@@ -583,11 +583,11 @@ BEGIN
   WHERE bp.is_published = true
     AND 'blog' = ANY(search_types)
     AND (
-      (language_code = 'ua' AND bp.search_vector_uk @@ ts_query)
-      OR (language_code != 'ua' AND bp.search_vector_en @@ ts_query)
+      (language_code = 'uk' AND bp.search_vector_uk @@ ts_query)
+      OR (language_code != 'uk' AND bp.search_vector_en @@ ts_query)
       OR (length(search_query) <= 3 AND (
-        (language_code = 'ua' AND (bp.title_uk ILIKE pattern OR bp.content_uk ILIKE pattern)) OR
-        (language_code != 'ua' AND (bp.title_en ILIKE pattern OR bp.content_en ILIKE pattern))
+        (language_code = 'uk' AND (bp.title_uk ILIKE pattern OR bp.content_uk ILIKE pattern)) OR
+        (language_code != 'uk' AND (bp.title_en ILIKE pattern OR bp.content_en ILIKE pattern))
       ))
     )
   ORDER BY relevance DESC
@@ -605,7 +605,7 @@ $$;
 
 CREATE OR REPLACE FUNCTION public.search_suggest_terms(
   search_prefix text,
-  language_code text DEFAULT 'ua',
+  language_code text DEFAULT 'uk',
   limit_count integer DEFAULT 10
 )
 RETURNS TABLE(
@@ -629,14 +629,14 @@ BEGIN
     FROM public.verses v
     CROSS JOIN LATERAL unnest(
       string_to_array(
-        CASE WHEN language_code = 'ua' THEN v.synonyms_uk ELSE v.synonyms_en END,
+        CASE WHEN language_code = 'uk' THEN v.synonyms_uk ELSE v.synonyms_en END,
         E'\n'
       )
     ) AS line
     WHERE v.deleted_at IS NULL
       AND (
-        (language_code = 'ua' AND v.synonyms_uk IS NOT NULL) OR
-        (language_code != 'ua' AND v.synonyms_en IS NOT NULL)
+        (language_code = 'uk' AND v.synonyms_uk IS NOT NULL) OR
+        (language_code != 'uk' AND v.synonyms_en IS NOT NULL)
       )
       AND LOWER(line) LIKE LOWER(search_prefix) || '%'
   )

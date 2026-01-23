@@ -11,7 +11,7 @@ interface BreadcrumbProps {
 export const Breadcrumb = ({ items }: BreadcrumbProps) => {
   return (
     <nav
-      className="flex items-center text-sm text-muted-foreground mb-6 animate-fade-in"
+      className="hidden md:flex items-center text-sm text-muted-foreground mb-6 animate-fade-in"
       aria-label="breadcrumb"
     >
       <ol className="flex items-center space-x-2">

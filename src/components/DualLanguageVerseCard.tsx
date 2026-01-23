@@ -14,6 +14,7 @@ import { parseSynonymPairs, type SynonymPair } from "@/utils/glossaryParser";
 import { addLearningVerse, isVerseInLearningList, LearningVerse } from "@/utils/learningVerses";
 import { toast } from "sonner";
 import DOMPurify from "dompurify";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Перевіряє чи є реальний текстовий контент (не тільки HTML теги або пробіли)
 const hasContent = (text: string | null | undefined): boolean => {
@@ -26,14 +27,14 @@ interface DualLanguageVerseCardProps {
   verseId?: string;
   verseNumber: string;
   bookName?: string;
-  sanskritTextUa: string;
+  sanskritTextUk: string;
   sanskritTextEn: string;
 
   // Українська версія
-  transliterationUa: string;
-  synonymsUa: string;
-  translationUa: string;
-  commentaryUa: string;
+  transliterationUk: string;
+  synonymsUk: string;
+  translationUk: string;
+  commentaryUk: string;
 
   // Англійська версія
   transliterationEn: string;
@@ -44,9 +45,9 @@ interface DualLanguageVerseCardProps {
   // Аудіо URLs
   audioUrl?: string;
   audioSanskrit?: string;
-  audioTranslationUa?: string;
+  audioTranslationUk?: string;
   audioTranslationEn?: string;
-  audioCommentaryUa?: string;
+  audioCommentaryUk?: string;
   audioCommentaryEn?: string;
 
   // Складені вірші
@@ -77,7 +78,23 @@ interface DualLanguageVerseCardProps {
   isNextDisabled?: boolean;
   prevLabel?: string;
   nextLabel?: string;
+  bookSlug?: string; // для визначення префіксу (ШБ, БҐ, etc.)
 }
+
+/* =========================
+   Префікси книг
+   ========================= */
+const getBookPrefix = (slug: string | undefined): string => {
+  const prefixes: Record<string, string> = {
+    sb: "ШБ",
+    bg: "БҐ",
+    cc: "ЧЧ",
+    noi: "НВ",
+    iso: "Ішо",
+    nod: "НВ",
+  };
+  return slug ? prefixes[slug] || slug.toUpperCase() : "";
+};
 
 // openGlossary function moved inside component to use useNavigate hook
 
@@ -85,21 +102,22 @@ export const DualLanguageVerseCard = ({
   verseId,
   verseNumber,
   bookName,
-  sanskritTextUa,
+  bookSlug,
+  sanskritTextUk,
   sanskritTextEn,
-  transliterationUa,
-  synonymsUa,
-  translationUa,
-  commentaryUa,
+  transliterationUk,
+  synonymsUk,
+  translationUk,
+  commentaryUk,
   transliterationEn,
   synonymsEn,
   translationEn,
   commentaryEn,
   audioUrl,
   audioSanskrit,
-  audioTranslationUa,
+  audioTranslationUk,
   audioTranslationEn,
-  audioCommentaryUa,
+  audioCommentaryUk,
   audioCommentaryEn,
   is_composite = false,
   start_verse,
@@ -128,6 +146,7 @@ export const DualLanguageVerseCard = ({
   nextLabel,
 }: DualLanguageVerseCardProps) => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   // Ref для запобігання подвійному спрацюванню на мобільних (touch + click)
   const glossaryNavigationRef = useRef<boolean>(false);
@@ -180,13 +199,13 @@ export const DualLanguageVerseCard = ({
       bookName: bookName || "Невідома книга",
       bookSlug: undefined,
       chapterNumber: undefined,
-      sanskritText: sanskritTextUa || sanskritTextEn || "",
-      transliteration: transliterationUa || transliterationEn,
-      translation: translationUa || translationEn || "",
-      commentary: commentaryUa || commentaryEn,
+      sanskritText: sanskritTextUk || sanskritTextEn || "",
+      transliteration: transliterationUk || transliterationEn,
+      translation: translationUk || translationEn || "",
+      commentary: commentaryUk || commentaryEn,
       audioUrl,
       audioSanskrit,
-      audioTranslation: audioTranslationUa || audioTranslationEn,
+      audioTranslation: audioTranslationUk || audioTranslationEn,
     };
 
     const added = addLearningVerse(verse);
@@ -198,18 +217,18 @@ export const DualLanguageVerseCard = ({
     }
   }, [
     verseId, verseNumber, bookName,
-    sanskritTextUa, sanskritTextEn, transliterationUa, transliterationEn,
-    translationUa, translationEn, commentaryUa, commentaryEn,
-    audioUrl, audioSanskrit, audioTranslationUa, audioTranslationEn
+    sanskritTextUk, sanskritTextEn, transliterationUk, transliterationEn,
+    translationUk, translationEn, commentaryUk, commentaryEn,
+    audioUrl, audioSanskrit, audioTranslationUk, audioTranslationEn
   ]);
 
   const [edited, setEdited] = useState({
-    sanskritUa: sanskritTextUa,
+    sanskritUk: sanskritTextUk,
     sanskritEn: sanskritTextEn,
-    transliterationUa,
-    synonymsUa,
-    translationUa,
-    commentaryUa,
+    transliterationUk,
+    synonymsUk,
+    translationUk,
+    commentaryUk,
     transliterationEn,
     synonymsEn,
     translationEn,
@@ -217,16 +236,16 @@ export const DualLanguageVerseCard = ({
   });
 
   // Обробка санскриту для автоматичних розривів рядків
-  const processedSanskritUa = useMemo(() => {
-    return addSanskritLineBreaks(sanskritTextUa);
-  }, [sanskritTextUa]);
+  const processedSanskritUk = useMemo(() => {
+    return addSanskritLineBreaks(sanskritTextUk);
+  }, [sanskritTextUk]);
 
   const processedSanskritEn = useMemo(() => {
     return addSanskritLineBreaks(sanskritTextEn);
   }, [sanskritTextEn]);
 
   // Парсинг синонімів - єдиний парсер з glossaryParser.ts
-  const synonymsParsedUa = parseSynonymPairs(isEditing ? edited.synonymsUa : synonymsUa);
+  const synonymsParsedUk = parseSynonymPairs(isEditing ? edited.synonymsUk : synonymsUk);
   const synonymsParsedEn = parseSynonymPairs(isEditing ? edited.synonymsEn : synonymsEn);
 
   // Функція для відтворення аудіо
@@ -251,12 +270,12 @@ export const DualLanguageVerseCard = ({
 
   const startEdit = () => {
     setEdited({
-      sanskritUa: sanskritTextUa,
+      sanskritUk: sanskritTextUk,
       sanskritEn: sanskritTextEn,
-      transliterationUa,
-      synonymsUa,
-      translationUa,
-      commentaryUa,
+      transliterationUk,
+      synonymsUk,
+      translationUk,
+      commentaryUk,
       transliterationEn,
       synonymsEn,
       translationEn,
@@ -274,15 +293,15 @@ export const DualLanguageVerseCard = ({
       // Only save fields that have actually changed to prevent cross-contamination
       const updates: Record<string, string> = {};
 
-      if (edited.sanskritUa !== sanskritTextUa) updates.sanskrit_uk = edited.sanskritUa;
+      if (edited.sanskritUk !== sanskritTextUk) updates.sanskrit_uk = edited.sanskritUk;
       if (edited.sanskritEn !== sanskritTextEn) updates.sanskrit_en = edited.sanskritEn;
-      if (edited.transliterationUa !== transliterationUa) updates.transliteration_uk = edited.transliterationUa;
+      if (edited.transliterationUk !== transliterationUk) updates.transliteration_uk = edited.transliterationUk;
       if (edited.transliterationEn !== transliterationEn) updates.transliteration_en = edited.transliterationEn;
-      if (edited.synonymsUa !== synonymsUa) updates.synonyms_uk = edited.synonymsUa;
+      if (edited.synonymsUk !== synonymsUk) updates.synonyms_uk = edited.synonymsUk;
       if (edited.synonymsEn !== synonymsEn) updates.synonyms_en = edited.synonymsEn;
-      if (edited.translationUa !== translationUa) updates.translation_uk = edited.translationUa;
+      if (edited.translationUk !== translationUk) updates.translation_uk = edited.translationUk;
       if (edited.translationEn !== translationEn) updates.translation_en = edited.translationEn;
-      if (edited.commentaryUa !== commentaryUa) updates.commentary_uk = edited.commentaryUa;
+      if (edited.commentaryUk !== commentaryUk) updates.commentary_uk = edited.commentaryUk;
       if (edited.commentaryEn !== commentaryEn) updates.commentary_en = edited.commentaryEn;
 
       if (Object.keys(updates).length > 0) {
@@ -300,16 +319,16 @@ export const DualLanguageVerseCard = ({
         lineHeight,
       }}
     >
-      <div className={flowMode ? "py-6" : "p-6"}>
+      <div className={flowMode ? "pt-2 pb-6" : "pt-2 px-6 pb-6"}>
         {/* НОМЕР ВІРША */}
         {showNumbers && (
           <div className="flex flex-col items-center mb-4">
             <div className="flex items-center justify-center gap-4">
               {isAdmin && verseId ? (
-                <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} />
+                <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} bookSlug={bookSlug} />
               ) : (
-                <span className="font-semibold text-5xl" style={{ color: "rgb(188, 115, 26)" }}>
-                  ВІРШ {verseNumber}
+                <span className="font-semibold text-2xl md:text-5xl whitespace-nowrap" style={{ color: "rgb(188, 115, 26)" }}>
+                  {getBookPrefix(bookSlug)} {verseNumber}
                 </span>
               )}
               {/* Кнопка "Додати до вивчення" */}
@@ -332,9 +351,9 @@ export const DualLanguageVerseCard = ({
           </div>
         )}
 
-        {/* КНОПКА РЕДАГУВАННЯ - sticky при редагуванні */}
+        {/* КНОПКА РЕДАГУВАННЯ - sticky при редагуванні (hidden on mobile) */}
         {isAdmin && (
-          <div className={`flex justify-center mb-4 ${isEditing ? 'sticky top-0 z-50 bg-background/95 backdrop-blur-sm py-3 -mx-6 px-6 border-b shadow-sm' : ''}`}>
+          <div className={`hidden md:flex justify-center mb-4 ${isEditing ? 'sticky top-0 z-50 bg-background/95 backdrop-blur-sm py-3 -mx-6 px-6 border-b shadow-sm' : ''}`}>
             {isEditing ? (
               <div className="flex gap-2">
                 <Button variant="default" size="sm" onClick={saveEdit}>
@@ -378,9 +397,9 @@ export const DualLanguageVerseCard = ({
           </div>
         )}
 
-        {/* НАВІГАЦІЯ МІЖ ВІРШАМИ */}
-        {onPrevVerse && onNextVerse && (
-          <div className="flex items-center justify-between mb-8">
+        {/* НАВІГАЦІЯ МІЖ ВІРШАМИ - приховано на мобільних (є свайп) */}
+        {onPrevVerse && onNextVerse && !isMobile && (
+          <div className="flex items-center justify-between mb-4">
             <Button variant="outline" onClick={onPrevVerse} disabled={isPrevDisabled}>
               <ChevronLeft className="mr-2 h-4 w-4" />
               {prevLabel}
@@ -412,8 +431,8 @@ export const DualLanguageVerseCard = ({
         )}
 
         {/* САНСКРИТ */}
-        {textDisplaySettings.showSanskrit && (isEditing || sanskritTextUa || sanskritTextEn) && (
-          <div className="mb-10">
+        {textDisplaySettings.showSanskrit && (isEditing || sanskritTextUk || sanskritTextEn) && (
+          <div className="mb-6">
             {/* Аудіо кнопка для санскриту */}
             <div className="mb-4 flex justify-center">
               <button
@@ -429,11 +448,11 @@ export const DualLanguageVerseCard = ({
             {isEditing ? (
               <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8">
                 <Textarea
-                  value={edited.sanskritUa}
+                  value={edited.sanskritUk}
                   onChange={(e) =>
                     setEdited((p) => ({
                       ...p,
-                      sanskritUa: e.target.value,
+                      sanskritUk: e.target.value,
                     }))
                   }
                   className="font-[Noto_Sans_Devanagari] text-2xl text-center min-h-[200px]"
@@ -455,7 +474,7 @@ export const DualLanguageVerseCard = ({
                   className="font-[Noto_Sans_Devanagari] whitespace-pre-line"
                   style={{ fontSize: `${fontSize}px`, lineHeight }}
                 >
-                  {processedSanskritUa}
+                  {processedSanskritUk}
                 </div>
                 <div
                   className="font-[Noto_Sans_Devanagari] whitespace-pre-line"
@@ -469,16 +488,16 @@ export const DualLanguageVerseCard = ({
         )}
 
         {/* ТРАНСЛІТЕРАЦІЯ */}
-        {textDisplaySettings.showTransliteration && (isEditing || transliterationUa || transliterationEn) && (
+        {textDisplaySettings.showTransliteration && (isEditing || transliterationUk || transliterationEn) && (
           <div className="p-8">
             {isEditing ? (
               <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8">
                 <Textarea
-                  value={edited.transliterationUa}
+                  value={edited.transliterationUk}
                   onChange={(e) =>
                     setEdited((p) => ({
                       ...p,
-                      transliterationUa: e.target.value,
+                      transliterationUk: e.target.value,
                     }))
                   }
                   className="italic text-lg text-center min-h-[150px]"
@@ -500,9 +519,9 @@ export const DualLanguageVerseCard = ({
                   className="italic text-center transliteration-lines"
                   style={{ fontSize: `${fontSize}px`, lineHeight }}
                   dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(
-                    (transliterationUa || '').includes('<span class="line">')
-                      ? (transliterationUa || '')
-                      : (transliterationUa || '').replace(/\n/g, '<br>'),
+                    (transliterationUk || '').includes('<span class="line">')
+                      ? (transliterationUk || '')
+                      : (transliterationUk || '').replace(/\n/g, '<br>'),
                     { ADD_TAGS: ['span', 'br'], ADD_ATTR: ['class'] }
                   ) }}
                 />
@@ -522,26 +541,26 @@ export const DualLanguageVerseCard = ({
         )}
 
         {/* ПОСЛІВНИЙ ПЕРЕКЛАД */}
-        {textDisplaySettings.showSynonyms && (isEditing || synonymsUa || synonymsEn) && (
+        {textDisplaySettings.showSynonyms && (isEditing || synonymsUk || synonymsEn) && (
           <div className="p-8" data-synced-section="synonyms">
             <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8">
               {/* Ukrainian Synonyms */}
               <div>
-                {(isEditing || synonymsUa) && (
+                {(isEditing || synonymsUk) && (
                   <h3 className="text-xl font-bold mb-4 text-center">Послівний переклад</h3>
                 )}
                 {isEditing ? (
                   <Textarea
-                    value={edited.synonymsUa}
+                    value={edited.synonymsUk}
                     onChange={(e) =>
                       setEdited((p) => ({
                         ...p,
-                        synonymsUa: e.target.value,
+                        synonymsUk: e.target.value,
                       }))
                     }
                     className="text-base min-h-[200px]"
                   />
-                ) : synonymsUa ? (
+                ) : synonymsUk ? (
                   <p
                     style={{
                       fontSize: `${fontSize}px`,
@@ -549,7 +568,7 @@ export const DualLanguageVerseCard = ({
                     }}
                     className="text-justify"
                   >
-                    {synonymsParsedUa.map((syn, i) => {
+                    {synonymsParsedUk.map((syn, i) => {
                       const words = syn.term
                         .split(/\s+/)
                         .map((w) => w.trim())
@@ -577,7 +596,7 @@ export const DualLanguageVerseCard = ({
                             </span>
                           ))}
                           {syn.meaning && <span> — {syn.meaning}</span>}
-                          {i < synonymsParsedUa.length - 1 && <span>; </span>}
+                          {i < synonymsParsedUk.length - 1 && <span>; </span>}
                         </span>
                       );
                     })}
@@ -647,17 +666,17 @@ export const DualLanguageVerseCard = ({
         )}
 
         {/* ПЕРЕКЛАД */}
-        {textDisplaySettings.showTranslation && (isEditing || translationUa || translationEn) && (
+        {textDisplaySettings.showTranslation && (isEditing || translationUk || translationEn) && (
           <div className="p-8">
             {/* Заголовки - показуються тільки якщо є текст */}
             <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8 mb-4">
               <div className="flex items-center justify-center gap-1 sm:gap-4">
-                {(isEditing || translationUa) && (
+                {(isEditing || translationUk) && (
                   <>
                     <h3 className="text-sm sm:text-xl font-bold text-center">Переклад</h3>
                     <button
-                      onClick={() => playSection("Переклад UA", audioTranslationUa)}
-                      disabled={!audioTranslationUa && !audioUrl}
+                      onClick={() => playSection("Переклад UA", audioTranslationUk)}
+                      disabled={!audioTranslationUk && !audioUrl}
                       className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                       aria-label="Слухати переклад"
                     >
@@ -686,11 +705,11 @@ export const DualLanguageVerseCard = ({
             {isEditing ? (
               <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8">
                 <Textarea
-                  value={edited.translationUa}
+                  value={edited.translationUk}
                   onChange={(e) =>
                     setEdited((p) => ({
                       ...p,
-                      translationUa: e.target.value,
+                      translationUk: e.target.value,
                     }))
                   }
                   className="text-base min-h-[150px]"
@@ -707,23 +726,23 @@ export const DualLanguageVerseCard = ({
                 />
               </div>
             ) : (
-              <DualLanguageText uaParagraphs={null} enParagraphs={null} uaText={translationUa} enText={translationEn} bold fontSize={fontSize} lineHeight={lineHeight} />
+              <DualLanguageText ukParagraphs={null} enParagraphs={null} ukText={translationUk} enText={translationEn} bold fontSize={fontSize} lineHeight={lineHeight} />
             )}
           </div>
         )}
 
         {/* ПОЯСНЕННЯ */}
-        {textDisplaySettings.showCommentary && (isEditing || hasContent(commentaryUa) || hasContent(commentaryEn)) && (
+        {textDisplaySettings.showCommentary && (isEditing || hasContent(commentaryUk) || hasContent(commentaryEn)) && (
           <div className="p-8">
             {/* Заголовки - показуються тільки якщо є текст */}
             <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8 mb-4">
               <div className="flex items-center justify-center gap-1 sm:gap-4">
-                {(isEditing || hasContent(commentaryUa)) && (
+                {(isEditing || hasContent(commentaryUk)) && (
                   <>
                     <h3 className="text-sm sm:text-xl font-bold text-center">Пояснення</h3>
                     <button
-                      onClick={() => playSection("Пояснення UA", audioCommentaryUa)}
-                      disabled={!audioCommentaryUa && !audioUrl}
+                      onClick={() => playSection("Пояснення UA", audioCommentaryUk)}
+                      disabled={!audioCommentaryUk && !audioUrl}
                       className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                       aria-label="Слухати пояснення"
                     >
@@ -752,11 +771,11 @@ export const DualLanguageVerseCard = ({
             {isEditing ? (
               <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8">
                 <EnhancedInlineEditor
-                  content={edited.commentaryUa}
+                  content={edited.commentaryUk}
                   onChange={(html) =>
                     setEdited((p) => ({
                       ...p,
-                      commentaryUa: html,
+                      commentaryUk: html,
                     }))
                   }
                   label="Редагувати коментар UA"
@@ -773,7 +792,7 @@ export const DualLanguageVerseCard = ({
                 />
               </div>
             ) : (
-              <DualLanguageText uaParagraphs={null} enParagraphs={null} uaText={commentaryUa} enText={commentaryEn} enableDropCap fontSize={fontSize} lineHeight={lineHeight} />
+              <DualLanguageText ukParagraphs={null} enParagraphs={null} ukText={commentaryUk} enText={commentaryEn} enableDropCap fontSize={fontSize} lineHeight={lineHeight} />
             )}
           </div>
         )}

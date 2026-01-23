@@ -4,13 +4,20 @@
 -- This migration creates functions for full-text search
 -- and intelligent compilation of spiritual knowledge.
 
+-- =====================================================
+-- DROP EXISTING FUNCTIONS (required when return types change)
+-- =====================================================
+DROP FUNCTION IF EXISTS public.search_verses_fulltext(TEXT, TEXT, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, UUID[], INTEGER);
+DROP FUNCTION IF EXISTS public.find_related_verses(UUID, TEXT, REAL, INTEGER);
+DROP FUNCTION IF EXISTS public.get_topic_statistics(TEXT, TEXT);
+
 -- Function 1: Search verses with full-text search
 -- =====================================================
 -- Searches verses using PostgreSQL full-text search capabilities
 -- Returns verses with relevance ranking and full metadata
 CREATE OR REPLACE FUNCTION public.search_verses_fulltext(
   search_query TEXT,
-  language_code TEXT DEFAULT 'ua',
+  language_code TEXT DEFAULT 'uk',
   include_sanskrit BOOLEAN DEFAULT TRUE,
   include_transliteration BOOLEAN DEFAULT TRUE,
   include_synonyms BOOLEAN DEFAULT TRUE,
@@ -167,7 +174,7 @@ COMMENT ON FUNCTION public.search_verses_fulltext IS
 -- Useful for building themed compilations
 CREATE OR REPLACE FUNCTION public.find_related_verses(
   source_verse_id UUID,
-  language_code TEXT DEFAULT 'ua',
+  language_code TEXT DEFAULT 'uk',
   similarity_threshold REAL DEFAULT 0.1,
   limit_count INTEGER DEFAULT 20
 )
@@ -238,7 +245,7 @@ COMMENT ON FUNCTION public.find_related_verses IS
 -- Analyzes how many verses discuss a topic across different books
 CREATE OR REPLACE FUNCTION public.get_topic_statistics(
   search_query TEXT,
-  language_code TEXT DEFAULT 'ua'
+  language_code TEXT DEFAULT 'uk'
 )
 RETURNS TABLE (
   book_id UUID,

@@ -25,21 +25,21 @@ import { cn } from "@/lib/utils";
 // Категорії самбандга/абгідгея/праойджана
 const CATEGORY_INFO = {
   sambandha: {
-    ua: "Самбандга",
+    uk: "Самбандга",
     en: "Sambandha",
-    descUa: "Взаємозв'язок — хто Бог, хто ми, і як ми пов'язані",
+    descUk: "Взаємозв'язок — хто Бог, хто ми, і як ми пов'язані",
     descEn: "Relationship — who is God, who are we, and how are we connected",
   },
   abhidheya: {
-    ua: "Абгідгея",
+    uk: "Абгідгея",
     en: "Abhidheya",
-    descUa: "Процес — як досягти мети життя",
+    descUk: "Процес — як досягти мети життя",
     descEn: "Process — how to achieve the goal of life",
   },
   prayojana: {
-    ua: "Прайоджана",
+    uk: "Прайоджана",
     en: "Prayojana",
-    descUa: "Мета — кінцева ціль духовного життя",
+    descUk: "Мета — кінцева ціль духовного життя",
     descEn: "Goal — the ultimate objective of spiritual life",
   },
 };
@@ -92,7 +92,7 @@ function CategorySection({
           {language === "uk" ? info.uk : info.en}
         </h2>
         <p className="text-sm text-muted-foreground">
-          {language === "uk" ? info.descUa : info.descEn}
+          {language === "uk" ? info.descUk : info.descEn}
         </p>
       </div>
       <div className="divide-y divide-border/50">
@@ -145,9 +145,9 @@ export function TattvasIndex() {
   return (
     <>
       <PageMeta
-        titleUa="Таттви — Філософські категорії | Vedavoice"
+        titleUk="Таттви — Філософські категорії | Vedavoice"
         titleEn="Tattvas — Philosophical Categories | Vedavoice"
-        metaDescriptionUa="Систематизовані філософські категорії вчення Шріли Прабгупади"
+        metaDescriptionUk="Систематизовані філософські категорії вчення Шріли Прабгупади"
         metaDescriptionEn="Systematized philosophical categories of Srila Prabhupada's teachings"
         language={language}
       />

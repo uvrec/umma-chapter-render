@@ -1,4 +1,22 @@
-/* Типографіка для блог постів */
+/* ==========================================
+   Spine Navigation - Mobile Layout
+   ========================================== */
+
+/* When Spine is visible on mobile, shift all content right */
+@media (max-width: 768px) {
+  body.spine-visible {
+    padding-left: 56px !important;
+    transition: padding-left 0.3s ease-out;
+  }
+
+  body.spine-visible .mobile-layout {
+    padding-left: 0 !important; /* Reset any nested padding */
+  }
+}
+
+/* ==========================================
+   Типографіка для блог постів
+   ========================================== */
 .blog-body.prose {
   @apply text-foreground leading-relaxed;
 }
@@ -330,4 +348,134 @@ mark {
 /* Smooth transition for content when spine expands/collapses */
 .mobile-layout {
   transition: padding-left 0.2s ease-out;
+}
+
+/* ==========================================
+   Clean Mobile Verse View (NeuBibel-style)
+   ========================================== */
+
+/* Mobile clean reading styles */
+@media (max-width: 768px) {
+  /* Clean verse surface - no borders/rings/contour */
+  .verse-surface {
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+  }
+
+  /* Remove verse contour/ring on mobile completely */
+  .verse-surface.verse-contour,
+  .verse-surface.now-playing,
+  .verse-contour {
+    --tw-ring-shadow: none !important;
+    --tw-ring-offset-shadow: none !important;
+    box-shadow: none !important;
+    ring: none !important;
+    outline: none !important;
+  }
+
+  /* Reduce padding around verse content */
+  .verse-surface > .py-6 {
+    padding-top: 1rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+
+  /* Clean verse number styling - less margin */
+  .verse-number-clean {
+    margin-bottom: 1rem;
+  }
+
+  /* Hide the book name under verse number on mobile */
+  .verse-surface .verse-book-name {
+    display: none !important;
+  }
+
+  /* Hide play button under verse number */
+  .verse-surface .verse-play-btn {
+    display: none !important;
+  }
+
+  /* Make synonyms/word-by-word more compact */
+  .verse-surface p.text-justify {
+    font-size: 1rem !important;
+    line-height: 1.7 !important;
+  }
+
+  /* Much tighter spacing for sections - Sanskrit to Transliteration */
+  .verse-surface .mb-10 {
+    margin-bottom: 0.5rem !important;
+  }
+
+  .verse-surface .mb-8 {
+    margin-bottom: 0.5rem !important;
+  }
+
+  .verse-surface .mb-6 {
+    margin-bottom: 0.5rem !important;
+  }
+
+  /* Cleaner Sanskrit text */
+  .verse-surface .sanskrit-text {
+    font-size: 1.1rem !important;
+    line-height: 1.6 !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  /* Translation text - slightly bolder */
+  .verse-surface .font-bold.text-justify {
+    font-weight: 600 !important;
+    font-size: 1.05rem !important;
+    line-height: 1.7 !important;
+  }
+
+  /* Commentary with drop cap - clean */
+  .verse-surface .purport {
+    font-size: 1rem !important;
+    line-height: 1.7 !important;
+  }
+}
+
+/* Hide extra sections on mobile for clean reading */
+@media (max-width: 768px) {
+  /* Hide Tattvas section on mobile */
+  [data-reader-root="true"] .mt-4:has([class*="tattva"]),
+  [data-reader-root="true"] > .space-y-6 > div:last-child:has(button) {
+    display: none !important;
+  }
+
+  /* Hide RelatedVerses section on mobile */
+  [data-reader-root="true"] [class*="related"],
+  [data-reader-root="true"] > .space-y-6 > div:nth-last-child(2) {
+    display: none !important;
+  }
+
+  /* Hide bottom navigation buttons */
+  [data-reader-root="true"] .flex.items-center.justify-between.pt-6 {
+    display: none !important;
+  }
+
+  /* Spine stays at 56px (w-14) - no collapse needed */
+  /* The spine is always visible and content shifts right via body.spine-visible */
+}
+
+/* Mobile clean mode - extra minimal for verse view */
+@media (max-width: 640px) {
+  /* Even cleaner for small screens */
+  .verse-surface {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Simplify transliteration */
+  .verse-surface .iast-text {
+    font-size: 0.9rem !important;
+    opacity: 0.85;
+    line-height: 1.5 !important;
+  }
+
+  /* Smaller margin on verse number for small screens */
+  .verse-number-clean {
+    margin-bottom: 1.25rem;
+  }
 }

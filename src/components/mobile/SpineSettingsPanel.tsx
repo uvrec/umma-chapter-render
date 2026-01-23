@@ -2,8 +2,8 @@
 // Settings panel for Spine Navigation (Neu Bible-style)
 // Панель налаштувань: нагадування, читання, книги, про нас, контакти
 
-import { useState, useRef } from "react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { useState, useRef, useEffect, useCallback } from "react";
+// Sheet replaced with custom implementation for Spine offset support
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
@@ -16,11 +16,14 @@ import {
   Check,
   X,
   MessageCircle,
-  ExternalLink,
   Lock,
+  Send,
+  Facebook,
+  Instagram,
+  Youtube,
+  Heart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { FaTelegram, FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
 
 interface SpineSettingsPanelProps {
   open: boolean;
@@ -127,30 +130,26 @@ const SOCIAL_LINKS = [
   {
     id: "telegram",
     label: "Telegram",
-    icon: FaTelegram,
+    icon: Send,
     url: "https://t.me/prabhupada_ua",
-    color: "text-[#0088cc]",
   },
   {
     id: "facebook",
     label: "Facebook",
-    icon: FaFacebook,
+    icon: Facebook,
     url: "https://facebook.com/prabhupada.ua",
-    color: "text-[#1877f2]",
   },
   {
     id: "instagram",
     label: "Instagram",
-    icon: FaInstagram,
+    icon: Instagram,
     url: "https://instagram.com/prabhupada_ua",
-    color: "text-[#e4405f]",
   },
   {
     id: "youtube",
     label: "YouTube",
-    icon: FaYoutube,
+    icon: Youtube,
     url: "https://youtube.com/@prabhupada_ua",
-    color: "text-[#ff0000]",
   },
 ];
 
@@ -210,15 +209,36 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
     window.open(url, "_blank");
   };
 
+  if (!open) return null;
+
   return (
-    <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <SheetContent
-        side="right"
-        className="w-[calc(100%-4rem)] sm:w-80 ml-16 p-0 overflow-y-auto"
+    <>
+      {/* Custom overlay - starts after Spine */}
+      <div
+        className="fixed inset-0 left-14 z-[50] bg-black/80 animate-in fade-in-0 duration-300"
+        onClick={onClose}
+      />
+
+      {/* Custom panel content - starts after Spine */}
+      <div
+        className={cn(
+          "fixed inset-y-0 left-14 z-[60] w-[calc(100%-56px)] sm:w-80",
+          "bg-background shadow-lg",
+          "animate-in slide-in-from-left duration-300",
+          "overflow-y-auto"
+        )}
       >
-        <SheetHeader className="px-4 py-4 border-b">
-          <SheetTitle className="text-lg">{t("Налаштування", "Settings")}</SheetTitle>
-        </SheetHeader>
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-4 border-b">
+          <h2 className="text-lg font-semibold">{t("Налаштування", "Settings")}</h2>
+          <button
+            onClick={onClose}
+            className="rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </button>
+        </div>
 
         <div className="px-4 py-4 space-y-6">
           {/* 0. GENERAL Section - Reading Reminders */}
@@ -453,6 +473,18 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
                 </span>
                 <ChevronRight className="h-5 w-5 text-muted-foreground" />
               </button>
+
+              <button
+                onClick={() => handleNavigate("/support")}
+                className="w-full flex items-center justify-between px-2 py-3
+                  hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
+              >
+                <span className="flex items-center gap-3">
+                  <Heart className="h-5 w-5 text-muted-foreground" />
+                  <span>{t("Підтримати проєкт", "Support the Project")}</span>
+                </span>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              </button>
             </div>
           </div>
 
@@ -472,14 +504,13 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full flex items-center justify-between px-2 py-3
+                    className="w-full flex items-center px-2 py-3
                       hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
                   >
                     <span className="flex items-center gap-3">
-                      <Icon className={cn("h-5 w-5", link.color)} />
+                      <Icon className="h-5 w-5 text-muted-foreground" />
                       <span>{link.label}</span>
                     </span>
-                    <ExternalLink className="h-4 w-4 text-muted-foreground" />
                   </a>
                 );
               })}
@@ -504,7 +535,7 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
             <p>VedaVoice v{import.meta.env.VITE_APP_VERSION || "1.0.0"}</p>
           </div>
         </div>
-      </SheetContent>
+      </div>
 
       {/* Full-screen Books Carousel Modal */}
       {showBooksModal && (
@@ -530,7 +561,7 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
           language={language}
         />
       )}
-    </Sheet>
+    </>
   );
 }
 
@@ -590,7 +621,7 @@ function BooksCarouselModal({
     if (isAvailable) {
       onSelect(currentBook.id);
       onClose();
-    } else if (currentBook.purchaseUrl) {
+    } else if ("purchaseUrl" in currentBook && currentBook.purchaseUrl) {
       onPurchase(currentBook.purchaseUrl);
     }
   };
@@ -715,6 +746,216 @@ const DAYS_SHORT = {
   en: ["S", "M", "T", "W", "T", "F", "S"],
 };
 
+// iOS-style 3D Drum Time Picker
+interface TimePickerModalProps {
+  open: boolean;
+  onClose: () => void;
+  initialTime: string; // "HH:MM" format
+  onSelect: (time: string) => void;
+}
+
+const ITEM_HEIGHT = 44; // Height of each item in the drum
+const VISIBLE_ITEMS = 5; // Number of visible items
+const DRUM_RADIUS = (ITEM_HEIGHT * VISIBLE_ITEMS) / Math.PI; // Radius for 3D effect
+
+// Generate hours array (00-23)
+const HOURS = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, "0"));
+// Generate minutes array (00-59)
+const MINUTES = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, "0"));
+
+interface DrumColumnProps {
+  items: string[];
+  selectedIndex: number;
+  onIndexChange: (index: number) => void;
+}
+
+function DrumColumn({ items, selectedIndex, onIndexChange }: DrumColumnProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isScrollingRef = useRef(false);
+  const [scrollOffset, setScrollOffset] = useState(0);
+
+  // Initialize scroll position
+  useEffect(() => {
+    if (containerRef.current && !isScrollingRef.current) {
+      const targetScroll = selectedIndex * ITEM_HEIGHT;
+      containerRef.current.scrollTop = targetScroll;
+      setScrollOffset(targetScroll);
+    }
+  }, [selectedIndex]);
+
+  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const scrollTop = e.currentTarget.scrollTop;
+    setScrollOffset(scrollTop);
+    isScrollingRef.current = true;
+
+    // Clear existing timeout
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+
+    // Snap to nearest item after scrolling stops
+    scrollTimeoutRef.current = setTimeout(() => {
+      const nearestIndex = Math.round(scrollTop / ITEM_HEIGHT);
+      const clampedIndex = Math.max(0, Math.min(nearestIndex, items.length - 1));
+
+      if (containerRef.current) {
+        containerRef.current.scrollTo({
+          top: clampedIndex * ITEM_HEIGHT,
+          behavior: "smooth",
+        });
+      }
+
+      onIndexChange(clampedIndex);
+      isScrollingRef.current = false;
+    }, 100);
+  }, [items.length, onIndexChange]);
+
+  // Calculate 3D transform for each item based on its position
+  const getItemStyle = (index: number): React.CSSProperties => {
+    const itemCenter = index * ITEM_HEIGHT + ITEM_HEIGHT / 2;
+    const viewCenter = scrollOffset + (VISIBLE_ITEMS * ITEM_HEIGHT) / 2;
+    const distance = itemCenter - viewCenter;
+
+    // Calculate rotation angle (items rotate around X axis)
+    const rotationAngle = (distance / DRUM_RADIUS) * (180 / Math.PI) * 0.8;
+
+    // Calculate translateZ for depth effect
+    const absRotation = Math.abs(rotationAngle);
+    const translateZ = Math.cos(absRotation * Math.PI / 180) * 20 - 20;
+
+    // Calculate opacity based on distance from center
+    const normalizedDistance = Math.abs(distance) / (ITEM_HEIGHT * 2.5);
+    const opacity = Math.max(0.2, 1 - normalizedDistance * 0.5);
+
+    // Calculate scale for depth illusion
+    const scale = Math.max(0.7, 1 - Math.abs(rotationAngle) / 200);
+
+    // Clamp rotation to prevent items from flipping
+    const clampedRotation = Math.max(-70, Math.min(70, rotationAngle));
+
+    return {
+      transform: `perspective(200px) rotateX(${-clampedRotation}deg) translateZ(${translateZ}px) scale(${scale})`,
+      opacity,
+      transition: isScrollingRef.current ? "none" : "all 0.1s ease-out",
+    };
+  };
+
+  return (
+    <div className="relative h-[220px] w-[80px] overflow-hidden">
+      {/* Selection indicator - center highlight */}
+      <div
+        className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[44px] bg-white/10 rounded-lg pointer-events-none z-10"
+        style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(255,255,255,0.1)" }}
+      />
+
+      {/* Gradient overlays for fade effect */}
+      <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#2a2a2e] to-transparent pointer-events-none z-20" />
+      <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#2a2a2e] to-transparent pointer-events-none z-20" />
+
+      {/* Scrollable drum container */}
+      <div
+        ref={containerRef}
+        className="h-full overflow-y-auto scrollbar-hide"
+        onScroll={handleScroll}
+        style={{
+          scrollSnapType: "y mandatory",
+          perspective: "200px",
+          perspectiveOrigin: "center center",
+        }}
+      >
+        {/* Padding items at top */}
+        <div style={{ height: `${ITEM_HEIGHT * 2}px` }} />
+
+        {items.map((item, index) => (
+          <div
+            key={index}
+            className="h-[44px] flex items-center justify-center text-white text-2xl font-light select-none"
+            style={{
+              ...getItemStyle(index),
+              scrollSnapAlign: "center",
+              transformStyle: "preserve-3d",
+              backfaceVisibility: "hidden",
+            }}
+            onClick={() => {
+              if (containerRef.current) {
+                containerRef.current.scrollTo({
+                  top: index * ITEM_HEIGHT,
+                  behavior: "smooth",
+                });
+                onIndexChange(index);
+              }
+            }}
+          >
+            {item}
+          </div>
+        ))}
+
+        {/* Padding items at bottom */}
+        <div style={{ height: `${ITEM_HEIGHT * 2}px` }} />
+      </div>
+    </div>
+  );
+}
+
+function TimePickerModal({ open, onClose, initialTime, onSelect }: TimePickerModalProps) {
+  const [hours, minutes] = initialTime.split(":");
+  const [hourIndex, setHourIndex] = useState(parseInt(hours, 10));
+  const [minuteIndex, setMinuteIndex] = useState(parseInt(minutes, 10));
+
+  const handleConfirm = () => {
+    const time = `${HOURS[hourIndex]}:${MINUTES[minuteIndex]}`;
+    onSelect(time);
+    onClose();
+  };
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-[110] flex items-center justify-center">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Modal content */}
+      <div
+        className="relative bg-[#2a2a2e] rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
+        style={{
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.1)",
+        }}
+      >
+        {/* Time picker drums */}
+        <div className="flex items-center justify-center px-4 py-6 gap-2">
+          <DrumColumn
+            items={HOURS}
+            selectedIndex={hourIndex}
+            onIndexChange={setHourIndex}
+          />
+
+          {/* Colon separator */}
+          <div className="text-white text-3xl font-light px-2">:</div>
+
+          <DrumColumn
+            items={MINUTES}
+            selectedIndex={minuteIndex}
+            onIndexChange={setMinuteIndex}
+          />
+        </div>
+
+        {/* Confirm button */}
+        <button
+          onClick={handleConfirm}
+          className="w-full py-4 bg-brand-500 text-white font-medium text-lg hover:bg-brand-600 transition-colors"
+        >
+          OK
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function ReadingRemindersSheet({
   open,
   onClose,
@@ -724,6 +965,7 @@ function ReadingRemindersSheet({
 }: ReadingRemindersSheetProps) {
   const [days, setDays] = useState<boolean[]>(initialSettings.days);
   const [time, setTime] = useState(initialSettings.time);
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
   const handleDayToggle = (index: number) => {
     const newDays = [...days];
@@ -733,6 +975,10 @@ function ReadingRemindersSheet({
 
   const handleSave = () => {
     onSave({ enabled: true, days, time });
+  };
+
+  const handleTimeSelect = (newTime: string) => {
+    setTime(newTime);
   };
 
   if (!open) return null;
@@ -768,19 +1014,19 @@ function ReadingRemindersSheet({
           </div>
         </div>
 
-        {/* Time picker */}
-        <div className="px-6 py-8 flex justify-center">
-          <input
-            type="time"
-            value={time}
-            onChange={(e) => setTime(e.target.value)}
+        {/* Time display - tap to open iOS-style picker */}
+        <div className="px-6 py-8 flex justify-end">
+          <button
+            onClick={() => setShowTimePicker(true)}
             className={cn(
-              "text-5xl font-light text-center bg-transparent",
-              "border-0 focus:outline-none focus:ring-0",
-              "appearance-none [&::-webkit-calendar-picker-indicator]:hidden"
+              "text-lg font-medium px-4 py-2 rounded-lg",
+              "bg-muted/50 text-muted-foreground",
+              "hover:bg-muted transition-colors",
+              "active:scale-95"
             )}
-            style={{ colorScheme: "dark" }}
-          />
+          >
+            {time}
+          </button>
         </div>
 
         {/* Save button */}
@@ -795,6 +1041,14 @@ function ReadingRemindersSheet({
           {language === "uk" ? "Зберегти" : "Save"}
         </button>
       </div>
+
+      {/* iOS-style 3D Drum Time Picker Modal */}
+      <TimePickerModal
+        open={showTimePicker}
+        onClose={() => setShowTimePicker(false)}
+        initialTime={time}
+        onSelect={handleTimeSelect}
+      />
     </div>
   );
 }

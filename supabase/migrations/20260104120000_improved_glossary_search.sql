@@ -6,7 +6,7 @@
 CREATE OR REPLACE FUNCTION public.search_glossary_terms_v2(
   search_term text DEFAULT NULL,
   search_translation text DEFAULT NULL,
-  search_language text DEFAULT 'ua',
+  search_language text DEFAULT 'uk',
   search_mode text DEFAULT 'contains', -- 'contains', 'exact', 'starts_with'
   book_filter text DEFAULT NULL, -- book slug filter
   page_number integer DEFAULT 1,
@@ -36,7 +36,7 @@ DECLARE
   offset_val integer;
 BEGIN
   -- Вибираємо колонку синонімів залежно від мови
-  IF search_language = 'ua' THEN
+  IF search_language = 'uk' THEN
     synonyms_col := 'synonyms_uk';
   ELSE
     synonyms_col := 'synonyms_en';
@@ -64,7 +64,7 @@ BEGIN
         v.verse_number,
         ch.chapter_number,
         ca.canto_number,
-        CASE WHEN $5 = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
+        CASE WHEN $5 = 'uk' THEN b.title_uk ELSE b.title_en END as book_title,
         b.slug as book_slug,
         -- Розбиваємо по крапці з комою (;) - правильний розділювач
         TRIM(part) as synonym_part
@@ -166,7 +166,7 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_glossary_terms_grouped(
   search_term text DEFAULT NULL,
   search_translation text DEFAULT NULL,
-  search_language text DEFAULT 'ua',
+  search_language text DEFAULT 'uk',
   search_mode text DEFAULT 'contains',
   book_filter text DEFAULT NULL,
   page_number integer DEFAULT 1,
@@ -190,7 +190,7 @@ DECLARE
   meaning_pattern text;
   offset_val integer;
 BEGIN
-  IF search_language = 'ua' THEN
+  IF search_language = 'uk' THEN
     synonyms_col := 'synonyms_uk';
   ELSE
     synonyms_col := 'synonyms_en';
@@ -212,7 +212,7 @@ BEGIN
   RETURN QUERY EXECUTE format($query$
     WITH parsed_terms AS (
       SELECT
-        CASE WHEN $5 = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
+        CASE WHEN $5 = 'uk' THEN b.title_uk ELSE b.title_en END as book_title,
         TRIM(part) as synonym_part
       FROM public.verses v
       JOIN public.chapters ch ON ch.id = v.chapter_id
@@ -292,7 +292,7 @@ $$;
 
 -- 3. Функція для отримання статистики глосарію
 CREATE OR REPLACE FUNCTION public.get_glossary_stats(
-  search_language text DEFAULT 'ua'
+  search_language text DEFAULT 'uk'
 )
 RETURNS TABLE(
   total_terms bigint,
@@ -308,7 +308,7 @@ AS $$
 DECLARE
   synonyms_col text;
 BEGIN
-  IF search_language = 'ua' THEN
+  IF search_language = 'uk' THEN
     synonyms_col := 'synonyms_uk';
   ELSE
     synonyms_col := 'synonyms_en';
@@ -318,7 +318,7 @@ BEGIN
     WITH parsed_terms AS (
       SELECT
         b.slug as book_slug,
-        CASE WHEN $1 = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
+        CASE WHEN $1 = 'uk' THEN b.title_uk ELSE b.title_en END as book_title,
         TRIM(part) as synonym_part
       FROM public.verses v
       JOIN public.chapters ch ON ch.id = v.chapter_id
@@ -387,7 +387,7 @@ $$;
 -- 4. Функція для отримання деталей конкретного терміну
 CREATE OR REPLACE FUNCTION public.get_glossary_term_details(
   term_text text,
-  search_language text DEFAULT 'ua'
+  search_language text DEFAULT 'uk'
 )
 RETURNS TABLE(
   term text,
@@ -411,7 +411,7 @@ DECLARE
   synonyms_col text;
   translit_col text;
 BEGIN
-  IF search_language = 'ua' THEN
+  IF search_language = 'uk' THEN
     synonyms_col := 'synonyms_uk';
     translit_col := 'transliteration_uk';
   ELSE
@@ -428,7 +428,7 @@ BEGIN
         COALESCE(v.%I, v.transliteration) as transliteration,
         ch.chapter_number,
         ca.canto_number,
-        CASE WHEN $2 = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
+        CASE WHEN $2 = 'uk' THEN b.title_uk ELSE b.title_en END as book_title,
         b.slug as book_slug,
         TRIM(part) as synonym_part
       FROM public.verses v

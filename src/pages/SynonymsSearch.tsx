@@ -15,12 +15,23 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { debounce } from "lodash";
 
-// Використовуємо типи з Supabase для search_synonyms RPC
-import type { Database } from "@/integrations/supabase/types";
-type SynonymSearchResult = Database['public']['Functions']['search_synonyms']['Returns'][number];
+// Define the expected return type for search_synonyms with search_mode parameter
+interface SynonymSearchResult {
+  book_slug: string;
+  book_title: string;
+  canto_number: number;
+  chapter_number: number;
+  match_rank: number;
+  sanskrit: string;
+  synonyms: string;
+  translation: string;
+  transliteration: string;
+  verse_id: string;
+  verse_number: string;
+}
 
 // Helper to build verse link (must match App.tsx routes)
-const buildVerseLink = (result: SynonymSearchResult): string => {
+const buildVerseLinkPath = (result: SynonymSearchResult): string => {
   if (result.canto_number) {
     // Srimad-Bhagavatam structure: /lib/:bookId/:cantoNumber/:chapterNumber/:verseNumber
     return `/lib/${result.book_slug}/${result.canto_number}/${result.chapter_number}/${result.verse_number}`;
@@ -61,13 +72,18 @@ const highlightSearchTerm = (text: string, term: string): string => {
 
 interface AutocompleteItem {
   term: string;
-  frequency: number;
+  count: number;
 }
 
 type SearchMode = "contains" | "starts_with" | "exact";
 
 export default function SynonymsSearch() {
-  const { language: contextLanguage } = useLanguage();
+  const { language: contextLanguage, getLocalizedPath } = useLanguage();
+
+  // Build verse link with language prefix
+  const buildVerseLink = (result: SynonymSearchResult): string => {
+    return getLocalizedPath(buildVerseLinkPath(result));
+  };
   const [searchTerm, setSearchTerm] = useState("");
   const [searchLanguage, setSearchLanguage] = useState<"uk" | "en">("uk");
   const [searchMode, setSearchMode] = useState<SearchMode>("contains");
@@ -94,12 +110,13 @@ export default function SynonymsSearch() {
       try {
         const { data, error } = await supabase.rpc("get_unique_synonym_terms", {
           search_language: lang,
-          prefix_filter: term,
-          limit_count: 10,
         });
 
         if (error) throw error;
-        const items = data ?? [];
+        // Filter client-side since prefix_filter may not exist in type definition
+        const items = (data ?? []).filter(item => 
+          item.term.toLowerCase().startsWith(term.toLowerCase())
+        ).slice(0, 10);
         setAutocomplete(items);
       } catch (error) {
         console.error("Autocomplete error:", error);
@@ -127,11 +144,13 @@ export default function SynonymsSearch() {
         search_mode: searchMode,
         limit_count: 100,
         offset_count: 0,
-      });
+      } as any); // Use 'as any' due to Supabase type union ambiguity
+      
+      const typedData = data as SynonymSearchResult[] | null;
 
       if (error) throw error;
 
-      const rows = data ?? [];
+      const rows = typedData ?? [];
       setResults(rows);
       setTotalResults(rows.length);
 
@@ -307,7 +326,7 @@ export default function SynonymsSearch() {
                       >
                         <span>{item.term}</span>
                         <Badge variant="secondary" className="text-xs">
-                          {item.frequency}
+                          {item.count}
                         </Badge>
                       </button>
                     ))}

@@ -74,6 +74,7 @@ const BlogPost = lazy(() => import("./pages/BlogPost"));
 const GlossaryDB = lazy(() => import("./pages/GlossaryDB"));
 const SynonymsSearch = lazy(() => import("./pages/SynonymsSearch"));
 const SanskritDictionary = lazy(() => import("./pages/SanskritDictionary"));
+const BengaliDictionary = lazy(() => import("./pages/BengaliDictionary"));
 const Numerology = lazy(() => import("./pages/tools/Numerology"));
 const ScriptLearning = lazy(() => import("./pages/tools/ScriptLearning"));
 const TextNormalization = lazy(() => import("./pages/tools/TextNormalization"));
@@ -86,6 +87,7 @@ const TattvaPage = lazy(() => import("./pages/TattvaPage"));
 const ReadingStatsPage = lazy(() => import("./pages/ReadingStatsPage"));
 const BookSearch = lazy(() => import("./pages/BookSearch"));
 const Quotes = lazy(() => import("./pages/Quotes"));
+const SadhanaTracker = lazy(() => import("./pages/SadhanaTracker"));
 
 // ============================================================
 // STATIC IMPORTS (критичні сторінки, завантажуються одразу)
@@ -252,6 +254,7 @@ function AppContent() {
             <Route path="tools/compiler" element={<KnowledgeCompiler />} />
             <Route path="tools/synonyms" element={<SynonymsSearch />} />
             <Route path="tools/dictionary" element={<SanskritDictionary />} />
+            <Route path="tools/bengali-dictionary" element={<BengaliDictionary />} />
             <Route path="install" element={<Install />} />
             <Route path="search" element={<BookSearch />} />
             <Route path="chat" element={<Chat />} />
@@ -261,6 +264,7 @@ function AppContent() {
             <Route path="tattva/:slug" element={<TattvaPage />} />
             <Route path="stats" element={<ReadingStatsPage />} />
             <Route path="timeline" element={<TimelinePage />} />
+            <Route path="sadhana" element={<SadhanaTracker />} />
 
             {/* Вайшнавський календар */}
             <Route path="calendar" element={<VaishnavCalendar />} />
@@ -356,6 +360,7 @@ function AppContent() {
           <Route path="/tools/compiler" element={<KnowledgeCompiler />} />
           <Route path="/tools/synonyms" element={<SynonymsSearch />} />
           <Route path="/tools/dictionary" element={<SanskritDictionary />} />
+          <Route path="/tools/bengali-dictionary" element={<BengaliDictionary />} />
           <Route path="/install" element={<Install />} />
           <Route path="/search" element={<BookSearch />} />
           <Route path="/chat" element={<Chat />} />
@@ -365,6 +370,7 @@ function AppContent() {
           <Route path="/tattva/:slug" element={<TattvaPage />} />
           <Route path="/stats" element={<ReadingStatsPage />} />
           <Route path="/timeline" element={<TimelinePage />} />
+          <Route path="/sadhana" element={<SadhanaTracker />} />
 
           {/* Вайшнавський календар */}
           <Route path="/calendar" element={<VaishnavCalendar />} />

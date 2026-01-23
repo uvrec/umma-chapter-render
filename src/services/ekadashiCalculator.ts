@@ -304,7 +304,7 @@ export function calculateEkadashiFastingTimes(
   }
 
   // Generate notes
-  const notes_uk = generateNotesUa(paranaStart, paranaEnd, hariVasaraEnd, dvadashiEndTime);
+  const notes_uk = generateNotesUk(paranaStart, paranaEnd, hariVasaraEnd, dvadashiEndTime);
   const notes_en = generateNotesEn(paranaStart, paranaEnd, hariVasaraEnd, dvadashiEndTime);
 
   return {
@@ -343,24 +343,24 @@ export function calculateEkadashiFastingTimes(
  * Get fasting level descriptions
  */
 function getFastingLevelDescriptions(level: FastingLevel): {
-  ua: string;
+  uk: string;
   en: string;
 } {
   const descriptions: Record<FastingLevel, { uk: string; en: string }> = {
     nirjala: {
-      ua: 'Повний піст без води (ніраджала)',
+      uk: 'Повний піст без води (ніраджала)',
       en: 'Complete fast without water (nirjala)',
     },
     full: {
-      ua: 'Повний піст (без зернових та бобових)',
+      uk: 'Повний піст (без зернових та бобових)',
       en: 'Full fast (no grains or beans)',
     },
     half: {
-      ua: 'Піст до полудня',
+      uk: 'Піст до полудня',
       en: 'Fast until noon',
     },
     none: {
-      ua: 'Без посту (святкування)',
+      uk: 'Без посту (святкування)',
       en: 'No fasting (celebration)',
     },
   };
@@ -377,7 +377,7 @@ function getBreakFastDescriptions(
   nextSunrise: Date,
   timezone?: string
 ): {
-  ua: string;
+  uk: string;
   en: string;
   breakTime: Date;
 } {
@@ -387,25 +387,25 @@ function getBreakFastDescriptions(
   switch (level) {
     case 'nirjala':
       return {
-        ua: `Переривання посту наступного дня після сходу сонця (${nextSunriseFormatted})`,
+        uk: `Переривання посту наступного дня після сходу сонця (${nextSunriseFormatted})`,
         en: `Break fast next day after sunrise (${nextSunriseFormatted})`,
         breakTime: nextSunrise,
       };
     case 'full':
       return {
-        ua: `Переривання посту наступного дня після сходу сонця (${nextSunriseFormatted})`,
+        uk: `Переривання посту наступного дня після сходу сонця (${nextSunriseFormatted})`,
         en: `Break fast next day after sunrise (${nextSunriseFormatted})`,
         breakTime: nextSunrise,
       };
     case 'half':
       return {
-        ua: `Переривання посту після полудня (${noonFormatted})`,
+        uk: `Переривання посту після полудня (${noonFormatted})`,
         en: `Break fast after noon (${noonFormatted})`,
         breakTime: solarNoon,
       };
     case 'none':
       return {
-        ua: 'Піст не потрібен',
+        uk: 'Піст не потрібен',
         en: 'No fasting required',
         breakTime: solarNoon,
       };
@@ -846,7 +846,7 @@ function formatDateKey(date: Date): string {
 /**
  * Generate Ukrainian notes for parana
  */
-function generateNotesUa(
+function generateNotesUk(
   paranaStart: Date,
   paranaEnd: Date,
   hariVasaraEnd: Date,

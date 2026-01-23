@@ -71,9 +71,9 @@ BEGIN
     v.verse_number::text,
     v.chapter_id,
     ch.chapter_number,
-    CASE WHEN language_code = 'ua' THEN ch.title_uk ELSE ch.title_en END as chapter_title,
+    CASE WHEN language_code = 'uk' THEN ch.title_uk ELSE ch.title_en END as chapter_title,
     b.id as book_id,
-    CASE WHEN language_code = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
+    CASE WHEN language_code = 'uk' THEN b.title_uk ELSE b.title_en END as book_title,
     b.slug as book_slug,
     ch.canto_id as canto_id,
     NULL::integer as canto_number,
@@ -81,26 +81,26 @@ BEGIN
     (CASE WHEN include_sanskrit THEN v.sanskrit ELSE NULL END) as sanskrit,
     (CASE WHEN include_transliteration THEN v.transliteration ELSE NULL END) as transliteration,
     (CASE WHEN include_synonyms
-          THEN (CASE WHEN language_code = 'ua' THEN v.synonyms_uk ELSE v.synonyms_en END)
+          THEN (CASE WHEN language_code = 'uk' THEN v.synonyms_uk ELSE v.synonyms_en END)
           ELSE NULL END) as synonyms,
     (CASE WHEN include_translation
-          THEN (CASE WHEN language_code = 'ua' THEN v.translation_uk ELSE v.translation_en END)
+          THEN (CASE WHEN language_code = 'uk' THEN v.translation_uk ELSE v.translation_en END)
           ELSE NULL END) as translation,
     (CASE WHEN include_commentary
-          THEN (CASE WHEN language_code = 'ua' THEN v.commentary_uk ELSE v.commentary_en END)
+          THEN (CASE WHEN language_code = 'uk' THEN v.commentary_uk ELSE v.commentary_en END)
           ELSE NULL END) as commentary,
     1::numeric as relevance_rank,
     ARRAY_REMOVE(ARRAY[
-      CASE WHEN include_translation AND ((language_code = 'ua' AND v.translation_uk ILIKE pattern) OR (language_code <> 'ua' AND v.translation_en ILIKE pattern)) THEN 'translation' ELSE NULL END,
-      CASE WHEN include_commentary AND ((language_code = 'ua' AND v.commentary_uk ILIKE pattern) OR (language_code <> 'ua' AND v.commentary_en ILIKE pattern)) THEN 'commentary' ELSE NULL END,
-      CASE WHEN include_synonyms AND ((language_code = 'ua' AND v.synonyms_uk ILIKE pattern) OR (language_code <> 'ua' AND v.synonyms_en ILIKE pattern)) THEN 'synonyms' ELSE NULL END,
+      CASE WHEN include_translation AND ((language_code = 'uk' AND v.translation_uk ILIKE pattern) OR (language_code <> 'uk' AND v.translation_en ILIKE pattern)) THEN 'translation' ELSE NULL END,
+      CASE WHEN include_commentary AND ((language_code = 'uk' AND v.commentary_uk ILIKE pattern) OR (language_code <> 'uk' AND v.commentary_en ILIKE pattern)) THEN 'commentary' ELSE NULL END,
+      CASE WHEN include_synonyms AND ((language_code = 'uk' AND v.synonyms_uk ILIKE pattern) OR (language_code <> 'uk' AND v.synonyms_en ILIKE pattern)) THEN 'synonyms' ELSE NULL END,
       CASE WHEN include_transliteration AND v.transliteration ILIKE pattern THEN 'transliteration' ELSE NULL END,
       CASE WHEN include_sanskrit AND v.sanskrit ILIKE pattern THEN 'sanskrit' ELSE NULL END
     ], NULL) as matched_in,
     LEFT(
       COALESCE(
-        CASE WHEN language_code = 'ua' THEN v.translation_uk ELSE v.translation_en END,
-        CASE WHEN language_code = 'ua' THEN v.commentary_uk ELSE v.commentary_en END,
+        CASE WHEN language_code = 'uk' THEN v.translation_uk ELSE v.translation_en END,
+        CASE WHEN language_code = 'uk' THEN v.commentary_uk ELSE v.commentary_en END,
         v.synonyms_uk, v.synonyms_en, v.transliteration, v.sanskrit, ''
       ),
       200
@@ -112,16 +112,16 @@ BEGIN
     AND v.deleted_at IS NULL
     AND (
       (include_translation AND (
-        (language_code = 'ua' AND v.translation_uk ILIKE pattern) OR
-        (language_code <> 'ua' AND v.translation_en ILIKE pattern)
+        (language_code = 'uk' AND v.translation_uk ILIKE pattern) OR
+        (language_code <> 'uk' AND v.translation_en ILIKE pattern)
       ))
       OR (include_commentary AND (
-        (language_code = 'ua' AND v.commentary_uk ILIKE pattern) OR
-        (language_code <> 'ua' AND v.commentary_en ILIKE pattern)
+        (language_code = 'uk' AND v.commentary_uk ILIKE pattern) OR
+        (language_code <> 'uk' AND v.commentary_en ILIKE pattern)
       ))
       OR (include_synonyms AND (
-        (language_code = 'ua' AND v.synonyms_uk ILIKE pattern) OR
-        (language_code <> 'ua' AND v.synonyms_en ILIKE pattern)
+        (language_code = 'uk' AND v.synonyms_uk ILIKE pattern) OR
+        (language_code <> 'uk' AND v.synonyms_en ILIKE pattern)
       ))
       OR (include_transliteration AND v.transliteration ILIKE pattern)
       OR (include_sanskrit AND v.sanskrit ILIKE pattern)
@@ -163,8 +163,8 @@ BEGIN
     WHERE ch.is_published = true
       AND v.deleted_at IS NULL
       AND (
-        (language_code = 'ua' AND (v.translation_uk ILIKE pattern OR v.commentary_uk ILIKE pattern OR v.synonyms_uk ILIKE pattern))
-        OR (language_code <> 'ua' AND (v.translation_en ILIKE pattern OR v.commentary_en ILIKE pattern OR v.synonyms_en ILIKE pattern))
+        (language_code = 'uk' AND (v.translation_uk ILIKE pattern OR v.commentary_uk ILIKE pattern OR v.synonyms_uk ILIKE pattern))
+        OR (language_code <> 'uk' AND (v.translation_en ILIKE pattern OR v.commentary_en ILIKE pattern OR v.synonyms_en ILIKE pattern))
         OR v.transliteration ILIKE pattern
         OR v.sanskrit ILIKE pattern
       )
@@ -172,7 +172,7 @@ BEGIN
   )
   SELECT
     b.id as book_id,
-    CASE WHEN language_code = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
+    CASE WHEN language_code = 'uk' THEN b.title_uk ELSE b.title_en END as book_title,
     b.slug as book_slug,
     COUNT(m.id)::int as verse_count,
     ARRAY(
