@@ -1,11 +1,12 @@
 // src/components/mobile/SpineSearchOverlay.tsx
 // Full-screen search overlay for Spine Navigation (Neu Bible-style)
 // ✅ SEARCH BETTER: Like "SPOTLIGHT" - live search results as you type
+// Мінімалістичний дизайн без шапки, без X кнопки
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { X, Search, Book, Hash, User, Clock, BookOpen } from "lucide-react";
+import { Search, Book, Hash, User, Clock, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
@@ -154,13 +155,9 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
     }
 
     // ✅ 2. Enhanced verse reference parsing
-    // Supports: "BG 2.1", "bg2.1", "БГ 2:1", "Bhagavad-gita 2.1", "sb 1.3.19"
     const versePatterns = [
-      // SB-style: book canto.chapter.verse
       /^([a-zA-Zа-яА-ЯіїєґІЇЄҐ-]+)\s*(\d+)[.:](\d+)[.:](\d+)$/,
-      // BG-style: book chapter.verse
       /^([a-zA-Zа-яА-ЯіїєґІЇЄҐ-]+)\s*(\d+)[.:](\d+)$/,
-      // Compact: bg2.1
       /^([a-zA-Zа-яА-ЯіїєґІЇЄҐ]+)(\d+)[.:](\d+)$/,
     ];
 
@@ -175,12 +172,10 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
           let verseDisplay: string;
 
           if (match.length === 5) {
-            // SB-style: canto.chapter.verse
             const [, , canto, chapter, verse] = match;
             path = `/lib/${matchedBook.slug}/${canto}/${chapter}/${verse}`;
             verseDisplay = `${canto}.${chapter}.${verse}`;
           } else {
-            // BG-style: chapter.verse
             const [, , chapter, verse] = match;
             path = `/lib/${matchedBook.slug}/${chapter}/${verse}`;
             verseDisplay = `${chapter}.${verse}`;
@@ -194,15 +189,14 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
             subtitle: t("Перейти до вірша", "Go to verse"),
             path: getLocalizedPath(path),
           });
-          break; // Only add one verse result
+          break;
         }
       }
     }
 
-    // ✅ 3. Optimized verse content search with single joined query
+    // ✅ 3. Optimized verse content search
     if (searchQuery.length >= 3) {
       try {
-        // Single query with joins instead of multiple sequential queries
         const { data: verseData } = await supabase
           .from("verses")
           .select(`
@@ -241,11 +235,6 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
       }
     }
 
-    // ✅ 4. Glossary search disabled - table glossary_terms does not exist in DB
-    // TODO: Re-enable when glossary_terms table is created via migration
-    // The glossary terms are stored in synonyms table, use RPC function search_glossary_terms_v2 instead
-    // if (searchQuery.length >= 2) { ... }
-
     setResults(newResults);
     setIsLoading(false);
   }, [books, language, getLocalizedPath, t]);
@@ -260,7 +249,6 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
   }, [query, performSearch]);
 
   const handleResultClick = (result: SearchResult) => {
-    // ✅ Save to recent searches
     if (query.trim()) {
       addRecentSearch(query.trim());
     }
@@ -307,42 +295,34 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
       className={cn(
         "fixed left-14 top-0 bottom-0 z-[40] flex flex-col",
         "transition-transform duration-300 ease-out",
+        "bg-background",
         isAnimating ? "translate-x-0" : "-translate-x-full"
       )}
       style={{ width: 'calc(100% - 56px)' }}
     >
-      {/* Gradient Header */}
-      <div className="bg-gradient-to-r from-brand-500 to-brand-400 pt-safe">
-        <div className="flex items-center gap-3 px-4 py-4">
-          <div className="relative flex-1">
-            <Input
-              ref={inputRef}
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={t("Пошук книг, віршів...", "Search books, verses...")}
-              className="w-full bg-white/90 border-0 pl-10 pr-4 py-3 text-lg
-                placeholder:text-gray-400 focus-visible:ring-2 focus-visible:ring-white/50
-                rounded-lg shadow-inner"
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="off"
-            />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-          </div>
-          <button
-            onClick={handleClose}
-            className="text-white/80 hover:text-white p-2 -mr-2 transition-colors"
-            aria-label={t("Закрити", "Close")}
-          >
-            <X className="h-6 w-6" />
-          </button>
+      {/* Minimal Search Input - no colored header */}
+      <div className="px-4 pt-safe pb-2 pt-4">
+        <div className="relative">
+          <Input
+            ref={inputRef}
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t("Пошук книг, віршів...", "Search books, verses...")}
+            className="w-full bg-muted/50 border-0 pl-10 pr-4 py-3 text-lg
+              placeholder:text-muted-foreground/60 focus-visible:ring-1 focus-visible:ring-border
+              rounded-lg"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+          />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/60" />
         </div>
       </div>
 
-      {/* Results Area */}
+      {/* Results Area - tap anywhere to close */}
       <div
-        className="flex-1 bg-background/95 backdrop-blur-sm overflow-y-auto"
+        className="flex-1 overflow-y-auto"
         onClick={handleClose}
       >
         <div className="px-4 py-2" onClick={(e) => e.stopPropagation()}>
@@ -356,9 +336,9 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
           {/* No results */}
           {!isLoading && query && results.length === 0 && (
             <div className="py-8 text-center text-muted-foreground">
-              <Search className="h-12 w-12 mx-auto mb-3 opacity-30" />
+              <Search className="h-12 w-12 mx-auto mb-3 opacity-20" />
               <p>{t("Нічого не знайдено", "No results found")}</p>
-              <p className="text-sm mt-1">
+              <p className="text-sm mt-1 text-muted-foreground/60">
                 {t("Спробуйте інший запит", "Try a different search")}
               </p>
             </div>
@@ -366,15 +346,14 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
 
           {/* Results list */}
           {!isLoading && results.length > 0 && (
-            <div className="divide-y divide-border">
-              {/* Group by type - including glossary */}
+            <div className="space-y-1">
               {["verse", "book", "keyword", "glossary"].map((type) => {
                 const typeResults = results.filter(r => r.type === type);
                 if (typeResults.length === 0) return null;
 
                 return (
                   <div key={type} className="py-2">
-                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide px-2 py-2">
+                    <div className="text-xs font-medium text-muted-foreground/60 uppercase tracking-wide px-2 py-2">
                       {type === "book" && t("Книги", "Books")}
                       {type === "verse" && t("Перейти до вірша", "Go to verse")}
                       {type === "keyword" && t("Результати пошуку", "Search results")}
@@ -389,13 +368,13 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
                           "hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
                         )}
                       >
-                        <span className="text-brand-500 mt-0.5">
+                        <span className="text-muted-foreground mt-0.5">
                           {getResultIcon(result.type)}
                         </span>
                         <div className="flex-1 min-w-0">
                           <div className="font-medium truncate">{result.title}</div>
                           {result.subtitle && (
-                            <div className="text-sm text-muted-foreground truncate">
+                            <div className="text-sm text-muted-foreground/70 truncate">
                               {result.subtitle}
                             </div>
                           )}
@@ -408,10 +387,10 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
             </div>
           )}
 
-          {/* ✅ Recent searches when query is empty */}
+          {/* Recent searches when query is empty */}
           {!query && recentSearches.length > 0 && (
             <div className="py-4">
-              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide px-2 py-2">
+              <div className="text-xs font-medium text-muted-foreground/60 uppercase tracking-wide px-2 py-2">
                 {t("Нещодавні пошуки", "Recent searches")}
               </div>
               {recentSearches.map((search, index) => (
@@ -423,21 +402,21 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
                     "hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
                   )}
                 >
-                  <Clock className="h-5 w-5 text-muted-foreground" />
+                  <Clock className="h-5 w-5 text-muted-foreground/60" />
                   <span className="truncate">{search}</span>
                 </button>
               ))}
             </div>
           )}
 
-          {/* Tap to close hint */}
+          {/* Empty state */}
           {!query && recentSearches.length === 0 && (
             <div className="py-16 text-center">
-              <Search className="h-12 w-12 mx-auto mb-3 opacity-20" />
-              <p className="text-muted-foreground/60">
+              <Search className="h-12 w-12 mx-auto mb-3 opacity-10" />
+              <p className="text-muted-foreground/50">
                 {t("Введіть запит для пошуку", "Enter a search query")}
               </p>
-              <p className="text-sm text-muted-foreground/40 mt-2">
+              <p className="text-sm text-muted-foreground/30 mt-2">
                 {t("Наприклад: БГ 2.13 або karma", "E.g.: BG 2.13 or karma")}
               </p>
             </div>

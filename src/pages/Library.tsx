@@ -10,6 +10,7 @@ import { LecturesContent } from '@/components/library/LecturesContent';
 import { LettersContent } from '@/components/library/LettersContent';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MobileLibraryList } from '@/components/mobile/MobileLibraryList';
+import { MobileLecturesTimeline } from '@/components/mobile/MobileLecturesTimeline';
 export const Library = () => {
   const {
     language,
@@ -134,7 +135,11 @@ export const Library = () => {
 
           {/* Lectures Tab */}
           <TabsContent value="lectures">
-            <LecturesContent />
+            {isMobile ? (
+              <MobileLecturesTimeline />
+            ) : (
+              <LecturesContent />
+            )}
           </TabsContent>
 
           {/* Letters Tab */}
