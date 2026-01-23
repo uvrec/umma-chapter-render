@@ -565,14 +565,27 @@ function BooksCarouselModal({
             </p>
           )}
 
-          {/* Select button */}
-          <button
-            onClick={() => onSelect(currentBook.slug)}
-            className="mt-6 w-10 h-10 rounded-full bg-green-500 flex items-center justify-center
-              hover:bg-green-600 transition-colors"
-          >
-            <Check className="w-6 h-6 text-white" />
-          </button>
+          {/* Action buttons */}
+          <div className="flex items-center gap-4 mt-6">
+            {/* Read online button */}
+            <button
+              onClick={() => onSelect(currentBook.slug)}
+              className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center
+                hover:bg-green-600 transition-colors"
+            >
+              <Check className="w-6 h-6 text-white" />
+            </button>
+
+            {/* Buy physical book */}
+            <button
+              onClick={() => window.open("https://books.krishna.ua/", "_blank")}
+              className="px-4 py-2 rounded-full border border-white/30 text-white/80
+                hover:bg-white/10 transition-colors text-sm"
+              style={{ fontFamily: '"Crimson Text", Georgia, serif' }}
+            >
+              Купити
+            </button>
+          </div>
         </div>
 
         {/* Next book preview */}
