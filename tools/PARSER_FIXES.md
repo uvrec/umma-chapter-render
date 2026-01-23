@@ -6,8 +6,8 @@
 ## Виправлення в `playwright_parser.py`
 
 ### 1. Перейменовано поля для ясності
-- `word_by_word` → `synonyms_ua` (послівний переклад українською)
-- `transliteration` → `transliteration_ua` (українська транслітерація)
+- `word_by_word` → `synonyms_uk` (послівний переклад українською)
+- `transliteration` → `transliteration_uk` (українська транслітерація)
 - Додано підтримку `transliteration_en` (англійська IAST)
 
 ### 2. Виправлено логіку парсингу в `parse_gitabase_verse()`
@@ -17,7 +17,7 @@
 - Блоки схожі на транслітерацію просто викидалися
 
 **Тепер:**
-- Зберігаємо блоки з латиницею у `transliteration_ua`
+- Зберігаємо блоки з латиницею у `transliteration_uk`
 - Зберігаємо українську транслітерацію для подальшої нормалізації
 - Послівний переклад зберігається у `synonyms_ua`
 
@@ -28,7 +28,7 @@
 
 ### 4. Оновлено нормалізатор `pre_import_normalizer.py`
 
-- Додано підтримку нових полів `transliteration_ua` та `transliteration_en`
+- Додано підтримку нових полів `transliteration_uk` та `transliteration_en`
 - Зберігається зворотна сумісність зі старим полем `transliteration`
 
 ## Виправлення в `pre_import_normalizer.py`
