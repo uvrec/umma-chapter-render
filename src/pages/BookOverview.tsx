@@ -14,21 +14,17 @@ import { SITE_CONFIG } from "@/lib/constants";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
-// Swipeable row for cantos/chapters with chapter numbers
+// Swipeable row for cantos with chapter numbers
 function SwipeableCantoRow({
   label,
-  subtitle,
   chapterCount,
   onRowClick,
   onChapterClick,
-  t,
 }: {
   label: string;
-  subtitle?: string;
   chapterCount: number;
   onRowClick: () => void;
   onChapterClick: (chapter: number) => void;
-  t: (uk: string, en: string) => string;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [translateX, setTranslateX] = useState(0);
@@ -110,7 +106,7 @@ function SwipeableCantoRow({
         >
           <div className="flex-1 min-w-0">
             <div className="font-medium text-foreground">{label}</div>
-            {subtitle && <div className="text-sm text-muted-foreground">{subtitle}</div>}
+            <div className="text-sm text-muted-foreground">{chapterCount} глав</div>
           </div>
         </div>
 
@@ -466,7 +462,6 @@ export const BookOverview = () => {
               chapterCount={(canto as any).chapter_count || 0}
               onRowClick={() => navigate(getLocalizedPath(`/lib/${bookSlug}/${canto.canto_number}`))}
               onChapterClick={(chapter) => navigate(getLocalizedPath(`/lib/${bookSlug}/${canto.canto_number}/${chapter}`))}
-              t={t}
             />
           )) :
           bookSlug === 'noi' && noiVerses.length > 0 ?
