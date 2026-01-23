@@ -228,19 +228,7 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
           "overflow-y-auto"
         )}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-4 border-b">
-          <h2 className="text-lg font-semibold">{t("Налаштування", "Settings")}</h2>
-          <button
-            onClick={onClose}
-            className="rounded-sm opacity-70 hover:opacity-100 transition-opacity"
-          >
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </button>
-        </div>
-
-        <div className="px-4 py-4 space-y-6">
+        <div className="px-4 py-6 space-y-6">
           {/* 0. GENERAL Section - Reading Reminders */}
           <div>
             <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
