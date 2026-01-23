@@ -142,6 +142,134 @@ function SwipeableCantoRow({
     </div>
   );
 }
+
+// Swipeable row for chapters with verse numbers
+function SwipeableChapterRow({
+  chapterNum,
+  title,
+  verseCount,
+  onRowClick,
+  onVerseClick,
+}: {
+  chapterNum: number;
+  title: string;
+  verseCount: number;
+  onRowClick: () => void;
+  onVerseClick: (verse: number) => void;
+}) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [translateX, setTranslateX] = useState(0);
+  const touchStartRef = useRef<{ x: number } | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartRef.current = { x: e.touches[0].clientX };
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!touchStartRef.current) return;
+    const deltaX = touchStartRef.current.x - e.touches[0].clientX;
+    const containerWidth = containerRef.current?.offsetWidth || 300;
+    if (isExpanded) {
+      const newTranslate = Math.max(0, Math.min(deltaX, containerWidth));
+      setTranslateX(-containerWidth + newTranslate);
+    } else {
+      const newTranslate = Math.max(0, Math.min(deltaX, containerWidth));
+      setTranslateX(-newTranslate);
+    }
+  }, [isExpanded]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!touchStartRef.current) return;
+    const containerWidth = containerRef.current?.offsetWidth || 300;
+    const threshold = containerWidth * 0.3;
+    if (isExpanded) {
+      if (translateX > -containerWidth + threshold) {
+        setIsExpanded(false);
+        setTranslateX(0);
+      } else {
+        setTranslateX(-containerWidth);
+      }
+    } else {
+      if (translateX < -threshold) {
+        setIsExpanded(true);
+        setTranslateX(-containerWidth);
+      } else {
+        setTranslateX(0);
+      }
+    }
+    touchStartRef.current = null;
+  }, [isExpanded, translateX]);
+
+  const handleRowTap = () => {
+    if (!isExpanded) onRowClick();
+  };
+
+  const handleClose = () => {
+    setIsExpanded(false);
+    setTranslateX(0);
+  };
+
+  const verses = Array.from({ length: verseCount }, (_, i) => i + 1);
+  const containerWidth = containerRef.current?.offsetWidth || 300;
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative overflow-hidden touch-pan-y"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      <div
+        className="flex will-change-transform"
+        style={{
+          transform: `translateX(${translateX}px)`,
+          transition: touchStartRef.current ? 'none' : 'transform 200ms ease-out',
+          width: `${containerWidth * 2}px`,
+        }}
+      >
+        {/* Chapter info */}
+        <div
+          className="flex items-center gap-3 px-4 py-4 cursor-pointer active:bg-muted/50"
+          style={{ width: `${containerWidth}px` }}
+          onClick={handleRowTap}
+        >
+          <div className="flex-1 min-w-0">
+            <div className="font-medium text-foreground">{chapterNum}. {title}</div>
+            <div className="text-sm text-muted-foreground">{verseCount} віршів</div>
+          </div>
+        </div>
+
+        {/* Verse numbers */}
+        <div className="flex items-center bg-muted/50" style={{ width: `${containerWidth}px` }}>
+          <button onClick={handleClose} className="h-full px-2 flex items-center text-muted-foreground">
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <div className="flex-1 overflow-x-auto scrollbar-hide">
+            <div className="flex items-center gap-1 px-2 py-2">
+              {verses.map((verse) => (
+                <button
+                  key={verse}
+                  onClick={() => onVerseClick(verse)}
+                  className={cn(
+                    "min-w-[36px] h-9 px-2",
+                    "text-sm font-medium",
+                    "text-foreground hover:text-brand-600 active:text-brand-700",
+                    "rounded-md hover:bg-brand-100/50 active:bg-brand-200/50"
+                  )}
+                >
+                  {verse}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export const BookOverview = () => {
   const {
     bookId,
@@ -205,12 +333,12 @@ export const BookOverview = () => {
     enabled: !!book?.id && book?.has_cantos === true
   });
 
-  // Fetch chapters if book doesn't have cantos
+  // Fetch chapters if book doesn't have cantos (with verse counts)
   const {
     data: chapters = [],
     isLoading: chaptersLoading
   } = useQuery({
-    queryKey: ["chapters", book?.id],
+    queryKey: ["chapters-with-verse-counts", book?.id],
     queryFn: async () => {
       if (!book?.id) return [];
       const {
@@ -218,7 +346,19 @@ export const BookOverview = () => {
         error
       } = await supabase.from("chapters").select("*").eq("book_id", book.id).order("chapter_number");
       if (error) throw error;
-      return data;
+
+      // Fetch verse counts for each chapter
+      const chaptersWithCounts = await Promise.all(
+        (data || []).map(async (chapter) => {
+          const { count } = await supabase
+            .from("verses")
+            .select("*", { count: "exact", head: true })
+            .eq("chapter_id", chapter.id)
+            .is("deleted_at", null);
+          return { ...chapter, verse_count: count || 0 };
+        })
+      );
+      return chaptersWithCounts;
     },
     enabled: !!book?.id && book?.has_cantos !== true
   });
@@ -344,15 +484,14 @@ export const BookOverview = () => {
               </Link>
             )) :
             chapters.map(chapter => (
-              <Link
+              <SwipeableChapterRow
                 key={chapter.id}
-                to={getLocalizedPath(`/lib/${bookSlug}/${chapter.chapter_number}`)}
-                className="block px-4 py-4 active:bg-muted/50"
-              >
-                <div className="font-medium text-foreground">
-                  {language === "uk" ? chapter.title_uk : chapter.title_en}
-                </div>
-              </Link>
+                chapterNum={chapter.chapter_number}
+                title={language === "uk" ? chapter.title_uk : chapter.title_en}
+                verseCount={(chapter as any).verse_count || 0}
+                onRowClick={() => navigate(getLocalizedPath(`/lib/${bookSlug}/${chapter.chapter_number}`))}
+                onVerseClick={(verse) => navigate(getLocalizedPath(`/lib/${bookSlug}/${chapter.chapter_number}/${verse}`))}
+              />
             ))
         }
       </div>
