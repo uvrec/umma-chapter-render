@@ -32,11 +32,11 @@ class VerseDocument:
     verse_number: str
     sanskrit: Optional[str]
     transliteration: Optional[str]
-    synonyms_ua: Optional[str]
+    synonyms_uk: Optional[str]
     synonyms_en: Optional[str]
-    translation_ua: Optional[str]
+    translation_uk: Optional[str]
     translation_en: Optional[str]
-    commentary_ua: Optional[str]
+    commentary_uk: Optional[str]
     commentary_en: Optional[str]
 
 
@@ -89,7 +89,7 @@ class VedavoiceIndexer:
         """Convert a verse to a LlamaIndex Document with rich metadata"""
         book_slug = book.get("slug", "unknown")
         book_meta = BOOK_METADATA.get(book_slug, {})
-        book_title = book_meta.get("title_ua", book.get("title", ""))
+        book_title = book_meta.get("title_uk", book.get("title", ""))
 
         # Build verse reference
         canto = verse.get("canto_number")
@@ -110,25 +110,25 @@ class VedavoiceIndexer:
         # Sanskrit and transliteration
         if verse.get("sanskrit"):
             text_parts.append(f"Санскрит: {verse['sanskrit']}")
-        if verse.get("transliteration_ua") or verse.get("transliteration_en"):
-            translit = verse.get("transliteration_ua") or verse.get("transliteration_en")
+        if verse.get("transliteration_uk") or verse.get("transliteration_en"):
+            translit = verse.get("transliteration_uk") or verse.get("transliteration_en")
             text_parts.append(f"Транслітерація: {translit}")
 
         # Synonyms
-        if verse.get("synonyms_ua"):
-            text_parts.append(f"Послівний переклад: {verse['synonyms_ua']}")
+        if verse.get("synonyms_uk"):
+            text_parts.append(f"Послівний переклад: {verse['synonyms_uk']}")
         elif verse.get("synonyms_en"):
             text_parts.append(f"Word-for-word: {verse['synonyms_en']}")
 
         # Translation
-        if verse.get("translation_ua"):
-            text_parts.append(f"Переклад: {verse['translation_ua']}")
+        if verse.get("translation_uk"):
+            text_parts.append(f"Переклад: {verse['translation_uk']}")
         elif verse.get("translation_en"):
             text_parts.append(f"Translation: {verse['translation_en']}")
 
         # Commentary (purport)
-        if verse.get("commentary_ua"):
-            text_parts.append(f"Коментар: {verse['commentary_ua']}")
+        if verse.get("commentary_uk"):
+            text_parts.append(f"Коментар: {verse['commentary_uk']}")
         elif verse.get("commentary_en"):
             text_parts.append(f"Purport: {verse['commentary_en']}")
 
@@ -142,10 +142,10 @@ class VedavoiceIndexer:
             "author": book_meta.get("author", "Шріла Прабгупада"),
             "canto_number": canto,
             "chapter_number": chapter_num,
-            "chapter_title": chapter.get("title_ua") or chapter.get("title_en", ""),
+            "chapter_title": chapter.get("title_uk") or chapter.get("title_en", ""),
             "verse_number": verse_num,
             "reference": reference,
-            "has_ukrainian": bool(verse.get("translation_ua") or verse.get("commentary_ua")),
+            "has_ukrainian": bool(verse.get("translation_uk") or verse.get("commentary_uk")),
             "content_type": "verse"
         }
 

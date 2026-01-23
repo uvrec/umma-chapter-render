@@ -9,7 +9,7 @@ Extracts Bengali text, transliteration, translation, and purports.
 або вони не авторитетні (коментарі Шанкари, маяваді/шуньяваді/будистів/нью-едж ґуру),
 додаємо пояснення Шріли Прабгупади та ґаудія-вайшнавських ачар'їв ІСККОН.
 
-Зібраний матеріал додавати до поля `purport_ua` / `purport_en` з атрибуцією:
+Зібраний матеріал додавати до поля `purport_uk` / `purport_en` з атрибуцією:
 
     У своєму поясненні до Бгаґ. X.Y.Z Його Божественна Милість
     А.Ч. Бгактіведанта Свамі Прабгупада каже: «...».
@@ -31,12 +31,12 @@ Extracts Bengali text, transliteration, translation, and purports.
 
 МАППІНГ ПОЛІВ (для джерел EN + Sanskrit/Bengali):
 =================================================
-- sanskrit_en / sanskrit_ua — Bengali/Sanskrit (Devanagari script), однаковий вміст
+- sanskrit_en / sanskrit_uk — Bengali/Sanskrit (Devanagari script), однаковий вміст
 - transliteration_en — IAST транслітерація (латинка з діакритикою)
-- transliteration_ua — українська кирилична транслітерація з діакритикою
+- transliteration_uk — українська кирилична транслітерація з діакритикою
   (конвертується з IAST за допомогою tools/translit_normalizer.py)
 - translation_en / purport_en — англійський переклад та пояснення
-- translation_ua / purport_ua — український переклад та пояснення
+- translation_uk / purport_uk — український переклад та пояснення
 """
 
 import json
@@ -477,7 +477,7 @@ PRABHUPADA_PURPORTS_UA = {
 }
 
 # Ukrainian section titles
-SECTION_TITLES_UA = {
+SECTION_TITLES_UK = {
     1: "Вступ",
     2: "Дайн'я (Смирення)",
     3: "Атма-нівéдана (Самовіддача)",
@@ -507,14 +507,14 @@ def parse_all_songs():
                 "section_number": section_num,
                 "title": song_info['section_title'],
                 "title_en": song_info['section_title_en'],
-                "title_ua": SECTION_TITLES_UA.get(section_num, ""),
+                "title_uk": SECTION_TITLES_UK.get(section_num, ""),
                 "songs": []
             }
 
         song_data = {
             "song_number": song_info['song'],
             "title_en": song_info['title'],
-            "title_ua": "",
+            "title_uk": "",
         }
 
         # Fetch Bengali text
@@ -552,7 +552,7 @@ def parse_all_songs():
             for verse_num in sorted(verse_purports.keys()):
                 purport_parts.append(f"Вірш {verse_num}:")
                 purport_parts.extend(verse_purports[verse_num])
-            song_data['purport_ua'] = "\n\n".join(purport_parts)
+            song_data['purport_uk'] = "\n\n".join(purport_parts)
             print(f"    Added Prabhupada purports (UA) for verses: {list(verse_purports.keys())}")
 
         sections[section_num]['songs'].append(song_data)
@@ -565,9 +565,9 @@ def parse_all_songs():
         "book_slug": "saranagati",
         "book_title_en": "Saranagati",
         "book_title_bn": "শরণাগতি",
-        "book_title_ua": "Шаранаґаті",
+        "book_title_uk": "Шаранаґаті",
         "author_en": "Bhaktivinoda Thakura",
-        "author_ua": "Бгактівінод Тхакур",
+        "author_uk": "Бгактівінод Тхакур",
         "source": "https://kksongs.org/authors/literature/saranagati.html",
         "sections": [sections[i] for i in sorted(sections.keys())],
         "total_songs": len(SARANAGATI_SONGS),
