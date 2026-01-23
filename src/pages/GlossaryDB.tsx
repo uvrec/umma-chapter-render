@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
-import { Search, Loader2, ChevronDown, Plus } from "lucide-react";
+import { Search, Loader2, ChevronDown, ChevronRight, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/Header";
@@ -410,31 +410,36 @@ export default function GlossaryDB() {
                 {allGroupedTerms.map((groupedTerm) => {
                   const singleUsageDetails = groupedTerm.usage_count === 1 ? expandedTermDetails[groupedTerm.term]?.[0] : null;
                   const isMultiUsage = groupedTerm.usage_count > 1;
+                  const isLoading = loadingTerms.has(groupedTerm.term);
 
                   return (
                   <div key={groupedTerm.term}>
                     {/* Term row */}
                     {singleUsageDetails ? (
-                      // Single usage - show inline with direct link
-                      <div className="py-2.5 flex items-center justify-between text-left group">
+                      // Single usage - entire row is clickable link
+                      <Link
+                        to={getLocalizedPath(singleUsageDetails.verse_link)}
+                        className="py-2.5 flex items-center justify-between text-left group hover:bg-muted/30 rounded-lg px-2 -mx-2 transition-colors"
+                      >
                         <div className="flex-1 min-w-0">
                           <span className="text-primary font-medium">{groupedTerm.term}</span>
                           <span className="text-muted-foreground mx-2">—</span>
                           <span className="text-foreground">{singleUsageDetails.meaning || groupedTerm.sample_meanings?.[0] || "—"}</span>
                         </div>
-                        <Link
-                          to={getLocalizedPath(singleUsageDetails.verse_link)}
-                          className="ml-4 text-sm text-muted-foreground hover:text-primary transition-colors shrink-0"
-                        >
-                          {singleUsageDetails.canto_number ? `${singleUsageDetails.canto_number}.` : ""}
-                          {singleUsageDetails.chapter_number}.{singleUsageDetails.verse_number}
-                        </Link>
-                      </div>
+                        <div className="ml-4 text-sm text-muted-foreground group-hover:text-primary transition-colors shrink-0 flex items-center gap-2">
+                          <span className="text-xs opacity-60">{singleUsageDetails.book_title}</span>
+                          <span>
+                            {singleUsageDetails.canto_number ? `${singleUsageDetails.canto_number}.` : ""}
+                            {singleUsageDetails.chapter_number}.{singleUsageDetails.verse_number}
+                          </span>
+                          <ChevronRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                      </Link>
                     ) : (
                       // Multi usage or loading - expandable row
                       <button
                         onClick={() => toggleTermExpanded(groupedTerm.term)}
-                        className="w-full py-2.5 flex items-center justify-between hover:bg-muted/30 transition-colors text-left"
+                        className="w-full py-2.5 flex items-center justify-between hover:bg-muted/30 transition-colors text-left rounded-lg px-2 -mx-2"
                       >
                         <div className="flex-1 min-w-0">
                           <span className="text-primary font-medium">{groupedTerm.term}</span>
@@ -445,18 +450,29 @@ export default function GlossaryDB() {
                           )}
                         </div>
                         <div className="flex items-center gap-2 ml-4 shrink-0">
-                          {loadingTerms.has(groupedTerm.term) ? (
+                          {isLoading ? (
                             <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
-                          ) : isMultiUsage && (
+                          ) : (
                             <>
-                              <span className="text-xs text-muted-foreground">
-                                {groupedTerm.usage_count}
-                              </span>
-                              <ChevronDown
-                                className={`h-4 w-4 text-muted-foreground transition-transform ${
-                                  expandedTerms.has(groupedTerm.term) ? "rotate-180" : ""
-                                }`}
-                              />
+                              {/* Show books where term appears */}
+                              {groupedTerm.books && groupedTerm.books.length > 0 && (
+                                <span className="text-xs text-muted-foreground/70">
+                                  {groupedTerm.books.slice(0, 2).join(", ")}
+                                  {groupedTerm.books.length > 2 && ` +${groupedTerm.books.length - 2}`}
+                                </span>
+                              )}
+                              {isMultiUsage && (
+                                <>
+                                  <span className="text-xs text-muted-foreground font-medium">
+                                    {groupedTerm.usage_count}
+                                  </span>
+                                  <ChevronDown
+                                    className={`h-4 w-4 text-muted-foreground transition-transform ${
+                                      expandedTerms.has(groupedTerm.term) ? "rotate-180" : ""
+                                    }`}
+                                  />
+                                </>
+                              )}
                             </>
                           )}
                         </div>
@@ -483,18 +499,23 @@ export default function GlossaryDB() {
                               </div>
                             )}
 
-                            {/* Verses list - minimal */}
+                            {/* Verses list - clickable rows */}
                             {expandedTermDetails[groupedTerm.term].map((item, idx) => (
-                              <div key={idx} className="flex items-center justify-between gap-4 py-0.5 text-sm">
+                              <Link
+                                key={idx}
+                                to={getLocalizedPath(item.verse_link)}
+                                className="flex items-center justify-between gap-4 py-1.5 text-sm hover:bg-muted/30 rounded px-2 -mx-2 transition-colors group"
+                              >
                                 <span className="text-foreground flex-1 min-w-0 truncate">{item.meaning || "—"}</span>
-                                <Link
-                                  to={getLocalizedPath(item.verse_link)}
-                                  className="text-muted-foreground hover:text-primary transition-colors shrink-0"
-                                >
-                                  {item.canto_number ? `${item.canto_number}.` : ""}
-                                  {item.chapter_number}.{item.verse_number}
-                                </Link>
-                              </div>
+                                <span className="text-muted-foreground group-hover:text-primary transition-colors shrink-0 flex items-center gap-2">
+                                  <span className="text-xs opacity-60">{item.book_title}</span>
+                                  <span>
+                                    {item.canto_number ? `${item.canto_number}.` : ""}
+                                    {item.chapter_number}.{item.verse_number}
+                                  </span>
+                                  <ChevronRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </span>
+                              </Link>
                             ))}
                           </>
                         ) : null}
