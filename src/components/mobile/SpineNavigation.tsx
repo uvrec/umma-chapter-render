@@ -180,7 +180,7 @@ export function SpineNavigation({
     return (
       <button
         onClick={() => setIsExpanded(true)}
-        className="fixed left-0 top-1/2 -translate-y-1/2 z-50
+        className="fixed left-0 top-1/2 -translate-y-1/2 z-[60]
           w-2 h-20 bg-brand-500 rounded-r-full
           hover:w-3 transition-all duration-200
           active:bg-brand-600"
@@ -194,7 +194,7 @@ export function SpineNavigation({
       {/* Main Spine Bar - on the LEFT side */}
       <nav
         className={cn(
-          "spine-navigation fixed left-0 top-0 bottom-0 z-50",
+          "spine-navigation fixed left-0 top-0 bottom-0 z-[60]",
           "w-16 flex flex-col items-center justify-between py-6",
           "bg-gradient-to-b",
           spineTheme.gradient,
