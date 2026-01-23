@@ -430,9 +430,12 @@ export const BookOverview = () => {
         <meta name="description" content={bookDescription || `${bookTitle} - ${t('священне писання ведичної традиції', 'sacred scripture of the Vedic tradition')}`} />
       </Helmet>
 
-      {/* Book Title - minimalist */}
+      {/* Book Title and Description */}
       <div className="px-4 pt-6 pb-4 text-center">
         <h1 className="text-2xl font-bold text-primary">{bookTitle}</h1>
+        {bookDescription && (
+          <p className="text-sm text-muted-foreground mt-2">{bookDescription}</p>
+        )}
       </div>
 
       {/* Cantos/Chapters - swipeable rows like library */}

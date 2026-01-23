@@ -20,6 +20,8 @@ import {
   Facebook,
   Instagram,
   Youtube,
+  X,
+  Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -93,6 +95,8 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
   const navigate = useNavigate();
   const [showRemindersSheet, setShowRemindersSheet] = useState(false);
   const [reminders, setReminders] = useState<ReminderSettings>(loadReminders);
+  const [showBooksModal, setShowBooksModal] = useState(false);
+  const [selectedBookIndex, setSelectedBookIndex] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -104,13 +108,13 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
     setDualLanguageMode,
   } = useReaderSettings();
 
-  // Fetch real books from library
+  // Fetch real books from library with descriptions
   const { data: books = [] } = useQuery({
     queryKey: ["settings-books"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("books")
-        .select("id, slug, title_uk, title_en, cover_image_url")
+        .select("id, slug, title_uk, title_en, cover_image_url, description_uk, description_en")
         .eq("is_published", true)
         .order("display_order");
       if (error) throw error;
@@ -123,8 +127,14 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
     onClose();
   };
 
-  const handleBookClick = (slug: string) => {
+  const handleBookCardClick = (index: number) => {
+    setSelectedBookIndex(index);
+    setShowBooksModal(true);
+  };
+
+  const handleSelectBook = (slug: string) => {
     navigate(getLocalizedPath(`/lib/${slug}`));
+    setShowBooksModal(false);
     onClose();
   };
 
@@ -304,10 +314,10 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
             className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide"
             style={{ scrollSnapType: "x mandatory" }}
           >
-            {books.map((book) => (
+            {books.map((book, index) => (
               <button
                 key={book.id}
-                onClick={() => handleBookClick(book.slug)}
+                onClick={() => handleBookCardClick(index)}
                 className={cn(
                   "flex-shrink-0 w-20 h-28 rounded-lg overflow-hidden relative",
                   "transition-transform active:scale-95",
@@ -414,6 +424,17 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
         </div>
       </div>
 
+      {/* Full-screen Books Carousel Modal */}
+      {showBooksModal && books.length > 0 && (
+        <BooksCarouselModal
+          books={books}
+          initialIndex={selectedBookIndex}
+          onSelect={handleSelectBook}
+          onClose={() => setShowBooksModal(false)}
+          language={language}
+        />
+      )}
+
       {/* Reading Reminders Sheet */}
       {showRemindersSheet && (
         <ReadingRemindersSheet
@@ -425,6 +446,167 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
         />
       )}
     </>
+  );
+}
+
+// Full-screen Books Carousel Modal (Neu Bible style)
+interface Book {
+  id: string;
+  slug: string;
+  title_uk: string | null;
+  title_en: string | null;
+  cover_image_url: string | null;
+  description_uk: string | null;
+  description_en: string | null;
+}
+
+interface BooksCarouselModalProps {
+  books: Book[];
+  initialIndex: number;
+  onSelect: (slug: string) => void;
+  onClose: () => void;
+  language: "uk" | "en";
+}
+
+function BooksCarouselModal({
+  books,
+  initialIndex,
+  onSelect,
+  onClose,
+  language,
+}: BooksCarouselModalProps) {
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const touchStartX = useRef<number | null>(null);
+
+  const currentBook = books[currentIndex];
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+
+    const touchEndX = e.changedTouches[0].clientX;
+    const deltaX = touchStartX.current - touchEndX;
+    const threshold = 50;
+
+    if (Math.abs(deltaX) > threshold) {
+      if (deltaX > 0 && currentIndex < books.length - 1) {
+        setCurrentIndex(currentIndex + 1);
+      } else if (deltaX < 0 && currentIndex > 0) {
+        setCurrentIndex(currentIndex - 1);
+      }
+    }
+
+    touchStartX.current = null;
+  };
+
+  const getTitle = (book: Book) =>
+    language === "uk" ? (book.title_uk || book.title_en) : (book.title_en || book.title_uk);
+
+  const getDescription = (book: Book) =>
+    language === "uk" ? (book.description_uk || book.description_en) : (book.description_en || book.description_uk);
+
+  return (
+    <div className="fixed inset-0 z-[100] bg-black/90 flex flex-col">
+      {/* Carousel area */}
+      <div
+        className="flex-1 flex items-center justify-center px-8"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Previous book preview */}
+        {currentIndex > 0 && (
+          <div className="absolute left-2 w-16 h-24 rounded-lg overflow-hidden opacity-40">
+            {books[currentIndex - 1].cover_image_url ? (
+              <img
+                src={books[currentIndex - 1].cover_image_url!}
+                alt=""
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-muted" />
+            )}
+          </div>
+        )}
+
+        {/* Current book */}
+        <div className="flex flex-col items-center max-w-xs">
+          <div className="w-44 h-64 rounded-xl shadow-2xl overflow-hidden">
+            {currentBook.cover_image_url ? (
+              <img
+                src={currentBook.cover_image_url}
+                alt={getTitle(currentBook) || ""}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-primary/30 to-primary/60 flex items-center justify-center">
+                <span className="text-4xl opacity-50">📖</span>
+              </div>
+            )}
+          </div>
+
+          {/* Title */}
+          <h2 className="text-white text-xl font-semibold mt-6 text-center italic">
+            {getTitle(currentBook)}
+          </h2>
+
+          {/* Description */}
+          {getDescription(currentBook) && (
+            <p className="text-white/70 text-sm text-center mt-3 px-4 leading-relaxed line-clamp-4">
+              {getDescription(currentBook)}
+            </p>
+          )}
+
+          {/* Select button */}
+          <button
+            onClick={() => onSelect(currentBook.slug)}
+            className="mt-6 w-10 h-10 rounded-full bg-green-500 flex items-center justify-center
+              hover:bg-green-600 transition-colors"
+          >
+            <Check className="w-6 h-6 text-white" />
+          </button>
+        </div>
+
+        {/* Next book preview */}
+        {currentIndex < books.length - 1 && (
+          <div className="absolute right-2 w-16 h-24 rounded-lg overflow-hidden opacity-40">
+            {books[currentIndex + 1].cover_image_url ? (
+              <img
+                src={books[currentIndex + 1].cover_image_url!}
+                alt=""
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-muted" />
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Dot indicators */}
+      <div className="flex justify-center gap-2 pb-4">
+        {books.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentIndex(index)}
+            className={cn(
+              "w-2 h-2 rounded-full transition-colors",
+              index === currentIndex ? "bg-white" : "bg-white/30"
+            )}
+          />
+        ))}
+      </div>
+
+      {/* Close button */}
+      <button
+        onClick={onClose}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/60 hover:text-white"
+      >
+        <X className="w-8 h-8" />
+      </button>
+    </div>
   );
 }
 
