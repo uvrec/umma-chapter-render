@@ -432,9 +432,19 @@ export const BookOverview = () => {
 
       {/* Book Title and Description */}
       <div className="px-4 pt-6 pb-4 text-center">
-        <h1 className="text-2xl font-bold text-primary">{bookTitle}</h1>
+        <h1
+          className="text-2xl text-primary"
+          style={{ fontFamily: '"Crimson Text", Georgia, serif', fontStyle: 'italic', fontWeight: 400 }}
+        >
+          {bookTitle}
+        </h1>
         {bookDescription && (
-          <p className="text-sm text-muted-foreground mt-2">{bookDescription}</p>
+          <p
+            className="text-sm text-muted-foreground mt-3 leading-relaxed"
+            style={{ fontFamily: '"Crimson Text", Georgia, serif' }}
+          >
+            {bookDescription}
+          </p>
         )}
       </div>
 

@@ -547,14 +547,20 @@ function BooksCarouselModal({
             )}
           </div>
 
-          {/* Title */}
-          <h2 className="text-white text-xl font-semibold mt-6 text-center italic">
+          {/* Title - Crimson Text italic */}
+          <h2
+            className="text-white text-xl mt-6 text-center"
+            style={{ fontFamily: '"Crimson Text", Georgia, serif', fontStyle: 'italic', fontWeight: 400 }}
+          >
             {getTitle(currentBook)}
           </h2>
 
-          {/* Description */}
+          {/* Description - Crimson Text */}
           {getDescription(currentBook) && (
-            <p className="text-white/70 text-sm text-center mt-3 px-4 leading-relaxed line-clamp-4">
+            <p
+              className="text-white/70 text-sm text-center mt-3 px-4 leading-relaxed line-clamp-4"
+              style={{ fontFamily: '"Crimson Text", Georgia, serif' }}
+            >
               {getDescription(currentBook)}
             </p>
           )}
