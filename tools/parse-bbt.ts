@@ -372,8 +372,14 @@ function parseVentura(text: string): Chapter {
         const synonyms = processSynonyms(content);
         currentVerse.synonyms_ua = currentVerse.synonyms_ua ? currentVerse.synonyms_ua + " " + synonyms : synonyms;
       }
-    } else if (currentTag === "translation") {
-      if (currentVerse) currentVerse.translation_ua = processProse(content, false);
+    } else if (currentTag === "translation" || currentTag === "translation2") {
+      if (currentVerse) {
+        const trans = processProse(content, false);
+        // Для здвоєних віршів може бути @translation і @translation2 - об'єднуємо
+        currentVerse.translation_ua = currentVerse.translation_ua
+          ? currentVerse.translation_ua + "\n\n" + trans
+          : trans;
+      }
     } else if (currentTag === "p-indent") {
       if (currentVerse) {
         const para = processFirstParagraph(content);
