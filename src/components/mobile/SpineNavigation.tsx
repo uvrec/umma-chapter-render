@@ -205,6 +205,9 @@ export function SpineNavigation({
     );
   }
 
+  // Check if settings panel is open - Spine becomes theme-only mode
+  const isSettingsMode = activePanel === "settings";
+
   return (
     <>
       {/* Main Spine Bar - on the LEFT side */}
@@ -218,84 +221,110 @@ export function SpineNavigation({
         )}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
-        aria-label={t("Бокова навігація", "Spine navigation")}
+        aria-label={isSettingsMode ? t("Зміна теми", "Theme changer") : t("Бокова навігація", "Spine navigation")}
       >
-        {/* Top section - Theme change arrows */}
-        <div className="flex flex-col items-center gap-4">
-          <button
-            onClick={() => setSpineThemeIndex((prev) =>
-              prev === 0 ? SPINE_THEMES.length - 1 : prev - 1
-            )}
-            className="spine-btn w-10 h-10 flex items-center justify-center
-              text-white/60 hover:text-white hover:bg-white/10
-              rounded-full transition-colors"
-            aria-label={t("Попередня тема", "Previous theme")}
-          >
-            <ChevronUp className="h-5 w-5" />
-          </button>
-        </div>
+        {/* Settings mode: empty spine with only close button */}
+        {isSettingsMode ? (
+          <>
+            {/* Empty top area - swipe here to change theme */}
+            <div className="flex-1 w-full flex flex-col items-center justify-center">
+              {/* Hint text for swipe */}
+              <div className="text-white/40 text-xs text-center px-2 rotate-90 whitespace-nowrap">
+                {t("↑↓ тема", "↑↓ theme")}
+              </div>
+            </div>
 
-        {/* Middle section - Main action buttons */}
-        <div className="flex flex-col items-center gap-3">
-          {spineButtons.filter(btn => btn.show).map((btn) => {
-            const Icon = btn.icon;
-            return (
-              <button
-                key={btn.id}
-                onClick={btn.onClick}
-                className={cn(
-                  "spine-btn w-10 h-10 flex items-center justify-center",
-                  "rounded-full transition-all duration-200",
-                  btn.active
-                    ? "bg-white text-brand-600 shadow-md scale-110"
-                    : "text-white/80 hover:text-white hover:bg-white/10"
-                )}
-                aria-label={btn.label}
-                aria-pressed={btn.active}
-              >
-                <Icon className="h-5 w-5" />
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Bottom section - Timeline, theme down arrow, and close */}
-        <div className="flex flex-col items-center gap-3">
-          {showTimeline && (
+            {/* Only X button at bottom */}
             <button
-              onClick={handleTimelineClick}
-              className={cn(
-                "spine-btn w-10 h-10 flex items-center justify-center",
-                "text-white/80 hover:text-white hover:bg-white/10",
-                "rounded-full transition-colors",
-                location.pathname.includes("/timeline") && "bg-white/20 text-white"
-              )}
-              aria-label={t("Історія", "Timeline")}
+              onClick={closePanel}
+              className="spine-btn w-10 h-10 flex items-center justify-center
+                text-white/80 hover:text-white hover:bg-white/10
+                rounded-full transition-colors"
+              aria-label={t("Закрити", "Close")}
             >
-              <Clock className="h-5 w-5" />
+              <X className="h-5 w-5" />
             </button>
-          )}
+          </>
+        ) : (
+          <>
+            {/* Top section - Theme change arrows */}
+            <div className="flex flex-col items-center gap-4">
+              <button
+                onClick={() => setSpineThemeIndex((prev) =>
+                  prev === 0 ? SPINE_THEMES.length - 1 : prev - 1
+                )}
+                className="spine-btn w-10 h-10 flex items-center justify-center
+                  text-white/60 hover:text-white hover:bg-white/10
+                  rounded-full transition-colors"
+                aria-label={t("Попередня тема", "Previous theme")}
+              >
+                <ChevronUp className="h-5 w-5" />
+              </button>
+            </div>
 
-          <button
-            onClick={() => setSpineThemeIndex((prev) => (prev + 1) % SPINE_THEMES.length)}
-            className="spine-btn w-10 h-10 flex items-center justify-center
-              text-white/60 hover:text-white hover:bg-white/10
-              rounded-full transition-colors"
-            aria-label={t("Наступна тема", "Next theme")}
-          >
-            <ChevronDown className="h-5 w-5" />
-          </button>
+            {/* Middle section - Main action buttons */}
+            <div className="flex flex-col items-center gap-3">
+              {spineButtons.filter(btn => btn.show).map((btn) => {
+                const Icon = btn.icon;
+                return (
+                  <button
+                    key={btn.id}
+                    onClick={btn.onClick}
+                    className={cn(
+                      "spine-btn w-10 h-10 flex items-center justify-center",
+                      "rounded-full transition-all duration-200",
+                      btn.active
+                        ? "bg-white text-brand-600 shadow-md scale-110"
+                        : "text-white/80 hover:text-white hover:bg-white/10"
+                    )}
+                    aria-label={btn.label}
+                    aria-pressed={btn.active}
+                  >
+                    <Icon className="h-5 w-5" />
+                  </button>
+                );
+              })}
+            </div>
 
-          <button
-            onClick={() => setIsExpanded(false)}
-            className="spine-btn w-10 h-10 flex items-center justify-center
-              text-white/60 hover:text-white hover:bg-white/10
-              rounded-full transition-colors mt-2"
-            aria-label={t("Згорнути", "Collapse")}
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+            {/* Bottom section - Timeline, theme down arrow, and close */}
+            <div className="flex flex-col items-center gap-3">
+              {showTimeline && (
+                <button
+                  onClick={handleTimelineClick}
+                  className={cn(
+                    "spine-btn w-10 h-10 flex items-center justify-center",
+                    "text-white/80 hover:text-white hover:bg-white/10",
+                    "rounded-full transition-colors",
+                    location.pathname.includes("/timeline") && "bg-white/20 text-white"
+                  )}
+                  aria-label={t("Історія", "Timeline")}
+                >
+                  <Clock className="h-5 w-5" />
+                </button>
+              )}
+
+              <button
+                onClick={() => setSpineThemeIndex((prev) => (prev + 1) % SPINE_THEMES.length)}
+                className="spine-btn w-10 h-10 flex items-center justify-center
+                  text-white/60 hover:text-white hover:bg-white/10
+                  rounded-full transition-colors"
+                aria-label={t("Наступна тема", "Next theme")}
+              >
+                <ChevronDown className="h-5 w-5" />
+              </button>
+
+              <button
+                onClick={() => setIsExpanded(false)}
+                className="spine-btn w-10 h-10 flex items-center justify-center
+                  text-white/60 hover:text-white hover:bg-white/10
+                  rounded-full transition-colors mt-2"
+                aria-label={t("Згорнути", "Collapse")}
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          </>
+        )}
       </nav>
 
       {/* Panels that slide in from the left */}
