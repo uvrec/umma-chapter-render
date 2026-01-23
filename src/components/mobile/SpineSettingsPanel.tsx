@@ -3,6 +3,7 @@
 // Панель налаштувань: нагадування, читання, книги, про нас, контакти
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
 // Sheet replaced with custom implementation for Spine offset support
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -10,18 +11,15 @@ import { Separator } from "@/components/ui/separator";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Info,
   ChevronRight,
-  Check,
-  X,
   MessageCircle,
-  Lock,
   Send,
   Facebook,
   Instagram,
   Youtube,
-  Heart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -29,69 +27,6 @@ interface SpineSettingsPanelProps {
   open: boolean;
   onClose: () => void;
 }
-
-// Book/Translation source definitions for VedaVoice
-// Books can be: available (free/owned) or purchasable (with price)
-const BOOK_SOURCES = [
-  {
-    id: "prabhupada-uk",
-    title_uk: "Прабгупада солов'їною",
-    title_en: "Prabhupada in Ukrainian",
-    description_uk: "Офіційний український переклад творів Шріли Прабгупади. Безкоштовно для всіх читачів.",
-    description_en: "Official Ukrainian translation of Srila Prabhupada's works. Free for all readers.",
-    coverImage: "/images/books/prabhupada-uk-cover.jpg",
-    bgColor: "bg-gradient-to-br from-amber-600 to-orange-700",
-    available: true,
-    price: null,
-  },
-  {
-    id: "prabhupada-en",
-    title_uk: "Оригінал (English)",
-    title_en: "Original (English)",
-    description_uk: "Оригінальні твори Шріли Прабгупади англійською мовою - класичні переклади BBT.",
-    description_en: "Original works by Srila Prabhupada in English - classic BBT translations.",
-    coverImage: "/images/books/prabhupada-en-cover.jpg",
-    bgColor: "bg-gradient-to-br from-slate-700 to-slate-900",
-    available: true,
-    price: null,
-  },
-  {
-    id: "original-1972",
-    title_uk: "Оригінал 1972",
-    title_en: "Original 1972 Edition",
-    description_uk: "Оригінальне видання Бгаґавад-ґіти 1972 року, надруковане за життя Шріли Прабгупади.",
-    description_en: "Original 1972 Bhagavad-gita edition, printed during Srila Prabhupada's lifetime.",
-    coverImage: "/images/books/bg-1972-cover.jpg",
-    bgColor: "bg-gradient-to-br from-red-800 to-red-950",
-    available: false,
-    price: "4.99 €",
-    purchaseUrl: "https://store.krishna.org.ua/bg-1972",
-  },
-  {
-    id: "visvanatha",
-    title_uk: "Вішванатха Чакраварті",
-    title_en: "Visvanatha Chakravarti",
-    description_uk: "Коментарі Шріли Вішванатхи Чакраварті Тгакура до Бгаґавад-ґіти та Шрімад-Бгаґаватам.",
-    description_en: "Commentaries by Srila Visvanatha Chakravarti Thakura on Bhagavad-gita and Srimad-Bhagavatam.",
-    coverImage: "/images/books/visvanatha-cover.jpg",
-    bgColor: "bg-gradient-to-br from-purple-700 to-indigo-900",
-    available: false,
-    price: "6.99 €",
-    purchaseUrl: "https://store.krishna.org.ua/visvanatha",
-  },
-  {
-    id: "baladeva",
-    title_uk: "Баладева Відьябгушана",
-    title_en: "Baladeva Vidyabhusana",
-    description_uk: "Ґовінда-бгаш'я - коментар Шріли Баладеви Відьябгушани до Веданта-сутри.",
-    description_en: "Govinda-bhashya - Srila Baladeva Vidyabhusana's commentary on Vedanta-sutra.",
-    coverImage: "/images/books/baladeva-cover.jpg",
-    bgColor: "bg-gradient-to-br from-teal-700 to-cyan-900",
-    available: false,
-    price: "5.99 €",
-    purchaseUrl: "https://store.krishna.org.ua/baladeva",
-  },
-] as const;
 
 // Reading reminders localStorage key
 const REMINDERS_STORAGE_KEY = "vv_reading_reminders";
@@ -156,11 +91,8 @@ const SOCIAL_LINKS = [
 export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
   const { language, setLanguage, t, getLocalizedPath } = useLanguage();
   const navigate = useNavigate();
-  const [showBooksModal, setShowBooksModal] = useState(false);
-  const [selectedBookIndex, setSelectedBookIndex] = useState(0);
   const [showRemindersSheet, setShowRemindersSheet] = useState(false);
   const [reminders, setReminders] = useState<ReminderSettings>(loadReminders);
-  const [activeBookId, setActiveBookId] = useState("prabhupada-uk");
   const carouselRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -172,21 +104,28 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
     setDualLanguageMode,
   } = useReaderSettings();
 
+  // Fetch real books from library
+  const { data: books = [] } = useQuery({
+    queryKey: ["settings-books"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("books")
+        .select("id, slug, title_uk, title_en, cover_image_url")
+        .eq("is_published", true)
+        .order("display_order");
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
   const handleNavigate = (path: string) => {
     navigate(getLocalizedPath(path));
     onClose();
   };
 
-  const handleSelectBook = (id: string) => {
-    const book = BOOK_SOURCES.find(b => b.id === id);
-    if (book?.available) {
-      setActiveBookId(id);
-    }
-  };
-
-  const handleBookCardClick = (index: number) => {
-    setSelectedBookIndex(index);
-    setShowBooksModal(true);
+  const handleBookClick = (slug: string) => {
+    navigate(getLocalizedPath(`/lib/${slug}`));
+    onClose();
   };
 
   const handleRemindersToggle = (enabled: boolean) => {
@@ -203,10 +142,6 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
     setReminders(settings);
     saveReminders(settings);
     setShowRemindersSheet(false);
-  };
-
-  const handlePurchase = (url: string) => {
-    window.open(url, "_blank");
   };
 
   if (!open) return null;
@@ -363,45 +298,37 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
 
           <Separator />
 
-          {/* Books Carousel - no header */}
+          {/* Books Carousel - real books from library */}
           <div
             ref={carouselRef}
             className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide"
             style={{ scrollSnapType: "x mandatory" }}
           >
-            {BOOK_SOURCES.map((book, index) => {
-              const isActive = activeBookId === book.id;
-              return (
-                <button
-                  key={book.id}
-                  onClick={() => handleBookCardClick(index)}
-                  className={cn(
-                    "flex-shrink-0 w-28 h-40 rounded-lg overflow-hidden relative",
-                    "transition-transform active:scale-95",
-                    book.bgColor,
-                    "shadow-md"
-                  )}
-                  style={{ scrollSnapAlign: "start" }}
-                >
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-2">
-                    <span className="text-[10px] font-medium text-center leading-tight">
-                      {language === "uk" ? book.title_uk : book.title_en}
-                    </span>
+            {books.map((book) => (
+              <button
+                key={book.id}
+                onClick={() => handleBookClick(book.slug)}
+                className={cn(
+                  "flex-shrink-0 w-20 h-28 rounded-lg overflow-hidden relative",
+                  "transition-transform active:scale-95",
+                  "shadow-md bg-muted"
+                )}
+                style={{ scrollSnapAlign: "start" }}
+              >
+                {book.cover_image_url ? (
+                  <img
+                    src={book.cover_image_url}
+                    alt={language === "uk" ? book.title_uk : book.title_en}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
+                    <span className="text-2xl opacity-50">📖</span>
                   </div>
-                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
-                    {isActive ? (
-                      <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
-                        <Check className="w-3 h-3 text-white" />
-                      </div>
-                    ) : !book.available ? (
-                      <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-                        <Lock className="w-3 h-3 text-white/70" />
-                      </div>
-                    ) : null}
-                  </div>
-                </button>
-              );
-            })}
+                )}
+              </button>
+            ))}
           </div>
 
           <Separator />
@@ -487,20 +414,6 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
         </div>
       </div>
 
-      {/* Full-screen Books Carousel Modal */}
-      {showBooksModal && (
-        <BooksCarouselModal
-          open={showBooksModal}
-          onClose={() => setShowBooksModal(false)}
-          books={BOOK_SOURCES}
-          initialIndex={selectedBookIndex}
-          activeId={activeBookId}
-          onSelect={handleSelectBook}
-          onPurchase={handlePurchase}
-          language={language}
-        />
-      )}
-
       {/* Reading Reminders Sheet */}
       {showRemindersSheet && (
         <ReadingRemindersSheet
@@ -512,173 +425,6 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
         />
       )}
     </>
-  );
-}
-
-// Full-screen Books carousel modal (like Neu Bible)
-interface BooksCarouselModalProps {
-  open: boolean;
-  onClose: () => void;
-  books: typeof BOOK_SOURCES;
-  initialIndex: number;
-  activeId: string;
-  onSelect: (id: string) => void;
-  onPurchase: (url: string) => void;
-  language: "uk" | "en";
-}
-
-function BooksCarouselModal({
-  open,
-  onClose,
-  books,
-  initialIndex,
-  activeId,
-  onSelect,
-  onPurchase,
-  language,
-}: BooksCarouselModalProps) {
-  const [currentIndex, setCurrentIndex] = useState(initialIndex);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const touchStartX = useRef<number | null>(null);
-
-  const currentBook = books[currentIndex];
-  const isActive = activeId === currentBook.id;
-  const isAvailable = currentBook.available;
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current === null) return;
-
-    const touchEndX = e.changedTouches[0].clientX;
-    const deltaX = touchStartX.current - touchEndX;
-    const threshold = 50;
-
-    if (Math.abs(deltaX) > threshold) {
-      if (deltaX > 0 && currentIndex < books.length - 1) {
-        setCurrentIndex(currentIndex + 1);
-      } else if (deltaX < 0 && currentIndex > 0) {
-        setCurrentIndex(currentIndex - 1);
-      }
-    }
-
-    touchStartX.current = null;
-  };
-
-  const handleSelect = () => {
-    if (isAvailable) {
-      onSelect(currentBook.id);
-      onClose();
-    } else if ("purchaseUrl" in currentBook && currentBook.purchaseUrl) {
-      onPurchase(currentBook.purchaseUrl);
-    }
-  };
-
-  if (!open) return null;
-
-  return (
-    <div className="fixed inset-0 z-[100] bg-black/90 flex flex-col">
-      {/* Carousel area */}
-      <div
-        ref={containerRef}
-        className="flex-1 flex items-center justify-center px-8"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
-        {/* Previous card preview */}
-        {currentIndex > 0 && (
-          <div
-            className={cn(
-              "absolute left-2 w-16 h-24 rounded-lg opacity-40",
-              books[currentIndex - 1].bgColor
-            )}
-          />
-        )}
-
-        {/* Current card */}
-        <div className="flex flex-col items-center max-w-xs">
-          <div
-            className={cn(
-              "w-44 h-64 rounded-xl shadow-2xl flex items-center justify-center text-white p-4",
-              currentBook.bgColor
-            )}
-          >
-            <span className="text-sm font-medium text-center leading-tight opacity-80">
-              {language === "uk" ? currentBook.title_uk : currentBook.title_en}
-            </span>
-          </div>
-
-          {/* Title */}
-          <h2 className="text-white text-xl font-semibold mt-6 text-center italic">
-            {language === "uk" ? currentBook.title_uk : currentBook.title_en}
-          </h2>
-
-          {/* Description */}
-          <p className="text-white/70 text-sm text-center mt-3 px-4 leading-relaxed">
-            {language === "uk" ? currentBook.description_uk : currentBook.description_en}
-          </p>
-
-          {/* Action button: Select (if available/active) or Buy (if not available) */}
-          <div className="mt-6">
-            {isActive ? (
-              <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
-                <Check className="w-6 h-6 text-white" />
-              </div>
-            ) : isAvailable ? (
-              <button
-                onClick={handleSelect}
-                className="px-6 py-2 border border-white/30 rounded-full text-white/80
-                  hover:bg-white/10 transition-colors"
-              >
-                {language === "uk" ? "Обрати" : "Select"}
-              </button>
-            ) : (
-              <button
-                onClick={handleSelect}
-                className="px-6 py-2 border border-white/30 rounded-full text-white/80
-                  hover:bg-white/10 transition-colors"
-              >
-                {currentBook.price}
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Next card preview */}
-        {currentIndex < books.length - 1 && (
-          <div
-            className={cn(
-              "absolute right-2 w-16 h-24 rounded-lg opacity-40",
-              books[currentIndex + 1].bgColor
-            )}
-          />
-        )}
-      </div>
-
-      {/* Dot indicators */}
-      <div className="flex justify-center gap-2 pb-4">
-        {books.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentIndex(index)}
-            className={cn(
-              "w-2 h-2 rounded-full transition-colors",
-              index === currentIndex ? "bg-white" : "bg-white/30"
-            )}
-          />
-        ))}
-      </div>
-
-      {/* Close button */}
-      <button
-        onClick={onClose}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/60 hover:text-white"
-      >
-        <X className="w-8 h-8" />
-      </button>
-    </div>
   );
 }
 
