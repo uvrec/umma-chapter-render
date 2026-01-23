@@ -1,6 +1,7 @@
 // src/components/mobile/SpineNavigation.tsx
 // Neu Bible-style spine (sidebar) navigation for mobile
 // Бокова навігаційна панель з іконками для доступу до ключових функцій
+// Підтримує drag для відкриття Timeline панелі
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -21,8 +22,9 @@ import { SpineTypographyPanel } from "./SpineTypographyPanel";
 import { SpineSearchOverlay } from "./SpineSearchOverlay";
 import { SpineSettingsPanel } from "./SpineSettingsPanel";
 import { SpineTocPanel } from "./SpineTocPanel";
+import { SpineTimelinePanel } from "./SpineTimelinePanel";
 
-type SpinePanel = "none" | "toc" | "typography" | "search" | "settings";
+type SpinePanel = "none" | "toc" | "typography" | "search" | "settings" | "timeline";
 
 // Spine color themes (like Neu Bible)
 const SPINE_THEMES = [
@@ -93,9 +95,14 @@ export function SpineNavigation({
     return isNaN(idx) ? 0 : idx % SPINE_THEMES.length;
   });
 
-  // Swipe tracking
+  // Swipe tracking for vertical (theme change) and horizontal (timeline drag)
   const touchStartY = useRef<number | null>(null);
+  const touchStartX = useRef<number | null>(null);
   const spineTheme = SPINE_THEMES[spineThemeIndex];
+
+  // Drag state for timeline reveal
+  const [dragOffset, setDragOffset] = useState(0);
+  const isDragging = useRef(false);
 
   // Save theme preference
   useEffect(() => {
@@ -110,31 +117,70 @@ export function SpineNavigation({
     }
   }, [shouldOpenSearch, resetSearchTrigger]);
 
-  // Handle swipe on spine to change theme
+  // Handle touch start - track both X and Y
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
+    touchStartX.current = e.touches[0].clientX;
+    isDragging.current = false;
   };
 
+  // Handle touch move - for horizontal drag
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+
+    const touchX = e.touches[0].clientX;
+    const deltaX = touchX - touchStartX.current;
+
+    // If moving horizontally more than vertically, start dragging
+    if (Math.abs(deltaX) > 10) {
+      isDragging.current = true;
+      // Limit drag to positive values (right direction) with max 300px
+      setDragOffset(Math.min(300, Math.max(0, deltaX)));
+    }
+  };
+
+  // Handle touch end - determine action
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartY.current === null) return;
-
+    const touchEndX = e.changedTouches[0].clientX;
     const touchEndY = e.changedTouches[0].clientY;
-    const deltaY = touchStartY.current - touchEndY;
-    const threshold = 50; // minimum swipe distance
 
-    if (Math.abs(deltaY) > threshold) {
-      if (deltaY > 0) {
-        // Swipe up - next theme
-        setSpineThemeIndex((prev) => (prev + 1) % SPINE_THEMES.length);
-      } else {
-        // Swipe down - previous theme
-        setSpineThemeIndex((prev) =>
-          prev === 0 ? SPINE_THEMES.length - 1 : prev - 1
-        );
+    // Check for horizontal drag first
+    if (isDragging.current && touchStartX.current !== null) {
+      const deltaX = touchEndX - touchStartX.current;
+
+      // If dragged more than 100px to the right, open timeline
+      if (deltaX > 100) {
+        setActivePanel("timeline");
+      }
+
+      setDragOffset(0);
+      isDragging.current = false;
+      touchStartX.current = null;
+      touchStartY.current = null;
+      return;
+    }
+
+    // Handle vertical swipe for theme change
+    if (touchStartY.current !== null) {
+      const deltaY = touchStartY.current - touchEndY;
+      const threshold = 50; // minimum swipe distance
+
+      if (Math.abs(deltaY) > threshold) {
+        if (deltaY > 0) {
+          // Swipe up - next theme
+          setSpineThemeIndex((prev) => (prev + 1) % SPINE_THEMES.length);
+        } else {
+          // Swipe down - previous theme
+          setSpineThemeIndex((prev) =>
+            prev === 0 ? SPINE_THEMES.length - 1 : prev - 1
+          );
+        }
       }
     }
 
+    setDragOffset(0);
     touchStartY.current = null;
+    touchStartX.current = null;
   };
 
   const togglePanel = useCallback((panel: SpinePanel) => {
@@ -146,7 +192,8 @@ export function SpineNavigation({
   }, []);
 
   const handleTimelineClick = () => {
-    navigate(getLocalizedPath("/timeline"));
+    // Open Timeline panel instead of navigating
+    togglePanel("timeline");
   };
 
   // Spine buttons configuration
@@ -217,9 +264,14 @@ export function SpineNavigation({
           "w-16 flex flex-col items-center justify-between py-6",
           "bg-gradient-to-b",
           spineTheme.gradient,
-          "shadow-lg safe-left transition-all duration-500"
+          "shadow-lg safe-left",
+          dragOffset > 0 ? "" : "transition-all duration-500"
         )}
+        style={{
+          transform: dragOffset > 0 ? `translateX(${dragOffset}px)` : undefined,
+        }}
         onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         aria-label={isSettingsMode ? t("Зміна теми", "Theme changer") : t("Бокова навігація", "Spine navigation")}
       >
@@ -351,6 +403,12 @@ export function SpineNavigation({
       {/* Settings Panel */}
       <SpineSettingsPanel
         open={activePanel === "settings"}
+        onClose={closePanel}
+      />
+
+      {/* Timeline Panel - opens via drag */}
+      <SpineTimelinePanel
+        open={activePanel === "timeline"}
         onClose={closePanel}
       />
     </>

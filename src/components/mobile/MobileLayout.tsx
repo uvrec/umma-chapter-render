@@ -7,6 +7,7 @@ import { SpineNavigation } from "./SpineNavigation";
 import { TranslationTooltip } from "./TranslationTooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileReadingProvider, useMobileReading } from "@/contexts/MobileReadingContext";
+import { TimelineProvider } from "@/contexts/TimelineContext";
 
 interface MobileLayoutProps {
   children: ReactNode;
@@ -72,10 +73,12 @@ export function MobileLayout(props: MobileLayoutProps) {
     return <>{props.children}</>;
   }
 
-  // Wrap with provider for mobile
+  // Wrap with providers for mobile
   return (
     <MobileReadingProvider>
-      <MobileLayoutInner {...props} />
+      <TimelineProvider>
+        <MobileLayoutInner {...props} />
+      </TimelineProvider>
     </MobileReadingProvider>
   );
 }
