@@ -19,6 +19,7 @@ import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { toast } from "@/hooks/use-toast";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { stripParagraphTags, sanitizeForRender } from "@/utils/import/normalizers";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
 import { ChapterSchema, BreadcrumbSchema } from "@/components/StructuredData";
@@ -372,6 +373,73 @@ export const ChapterVersesList = () => {
       navigate(getLocalizedPath(`/lib/${bookId}/${chapterNum}`));
     }
   };
+
+  // Keyboard navigation functions
+  const handlePrevChapter = useCallback(() => {
+    if (adjacentChapters?.prev) {
+      const chapterNum = adjacentChapters.prev.chapter_number;
+      if (isCantoMode) {
+        navigate(getLocalizedPath(`/lib/${bookId}/${cantoNumber}/${chapterNum}`));
+      } else {
+        navigate(getLocalizedPath(`/lib/${bookId}/${chapterNum}`));
+      }
+    }
+  }, [adjacentChapters?.prev, isCantoMode, navigate, getLocalizedPath, bookId, cantoNumber]);
+
+  const handleNextChapter = useCallback(() => {
+    if (adjacentChapters?.next) {
+      const chapterNum = adjacentChapters.next.chapter_number;
+      if (isCantoMode) {
+        navigate(getLocalizedPath(`/lib/${bookId}/${cantoNumber}/${chapterNum}`));
+      } else {
+        navigate(getLocalizedPath(`/lib/${bookId}/${chapterNum}`));
+      }
+    }
+  }, [adjacentChapters?.next, isCantoMode, navigate, getLocalizedPath, bookId, cantoNumber]);
+
+  // Keyboard shortcuts for chapter navigation
+  useKeyboardShortcuts({
+    enabled: !isEditingContent,
+    shortcuts: [
+      {
+        key: 'ArrowLeft',
+        description: language === 'uk' ? 'Попередня глава' : 'Previous chapter',
+        handler: handlePrevChapter,
+        category: 'navigation'
+      },
+      {
+        key: 'ArrowRight',
+        description: language === 'uk' ? 'Наступна глава' : 'Next chapter',
+        handler: handleNextChapter,
+        category: 'navigation'
+      },
+      {
+        key: 'ArrowUp',
+        description: language === 'uk' ? 'Попередня глава' : 'Previous chapter',
+        handler: handlePrevChapter,
+        category: 'navigation'
+      },
+      {
+        key: 'ArrowDown',
+        description: language === 'uk' ? 'Наступна глава' : 'Next chapter',
+        handler: handleNextChapter,
+        category: 'navigation'
+      },
+      {
+        key: '[',
+        description: language === 'uk' ? 'Попередня глава' : 'Previous chapter',
+        handler: handlePrevChapter,
+        category: 'navigation'
+      },
+      {
+        key: ']',
+        description: language === 'uk' ? 'Наступна глава' : 'Next chapter',
+        handler: handleNextChapter,
+        category: 'navigation'
+      },
+    ],
+  });
+
   const readerTextStyle = {
     fontSize: `${fontSize}px`,
     lineHeight: lineHeight
