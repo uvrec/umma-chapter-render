@@ -369,13 +369,13 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
             <div className="flex gap-2">
               <button
                 onClick={() => window.open("https://paypal.me/andriiuvarov", "_blank")}
-                className="flex-1 py-2.5 px-3 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                className="flex-1 py-2.5 px-3 rounded-lg text-sm font-medium border border-border text-foreground bg-muted/50 hover:bg-muted transition-colors"
               >
                 PayPal
               </button>
               <button
                 onClick={() => window.open("https://send.monobank.ua/jar/YAmYDYgti", "_blank")}
-                className="flex-1 py-2.5 px-3 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                className="flex-1 py-2.5 px-3 rounded-lg text-sm font-medium border border-border text-foreground bg-muted/50 hover:bg-muted transition-colors"
               >
                 Monobank
               </button>
