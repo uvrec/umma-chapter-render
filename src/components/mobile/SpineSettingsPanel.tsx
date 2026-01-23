@@ -73,7 +73,7 @@ const SOCIAL_LINKS = [
     id: "instagram",
     label: "Instagram",
     icon: Instagram,
-    url: "https://instagram.com/prabhupada_ua",
+    url: "https://instagram.com/prabhupada.ua",
   },
   {
     id: "youtube",
