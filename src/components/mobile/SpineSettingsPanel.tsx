@@ -228,294 +228,256 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
           "overflow-y-auto"
         )}
       >
-        <div className="px-4 py-6 space-y-6">
-          {/* 0. GENERAL Section - Reading Reminders */}
-          <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
-              {t("Загальне", "General")}
+        <div className="px-4 py-6 space-y-5">
+          {/* Reading Reminders - no header */}
+          <div className="flex items-center justify-between">
+            <Label htmlFor="reading-reminders" className="cursor-pointer">
+              {t("Час читати", "Reading Time")}
             </Label>
+            <Switch
+              id="reading-reminders"
+              checked={reminders.enabled}
+              onCheckedChange={handleRemindersToggle}
+            />
+          </div>
+          {reminders.enabled && (
+            <button
+              onClick={() => setShowRemindersSheet(true)}
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              {reminders.days.filter(Boolean).length > 0
+                ? `${reminders.time} • ${reminders.days.filter(Boolean).length} ${t("днів", "days")}`
+                : t("Налаштувати", "Configure")}
+            </button>
+          )}
+
+          <Separator />
+
+          {/* Language Toggle - no header */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setLanguage("uk")}
+              className={cn(
+                "flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors",
+                language === "uk"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+              )}
+            >
+              Українська
+            </button>
+            <button
+              onClick={() => setLanguage("en")}
+              className={cn(
+                "flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors",
+                language === "en"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+              )}
+            >
+              English
+            </button>
+          </div>
+
+          <Separator />
+
+          {/* Reading Settings - no header */}
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label htmlFor="reading-reminders" className="cursor-pointer">
-                {t("Час читати", "Reading Time")}
+              <Label htmlFor="verse-numbers" className="cursor-pointer">
+                {t("Номери віршів", "Verse Numbers")}
               </Label>
               <Switch
-                id="reading-reminders"
-                checked={reminders.enabled}
-                onCheckedChange={handleRemindersToggle}
+                id="verse-numbers"
+                checked={showNumbers}
+                onCheckedChange={(v) => setShowNumbers(v)}
               />
             </div>
-            {reminders.enabled && (
-              <button
-                onClick={() => setShowRemindersSheet(true)}
-                className="text-sm text-muted-foreground mt-2 hover:text-foreground"
-              >
-                {reminders.days.filter(Boolean).length > 0
-                  ? `${reminders.time} • ${reminders.days.filter(Boolean).length} ${t("днів", "days")}`
-                  : t("Налаштувати", "Configure")}
-              </button>
-            )}
+            <div className="flex items-center justify-between">
+              <Label htmlFor="dual-lang" className="cursor-pointer">
+                {t("Двомовний режим", "Dual Language")}
+              </Label>
+              <Switch
+                id="dual-lang"
+                checked={dualLanguageMode}
+                onCheckedChange={(v) => setDualLanguageMode(v)}
+              />
+            </div>
           </div>
 
           <Separator />
 
-          {/* LANGUAGE Section */}
-          <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
-              {t("Мова", "Language")}
-            </Label>
+          {/* Text Blocks - no header */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="show-sanskrit" className="cursor-pointer">
+                {t("Санскрит", "Sanskrit")}
+              </Label>
+              <Switch
+                id="show-sanskrit"
+                checked={textDisplaySettings.showSanskrit}
+                onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showSanskrit: v }))}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="show-translit" className="cursor-pointer">
+                {t("Транслітерація", "Transliteration")}
+              </Label>
+              <Switch
+                id="show-translit"
+                checked={textDisplaySettings.showTransliteration}
+                onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showTransliteration: v }))}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="show-synonyms" className="cursor-pointer">
+                {t("Послівний переклад", "Synonyms")}
+              </Label>
+              <Switch
+                id="show-synonyms"
+                checked={textDisplaySettings.showSynonyms}
+                onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showSynonyms: v }))}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="show-translation" className="cursor-pointer">
+                {t("Переклад", "Translation")}
+              </Label>
+              <Switch
+                id="show-translation"
+                checked={textDisplaySettings.showTranslation}
+                onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showTranslation: v }))}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="show-commentary" className="cursor-pointer">
+                {t("Коментар", "Commentary")}
+              </Label>
+              <Switch
+                id="show-commentary"
+                checked={textDisplaySettings.showCommentary}
+                onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showCommentary: v }))}
+              />
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Books Carousel - no header */}
+          <div
+            ref={carouselRef}
+            className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide"
+            style={{ scrollSnapType: "x mandatory" }}
+          >
+            {BOOK_SOURCES.map((book, index) => {
+              const isActive = activeBookId === book.id;
+              return (
+                <button
+                  key={book.id}
+                  onClick={() => handleBookCardClick(index)}
+                  className={cn(
+                    "flex-shrink-0 w-28 h-40 rounded-lg overflow-hidden relative",
+                    "transition-transform active:scale-95",
+                    book.bgColor,
+                    "shadow-md"
+                  )}
+                  style={{ scrollSnapAlign: "start" }}
+                >
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-2">
+                    <span className="text-[10px] font-medium text-center leading-tight">
+                      {language === "uk" ? book.title_uk : book.title_en}
+                    </span>
+                  </div>
+                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
+                    {isActive ? (
+                      <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
+                        <Check className="w-3 h-3 text-white" />
+                      </div>
+                    ) : !book.available ? (
+                      <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                        <Lock className="w-3 h-3 text-white/70" />
+                      </div>
+                    ) : null}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          <Separator />
+
+          {/* About - icon link */}
+          <button
+            onClick={() => handleNavigate("/about")}
+            className="w-full flex items-center justify-between px-2 py-3
+              hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
+          >
+            <span className="flex items-center gap-3">
+              <Info className="h-5 w-5 text-muted-foreground" />
+              <span>{t("Про «Прабгупада солов'їною»", "About the Project")}</span>
+            </span>
+            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+          </button>
+
+          <Separator />
+
+          {/* Support Section - compact with buttons */}
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground text-center">
+              {t(
+                "Підтримайте проєкт фінансово або допоможіть з редагуванням",
+                "Support the project financially or help with editing"
+              )}
+            </p>
             <div className="flex gap-2">
               <button
-                onClick={() => setLanguage("uk")}
-                className={cn(
-                  "flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors",
-                  language === "uk"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
-                )}
+                onClick={() => window.open("https://paypal.me/andriiuvarov", "_blank")}
+                className="flex-1 py-2.5 px-3 rounded-lg text-sm font-medium bg-brand-500 text-white hover:bg-brand-600 transition-colors"
               >
-                Українська
+                PayPal
               </button>
               <button
-                onClick={() => setLanguage("en")}
-                className={cn(
-                  "flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors",
-                  language === "en"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
-                )}
+                onClick={() => window.open("https://send.monobank.ua/jar/YAmYDYgti", "_blank")}
+                className="flex-1 py-2.5 px-3 rounded-lg text-sm font-medium bg-brand-500 text-white hover:bg-brand-600 transition-colors"
               >
-                English
+                Monobank
               </button>
             </div>
           </div>
 
           <Separator />
 
-          {/* READING Section */}
-          <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
-              {t("Читання", "Reading")}
-            </Label>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="verse-numbers" className="cursor-pointer">
-                  {t("Номери віршів", "Verse Numbers")}
-                </Label>
-                <Switch
-                  id="verse-numbers"
-                  checked={showNumbers}
-                  onCheckedChange={(v) => setShowNumbers(v)}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="dual-lang" className="cursor-pointer">
-                  {t("Двомовний режим", "Dual Language")}
-                </Label>
-                <Switch
-                  id="dual-lang"
-                  checked={dualLanguageMode}
-                  onCheckedChange={(v) => setDualLanguageMode(v)}
-                />
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* TEXT BLOCKS Section */}
-          <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
-              {t("Блоки тексту", "Text Blocks")}
-            </Label>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="show-sanskrit" className="cursor-pointer">
-                  {t("Санскрит", "Sanskrit")}
-                </Label>
-                <Switch
-                  id="show-sanskrit"
-                  checked={textDisplaySettings.showSanskrit}
-                  onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showSanskrit: v }))}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="show-translit" className="cursor-pointer">
-                  {t("Транслітерація", "Transliteration")}
-                </Label>
-                <Switch
-                  id="show-translit"
-                  checked={textDisplaySettings.showTransliteration}
-                  onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showTransliteration: v }))}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="show-synonyms" className="cursor-pointer">
-                  {t("Послівний переклад", "Synonyms")}
-                </Label>
-                <Switch
-                  id="show-synonyms"
-                  checked={textDisplaySettings.showSynonyms}
-                  onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showSynonyms: v }))}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="show-translation" className="cursor-pointer">
-                  {t("Переклад", "Translation")}
-                </Label>
-                <Switch
-                  id="show-translation"
-                  checked={textDisplaySettings.showTranslation}
-                  onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showTranslation: v }))}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="show-commentary" className="cursor-pointer">
-                  {t("Коментар", "Commentary")}
-                </Label>
-                <Switch
-                  id="show-commentary"
-                  checked={textDisplaySettings.showCommentary}
-                  onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showCommentary: v }))}
-                />
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* 3. BOOKS Section - Translations/Books Carousel */}
-          <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
-              {t("Книги", "Books")}
-            </Label>
-
-            {/* See All Books link */}
+          {/* Social Links + Contact - no header */}
+          <div className="space-y-1">
+            {SOCIAL_LINKS.map((link) => {
+              const Icon = link.icon;
+              return (
+                <a
+                  key={link.id}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center px-2 py-3
+                    hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
+                >
+                  <span className="flex items-center gap-3">
+                    <Icon className="h-5 w-5 text-muted-foreground" />
+                    <span>{link.label}</span>
+                  </span>
+                </a>
+              );
+            })}
             <button
-              onClick={() => setShowBooksModal(true)}
-              className="text-brand-500 font-medium mb-4 hover:underline"
+              onClick={() => handleNavigate("/contact")}
+              className="w-full flex items-center justify-between px-2 py-3
+                hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
             >
-              {t("Всі книги", "See All Books")}
+              <span className="flex items-center gap-3">
+                <MessageCircle className="h-5 w-5 text-muted-foreground" />
+                <span>{t("Написати нам", "Write to Us")}</span>
+              </span>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
             </button>
-
-            {/* Horizontal carousel of book covers */}
-            <div
-              ref={carouselRef}
-              className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide"
-              style={{ scrollSnapType: "x mandatory" }}
-            >
-              {BOOK_SOURCES.map((book, index) => {
-                const isActive = activeBookId === book.id;
-                return (
-                  <button
-                    key={book.id}
-                    onClick={() => handleBookCardClick(index)}
-                    className={cn(
-                      "flex-shrink-0 w-28 h-40 rounded-lg overflow-hidden relative",
-                      "transition-transform active:scale-95",
-                      book.bgColor,
-                      "shadow-md"
-                    )}
-                    style={{ scrollSnapAlign: "start" }}
-                  >
-                    {/* Book cover or placeholder */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-2">
-                      <span className="text-[10px] font-medium text-center leading-tight">
-                        {language === "uk" ? book.title_uk : book.title_en}
-                      </span>
-                    </div>
-
-                    {/* Active indicator or Lock icon */}
-                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
-                      {isActive ? (
-                        <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
-                          <Check className="w-3 h-3 text-white" />
-                        </div>
-                      ) : !book.available ? (
-                        <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-                          <Lock className="w-3 h-3 text-white/70" />
-                        </div>
-                      ) : null}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* 4. ABOUT Section */}
-          <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
-              {t("Про нас", "About")}
-            </Label>
-            <div className="space-y-1">
-              <button
-                onClick={() => handleNavigate("/about")}
-                className="w-full flex items-center justify-between px-2 py-3
-                  hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
-              >
-                <span className="flex items-center gap-3">
-                  <Info className="h-5 w-5 text-muted-foreground" />
-                  <span>{t("Про «Прабгупада солов'їною»", "About the Project")}</span>
-                </span>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
-              </button>
-
-              <button
-                onClick={() => handleNavigate("/support")}
-                className="w-full flex items-center justify-between px-2 py-3
-                  hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
-              >
-                <span className="flex items-center gap-3">
-                  <Heart className="h-5 w-5 text-muted-foreground" />
-                  <span>{t("Підтримати проєкт", "Support the Project")}</span>
-                </span>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
-              </button>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* 5. CONTACT Section - Social Links */}
-          <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
-              {t("Зв'язатися з нами", "Contact Us")}
-            </Label>
-            <div className="space-y-1">
-              {SOCIAL_LINKS.map((link) => {
-                const Icon = link.icon;
-                return (
-                  <a
-                    key={link.id}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full flex items-center px-2 py-3
-                      hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
-                  >
-                    <span className="flex items-center gap-3">
-                      <Icon className="h-5 w-5 text-muted-foreground" />
-                      <span>{link.label}</span>
-                    </span>
-                  </a>
-                );
-              })}
-
-              {/* Direct message option */}
-              <button
-                onClick={() => handleNavigate("/contact")}
-                className="w-full flex items-center justify-between px-2 py-3
-                  hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
-              >
-                <span className="flex items-center gap-3">
-                  <MessageCircle className="h-5 w-5 text-muted-foreground" />
-                  <span>{t("Написати нам", "Write to Us")}</span>
-                </span>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
-              </button>
-            </div>
           </div>
 
           {/* Version Info */}

@@ -435,23 +435,6 @@ export const BookOverview = () => {
         <h1 className="text-2xl font-bold text-primary">{bookTitle}</h1>
       </div>
 
-      {/* Intro chapters - simple list */}
-      {introChapters.length > 0 && (
-        <div className="divide-y divide-border/50">
-          {introChapters.map(intro => (
-            <Link
-              key={intro.id}
-              to={getLocalizedPath(`/lib/${bookSlug}/intro/${intro.slug}`)}
-              className="block px-4 py-4 active:bg-muted/50"
-            >
-              <div className="font-medium text-foreground">
-                {language === "uk" ? intro.title_uk : intro.title_en}
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
-
       {/* Cantos/Chapters - swipeable rows like library */}
       <div className="divide-y divide-border/50">
         {book?.has_cantos ?
@@ -490,6 +473,23 @@ export const BookOverview = () => {
             ))
         }
       </div>
+
+      {/* Intro chapters - AFTER main chapters */}
+      {introChapters.length > 0 && (
+        <div className="divide-y divide-border/50 mt-4 pt-4 border-t">
+          {introChapters.map(intro => (
+            <Link
+              key={intro.id}
+              to={getLocalizedPath(`/lib/${bookSlug}/intro/${intro.slug}`)}
+              className="block px-4 py-4 active:bg-muted/50"
+            >
+              <div className="font-medium text-muted-foreground">
+                {language === "uk" ? intro.title_uk : intro.title_en}
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>;
   }
 

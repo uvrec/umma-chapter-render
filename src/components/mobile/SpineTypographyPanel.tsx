@@ -2,8 +2,7 @@
 // Typography settings panel for Spine Navigation
 // Панель налаштувань типографіки у стилі Neu Bible
 
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Label } from "@/components/ui/label";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -69,14 +68,6 @@ export function SpineTypographyPanel({ open, onClose }: SpineTypographyPanelProp
 
   const isDayTheme = theme === "light" || theme === "craft" || theme === "sepia" || theme === "solarized-light";
 
-  // Font family options (like Neu Bible: Breve, Graphik, Sentinel, Texta)
-  const fontFamilies = [
-    { id: "serif", label: "Breve" },
-    { id: "sans", label: "Graphik" },
-    { id: "georgia", label: "Sentinel" },
-    { id: "system", label: "Texta" },
-  ];
-
   // Line spacing options
   const lineSpacingOptions = [
     { id: "compact", value: 1.3, icon: "compact" },
@@ -96,8 +87,8 @@ export function SpineTypographyPanel({ open, onClose }: SpineTypographyPanelProp
         </div>
 
         <div className="px-4 pb-8 space-y-6">
-          {/* Day / Night Toggle - Neu Bible style tabs */}
-          <div className="flex border-b border-border">
+          {/* Day / Night Toggle - icons only */}
+          <div className="flex justify-center gap-8">
             {dayNightThemes.map((themeOption) => {
               const Icon = themeOption.icon;
               const isActive = themeOption.group === "day" ? isDayTheme : !isDayTheme;
@@ -106,45 +97,22 @@ export function SpineTypographyPanel({ open, onClose }: SpineTypographyPanelProp
                   key={themeOption.id}
                   onClick={() => setTheme(themeOption.id)}
                   className={cn(
-                    "flex-1 flex items-center justify-center gap-2 py-3 transition-colors",
-                    "border-b-2 -mb-[1px]",
+                    "p-3 rounded-full transition-colors",
                     isActive
-                      ? "border-brand-500 text-brand-500"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
+                      ? "bg-brand-500/10 text-brand-500"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   )}
+                  aria-label={themeOption.label}
                 >
-                  <Icon className="h-4 w-4" />
-                  <span className="font-medium">{themeOption.label}</span>
+                  <Icon className="h-6 w-6" />
                 </button>
               );
             })}
           </div>
 
-          {/* Font Family Selection - horizontal scroll */}
-          <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4">
-            {fontFamilies.map((font, index) => (
-              <button
-                key={font.id}
-                onClick={() => {
-                  // TODO: implement font family change
-                }}
-                className={cn(
-                  "font-serif text-base whitespace-nowrap transition-colors",
-                  index === 0 ? "text-brand-500 font-medium" : "text-muted-foreground"
-                )}
-              >
-                {font.label}
-              </button>
-            ))}
-          </div>
 
-          <Separator />
-
-          {/* Font Size Slider - Neu Bible style with Aa indicators */}
+          {/* Font Size Slider - Aa indicators only, no label */}
           <div className="space-y-3">
-            <Label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-              {t("Розмір шрифта", "Font Size")}
-            </Label>
             <div className="flex items-center gap-3">
               <span className="text-xs font-serif select-none opacity-60" style={{ fontSize: '12px' }}>Aa</span>
               <Slider
@@ -158,7 +126,6 @@ export function SpineTypographyPanel({ open, onClose }: SpineTypographyPanelProp
               />
               <span className="text-xl font-serif select-none" style={{ fontSize: '20px' }}>Aa</span>
             </div>
-            <div className="text-center text-xs text-muted-foreground">{fontSize}px</div>
           </div>
 
           {/* Line Spacing - Neu Bible style icons */}
