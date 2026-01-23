@@ -782,7 +782,7 @@ export default function AddEditBlogPost() {
                 id="telegram"
                 value={telegramUrl}
                 onChange={(e) => setTelegramUrl(e.target.value)}
-                placeholder="https://t.me/prabhupada_ua або https://t.me/prabhupada_ua/123"
+                placeholder="https://t.me/prabhupada_uk або https://t.me/prabhupada_uk/123"
               />
               {!!telegramUrl && !TELEGRAM_REGEX.test(telegramUrl.trim()) && (
                 <p className="mt-1 text-xs text-destructive">

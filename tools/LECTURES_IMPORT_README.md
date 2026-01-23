@@ -81,7 +81,7 @@ python tools/lecture_translator.py \
 # Вказати output файл
 python tools/lecture_translator.py \
     --input lectures/660307bg-new-york.json \
-    --output lectures/660307bg-new-york_ua.json
+    --output lectures/660307bg-new-york_uk.json
 ```
 
 **Санскритські терміни:**
@@ -143,7 +143,7 @@ python tools/lectures_importer.py --slug 660307bg-new-york
 ```bash
 python tools/lecture_translator.py \
     --input tools/outputs/lectures/660307bg-new-york.json
-# Результат: tools/outputs/lectures/660307bg-new-york_ua.json
+# Результат: tools/outputs/lectures/660307bg-new-york_uk.json
 ```
 
 ### Крок 3: Імпорт в базу даних
@@ -153,8 +153,8 @@ python tools/lecture_translator.py \
 ```sql
 -- Вставка метаданих лекції
 INSERT INTO public.lectures (
-    slug, title_en, title_ua, lecture_date,
-    location_en, location_ua, lecture_type,
+    slug, title_en, title_uk, lecture_date,
+    location_en, location_uk, lecture_type,
     audio_url, book_slug, chapter_number, verse_number
 ) VALUES (
     '660307bg-new-york',
@@ -172,7 +172,7 @@ INSERT INTO public.lectures (
 
 -- Вставка параграфів
 INSERT INTO public.lecture_paragraphs (
-    lecture_id, paragraph_number, content_en, content_ua, audio_timecode
+    lecture_id, paragraph_number, content_en, content_uk, audio_timecode
 ) VALUES
     ('{lecture_id}', 1, 'English text...', 'Український текст...', 0),
     ('{lecture_id}', 2, 'English text...', 'Український текст...', 120),
@@ -194,12 +194,12 @@ INSERT INTO public.lecture_paragraphs (
   "metadata": {
     "slug": "660307bg-new-york",
     "title_en": "Bhagavad-gītā 2.12",
-    "title_ua": "Бгаґавад-ґіта 2.12",
+    "title_uk": "Бгаґавад-ґіта 2.12",
     "lecture_date": "1966-03-07",
     "location_en": "New York",
-    "location_ua": "Нью-Йорк",
+    "location_uk": "Нью-Йорк",
     "lecture_type": "Bhagavad-gita",
-    "lecture_type_ua": "Лекція з Бгаґавад-ґіти",
+    "lecture_type_uk": "Лекція з Бгаґавад-ґіти",
     "audio_url": "https://vedabase.io/media/audio/660307bg-new-york.mp3",
     "book_slug": "bg",
     "chapter_number": 2,
@@ -209,7 +209,7 @@ INSERT INTO public.lecture_paragraphs (
     {
       "paragraph_number": 1,
       "content_en": "Prabhupāda: [Introductory commentary...]",
-      "content_ua": "Прабгупада: [Вступний коментар...]",
+      "content_uk": "Прабгупада: [Вступний коментар...]",
       "audio_timecode": 0,
       "sanskrit_terms": ["kṛṣṇa", "bhakti-yoga", "dharma"]
     },

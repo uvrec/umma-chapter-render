@@ -248,14 +248,14 @@ function processQuote(text: string): string {
 
 interface Chapter {
   chapter_number: number;
-  title_ua: string;
-  content_ua: string;
+  title_uk: string;
+  content_uk: string;
 }
 
 interface IntroPage {
   slug: string;
-  title_ua: string;
-  content_ua: string;
+  title_uk: string;
+  content_uk: string;
   display_order: number;
 }
 
@@ -318,8 +318,8 @@ function parseChapter(text: string, chapterNum: number): Chapter {
 
   return {
     chapter_number: chapterNum,
-    title_ua: chapterTitle || `Глава ${chapterNum}`,
-    content_ua: paragraphs.join("\n\n"),
+    title_uk: chapterTitle || `Глава ${chapterNum}`,
+    content_uk: paragraphs.join("\n\n"),
   };
 }
 
@@ -373,7 +373,7 @@ function parseIntroPage(text: string, filePrefix: string): IntroPage | null {
 
   flushBlock();
   if (paragraphs.length === 0) return null;
-  return { slug, title_ua: title, content_ua: paragraphs.join("\n\n"), display_order: displayOrder };
+  return { slug, title_uk: title, content_uk: paragraphs.join("\n\n"), display_order: displayOrder };
 }
 
 // ============= FILE HANDLING =============
@@ -416,9 +416,9 @@ function main() {
       const text = readFile(path.join(DOCS_DIR, chapterFile));
       const chapter = parseChapter(text, i);
 
-      if (chapter.content_ua) {
+      if (chapter.content_uk) {
         chapters.push(chapter);
-        console.log(`  → "${chapter.title_ua}" (${chapter.content_ua.length} chars)`);
+        console.log(`  → "${chapter.title_uk}" (${chapter.content_uk.length} chars)`);
       } else {
         console.log(`  → WARNING: No content found!`);
       }
@@ -438,7 +438,7 @@ function main() {
 
       if (intro) {
         intros.push(intro);
-        console.log(`  → "${intro.title_ua}"`);
+        console.log(`  → "${intro.title_uk}"`);
       }
     }
   }
@@ -446,7 +446,7 @@ function main() {
   // Write output
   const output = {
     book_slug: "poy",
-    book_title_ua: "Досконалість йоґи",
+    book_title_uk: "Досконалість йоґи",
     book_title_en: "The Perfection of Yoga",
     chapters,
     intros,

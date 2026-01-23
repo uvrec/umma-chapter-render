@@ -52,7 +52,7 @@ class Verse:
     book_slug: str
     book_title: str
     translation_en: Optional[str] = None
-    translation_ua: Optional[str] = None
+    translation_uk: Optional[str] = None
     commentary_en: Optional[str] = None
     sanskrit: Optional[str] = None
 
@@ -104,7 +104,7 @@ def fetch_verses_to_tag(
     # Build query
     query = supabase.from_("verses_with_metadata").select(
         "id, verse_number, chapter_number, book_slug, book_title, "
-        "translation_en, translation_ua, commentary_en, sanskrit"
+        "translation_en, translation_uk, commentary_en, sanskrit"
     )
 
     if verse_id:
@@ -130,7 +130,7 @@ def fetch_verses_to_tag(
             book_slug=v["book_slug"],
             book_title=v["book_title"],
             translation_en=v.get("translation_en"),
-            translation_ua=v.get("translation_ua"),
+            translation_uk=v.get("translation_uk"),
             commentary_en=v.get("commentary_en"),
             sanskrit=v.get("sanskrit")
         )

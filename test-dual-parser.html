@@ -192,19 +192,19 @@
             
             let html = '<h2>📊 Результати парсингу</h2>';
 
-            // Перевірка діакритики в transliteration_ua
-            const hasDiacritics = /[а̄і̄ӯн̣т̣д̣ш́н̃н̇м̇х̣]/.test(merged.transliteration_ua);
+            // Перевірка діакритики в transliteration_uk
+            const hasDiacritics = /[а̄і̄ӯн̣т̣д̣ш́н̃н̇м̇х̣]/.test(merged.transliteration_uk);
             html += `
                 <div class="diacritics-check ${hasDiacritics ? '' : 'fail'}">
-                    ${hasDiacritics ? '✅' : '❌'} Діакритика в transliteration_ua: ${hasDiacritics ? 'ПРИСУТНЯ' : 'ВІДСУТНЯ'}
+                    ${hasDiacritics ? '✅' : '❌'} Діакритика в transliteration_uk: ${hasDiacritics ? 'ПРИСУТНЯ' : 'ВІДСУТНЯ'}
                 </div>
             `;
 
-            // Перевірка діакритики в synonyms_ua
-            const hasDiacriticsSyn = /[а̄і̄ӯн̣т̣д̣ш́н̃н̇м̇х̣]/.test(merged.synonyms_ua);
+            // Перевірка діакритики в synonyms_uk
+            const hasDiacriticsSyn = /[а̄і̄ӯн̣т̣д̣ш́н̃н̇м̇х̣]/.test(merged.synonyms_uk);
             html += `
                 <div class="diacritics-check ${hasDiacriticsSyn ? '' : 'fail'}">
-                    ${hasDiacriticsSyn ? '✅' : '❌'} Діакритика в synonyms_ua: ${hasDiacriticsSyn ? 'ПРИСУТНЯ' : 'ВІДСУТНЯ'}
+                    ${hasDiacriticsSyn ? '✅' : '❌'} Діакритика в synonyms_uk: ${hasDiacriticsSyn ? 'ПРИСУТНЯ' : 'ВІДСУТНЯ'}
                 </div>
             `;
 
@@ -220,9 +220,9 @@
             // Gitabase UA дані
             html += '<div class="result-section">';
             html += '<h3>🇺🇦 Gitabase UA (вихідні дані)</h3>';
-            html += renderField('Transliteration UA (зіпсована)', gitabase.transliteration_ua.substring(0, 150) + '...');
-            html += renderField('Synonyms UA (зіпсовані, перші 200)', gitabase.synonyms_ua.substring(0, 200) + '...');
-            html += renderField('Translation UA (перші 150)', gitabase.translation_ua.substring(0, 150) + '...');
+            html += renderField('Transliteration UA (зіпсована)', gitabase.transliteration_uk.substring(0, 150) + '...');
+            html += renderField('Synonyms UA (зіпсовані, перші 200)', gitabase.synonyms_uk.substring(0, 200) + '...');
+            html += renderField('Translation UA (перші 150)', gitabase.translation_uk.substring(0, 150) + '...');
             html += '</div>';
 
             // Об'єднані дані
@@ -230,11 +230,11 @@
             html += '<h3>🎯 MERGED DATA (фінальний результат)</h3>';
             html += renderField('Bengali', merged.bengali);
             html += renderField('Transliteration EN (IAST)', merged.transliteration_en);
-            html += renderField('Transliteration UA (конвертовано з IAST)', merged.transliteration_ua);
+            html += renderField('Transliteration UA (конвертовано з IAST)', merged.transliteration_uk);
             html += renderField('Synonyms EN (IAST, перші 300)', merged.synonyms_en.substring(0, 300) + '...');
-            html += renderField('Synonyms UA (конвертовано + UA переклади, перші 300)', merged.synonyms_ua.substring(0, 300) + '...');
+            html += renderField('Synonyms UA (конвертовано + UA переклади, перші 300)', merged.synonyms_uk.substring(0, 300) + '...');
             html += renderField('Translation EN', merged.translation_en);
-            html += renderField('Translation UA', merged.translation_ua);
+            html += renderField('Translation UA', merged.translation_uk);
             html += '</div>';
 
             resultsEl.innerHTML = html;

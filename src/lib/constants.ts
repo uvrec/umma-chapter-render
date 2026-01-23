@@ -5,5 +5,5 @@ export const SITE_CONFIG = {
   siteNameEn: "Vedavoice",
   defaultLanguage: "uk" as const,
   socialImage: "https://storage.googleapis.com/gpt-engineer-file-uploads/phhjgJRSvgOU2vqmbVALfy5WG1j2/social-images/social-1767010740661-SPUA_logo.png",
-  telegram: "https://t.me/prabhupada_ua",
+  telegram: "https://t.me/prabhupada_uk",
 } as const;

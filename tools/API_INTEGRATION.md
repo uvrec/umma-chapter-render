@@ -43,9 +43,9 @@ The parsing backend has been updated to use Playwright with comprehensive normal
       "synonyms_en": "vande—I offer respectful obeisances...",
       "translation_en": "I offer my respectful obeisances...",
       "commentary_en": "According to the Gauḍīya Vaiṣṇava...",
-      "synonyms_ua": "ванде — складаю шанобливі поклони...",
-      "translation_ua": "Я складаю шанобливі поклони духовним вчителям...",
-      "commentary_ua": "Згідно зі школою ґаудія-вайшнавізму...",
+      "synonyms_uk": "ванде — складаю шанобливі поклони...",
+      "translation_uk": "Я складаю шанобливі поклони духовним вчителям...",
+      "commentary_uk": "Згідно зі школою ґаудія-вайшнавізму...",
       "missing": [],
       "source": {
         "vedabase_url": "https://vedabase.io/en/library/cc/adi/1/1/",
@@ -68,9 +68,9 @@ The parsing backend has been updated to use Playwright with comprehensive normal
 - **synonyms_en**: English word-for-word translation
 - **translation_en**: English translation
 - **commentary_en**: English commentary (Śrīla Prabhupāda's purport)
-- **synonyms_ua**: Ukrainian word-for-word translation
-- **translation_ua**: Ukrainian translation
-- **commentary_ua**: Ukrainian commentary
+- **synonyms_uk**: Ukrainian word-for-word translation
+- **translation_uk**: Ukrainian translation
+- **commentary_uk**: Ukrainian commentary
 - **missing**: Array of missing fields (e.g. `["sanskrit", "transliteration"]`)
 
 ## Frontend Integration Steps
@@ -110,7 +110,7 @@ const handleImport = async () => {
     // result.verses is ready for import
     const chapter = {
       chapter_number: parseInt(chapterNumber),
-      title_ua: chapterTitleUa,
+      title_uk: chapterTitleUa,
       title_en: chapterTitleEn,
       verses: result.verses,
     };
@@ -166,15 +166,15 @@ export async function importSingleChapter(
   cantoId: string | null,
   chapter: {
     chapter_number: number;
-    title_ua: string;
+    title_uk: string;
     title_en: string;
     verses: Array<{
       verse_number: string;
       sanskrit: string;
       transliteration: string;
-      synonyms_ua: string;
-      translation_ua: string;
-      commentary_ua: string;
+      synonyms_uk: string;
+      translation_uk: string;
+      commentary_uk: string;
       // ... other fields
     }>;
   }
@@ -186,7 +186,7 @@ export async function importSingleChapter(
       book_id: bookId,
       canto_id: cantoId,
       chapter_number: chapter.chapter_number,
-      title_ua: chapter.title_ua,
+      title_uk: chapter.title_uk,
       title_en: chapter.title_en,
     })
     .select()
@@ -200,9 +200,9 @@ export async function importSingleChapter(
     verse_number: parseInt(v.verse_number),
     sanskrit: v.sanskrit,
     transliteration: v.transliteration,
-    synonyms_ua: v.synonyms_ua,
-    translation_ua: v.translation_ua,
-    commentary_ua: v.commentary_ua,
+    synonyms_uk: v.synonyms_uk,
+    translation_uk: v.translation_uk,
+    commentary_uk: v.commentary_uk,
     // ... other fields
   }));
   

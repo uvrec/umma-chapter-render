@@ -39,7 +39,7 @@ VOLUMES = [
     {
         "number": 1,
         "title_en": "Volume 1",
-        "title_ua": "Том 1",
+        "title_uk": "Том 1",
         "subtitle_en": "November 1975 – April 1976",
         "chapters": 12,
     },
@@ -263,14 +263,14 @@ def main():
 
     # Parse intro pages
     print(f"\n📄 Parsing intro pages...")
-    for slug, title_en, title_ua, display_order in INTRO_PAGES:
+    for slug, title_en, title_uk, display_order in INTRO_PAGES:
         file_path = vol_dir / slug / "index.html"
         result = parse_intro_page(file_path)
         if result:
             parsed_data['intro_pages'].append({
                 "slug": slug,
                 "title_en": result['title'] or title_en,
-                "title_ua": title_ua,
+                "title_uk": title_uk,
                 "content_en": result['content'],
                 "display_order": display_order,
             })
@@ -281,7 +281,7 @@ def main():
     volume_data = {
         "volume_number": vol_num,
         "title_en": vol_config['title_en'],
-        "title_ua": vol_config['title_ua'],
+        "title_uk": vol_config['title_uk'],
         "subtitle_en": vol_config['subtitle_en'],
         "chapters": [],
     }

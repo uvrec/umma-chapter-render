@@ -55,9 +55,9 @@ interface Volume {
 interface BookData {
   book_slug: string;
   book_title_en: string;
-  book_title_ua: string;
+  book_title_uk: string;
   author_en: string;
-  author_ua: string;
+  author_uk: string;
   description_en?: string;
   volumes: Volume[];
 }
@@ -92,16 +92,16 @@ async function findOrCreateBook(supabase: SupabaseClient, bookData: BookData): P
   }
 
   // Create new book
-  // Note: author_en/author_ua columns don't exist in books table yet
+  // Note: author_en/author_uk columns don't exist in books table yet
   // Author info is stored in bookData but not inserted into DB
   const { data: created, error } = await supabase
     .from("books")
     .insert({
       slug: bookData.book_slug,
       title_en: bookData.book_title_en,
-      title_ua: bookData.book_title_ua,
+      title_uk: bookData.book_title_uk,
       description_en: bookData.description_en || "",
-      description_ua: "",
+      description_uk: "",
       has_cantos: true,
     })
     .select("id")
@@ -139,9 +139,9 @@ async function findOrCreateVolume(
       book_id: bookId,
       canto_number: volume.volume_number,
       title_en: volume.title_en,
-      title_ua: `Том ${volume.volume_number}`,
+      title_uk: `Том ${volume.volume_number}`,
       description_en: volume.subtitle_en || "",
-      description_ua: "",
+      description_uk: "",
     })
     .select("id")
     .single();
@@ -194,9 +194,9 @@ async function upsertChapter(
       chapter_number: chapter.chapter_number,
       chapter_type: "text",
       title_en: chapter.title_en,
-      title_ua: `Глава ${chapter.chapter_number}`,
+      title_uk: `Глава ${chapter.chapter_number}`,
       content_en: chapter.content_en,
-      content_ua: "",
+      content_uk: "",
     })
     .select("id")
     .single();

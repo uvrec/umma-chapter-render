@@ -3,12 +3,12 @@
 Generate SQL migration for Gitamala book with proper verses table structure.
 
 Структура полів:
-- sanskrit_en / sanskrit_ua — Bengali/Sanskrit (однаковий вміст)
+- sanskrit_en / sanskrit_uk — Bengali/Sanskrit (однаковий вміст)
 - transliteration_en — IAST транслітерація (латинка з діакритикою)
-- transliteration_ua — українська кирилична транслітерація з діакритикою
-- synonyms_en / synonyms_ua — слово-за-словом (не маємо)
-- translation_en / translation_ua — переклад
-- commentary_en / commentary_ua — пояснення
+- transliteration_uk — українська кирилична транслітерація з діакритикою
+- synonyms_en / synonyms_uk — слово-за-словом (не маємо)
+- translation_en / translation_uk — переклад
+- commentary_en / commentary_uk — пояснення
 """
 
 import json
@@ -193,15 +193,15 @@ def generate_migration():
     # Header
     sql_parts.append("""-- Import Gitamala by Bhaktivinoda Thakura
 -- Proper structure: books -> cantos -> chapters -> verses
--- Fields: sanskrit_en/ua, transliteration_en/ua, synonyms_en/ua, translation_en/ua, commentary_en/ua
+-- Fields: sanskrit_en/uk, transliteration_en/uk, synonyms_en/uk, translation_en/uk, commentary_en/uk
 
 BEGIN;
 
 -- 1. Create/update the book
-INSERT INTO public.books (slug, title_en, title_ua, is_published, has_cantos)
+INSERT INTO public.books (slug, title_en, title_uk, is_published, has_cantos)
 VALUES ('gitamala', 'Gitamala', E'Ґіта-мала̄', true, true)
 ON CONFLICT (slug) DO UPDATE SET
-  title_ua = EXCLUDED.title_ua,
+  title_uk = EXCLUDED.title_uk,
   has_cantos = EXCLUDED.has_cantos;
 
 -- Get book ID
@@ -218,15 +218,15 @@ BEGIN
     for section in data['sections']:
         section_num = section['section_number']
         title_en = escape_sql(section.get('title_en', section['title']))
-        title_ua = escape_sql(section.get('title_ua', ''))
+        title_uk = escape_sql(section.get('title_uk', ''))
 
         sql_parts.append(f"""
   -- Canto {section_num}: {title_en}
-  INSERT INTO public.cantos (book_id, canto_number, title_en, title_ua, is_published)
-  VALUES (v_book_id, {section_num}, E'{title_en}', E'{title_ua}', true)
+  INSERT INTO public.cantos (book_id, canto_number, title_en, title_uk, is_published)
+  VALUES (v_book_id, {section_num}, E'{title_en}', E'{title_uk}', true)
   ON CONFLICT (book_id, canto_number) DO UPDATE SET
     title_en = EXCLUDED.title_en,
-    title_ua = EXCLUDED.title_ua;
+    title_uk = EXCLUDED.title_uk;
 """)
 
     # Generate chapters and verses
@@ -236,18 +236,18 @@ BEGIN
         for song in section['songs']:
             song_num = song['song_number']
             title_en = escape_sql(song['title_en'])
-            title_ua = escape_sql(song.get('title_ua', ''))
+            title_uk = escape_sql(song.get('title_uk', ''))
 
             sql_parts.append(f"""
   -- Section {section_num}, Song {song_num}: {title_en}
   SELECT id INTO v_canto_id FROM public.cantos
   WHERE book_id = v_book_id AND canto_number = {section_num};
 
-  INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
-  VALUES (v_canto_id, {song_num}, E'{title_en}', E'{title_ua}', 'verses', true)
+  INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_uk, chapter_type, is_published)
+  VALUES (v_canto_id, {song_num}, E'{title_en}', E'{title_uk}', 'verses', true)
   ON CONFLICT (canto_id, chapter_number) WHERE canto_id IS NOT NULL DO UPDATE SET
     title_en = EXCLUDED.title_en,
-    title_ua = EXCLUDED.title_ua,
+    title_uk = EXCLUDED.title_uk,
     chapter_type = EXCLUDED.chapter_type;
 
   SELECT id INTO v_chapter_id FROM public.chapters
@@ -265,62 +265,62 @@ BEGIN
             for i in range(num_verses):
                 verse_num = i + 1
 
-                # sanskrit_en and sanskrit_ua - both contain Bengali text
+                # sanskrit_en and sanskrit_uk - both contain Bengali text
                 sanskrit_text = escape_sql(bengali[i] if i < len(bengali) else '')
 
                 # transliteration_en - IAST (Latin with diacritics)
                 translit_en = transliteration[i] if i < len(transliteration) else ''
                 translit_en_escaped = escape_sql(translit_en)
 
-                # transliteration_ua - Ukrainian cyrillic (converted from IAST)
-                translit_ua = convert_iast_to_ukrainian(translit_en)
-                translit_ua_escaped = escape_sql(translit_ua)
+                # transliteration_uk - Ukrainian cyrillic (converted from IAST)
+                translit_uk = convert_iast_to_ukrainian(translit_en)
+                translit_uk_escaped = escape_sql(translit_uk)
 
                 # translation_en
                 trans_en = escape_sql(translation[i] if i < len(translation) else '')
 
-                # translation_ua - not available yet, empty
-                trans_ua = ''
+                # translation_uk - not available yet, empty
+                trans_uk = ''
 
-                # synonyms_en / synonyms_ua - not available
+                # synonyms_en / synonyms_uk - not available
                 synonyms_en = ''
-                synonyms_ua = ''
+                synonyms_uk = ''
 
-                # commentary_en / commentary_ua - not available for Gitamala
+                # commentary_en / commentary_uk - not available for Gitamala
                 commentary_en = ''
-                commentary_ua = ''
+                commentary_uk = ''
 
                 sql_parts.append(f"""
   -- Verse {verse_num}
   INSERT INTO public.verses (
     chapter_id, verse_number,
-    sanskrit_en, sanskrit_ua,
-    transliteration_en, transliteration_ua,
-    synonyms_en, synonyms_ua,
-    translation_en, translation_ua,
-    commentary_en, commentary_ua,
+    sanskrit_en, sanskrit_uk,
+    transliteration_en, transliteration_uk,
+    synonyms_en, synonyms_uk,
+    translation_en, translation_uk,
+    commentary_en, commentary_uk,
     is_published
   )
   VALUES (
     v_chapter_id, '{verse_num}',
     E'{sanskrit_text}', E'{sanskrit_text}',
-    E'{translit_en_escaped}', E'{translit_ua_escaped}',
-    E'{synonyms_en}', E'{synonyms_ua}',
-    E'{trans_en}', E'{trans_ua}',
-    E'{commentary_en}', E'{commentary_ua}',
+    E'{translit_en_escaped}', E'{translit_uk_escaped}',
+    E'{synonyms_en}', E'{synonyms_uk}',
+    E'{trans_en}', E'{trans_uk}',
+    E'{commentary_en}', E'{commentary_uk}',
     true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
     sanskrit_en = EXCLUDED.sanskrit_en,
-    sanskrit_ua = EXCLUDED.sanskrit_ua,
+    sanskrit_uk = EXCLUDED.sanskrit_uk,
     transliteration_en = EXCLUDED.transliteration_en,
-    transliteration_ua = EXCLUDED.transliteration_ua,
+    transliteration_uk = EXCLUDED.transliteration_uk,
     synonyms_en = EXCLUDED.synonyms_en,
-    synonyms_ua = EXCLUDED.synonyms_ua,
+    synonyms_uk = EXCLUDED.synonyms_uk,
     translation_en = EXCLUDED.translation_en,
-    translation_ua = EXCLUDED.translation_ua,
+    translation_uk = EXCLUDED.translation_uk,
     commentary_en = EXCLUDED.commentary_en,
-    commentary_ua = EXCLUDED.commentary_ua;
+    commentary_uk = EXCLUDED.commentary_uk;
 """)
 
     # Close the DO block

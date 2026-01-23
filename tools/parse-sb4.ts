@@ -254,22 +254,22 @@ function extractChapterNumber(text: string): number {
 
 interface Verse {
   verse_number: string;
-  transliteration_ua?: string;
-  synonyms_ua?: string;
-  translation_ua?: string;
-  commentary_ua?: string;
+  transliteration_uk?: string;
+  synonyms_uk?: string;
+  translation_uk?: string;
+  commentary_uk?: string;
 }
 
 interface Chapter {
   chapter_number: number;
-  title_ua: string;
+  title_uk: string;
   verses: Verse[];
 }
 
 interface IntroPage {
   slug: string;
-  title_ua: string;
-  content_ua: string;
+  title_uk: string;
+  content_uk: string;
   display_order: number;
 }
 
@@ -299,17 +299,17 @@ function parseChapter(text: string): Chapter {
     } else if (["v-uvaca", "v-anustubh", "v-tristubh"].includes(currentTag)) {
       if (currentVerse) {
         const translit = processTransliteration(content);
-        currentVerse.transliteration_ua = currentVerse.transliteration_ua
-          ? currentVerse.transliteration_ua + "\n" + translit
+        currentVerse.transliteration_uk = currentVerse.transliteration_uk
+          ? currentVerse.transliteration_uk + "\n" + translit
           : translit;
       }
     } else if (["eqs", "h3-synonyms"].includes(currentTag)) {
       if (currentVerse) {
         const synonyms = processSynonyms(content);
-        currentVerse.synonyms_ua = currentVerse.synonyms_ua ? currentVerse.synonyms_ua + " " + synonyms : synonyms;
+        currentVerse.synonyms_uk = currentVerse.synonyms_uk ? currentVerse.synonyms_uk + " " + synonyms : synonyms;
       }
     } else if (currentTag === "translation") {
-      if (currentVerse) currentVerse.translation_ua = processProse(content, false);
+      if (currentVerse) currentVerse.translation_uk = processProse(content, false);
     } else if (["p", "p0", "p1", "p-purport", "p-h3-inline"].includes(currentTag)) {
       if (currentVerse) {
         let para = processProse(content, true);
@@ -317,8 +317,8 @@ function parseChapter(text: string): Chapter {
         para = para.replace(/^ПОЯСНЕННЯ:\s*/i, "");
         if (para) {
           const wrapped = `<p class="purport">${para}</p>`;
-          currentVerse.commentary_ua = currentVerse.commentary_ua
-            ? currentVerse.commentary_ua + "\n\n" + wrapped
+          currentVerse.commentary_uk = currentVerse.commentary_uk
+            ? currentVerse.commentary_uk + "\n\n" + wrapped
             : wrapped;
         }
       }
@@ -327,8 +327,8 @@ function parseChapter(text: string): Chapter {
         const quote = processQuote(content);
         if (quote) {
           const blockquote = `<blockquote class="verse-quote"><p>${quote}</p></blockquote>`;
-          currentVerse.commentary_ua = currentVerse.commentary_ua
-            ? currentVerse.commentary_ua + "\n\n" + blockquote
+          currentVerse.commentary_uk = currentVerse.commentary_uk
+            ? currentVerse.commentary_uk + "\n\n" + blockquote
             : blockquote;
         }
       }
@@ -337,15 +337,15 @@ function parseChapter(text: string): Chapter {
         const translit = processTransliteration(content);
         if (translit) {
           const blockquote = `<blockquote class="verse-quote verse-translit">${translit}</blockquote>`;
-          currentVerse.commentary_ua = currentVerse.commentary_ua
-            ? currentVerse.commentary_ua + "\n\n" + blockquote
+          currentVerse.commentary_uk = currentVerse.commentary_uk
+            ? currentVerse.commentary_uk + "\n\n" + blockquote
             : blockquote;
         }
       }
     } else if (currentTag === "p-outro") {
       if (currentVerse) {
         const outro = `<p class="purport-outro"><em>${processProse(content, true)}</em></p>`;
-        currentVerse.commentary_ua = currentVerse.commentary_ua ? currentVerse.commentary_ua + "\n\n" + outro : outro;
+        currentVerse.commentary_uk = currentVerse.commentary_uk ? currentVerse.commentary_uk + "\n\n" + outro : outro;
       }
     }
   }
@@ -367,7 +367,7 @@ function parseChapter(text: string): Chapter {
 
   flushBlock();
   if (currentVerse) verses.push(currentVerse);
-  return { chapter_number: chapterNumber, title_ua: chapterTitle, verses };
+  return { chapter_number: chapterNumber, title_uk: chapterTitle, verses };
 }
 
 function parseIntroPage(text: string, filePrefix: string): IntroPage | null {
@@ -420,7 +420,7 @@ function parseIntroPage(text: string, filePrefix: string): IntroPage | null {
 
   flushBlock();
   if (paragraphs.length === 0) return null;
-  return { slug, title_ua: title, content_ua: paragraphs.join("\n\n"), display_order: displayOrder };
+  return { slug, title_uk: title, content_uk: paragraphs.join("\n\n"), display_order: displayOrder };
 }
 
 // ============= FILE HANDLING =============
@@ -453,7 +453,7 @@ function main() {
     console.log(`Directory ${DOCS_DIR} not found. Creating empty output.`);
     const output = {
       book_slug: "bhagavatam",
-      book_title_ua: "Шрімад-Бгаґаватам, Пісня 4, Частина 2",
+      book_title_uk: "Шрімад-Бгаґаватам, Пісня 4, Частина 2",
       book_title_en: "Srimad Bhagavatam, Canto 4, Part 2",
       chapters: [],
       intros: [],
@@ -484,7 +484,7 @@ function main() {
 
       if (chapter.verses.length > 0) {
         chapters.push(chapter);
-        console.log(`  → ${chapter.verses.length} verses, title: "${chapter.title_ua}"`);
+        console.log(`  → ${chapter.verses.length} verses, title: "${chapter.title_uk}"`);
       } else {
         console.log(`  → WARNING: No verses found!`);
       }
@@ -504,7 +504,7 @@ function main() {
 
       if (intro) {
         intros.push(intro);
-        console.log(`  → "${intro.title_ua}"`);
+        console.log(`  → "${intro.title_uk}"`);
       }
     }
   }
@@ -512,7 +512,7 @@ function main() {
   // Write output
   const output = {
     book_slug: "bhagavatam",
-    book_title_ua: "Шрімад-Бгаґаватам, Пісня 4, Частина 2",
+    book_title_uk: "Шрімад-Бгаґаватам, Пісня 4, Частина 2",
     book_title_en: "Srimad Bhagavatam, Canto 4, Part 2",
     chapters,
     intros,

@@ -44,7 +44,7 @@ console.log(`💬 З поясненнями: ${result.summary.hasCommentary}`);
 result.verses.forEach(verse => {
   console.log(`\n📌 Вірш ${verse.verse_number}:`);
   console.log(`  Санскрит: ${verse.sanskrit}`);
-  console.log(`  Переклад (UA): ${verse.translation_ua}`);
+  console.log(`  Переклад (UA): ${verse.translation_uk}`);
 });
 ```
 
@@ -103,13 +103,13 @@ interface StructuredVerse {
   sanskrit?: string;              // "বন্দে গুরূনীশভক্তান..."
   transliteration?: string;       // Основна транслітерація
   transliteration_en?: string;    // "vande gurūn īśa-bhaktān..."
-  transliteration_ua?: string;    // "ванде ґурӯн īш́а-бгакта̄н..."
+  transliteration_uk?: string;    // "ванде ґурӯн īш́а-бгакта̄н..."
   synonyms_en?: string;           // "vande — I offer..."
-  synonyms_ua?: string;           // "ванде — я складаю..."
+  synonyms_uk?: string;           // "ванде — я складаю..."
   translation_en?: string;        // "I offer my respectful..."
-  translation_ua?: string;        // "Я складаю шанобливі..."
+  translation_uk?: string;        // "Я складаю шанобливі..."
   commentary_en?: string;         // Повний коментар англійською
-  commentary_ua?: string;         // Повний коментар українською
+  commentary_uk?: string;         // Повний коментар українською
 }
 ```
 
@@ -222,7 +222,7 @@ function PDFImporter() {
           {verses.map((v, i) => (
             <div key={i}>
               <strong>Вірш {v.verse_number}</strong>
-              <p>{v.translation_ua || v.translation_en}</p>
+              <p>{v.translation_uk || v.translation_en}</p>
             </div>
           ))}
         </div>
@@ -252,13 +252,13 @@ async function importPDFToDatabase(file: File, chapterId: string) {
     verse_number: verse.verse_number,
     sanskrit: verse.sanskrit || '',
     transliteration_en: verse.transliteration_en || '',
-    transliteration_ua: verse.transliteration_ua || '',
+    transliteration_uk: verse.transliteration_uk || '',
     synonyms_en: verse.synonyms_en || '',
-    synonyms_ua: verse.synonyms_ua || '',
+    synonyms_uk: verse.synonyms_uk || '',
     translation_en: verse.translation_en || '',
-    translation_ua: verse.translation_ua || '',
+    translation_uk: verse.translation_uk || '',
     commentary_en: verse.commentary_en || '',
-    commentary_ua: verse.commentary_ua || '',
+    commentary_uk: verse.commentary_uk || '',
   }));
 
   // 3. Вставити в базу

@@ -64,7 +64,7 @@ curl http://127.0.0.1:5003/health
   "chapter": 1,
   "verse_ranges": "1-110",
   "vedabase_base": "https://vedabase.io/en/library/cc/adi/1/",
-  "gitabase_base": "https://gitabase.com/ua/CC/1/1"
+  "gitabase_base": "https://gitabase.com/uk/CC/1/1"
 }
 ```
 

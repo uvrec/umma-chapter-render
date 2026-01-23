@@ -506,7 +506,7 @@ def remove_gitabase_artifacts(text: str) -> str:
 
 def convert_synonyms_from_english(synonyms_en: str) -> str:
     """
-    Конвертує synonyms_en → synonyms_ua
+    Конвертує synonyms_en → synonyms_uk
     
     Обробляє тільки санскритські/бенгальські терміни (IAST → українська з діакритикою),
     а українські переклади залишає без змін.
@@ -552,10 +552,10 @@ def convert_synonyms_from_english(synonyms_en: str) -> str:
 
 def restore_diacritics_in_synonyms(synonyms_text: str, transliteration_text: str) -> str:
     """
-    Відновлює діакритику в synonyms_ua на основі transliteration_ua
+    Відновлює діакритику в synonyms_uk на основі transliteration_uk
     
     Gitabase має діакритику, але вона губиться при копіюванні/імпорті.
-    Використовуємо transliteration_ua як джерело правильних форм з діакритикою.
+    Використовуємо transliteration_uk як джерело правильних форм з діакритикою.
     
     Приклад:
     synonyms: "чараа — біля стіп"
@@ -672,37 +672,37 @@ def normalize_verse(verse: dict) -> dict:
     # transliteration_en - ЗАЛИШАЄМО БЕЗ ЗМІН (оригінальний IAST з Vedabase)
     normalized['transliteration_en'] = normalize_verse_field(verse.get('transliteration_en', ''), 'transliteration_en')
     
-    # transliteration_ua - конвертуємо transliteration_en → українська
+    # transliteration_uk - конвертуємо transliteration_en → українська
     if normalized.get('transliteration_en'):
         # Беремо IAST з Vedabase і конвертуємо в українську транслітерацію
         ua_translit = convert_english_to_ukrainian_translit(normalized['transliteration_en'])
         ua_translit = normalize_diacritics(ua_translit)
-        normalized['transliteration_ua'] = ua_translit
+        normalized['transliteration_uk'] = ua_translit
     else:
         # Fallback: якщо немає transliteration_en, беремо що є
-        normalized['transliteration_ua'] = normalize_verse_field(verse.get('transliteration_ua', ''), 'transliteration')
+        normalized['transliteration_uk'] = normalize_verse_field(verse.get('transliteration_uk', ''), 'transliteration')
     
     # Підтримка старого формату (deprecated)
-    normalized['transliteration'] = normalized.get('transliteration_ua', '')
+    normalized['transliteration'] = normalized.get('transliteration_uk', '')
     
     # synonyms_en - залишаємо БЕЗ ЗМІН (оригінал з Vedabase)
     normalized['synonyms_en'] = normalize_verse_field(verse.get('synonyms_en', ''), 'transliteration_en')
 
-    # synonyms_ua - MERGE Vedabase IAST terms + Gitabase UA meanings
-    if verse.get('synonyms_ua') and verse.get('synonyms_en'):
+    # synonyms_uk - MERGE Vedabase IAST terms + Gitabase UA meanings
+    if verse.get('synonyms_uk') and verse.get('synonyms_en'):
         # ✅ ПРАВИЛЬНИЙ ПІДХІД:
         # Парсер повертає з Gitabase ТІЛЬКИ ЗНАЧЕННЯ (БЕЗ термінів!)
-        # Формат Gitabase synonyms_ua: "в той час; країни; один; мусульманин; ..." (тільки переклади)
+        # Формат Gitabase synonyms_uk: "в той час; країни; один; мусульманин; ..." (тільки переклади)
         # Формат Vedabase synonyms_en: "hena-kāle — at this time; mulukera — of the country; ..."
         #
         # Треба MERGE:
         #   1. Витягнути IAST терміни з Vedabase synonyms_en
         #   2. Конвертувати їх в українську транслітерацію з діакритикою (ISTA2Ukrainian)
-        #   3. Взяти українські значення з Gitabase synonyms_ua (вже без термінів!)
+        #   3. Взяти українські значення з Gitabase synonyms_uk (вже без термінів!)
         #   4. Об'єднати: vedabase_ukrainian_term — gitabase_meaning
         
-        # Gitabase synonyms_ua містить ТІЛЬКИ ЗНАЧЕННЯ (розділені ;)
-        gitabase_meanings = [m.strip() for m in verse['synonyms_ua'].split(';') if m.strip()]
+        # Gitabase synonyms_uk містить ТІЛЬКИ ЗНАЧЕННЯ (розділені ;)
+        gitabase_meanings = [m.strip() for m in verse['synonyms_uk'].split(';') if m.strip()]
         
         # Розбиваємо Vedabase pairs на список
         vedabase_pairs = [p.strip() for p in verse['synonyms_en'].split(';') if p.strip()]
@@ -727,18 +727,18 @@ def normalize_verse(verse: dict) -> dict:
                         result_pairs.append(f'{ua_term} — {en_meaning}')
         
         if result_pairs:
-            normalized['synonyms_ua'] = normalize_verse_field('; '.join(result_pairs), 'synonyms')
+            normalized['synonyms_uk'] = normalize_verse_field('; '.join(result_pairs), 'synonyms')
         else:
-            normalized['synonyms_ua'] = ''
+            normalized['synonyms_uk'] = ''
     elif verse.get('synonyms_en'):
         # Fallback: конвертуємо з EN якщо немає UA
         ua_synonyms = convert_synonyms_from_english(verse['synonyms_en'])
-        normalized['synonyms_ua'] = normalize_verse_field(ua_synonyms, 'synonyms')
+        normalized['synonyms_uk'] = normalize_verse_field(ua_synonyms, 'synonyms')
     else:
-        normalized['synonyms_ua'] = ''
-    normalized['translation_ua'] = normalize_verse_field(verse.get('translation_ua', ''), 'translation')
+        normalized['synonyms_uk'] = ''
+    normalized['translation_uk'] = normalize_verse_field(verse.get('translation_uk', ''), 'translation')
     normalized['translation_en'] = normalize_verse_field(verse.get('translation_en', ''), 'translation')
-    normalized['commentary_ua'] = normalize_verse_field(verse.get('commentary_ua', ''), 'commentary')
+    normalized['commentary_uk'] = normalize_verse_field(verse.get('commentary_uk', ''), 'commentary')
     normalized['commentary_en'] = normalize_verse_field(verse.get('commentary_en', ''), 'commentary')
     
     return normalized
@@ -799,7 +799,7 @@ if __name__ == '__main__':
     print(f"  Всього віршів: {total}")
     
     # Підрахунок заповнених полів
-    fields = ['sanskrit', 'transliteration', 'synonyms_ua', 'translation_ua', 'commentary_ua']
+    fields = ['sanskrit', 'transliteration', 'synonyms_uk', 'translation_uk', 'commentary_uk']
     for field in fields:
         filled = sum(1 for v in normalized['verses'] if v.get(field))
         print(f"  {field}: {filled}/{total}")

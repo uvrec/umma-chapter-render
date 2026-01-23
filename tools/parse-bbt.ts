@@ -320,22 +320,22 @@ function extractChapterNumber(text: string): number {
 
 interface Verse {
   verse_number: string;
-  transliteration_ua?: string;
-  synonyms_ua?: string;
-  translation_ua?: string;
-  commentary_ua?: string;
+  transliteration_uk?: string;
+  synonyms_uk?: string;
+  translation_uk?: string;
+  commentary_uk?: string;
 }
 
 interface Chapter {
   chapter_number: number;
-  title_ua: string;
+  title_uk: string;
   verses: Verse[];
 }
 
 interface IntroPage {
   slug: string;
-  title_ua: string;
-  content_ua: string;
+  title_uk: string;
+  content_uk: string;
   display_order: number;
 }
 
@@ -363,28 +363,28 @@ function parseVentura(text: string): Chapter {
     } else if (["v-uvaca", "v-anustubh", "v-tristubh"].includes(currentTag)) {
       if (currentVerse) {
         const translit = processTransliteration(content);
-        currentVerse.transliteration_ua = currentVerse.transliteration_ua
-          ? currentVerse.transliteration_ua + "\n" + translit
+        currentVerse.transliteration_uk = currentVerse.transliteration_uk
+          ? currentVerse.transliteration_uk + "\n" + translit
           : translit;
       }
     } else if (currentTag === "eqs") {
       if (currentVerse) {
         const synonyms = processSynonyms(content);
-        currentVerse.synonyms_ua = currentVerse.synonyms_ua ? currentVerse.synonyms_ua + " " + synonyms : synonyms;
+        currentVerse.synonyms_uk = currentVerse.synonyms_uk ? currentVerse.synonyms_uk + " " + synonyms : synonyms;
       }
     } else if (currentTag === "translation" || currentTag === "translation2") {
       if (currentVerse) {
         const trans = processProse(content, false);
         // Для здвоєних віршів може бути @translation і @translation2 - об'єднуємо
-        currentVerse.translation_ua = currentVerse.translation_ua
-          ? currentVerse.translation_ua + "\n\n" + trans
+        currentVerse.translation_uk = currentVerse.translation_uk
+          ? currentVerse.translation_uk + "\n\n" + trans
           : trans;
       }
     } else if (currentTag === "p-indent") {
       if (currentVerse) {
         const para = processFirstParagraph(content);
         if (para) {
-          currentVerse.commentary_ua = currentVerse.commentary_ua ? currentVerse.commentary_ua + "\n\n" + para : para;
+          currentVerse.commentary_uk = currentVerse.commentary_uk ? currentVerse.commentary_uk + "\n\n" + para : para;
         }
       }
     } else if (["p", "p0", "p1"].includes(currentTag)) {
@@ -392,8 +392,8 @@ function parseVentura(text: string): Chapter {
         const para = processProse(content, true);
         if (para) {
           const wrapped = `<p class="purport">${para}</p>`;
-          currentVerse.commentary_ua = currentVerse.commentary_ua
-            ? currentVerse.commentary_ua + "\n\n" + wrapped
+          currentVerse.commentary_uk = currentVerse.commentary_uk
+            ? currentVerse.commentary_uk + "\n\n" + wrapped
             : wrapped;
         }
       }
@@ -403,8 +403,8 @@ function parseVentura(text: string): Chapter {
         const quote = processQuote(content);
         if (quote) {
           const blockquote = `<blockquote class="verse-quote"><p>${quote}</p></blockquote>`;
-          currentVerse.commentary_ua = currentVerse.commentary_ua
-            ? currentVerse.commentary_ua + "\n\n" + blockquote
+          currentVerse.commentary_uk = currentVerse.commentary_uk
+            ? currentVerse.commentary_uk + "\n\n" + blockquote
             : blockquote;
         }
       }
@@ -414,15 +414,15 @@ function parseVentura(text: string): Chapter {
         const translit = processTransliteration(content);
         if (translit) {
           const blockquote = `<blockquote class="verse-quote verse-translit">${translit}</blockquote>`;
-          currentVerse.commentary_ua = currentVerse.commentary_ua
-            ? currentVerse.commentary_ua + "\n\n" + blockquote
+          currentVerse.commentary_uk = currentVerse.commentary_uk
+            ? currentVerse.commentary_uk + "\n\n" + blockquote
             : blockquote;
         }
       }
     } else if (currentTag === "p-outro") {
       if (currentVerse) {
         const outro = `<p class="purport-outro"><em>${processProse(content, true)}</em></p>`;
-        currentVerse.commentary_ua = currentVerse.commentary_ua ? currentVerse.commentary_ua + "\n\n" + outro : outro;
+        currentVerse.commentary_uk = currentVerse.commentary_uk ? currentVerse.commentary_uk + "\n\n" + outro : outro;
       }
     }
   }
@@ -444,7 +444,7 @@ function parseVentura(text: string): Chapter {
 
   flushBlock();
   if (currentVerse) verses.push(currentVerse);
-  return { chapter_number: chapterNumber, title_ua: chapterTitle, verses };
+  return { chapter_number: chapterNumber, title_uk: chapterTitle, verses };
 }
 
 function parseIntroPage(text: string, filePrefix: string): IntroPage | null {
@@ -500,7 +500,7 @@ function parseIntroPage(text: string, filePrefix: string): IntroPage | null {
 
   flushBlock();
   if (paragraphs.length === 0) return null;
-  return { slug, title_ua: title, content_ua: paragraphs.join("\n\n"), display_order: displayOrder };
+  return { slug, title_uk: title, content_uk: paragraphs.join("\n\n"), display_order: displayOrder };
 }
 
 // ============= MAIN =============
@@ -544,7 +544,7 @@ function main() {
 
       if (chapter.verses.length > 0) {
         chapters.push(chapter);
-        console.log(`  → ${chapter.verses.length} verses, title: "${chapter.title_ua}"`);
+        console.log(`  → ${chapter.verses.length} verses, title: "${chapter.title_uk}"`);
       } else {
         console.log(`  → WARNING: No verses found!`);
       }
@@ -564,7 +564,7 @@ function main() {
 
       if (intro) {
         intros.push(intro);
-        console.log(`  → "${intro.title_ua}"`);
+        console.log(`  → "${intro.title_uk}"`);
       }
     }
   }

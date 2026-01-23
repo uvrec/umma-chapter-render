@@ -45,14 +45,14 @@ VALUES (
 -- SELECT
 --   v.id,
 --   v.verse_number,
---   c.title_ua as chapter,
---   b.title_ua as book,
+--   c.title_uk as chapter,
+--   b.title_uk as book,
 --   v.full_verse_audio_url
 -- FROM verses v
 -- JOIN chapters c ON v.chapter_id = c.id
 -- LEFT JOIN books b ON c.book_id = b.id
 -- WHERE v.full_verse_audio_url IS NOT NULL
--- ORDER BY b.title_ua, c.chapter_number, v.verse_number_sort
+-- ORDER BY b.title_uk, c.chapter_number, v.verse_number_sort
 -- LIMIT 20;
 
 -- Verify inserted data

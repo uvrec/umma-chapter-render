@@ -67,7 +67,7 @@ const SOCIAL_LINKS = [
     id: "telegram",
     label: "Telegram",
     icon: Send,
-    url: "https://t.me/prabhupada_ua",
+    url: "https://t.me/prabhupada_uk",
   },
   {
     id: "instagram",
@@ -79,7 +79,7 @@ const SOCIAL_LINKS = [
     id: "youtube",
     label: "YouTube",
     icon: Youtube,
-    url: "https://youtube.com/@prabhupada_ua",
+    url: "https://youtube.com/@prabhupada_uk",
   },
 ];
 

@@ -264,7 +264,7 @@ export default function LetterImport() {
                       tools/outputs/letters/letter-to-mahatma-gandhi.json
                     </pre>
                     <p className="text-muted-foreground">
-                      Скрипт створить файл з суфіксом <code>_ua.json</code>
+                      Скрипт створить файл з суфіксом <code>_uk.json</code>
                     </p>
                   </div>
                 </div>

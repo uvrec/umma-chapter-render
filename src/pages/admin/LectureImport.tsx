@@ -258,7 +258,7 @@ export default function LectureImport() {
                       tools/outputs/lectures/660307bg-new-york.json
                     </pre>
                     <p className="text-muted-foreground">
-                      Скрипт створить файл з суфіксом <code>_ua.json</code>
+                      Скрипт створить файл з суфіксом <code>_uk.json</code>
                     </p>
                   </div>
                 </div>

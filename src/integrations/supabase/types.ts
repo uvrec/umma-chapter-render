@@ -4446,7 +4446,7 @@ export type Database = {
           slug: string | null
           sort_date: string | null
           title_en: string | null
-          title_ua: string | null
+          title_uk: string | null
         }
         Relationships: [
           {
@@ -4642,15 +4642,15 @@ export type Database = {
           _audio_url?: string
           _category_id?: string
           _content_en: string
-          _content_ua: string
+          _content_uk: string
           _cover_image_url?: string
           _excerpt_en?: string
-          _excerpt_ua?: string
+          _excerpt_uk?: string
           _is_published?: boolean
           _scheduled_publish_at?: string
           _tags?: string[]
           _title_en: string
-          _title_ua: string
+          _title_uk: string
           _video_url?: string
         }
         Returns: {
@@ -4790,7 +4790,7 @@ export type Database = {
           id: string
           slug: string
           title_en: string
-          title_ua: string
+          title_uk: string
           vedabase_slug: string
         }[]
       }
@@ -4831,7 +4831,7 @@ export type Database = {
           category_color: string
           category_slug: string
           description_en: string
-          description_ua: string
+          description_uk: string
           event_date: string
           event_id: string
           event_type: string
@@ -4839,7 +4839,7 @@ export type Database = {
           is_major: boolean
           moon_phase: number
           name_en: string
-          name_ua: string
+          name_uk: string
           sunrise_time: string
           sunset_time: string
         }[]
@@ -4849,16 +4849,16 @@ export type Database = {
         Returns: {
           audio_url: string
           commentary_en: string
-          commentary_ua: string
+          commentary_uk: string
           end_verse: number
           id: string
           is_composite: boolean
           sanskrit: string
           start_verse: number
           synonyms_en: string
-          synonyms_ua: string
+          synonyms_uk: string
           translation_en: string
-          translation_ua: string
+          translation_uk: string
           transliteration: string
           verse_count: number
           verse_number: string
@@ -4871,7 +4871,7 @@ export type Database = {
           quotes_count: number
           slug: string
           title: string
-          title_ua: string
+          title_uk: string
         }[]
       }
       get_glossary_stats: {
@@ -5029,7 +5029,7 @@ export type Database = {
           depth: number
           id: string
           name_en: string
-          name_ua: string
+          name_uk: string
           slug: string
         }[]
       }
@@ -5049,7 +5049,7 @@ export type Database = {
           sanskrit: string
           tattva_name: string
           translation_en: string
-          translation_ua: string
+          translation_uk: string
           verse_id: string
           verse_number: string
         }[]
@@ -5062,11 +5062,11 @@ export type Database = {
           event_type: string
           is_ekadashi: boolean
           name_en: string
-          name_ua: string
+          name_uk: string
           parana_end_time: string
           parana_start_time: string
           short_description_en: string
-          short_description_ua: string
+          short_description_uk: string
         }[]
       }
       get_topic_statistics: {
@@ -5160,7 +5160,7 @@ export type Database = {
           source_reference: string
           source_type: string
           text_en: string
-          text_ua: string
+          text_uk: string
         }[]
       }
       get_verse_tattvas: {
@@ -5170,7 +5170,7 @@ export type Database = {
           id: string
           name_en: string
           name_sanskrit: string
-          name_ua: string
+          name_uk: string
           relevance_score: number
           slug: string
         }[]
@@ -5416,7 +5416,7 @@ export type Database = {
           source_reference: string
           source_type: string
           text_en: string
-          text_ua: string
+          text_uk: string
           verse_number: string
         }[]
       }
@@ -5544,11 +5544,11 @@ export type Database = {
         Returns: {
           category: string
           description_en: string
-          description_ua: string
+          description_uk: string
           id: string
           name_en: string
           name_sanskrit: string
-          name_ua: string
+          name_uk: string
           parent_id: string
           parent_slug: string
           slug: string
@@ -5626,11 +5626,11 @@ export type Database = {
           book_slug: string
           chapter_id: string
           commentary_en: string
-          commentary_ua: string
+          commentary_uk: string
           id: string
           similarity: number
           translation_en: string
-          translation_ua: string
+          translation_uk: string
           verse_number: string
         }[]
       }

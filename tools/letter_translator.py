@@ -10,7 +10,7 @@ letter_translator.py
     python tools/letter_translator.py --input letters/letter-to-mahatma-gandhi.json
 
 Usage:
-    python tools/letter_translator.py --input letters/660307bg-new-york.json --output letters/660307bg-new-york_ua.json
+    python tools/letter_translator.py --input letters/660307bg-new-york.json --output letters/660307bg-new-york_uk.json
 """
 
 import json
@@ -221,7 +221,7 @@ class LetterTranslator:
         if "content" in result:
             for paragraph in result["content"]:
                 if "content_en" in paragraph:
-                    paragraph["content_ua"] = self.translate_paragraph(
+                    paragraph["content_uk"] = self.translate_paragraph(
                         paragraph["content_en"],
                         use_machine_translation
                     )
@@ -243,7 +243,7 @@ def main():
         "--output",
         type=str,
         default=None,
-        help="Шлях до вихідного JSON файлу (за замовчуванням: {input}_ua.json)",
+        help="Шлях до вихідного JSON файлу (за замовчуванням: {input}_uk.json)",
     )
     parser.add_argument(
         "--use-mt",
@@ -273,7 +273,7 @@ def main():
     if args.output:
         output_path = Path(args.output)
     else:
-        output_path = input_path.parent / f"{input_path.stem}_ua.json"
+        output_path = input_path.parent / f"{input_path.stem}_uk.json"
 
     # Збереження результату
     output_path.parent.mkdir(parents=True, exist_ok=True)

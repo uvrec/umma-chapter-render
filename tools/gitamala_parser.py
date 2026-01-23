@@ -480,14 +480,14 @@ def parse_all_songs():
                 "section_number": section_num,
                 "title": song_info['section_title'],
                 "title_en": song_info['section_title_en'],
-                "title_ua": SECTION_TITLES_UA.get(section_num, ""),
+                "title_uk": SECTION_TITLES_UA.get(section_num, ""),
                 "songs": []
             }
 
         song_data = {
             "song_number": song_info['song'],
             "title_en": song_info['title'],
-            "title_ua": "",
+            "title_uk": "",
         }
 
         # Fetch Bengali text
@@ -517,9 +517,9 @@ def parse_all_songs():
         "book_slug": "gitamala",
         "book_title_en": "Gitamala",
         "book_title_bn": "গীতমালা",
-        "book_title_ua": "Ґіта-мала̄",
+        "book_title_uk": "Ґіта-мала̄",
         "author_en": "Bhaktivinoda Thakura",
-        "author_ua": "Бгактівінод Тхакур",
+        "author_uk": "Бгактівінод Тхакур",
         "source": "https://kksongs.org/authors/literature/gitamala.html",
         "sections": [sections[i] for i in sorted(sections.keys())],
         "total_songs": len(GITAMALA_SONGS),

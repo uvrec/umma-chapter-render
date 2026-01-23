@@ -60,12 +60,12 @@ WHERE commentary_en IS NOT NULL
 UNION ALL
 
 SELECT
-    'commentary_ua' as field,
+    'commentary_uk' as field,
     COUNT(*) as verses_with_duplicates
 FROM verses
-WHERE commentary_ua IS NOT NULL
-  AND commentary_ua != ''
-  AND length(remove_adjacent_duplicate_sentences(commentary_ua)) < length(commentary_ua);
+WHERE commentary_uk IS NOT NULL
+  AND commentary_uk != ''
+  AND length(remove_adjacent_duplicate_sentences(commentary_uk)) < length(commentary_uk);
 
 -- ============================================================================
 -- ВИПРАВЛЕННЯ: Оновити commentary_en (видалити дублікати)
@@ -82,15 +82,15 @@ WHERE commentary_en IS NOT NULL
 */
 
 -- ============================================================================
--- ВИПРАВЛЕННЯ: Оновити commentary_ua (видалити дублікати)
+-- ВИПРАВЛЕННЯ: Оновити commentary_uk (видалити дублікати)
 -- ============================================================================
 
 /*
 UPDATE verses
-SET commentary_ua = remove_adjacent_duplicate_sentences(commentary_ua)
-WHERE commentary_ua IS NOT NULL
-  AND commentary_ua != ''
-  AND length(remove_adjacent_duplicate_sentences(commentary_ua)) < length(commentary_ua);
+SET commentary_uk = remove_adjacent_duplicate_sentences(commentary_uk)
+WHERE commentary_uk IS NOT NULL
+  AND commentary_uk != ''
+  AND length(remove_adjacent_duplicate_sentences(commentary_uk)) < length(commentary_uk);
 */
 
 -- ============================================================================

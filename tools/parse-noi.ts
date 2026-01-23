@@ -293,22 +293,22 @@ function extractVerseNumber(text: string): string {
 
 interface Verse {
   verse_number: string;
-  transliteration_ua?: string;
-  synonyms_ua?: string;
-  translation_ua?: string;
-  commentary_ua?: string;
+  transliteration_uk?: string;
+  synonyms_uk?: string;
+  translation_uk?: string;
+  commentary_uk?: string;
 }
 
 interface Chapter {
   chapter_number: number;
-  title_ua: string;
+  title_uk: string;
   verses: Verse[];
 }
 
 interface IntroPage {
   slug: string;
-  title_ua: string;
-  content_ua: string;
+  title_uk: string;
+  content_uk: string;
   display_order: number;
 }
 
@@ -330,40 +330,40 @@ function parseVerse(text: string, verseNum: number): Verse {
       if (extracted) verse.verse_number = extracted;
     } else if (["v-uvaca", "v-anustubh", "v-tristubh"].includes(currentTag)) {
       const translit = processTransliteration(content);
-      verse.transliteration_ua = verse.transliteration_ua
-        ? verse.transliteration_ua + "\n" + translit
+      verse.transliteration_uk = verse.transliteration_uk
+        ? verse.transliteration_uk + "\n" + translit
         : translit;
     } else if (currentTag === "eqs") {
       const synonyms = processSynonyms(content);
-      verse.synonyms_ua = verse.synonyms_ua ? verse.synonyms_ua + " " + synonyms : synonyms;
+      verse.synonyms_uk = verse.synonyms_uk ? verse.synonyms_uk + " " + synonyms : synonyms;
     } else if (currentTag === "translation") {
-      verse.translation_ua = processProse(content, false);
+      verse.translation_uk = processProse(content, false);
     } else if (currentTag === "p-indent") {
       const para = processFirstParagraph(content);
       if (para) {
-        verse.commentary_ua = verse.commentary_ua ? verse.commentary_ua + "\n\n" + para : para;
+        verse.commentary_uk = verse.commentary_uk ? verse.commentary_uk + "\n\n" + para : para;
       }
     } else if (["p", "p0", "p1"].includes(currentTag)) {
       const para = processProse(content, true);
       if (para) {
         const wrapped = `<p class="purport">${para}</p>`;
-        verse.commentary_ua = verse.commentary_ua ? verse.commentary_ua + "\n\n" + wrapped : wrapped;
+        verse.commentary_uk = verse.commentary_uk ? verse.commentary_uk + "\n\n" + wrapped : wrapped;
       }
     } else if (["ql", "q", "q-p"].includes(currentTag)) {
       const quote = processQuote(content);
       if (quote) {
         const blockquote = `<blockquote class="verse-quote"><p>${quote}</p></blockquote>`;
-        verse.commentary_ua = verse.commentary_ua ? verse.commentary_ua + "\n\n" + blockquote : blockquote;
+        verse.commentary_uk = verse.commentary_uk ? verse.commentary_uk + "\n\n" + blockquote : blockquote;
       }
     } else if (["p-anustubh", "p-uvaca", "p-tristubh", "p-gayatri", "p-indravajra", "p-sakkari"].includes(currentTag)) {
       const translit = processTransliteration(content);
       if (translit) {
         const blockquote = `<blockquote class="verse-quote verse-translit">${translit}</blockquote>`;
-        verse.commentary_ua = verse.commentary_ua ? verse.commentary_ua + "\n\n" + blockquote : blockquote;
+        verse.commentary_uk = verse.commentary_uk ? verse.commentary_uk + "\n\n" + blockquote : blockquote;
       }
     } else if (currentTag === "p-outro") {
       const outro = `<p class="purport-outro"><em>${processProse(content, true)}</em></p>`;
-      verse.commentary_ua = verse.commentary_ua ? verse.commentary_ua + "\n\n" + outro : outro;
+      verse.commentary_uk = verse.commentary_uk ? verse.commentary_uk + "\n\n" + outro : outro;
     }
   }
 
@@ -436,7 +436,7 @@ function parseIntroPage(text: string, filePrefix: string): IntroPage | null {
 
   flushBlock();
   if (paragraphs.length === 0) return null;
-  return { slug, title_ua: title, content_ua: paragraphs.join("\n\n"), display_order: displayOrder };
+  return { slug, title_uk: title, content_uk: paragraphs.join("\n\n"), display_order: displayOrder };
 }
 
 // ============= FILE HANDLING =============
@@ -469,7 +469,7 @@ function main() {
     console.log(`Directory ${DOCS_DIR} not found. Creating empty output.`);
     const output = {
       book_slug: "noi",
-      book_title_ua: "Нектар настанов",
+      book_title_uk: "Нектар настанов",
       book_title_en: "The Nectar of Instruction",
       chapters: [],
       intros: [],
@@ -512,7 +512,7 @@ function main() {
 
       if (intro) {
         intros.push(intro);
-        console.log(`  → "${intro.title_ua}"`);
+        console.log(`  → "${intro.title_uk}"`);
       }
     }
   }
@@ -520,14 +520,14 @@ function main() {
   // Create single chapter with all verses
   const chapter: Chapter = {
     chapter_number: 1,
-    title_ua: "Нектар настанов",
+    title_uk: "Нектар настанов",
     verses,
   };
 
   // Write output
   const output = {
     book_slug: "noi",
-    book_title_ua: "Нектар настанов",
+    book_title_uk: "Нектар настанов",
     book_title_en: "The Nectar of Instruction",
     chapters: verses.length > 0 ? [chapter] : [],
     intros,
