@@ -4,7 +4,10 @@
 import { ReactNode, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { SpineNavigation } from "./SpineNavigation";
+import { TranslationTooltip } from "./TranslationTooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileReadingProvider, useMobileReading } from "@/contexts/MobileReadingContext";
+import { TimelineProvider } from "@/contexts/TimelineContext";
 
 interface MobileLayoutProps {
   children: ReactNode;
@@ -14,13 +17,14 @@ interface MobileLayoutProps {
   bookId?: string;
 }
 
-export function MobileLayout({
+// Inner component that uses the context
+function MobileLayoutInner({
   children,
   hideSpine = false,
   bookId,
 }: MobileLayoutProps) {
-  const isMobile = useIsMobile();
   const location = useLocation();
+  const { isFullscreen } = useMobileReading();
 
   // Track spine visibility to move content with it
   // Read initial state from localStorage
@@ -33,18 +37,16 @@ export function MobileLayout({
     setIsSpineVisible(visible);
   }, []);
 
-  // На десктопі просто рендеримо children без змін
-  if (!isMobile) {
-    return <>{children}</>;
-  }
-
   // Extract bookId from URL if not provided
   const detectedBookId = bookId || extractBookIdFromPath(location.pathname);
+
+  // When fullscreen or spine hidden, remove left padding smoothly
+  const shouldShowPadding = !hideSpine && isSpineVisible && !isFullscreen;
 
   return (
     <div
       className="mobile-layout min-h-screen overflow-x-hidden transition-[padding] duration-300"
-      style={{ paddingLeft: !hideSpine && isSpineVisible ? '56px' : '0px' }}
+      style={{ paddingLeft: shouldShowPadding ? '56px' : '0px' }}
     >
       {!hideSpine && (
         <SpineNavigation
@@ -53,7 +55,27 @@ export function MobileLayout({
         />
       )}
       {children}
+      {/* Translation tooltip for triple tap */}
+      <TranslationTooltip />
     </div>
+  );
+}
+
+export function MobileLayout(props: MobileLayoutProps) {
+  const isMobile = useIsMobile();
+
+  // На десктопі просто рендеримо children без змін
+  if (!isMobile) {
+    return <>{props.children}</>;
+  }
+
+  // Wrap with providers for mobile
+  return (
+    <MobileReadingProvider>
+      <TimelineProvider>
+        <MobileLayoutInner {...props} />
+      </TimelineProvider>
+    </MobileReadingProvider>
   );
 }
 
