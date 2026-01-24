@@ -3,7 +3,7 @@
 // Мінімалістична бокова панель: 4 іконки, drag для Timeline, свайп для тем
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   List,
   Type,
@@ -12,6 +12,7 @@ import {
   ChevronUp,
   ChevronDown,
   X,
+  Headphones,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -46,6 +47,7 @@ export function SpineNavigation({
   onVisibilityChange,
 }: SpineNavigationProps) {
   const [activePanel, setActivePanel] = useState<SpinePanel>("none");
+  const location = useLocation();
   const navigate = useNavigate();
   const { t, getLocalizedPath } = useLanguage();
   const { theme, setTheme } = useTheme();
@@ -181,6 +183,13 @@ export function SpineNavigation({
       label: t("Пошук", "Search"),
       onClick: () => togglePanel("search"),
       active: activePanel === "search",
+    },
+    {
+      id: "audio",
+      icon: Headphones,
+      label: t("Аудіо", "Audio"),
+      onClick: () => navigate(getLocalizedPath("/audio")),
+      active: location.pathname.includes("/audio"),
     },
     {
       id: "settings",
