@@ -153,6 +153,7 @@ function processInlineTags(text: string, keepHtml: boolean = false): string {
   result = result.replace(/<->\s*/g, "");
   result = result.replace(/<&>\s*/g, "");
   result = result.replace(/<=>\s*/g, "");
+  result = result.replace(/<\|>/g, "");  // Remove <|> markers
   result = result.replace(/<_?R>/g, "\n");
   result = result.replace(/<N\|?>/g, "");
   result = result.replace(/<S>/g, " ");
