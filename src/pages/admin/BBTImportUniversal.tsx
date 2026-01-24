@@ -30,7 +30,8 @@ import sbCanto2Data from "@/data/sb-canto2-combined.json";
 
 // Book configurations
 interface BookConfig {
-  slug: string;
+  id: string; // Unique identifier for UI selection (e.g., "sb-2", "sb-4")
+  slug: string; // Database slug (e.g., "sb" for all Bhagavatam)
   title_uk: string;
   title_en: string;
   hasVerses: boolean; // true for Gita-like, false for continuous text books
@@ -81,6 +82,7 @@ interface ParsedBookData {
 
 const BOOK_CONFIGS: BookConfig[] = [
   {
+    id: "bg",
     slug: "bg",
     title_uk: "Бгаґавад-ґіта як вона є",
     title_en: "Bhagavad-gita As It Is",
@@ -88,6 +90,7 @@ const BOOK_CONFIGS: BookConfig[] = [
     data: bbtGitaData as ParsedBookData,
   },
   {
+    id: "poy",
     slug: "poy",
     title_uk: "Досконалість йоґи",
     title_en: "The Perfection of Yoga",
@@ -95,6 +98,7 @@ const BOOK_CONFIGS: BookConfig[] = [
     data: poyData as ParsedBookData,
   },
   {
+    id: "ea",
     slug: "ea",
     title_uk: "Легка подорож до інших планет",
     title_en: "Easy Journey to Other Planets",
@@ -102,6 +106,7 @@ const BOOK_CONFIGS: BookConfig[] = [
     data: eaData as ParsedBookData,
   },
   {
+    id: "noi",
     slug: "noi",
     title_uk: "Нектар настанов",
     title_en: "The Nectar of Instruction",
@@ -109,6 +114,7 @@ const BOOK_CONFIGS: BookConfig[] = [
     data: noiData as ParsedBookData,
   },
   {
+    id: "iso",
     slug: "iso",
     title_uk: "Шрі Ішопанішада",
     title_en: "Sri Isopanisad",
@@ -116,6 +122,7 @@ const BOOK_CONFIGS: BookConfig[] = [
     data: isoData as ParsedBookData,
   },
   {
+    id: "pqn",
     slug: "pqn",
     title_uk: "Досконалі питання, досконалі відповіді",
     title_en: "Perfect Questions, Perfect Answers",
@@ -123,6 +130,7 @@ const BOOK_CONFIGS: BookConfig[] = [
     data: pqnData as ParsedBookData,
   },
   {
+    id: "sb-4",
     slug: "sb",
     title_uk: "Шрімад-Бгаґаватам, Пісня 4, Частина 2",
     title_en: "Srimad Bhagavatam, Canto 4, Part 2",
@@ -131,6 +139,7 @@ const BOOK_CONFIGS: BookConfig[] = [
     cantoNumber: 4,
   },
   {
+    id: "sb-2",
     slug: "sb",
     title_uk: "Шрімад-Бгаґаватам, Пісня 2",
     title_en: "Srimad Bhagavatam, Canto 2",
@@ -151,7 +160,7 @@ function hasContent(chapter: ParsedChapterWithVerses | ParsedChapterWithContent)
 export default function BBTImportUniversal() {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const [selectedBook, setSelectedBook] = useState<string>(BOOK_CONFIGS[0].slug);
+  const [selectedBook, setSelectedBook] = useState<string>(BOOK_CONFIGS[0].id);
   const [saving, setSaving] = useState(false);
   const [saveProgress, setSaveProgress] = useState(0);
 
@@ -162,7 +171,7 @@ export default function BBTImportUniversal() {
   }, [user, isAdmin, navigate]);
 
   const bookConfig = useMemo(() =>
-    BOOK_CONFIGS.find(b => b.slug === selectedBook) || BOOK_CONFIGS[0],
+    BOOK_CONFIGS.find(b => b.id === selectedBook) || BOOK_CONFIGS[0],
     [selectedBook]
   );
 
@@ -177,9 +186,9 @@ export default function BBTImportUniversal() {
   });
 
   // Reset selection when book changes
-  const handleBookChange = (bookSlug: string) => {
-    setSelectedBook(bookSlug);
-    const config = BOOK_CONFIGS.find(b => b.slug === bookSlug);
+  const handleBookChange = (bookId: string) => {
+    setSelectedBook(bookId);
+    const config = BOOK_CONFIGS.find(b => b.id === bookId);
     if (config) {
       const allIds = new Set<string>();
       config.data.chapters.forEach((c) => allIds.add(`chapter-${c.chapter_number}`));
@@ -525,7 +534,7 @@ export default function BBTImportUniversal() {
             </SelectTrigger>
             <SelectContent>
               {BOOK_CONFIGS.map((book) => (
-                <SelectItem key={book.slug} value={book.slug}>
+                <SelectItem key={book.id} value={book.id}>
                   {book.title_uk}
                 </SelectItem>
               ))}
