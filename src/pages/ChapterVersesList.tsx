@@ -523,7 +523,8 @@ export const ChapterVersesList = () => {
                   <span className="hidden sm:inline">{language === "uk" ? "Наступна" : "Next"}</span>
                   <ChevronRight className="h-4 w-4" />
                 </Button>}
-              {isAdmin && effectiveChapterObj?.id && (
+              {/* Admin tools - hidden on mobile */}
+              {!isMobile && isAdmin && effectiveChapterObj?.id && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -535,14 +536,17 @@ export const ChapterVersesList = () => {
                   <span className="hidden sm:inline">{language === "uk" ? "Додати вірш" : "Add verse"}</span>
                 </Button>
               )}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setSettingsOpen(true)}
-                title={language === "uk" ? "Налаштування" : "Settings"}
-              >
-                <Settings className="h-5 w-5" />
-              </Button>
+              {/* Settings button - hidden on mobile (Spine has settings) */}
+              {!isMobile && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setSettingsOpen(true)}
+                  title={language === "uk" ? "Налаштування" : "Settings"}
+                >
+                  <Settings className="h-5 w-5" />
+                </Button>
+              )}
             </div>
           </div>
 
@@ -564,7 +568,8 @@ export const ChapterVersesList = () => {
            !isLikelyMisimportedVerseContent(effectiveChapterObj.content_uk) &&
            !isLikelyMisimportedVerseContent(effectiveChapterObj.content_en) && (
             <div className="mb-8">
-              {user && !isEditingContent && (
+              {/* Edit button - hidden on mobile */}
+              {!isMobile && user && !isEditingContent && (
                 <div className="mb-4 flex justify-end">
                   <Button variant="outline" size="sm" onClick={() => setIsEditingContent(true)} className="gap-2">
                     <Edit className="h-4 w-4" />
@@ -727,7 +732,7 @@ export const ChapterVersesList = () => {
                               <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
                                 ВІРШ {verse.verse_number}
                               </Link>
-                              {isAdmin && (
+                              {!isMobile && isAdmin && (
                                 verseToDelete === verse.id ? (
                                   <div className="flex items-center gap-1">
                                     <Button
@@ -776,7 +781,7 @@ export const ChapterVersesList = () => {
                             <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
                               {language === "uk" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
                             </Link>
-                            {isAdmin && (
+                            {!isMobile && isAdmin && (
                               verseToDelete === verse.id ? (
                                 <div className="flex items-center gap-1">
                                   <Button
