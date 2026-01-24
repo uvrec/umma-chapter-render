@@ -278,7 +278,7 @@ function processSpeech(text: string): string {
 
 interface Chapter {
   chapter_number: number;
-  title_uk: string;
+  chapter_title_uk: string;
   content_uk: string;
 }
 
@@ -363,7 +363,7 @@ function parseChapter(text: string, chapterNum: number): Chapter {
 
   return {
     chapter_number: chapterNum,
-    title_uk: chapterTitle || `Глава ${chapterNum}`,
+    chapter_title_uk: chapterTitle || `Глава ${chapterNum}`,
     content_uk: paragraphs.join("\n\n"),
   };
 }
@@ -450,9 +450,8 @@ function main() {
   if (!fs.existsSync(DOCS_DIR)) {
     console.log(`Directory ${DOCS_DIR} not found. Creating empty output.`);
     const output = {
-      book_slug: "pqn",
-      book_title_uk: "Досконалі питання, досконалі відповіді",
-      book_title_en: "Perfect Questions, Perfect Answers",
+      title_uk: "Досконалі питання, досконалі відповіді",
+      title_en: "Perfect Questions, Perfect Answers",
       chapters: [],
       intros: [],
     };
@@ -504,9 +503,8 @@ function main() {
 
   // Write output
   const output = {
-    book_slug: "pqn",
-    book_title_uk: "Досконалі питання, досконалі відповіді",
-    book_title_en: "Perfect Questions, Perfect Answers",
+    title_uk: "Досконалі питання, досконалі відповіді",
+    title_en: "Perfect Questions, Perfect Answers",
     chapters,
     intros,
   };

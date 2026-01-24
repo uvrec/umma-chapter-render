@@ -1,11 +1,10 @@
 {
-  "book_slug": "iso",
-  "book_title_uk": "Шрі Ішопанішада",
-  "book_title_en": "Sri Isopanisad",
+  "title_uk": "Шрі Ішопанішада",
+  "title_en": "Sri Isopanisad",
   "chapters": [
     {
       "chapter_number": 1,
-      "title_uk": "Шрі Ішопанішада",
+      "chapter_title_uk": "Шрі Ішопанішада",
       "verses": [
         {
           "verse_number": "1",

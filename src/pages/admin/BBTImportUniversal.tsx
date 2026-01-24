@@ -41,9 +41,10 @@ interface BookConfig {
 
 interface ParsedChapterWithVerses {
   chapter_number: number;
-  title_uk: string;
-  chapter_title_uk?: string; // Alternative field name from combined JSON
+  chapter_title_uk: string;
   chapter_title_en?: string;
+  // Legacy field for backwards compatibility
+  title_uk?: string;
   verses: {
     verse_number: string;
     // UK fields
@@ -64,7 +65,9 @@ interface ParsedChapterWithVerses {
 
 interface ParsedChapterWithContent {
   chapter_number: number;
-  title_uk: string;
+  chapter_title_uk: string;
+  // Legacy field for backwards compatibility
+  title_uk?: string;
   content_uk: string;
 }
 
@@ -302,8 +305,8 @@ export default function BBTImportUniversal() {
 
         const { data: existingChapter } = await chapterQuery.single();
 
-        // Get chapter title from various possible field names
-        const chapterTitleUk = (hasVerses(chapter) ? chapter.chapter_title_uk : undefined) || chapter.title_uk || '';
+        // Get chapter title from various possible field names (chapter_title_uk is primary, title_uk is legacy)
+        const chapterTitleUk = chapter.chapter_title_uk || chapter.title_uk || '';
         const chapterTitleEn = (hasVerses(chapter) ? chapter.chapter_title_en : undefined) || '';
 
         if (existingChapter) {
@@ -616,7 +619,7 @@ export default function BBTImportUniversal() {
                     htmlFor={`chapter-${ch.chapter_number}`}
                     className="flex-1 cursor-pointer"
                   >
-                    Глава {ch.chapter_number}: {ch.title_uk.replace(/\n/g, ' ')}
+                    Глава {ch.chapter_number}: {(ch.chapter_title_uk || ch.title_uk || '').replace(/\n/g, ' ')}
                     {bookConfig.hasVerses && hasVerses(ch) && (
                       <span className="text-muted-foreground ml-1">
                         ({ch.verses.length} віршів)

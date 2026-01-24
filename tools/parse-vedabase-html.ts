@@ -237,8 +237,8 @@ async function main() {
 
   for (const ukChapter of ukData.chapters) {
     const chapterNum = ukChapter.chapter_number;
-    // Support both field names: title_uk and chapter_title
-    const chapterTitleUk = ukChapter.title_uk || ukChapter.chapter_title || '';
+    // Support all field names: chapter_title_uk, title_uk, chapter_title
+    const chapterTitleUk = ukChapter.chapter_title_uk || ukChapter.title_uk || ukChapter.chapter_title || '';
     console.log(`\nChapter ${chapterNum}: ${chapterTitleUk}`);
     console.log('-'.repeat(40));
 

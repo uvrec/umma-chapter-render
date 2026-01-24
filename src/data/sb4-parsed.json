@@ -1,11 +1,11 @@
 {
-  "book_slug": "bhagavatam",
-  "book_title_uk": "Шрімад-Бгаґаватам, Пісня 4, Частина 2",
-  "book_title_en": "Srimad Bhagavatam, Canto 4, Part 2",
+  "canto": 4,
+  "title_uk": "Шрімад-Бгаґаватам, Пісня 4, Частина 2",
+  "title_en": "Srimad Bhagavatam, Canto 4, Part 2",
   "chapters": [
     {
       "chapter_number": 20,
-      "title_uk": "Поява Господа Вішну\n на жертвопринесенні\n Махараджа Прітху",
+      "chapter_title_uk": "Поява Господа Вішну\n на жертвопринесенні\n Махараджа Прітху",
       "verses": [
         {
           "verse_number": "1",
@@ -269,7 +269,7 @@
     },
     {
       "chapter_number": 21,
-      "title_uk": "Настанови Махараджа Прітху",
+      "chapter_title_uk": "Настанови Махараджа Прітху",
       "verses": [
         {
           "verse_number": "1",
@@ -619,7 +619,7 @@
     },
     {
       "chapter_number": 22,
-      "title_uk": "Зустріч Прітху Махараджа з чотирма Кумарами",
+      "chapter_title_uk": "Зустріч Прітху Махараджа з чотирма Кумарами",
       "verses": [
         {
           "verse_number": "1",
@@ -1062,7 +1062,7 @@
     },
     {
       "chapter_number": 23,
-      "title_uk": "Махарадж Прітху повертається додому, до Бога",
+      "chapter_title_uk": "Махарадж Прітху повертається додому, до Бога",
       "verses": [
         {
           "verse_number": "1-3",
@@ -1325,7 +1325,7 @@
     },
     {
       "chapter_number": 24,
-      "title_uk": "Оспівування пісні\n Господа Шіви",
+      "chapter_title_uk": "Оспівування пісні\n Господа Шіви",
       "verses": [
         {
           "verse_number": "1",
@@ -1854,7 +1854,7 @@
     },
     {
       "chapter_number": 25,
-      "title_uk": "Опис якостей\n царя Пуранджани",
+      "chapter_title_uk": "Опис якостей\n царя Пуранджани",
       "verses": [
         {
           "verse_number": "1",
@@ -2266,7 +2266,7 @@
     },
     {
       "chapter_number": 26,
-      "title_uk": "Цар Пуранджана вирушає\n в ліс на полювання,\n і цариця впадає у гнів",
+      "chapter_title_uk": "Цар Пуранджана вирушає\n в ліс на полювання,\n і цариця впадає у гнів",
       "verses": [
         {
           "verse_number": "1-3",
@@ -2440,7 +2440,7 @@
     },
     {
       "chapter_number": 27,
-      "title_uk": "Вдача Калаканьї та\n напад Чандавеґи на місто\n царя Пуранджани",
+      "chapter_title_uk": "Вдача Калаканьї та\n напад Чандавеґи на місто\n царя Пуранджани",
       "verses": [
         {
           "verse_number": "1",
@@ -2656,7 +2656,7 @@
     },
     {
       "chapter_number": 28,
-      "title_uk": "Як Пуранджана став жінкою\n в наступному житті",
+      "chapter_title_uk": "Як Пуранджана став жінкою\n в наступному житті",
       "verses": [
         {
           "verse_number": "1",
@@ -3109,7 +3109,7 @@
     },
     {
       "chapter_number": 29,
-      "title_uk": "Розмова між Нарадою\n і царем Прачінабархі",
+      "chapter_title_uk": "Розмова між Нарадою\n і царем Прачінабархі",
       "verses": [
         {
           "verse_number": "1",
@@ -3651,7 +3651,7 @@
     },
     {
       "chapter_number": 30,
-      "title_uk": "Діяльність Прачетів",
+      "chapter_title_uk": "Діяльність Прачетів",
       "verses": [
         {
           "verse_number": "1",
@@ -3999,7 +3999,7 @@
     },
     {
       "chapter_number": 31,
-      "title_uk": "Нарада дає настанови\n Прачетам",
+      "chapter_title_uk": "Нарада дає настанови\n Прачетам",
       "verses": [
         {
           "verse_number": "1",

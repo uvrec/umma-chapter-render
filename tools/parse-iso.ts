@@ -310,7 +310,7 @@ interface Verse {
 
 interface Chapter {
   chapter_number: number;
-  title_uk: string;
+  chapter_title_uk: string;
   verses: Verse[];
 }
 
@@ -514,9 +514,8 @@ function main() {
   if (!fs.existsSync(DOCS_DIR)) {
     console.log(`Directory ${DOCS_DIR} not found. Creating empty output.`);
     const output = {
-      book_slug: "iso",
-      book_title_uk: "Шрі Ішопанішада",
-      book_title_en: "Sri Isopanisad",
+      title_uk: "Шрі Ішопанішада",
+      title_en: "Sri Isopanisad",
       chapters: [],
       intros: [],
     };
@@ -566,15 +565,14 @@ function main() {
   // Create single chapter with all mantras
   const chapter: Chapter = {
     chapter_number: 1,
-    title_uk: "Шрі Ішопанішада",
+    chapter_title_uk: "Шрі Ішопанішада",
     verses,
   };
 
   // Write output
   const output = {
-    book_slug: "iso",
-    book_title_uk: "Шрі Ішопанішада",
-    book_title_en: "Sri Isopanisad",
+    title_uk: "Шрі Ішопанішада",
+    title_en: "Sri Isopanisad",
     chapters: verses.length > 0 ? [chapter] : [],
     intros,
   };

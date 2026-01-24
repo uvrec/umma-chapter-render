@@ -1,11 +1,10 @@
 {
-  "book_slug": "noi",
-  "book_title_uk": "Нектар настанов",
-  "book_title_en": "The Nectar of Instruction",
+  "title_uk": "Нектар настанов",
+  "title_en": "The Nectar of Instruction",
   "chapters": [
     {
       "chapter_number": 1,
-      "title_uk": "Нектар настанов",
+      "chapter_title_uk": "Нектар настанов",
       "verses": [
         {
           "verse_number": "1",

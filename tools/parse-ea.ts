@@ -248,7 +248,7 @@ function processQuote(text: string): string {
 
 interface Chapter {
   chapter_number: number;
-  title_uk: string;
+  chapter_title_uk: string;
   content_uk: string;
 }
 
@@ -318,7 +318,7 @@ function parseChapter(text: string, chapterNum: number): Chapter {
 
   return {
     chapter_number: chapterNum,
-    title_uk: chapterTitle || `Глава ${chapterNum}`,
+    chapter_title_uk: chapterTitle || `Глава ${chapterNum}`,
     content_uk: paragraphs.join("\n\n"),
   };
 }
@@ -445,9 +445,8 @@ function main() {
 
   // Write output
   const output = {
-    book_slug: "ea",
-    book_title_uk: "Легка подорож до інших планет",
-    book_title_en: "Easy Journey to Other Planets",
+    title_uk: "Легка подорож до інших планет",
+    title_en: "Easy Journey to Other Planets",
     chapters,
     intros,
   };
