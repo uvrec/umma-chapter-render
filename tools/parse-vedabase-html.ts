@@ -253,10 +253,11 @@ async function main() {
       const verseNumbers = parseVerseNumbers(verseNumStr);
 
       // Створюємо комбінований вірш з UK даними
+      // ВАЖЛИВО: sanskrit_uk НЕ беремо з Ventura - там він закодований спецшрифтом!
+      // Санскрит (деванагарі) беремо тільки з vedabase.io (EN версії)
       const combinedVerse: CombinedVerse = {
         verse_number: verseNumStr,
-        // UK дані з Ventura
-        sanskrit_uk: ukVerse.sanskrit,
+        // UK дані з Ventura (БЕЗ санскриту - він закодований!)
         transliteration_uk: ukVerse.transliteration_uk,
         synonyms_uk: ukVerse.synonyms_uk,
         translation_uk: ukVerse.translation_uk,
@@ -304,11 +305,11 @@ async function main() {
       if (Object.keys(mergedEn).length > 0) {
         parsedVerses++;
 
-        // Sanskrit однаковий для обох мов
-        combinedVerse.sanskrit_en = mergedEn.sanskrit;
-        // Якщо UK не мав sanskrit, беремо з EN
-        if (!combinedVerse.sanskrit_uk && mergedEn.sanskrit) {
+        // Sanskrit (деванагарі) - ЗАВЖДИ беремо з vedabase.io
+        // В українській версії він закодований спецшрифтом і непридатний
+        if (mergedEn.sanskrit) {
           combinedVerse.sanskrit_uk = mergedEn.sanskrit;
+          combinedVerse.sanskrit_en = mergedEn.sanskrit;
         }
 
         combinedVerse.transliteration_en = mergedEn.transliteration_en;

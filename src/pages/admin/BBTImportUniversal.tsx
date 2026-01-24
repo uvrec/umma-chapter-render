@@ -378,37 +378,43 @@ export default function BBTImportUniversal() {
         let existingChapter: { id: string } | null = null;
 
         if (cantoId) {
-          const { data } = await supabase
+          const { data, error } = await supabase
             .from("chapters")
             .select("id")
             .eq("book_id", bookId)
             .eq("canto_id", cantoId)
             .eq("chapter_number", chapter.chapter_number)
             .maybeSingle();
+          console.log(`Query 1 (with canto): data=${JSON.stringify(data)}, error=${JSON.stringify(error)}`);
           existingChapter = data;
         }
 
         // If not found with canto_id, try without it (for chapters created before canto system)
         if (!existingChapter) {
-          const { data } = await supabase
+          const { data, error } = await supabase
             .from("chapters")
             .select("id")
             .eq("book_id", bookId)
             .eq("chapter_number", chapter.chapter_number)
             .is("canto_id", null)
             .maybeSingle();
+          console.log(`Query 2 (canto is null): data=${JSON.stringify(data)}, error=${JSON.stringify(error)}`);
           existingChapter = data;
         }
 
-        // Also try without canto_id filter at all (in case it has a different canto_id)
+        // Also try without canto_id filter at all - use limit(1) in case there are multiple
         if (!existingChapter && cantoId) {
-          const { data } = await supabase
+          const { data, error } = await supabase
             .from("chapters")
             .select("id")
             .eq("book_id", bookId)
             .eq("chapter_number", chapter.chapter_number)
-            .maybeSingle();
-          existingChapter = data;
+            .limit(1)
+            .single();
+          console.log(`Query 3 (any canto): data=${JSON.stringify(data)}, error=${JSON.stringify(error)}`);
+          if (data) {
+            existingChapter = data;
+          }
         }
 
         if (existingChapter) {
@@ -459,13 +465,18 @@ export default function BBTImportUniversal() {
             console.error(`Error creating chapter ${chapter.chapter_number}:`, chapterError);
             // If duplicate key error, try to find and update the existing chapter
             if (chapterError?.code === '23505') {
-              console.log(`Duplicate key, trying to find existing chapter ${chapter.chapter_number}`);
-              const { data: fallbackChapter } = await supabase
+              console.log(`Duplicate key, trying to find existing chapter ${chapter.chapter_number} with canto_id=${cantoId}`);
+              // The constraint is on (canto_id, chapter_number), so search with canto_id
+              const { data: fallbackChapters } = await supabase
                 .from("chapters")
                 .select("id")
                 .eq("book_id", bookId)
+                .eq("canto_id", cantoId)
                 .eq("chapter_number", chapter.chapter_number)
-                .maybeSingle();
+                .limit(1);
+
+              const fallbackChapter = fallbackChapters?.[0];
+              console.log(`Fallback query result: ${JSON.stringify(fallbackChapter)}`);
 
               if (fallbackChapter) {
                 chapterId = fallbackChapter.id;
@@ -474,11 +485,11 @@ export default function BBTImportUniversal() {
                   .update({
                     title_uk: chapterTitleUk.replace(/\n/g, ' '),
                     ...(chapterTitleEn && { title_en: chapterTitleEn.replace(/\n/g, ' ') }),
-                    ...(cantoId && { canto_id: cantoId }),
                   })
                   .eq("id", chapterId);
                 console.log(`Updated fallback chapter ${chapter.chapter_number} with id ${chapterId}`);
               } else {
+                console.error(`Could not find chapter ${chapter.chapter_number} even after duplicate key error!`);
                 continue;
               }
             } else {
@@ -503,46 +514,55 @@ export default function BBTImportUniversal() {
               .maybeSingle();
 
             if (existingVerse) {
-              const { error } = await supabase
-                .from("verses")
-                .update({
-                  // UK fields
-                  sanskrit_uk: verse.sanskrit_uk,
-                  transliteration_uk: verse.transliteration_uk,
-                  synonyms_uk: verse.synonyms_uk,
-                  translation_uk: verse.translation_uk,
-                  commentary_uk: verse.commentary_uk,
-                  // EN fields
-                  sanskrit_en: verse.sanskrit_en,
-                  transliteration_en: verse.transliteration_en,
-                  synonyms_en: verse.synonyms_en,
-                  translation_en: verse.translation_en,
-                  commentary_en: verse.commentary_en,
-                })
-                .eq("id", existingVerse.id);
+              // Only update fields that have actual values - preserve existing data
+              const updateData: Record<string, string> = {};
+              // UK fields
+              if (verse.sanskrit_uk) updateData.sanskrit_uk = verse.sanskrit_uk;
+              if (verse.transliteration_uk) updateData.transliteration_uk = verse.transliteration_uk;
+              if (verse.synonyms_uk) updateData.synonyms_uk = verse.synonyms_uk;
+              if (verse.translation_uk) updateData.translation_uk = verse.translation_uk;
+              if (verse.commentary_uk) updateData.commentary_uk = verse.commentary_uk;
+              // EN fields - only update if source has values
+              if (verse.sanskrit_en) updateData.sanskrit_en = verse.sanskrit_en;
+              if (verse.transliteration_en) updateData.transliteration_en = verse.transliteration_en;
+              if (verse.synonyms_en) updateData.synonyms_en = verse.synonyms_en;
+              if (verse.translation_en) updateData.translation_en = verse.translation_en;
+              if (verse.commentary_en) updateData.commentary_en = verse.commentary_en;
 
-              if (error) {
-                console.error(`Error updating verse ${verse.verse_number}:`, error);
+              if (Object.keys(updateData).length > 0) {
+                const { error } = await supabase
+                  .from("verses")
+                  .update(updateData)
+                  .eq("id", existingVerse.id);
+
+                if (error) {
+                  console.error(`Error updating verse ${verse.verse_number}:`, error);
+                } else {
+                  savedVerses++;
+                }
               } else {
-                savedVerses++;
+                savedVerses++; // Count as saved even if no fields to update
               }
             } else {
-              const { error } = await supabase.from("verses").insert({
+              // For new verses, include all available fields
+              const insertData: Record<string, string> = {
                 chapter_id: chapterId,
                 verse_number: verse.verse_number,
-                // UK fields
-                sanskrit_uk: verse.sanskrit_uk,
-                transliteration_uk: verse.transliteration_uk,
-                synonyms_uk: verse.synonyms_uk,
-                translation_uk: verse.translation_uk,
-                commentary_uk: verse.commentary_uk,
-                // EN fields
-                sanskrit_en: verse.sanskrit_en,
-                transliteration_en: verse.transliteration_en,
-                synonyms_en: verse.synonyms_en,
-                translation_en: verse.translation_en,
-                commentary_en: verse.commentary_en,
-              });
+              };
+              // UK fields
+              if (verse.sanskrit_uk) insertData.sanskrit_uk = verse.sanskrit_uk;
+              if (verse.transliteration_uk) insertData.transliteration_uk = verse.transliteration_uk;
+              if (verse.synonyms_uk) insertData.synonyms_uk = verse.synonyms_uk;
+              if (verse.translation_uk) insertData.translation_uk = verse.translation_uk;
+              if (verse.commentary_uk) insertData.commentary_uk = verse.commentary_uk;
+              // EN fields
+              if (verse.sanskrit_en) insertData.sanskrit_en = verse.sanskrit_en;
+              if (verse.transliteration_en) insertData.transliteration_en = verse.transliteration_en;
+              if (verse.synonyms_en) insertData.synonyms_en = verse.synonyms_en;
+              if (verse.translation_en) insertData.translation_en = verse.translation_en;
+              if (verse.commentary_en) insertData.commentary_en = verse.commentary_en;
+
+              const { error } = await supabase.from("verses").insert(insertData);
 
               if (error) {
                 console.error(`Error inserting verse ${verse.verse_number}:`, error);
@@ -602,42 +622,50 @@ export default function BBTImportUniversal() {
             .maybeSingle();
 
           if (existingVerse) {
-            const { error } = await supabase
-              .from("verses")
-              .update({
-                sanskrit_uk: verse.sanskrit_uk,
-                transliteration_uk: verse.transliteration_uk,
-                synonyms_uk: verse.synonyms_uk,
-                translation_uk: verse.translation_uk,
-                commentary_uk: verse.commentary_uk,
-                sanskrit_en: verse.sanskrit_en,
-                transliteration_en: verse.transliteration_en,
-                synonyms_en: verse.synonyms_en,
-                translation_en: verse.translation_en,
-                commentary_en: verse.commentary_en,
-              })
-              .eq("id", existingVerse.id);
+            // Only update fields that have actual values - preserve existing data
+            const updateData: Record<string, string> = {};
+            if (verse.sanskrit_uk) updateData.sanskrit_uk = verse.sanskrit_uk;
+            if (verse.transliteration_uk) updateData.transliteration_uk = verse.transliteration_uk;
+            if (verse.synonyms_uk) updateData.synonyms_uk = verse.synonyms_uk;
+            if (verse.translation_uk) updateData.translation_uk = verse.translation_uk;
+            if (verse.commentary_uk) updateData.commentary_uk = verse.commentary_uk;
+            if (verse.sanskrit_en) updateData.sanskrit_en = verse.sanskrit_en;
+            if (verse.transliteration_en) updateData.transliteration_en = verse.transliteration_en;
+            if (verse.synonyms_en) updateData.synonyms_en = verse.synonyms_en;
+            if (verse.translation_en) updateData.translation_en = verse.translation_en;
+            if (verse.commentary_en) updateData.commentary_en = verse.commentary_en;
 
-            if (error) {
-              console.error(`Error updating verse ${verse.verse_number}:`, error);
+            if (Object.keys(updateData).length > 0) {
+              const { error } = await supabase
+                .from("verses")
+                .update(updateData)
+                .eq("id", existingVerse.id);
+
+              if (error) {
+                console.error(`Error updating verse ${verse.verse_number}:`, error);
+              } else {
+                savedVerses++;
+              }
             } else {
               savedVerses++;
             }
           } else {
-            const { error } = await supabase.from("verses").insert({
+            const insertData: Record<string, string> = {
               chapter_id: mainChapterId,
               verse_number: verse.verse_number,
-              sanskrit_uk: verse.sanskrit_uk,
-              transliteration_uk: verse.transliteration_uk,
-              synonyms_uk: verse.synonyms_uk,
-              translation_uk: verse.translation_uk,
-              commentary_uk: verse.commentary_uk,
-              sanskrit_en: verse.sanskrit_en,
-              transliteration_en: verse.transliteration_en,
-              synonyms_en: verse.synonyms_en,
-              translation_en: verse.translation_en,
-              commentary_en: verse.commentary_en,
-            });
+            };
+            if (verse.sanskrit_uk) insertData.sanskrit_uk = verse.sanskrit_uk;
+            if (verse.transliteration_uk) insertData.transliteration_uk = verse.transliteration_uk;
+            if (verse.synonyms_uk) insertData.synonyms_uk = verse.synonyms_uk;
+            if (verse.translation_uk) insertData.translation_uk = verse.translation_uk;
+            if (verse.commentary_uk) insertData.commentary_uk = verse.commentary_uk;
+            if (verse.sanskrit_en) insertData.sanskrit_en = verse.sanskrit_en;
+            if (verse.transliteration_en) insertData.transliteration_en = verse.transliteration_en;
+            if (verse.synonyms_en) insertData.synonyms_en = verse.synonyms_en;
+            if (verse.translation_en) insertData.translation_en = verse.translation_en;
+            if (verse.commentary_en) insertData.commentary_en = verse.commentary_en;
+
+            const { error } = await supabase.from("verses").insert(insertData);
 
             if (error) {
               console.error(`Error inserting verse ${verse.verse_number}:`, error);
