@@ -727,9 +727,11 @@ export default function BBTImportUniversal() {
             Дані готові до імпорту: {bookConfig.title_uk}
           </CardTitle>
           <CardDescription className="text-green-700">
-            {bookConfig.hasVerses
-              ? "Книга з віршами (як Бгаґавад-ґіта)"
-              : "Книга з суцільним текстом (глави без віршів)"
+            {bookConfig.cantoNumber
+              ? `Книга з піснями: пісня ${bookConfig.cantoNumber} (глави → вірші)`
+              : bookConfig.hasVerses
+                ? (bookConfig.hasChapters ? "Книга з главами та віршами" : "Книга з віршами (без глав)")
+                : "Книга з суцільним текстом"
             }
           </CardDescription>
         </CardHeader>
