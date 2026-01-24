@@ -399,7 +399,8 @@ function parseVentura(text: string): Chapter {
           ? currentVerse.translation_uk + "\n\n" + trans
           : trans;
       }
-    } else if (currentTag === "p-indent") {
+    } else if (currentTag === "p-indent" || currentTag === "p-purport") {
+      // First paragraph of purport - p-purport is used in SB Canto 2, p-indent in other books
       if (currentVerse) {
         const para = processFirstParagraph(content);
         if (para) {

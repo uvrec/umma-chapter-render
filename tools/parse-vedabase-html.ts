@@ -89,12 +89,23 @@ function parseVedabaseHtml(html: string): {
     }
 
     if (devanagariMatch) {
-      const devanagariChars = devanagariMatch[1].match(/[\u0900-\u097F।॥\s]+/g);
-      if (devanagariChars) {
-        result.sanskrit = devanagariChars
-          .map(s => s.trim())
-          .filter(s => s.length > 5)
-          .join('\n');
+      // First, replace <br/> with newlines to preserve verse structure
+      let devanagariText = devanagariMatch[1]
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<[^>]+>/g, '')  // Remove other HTML tags
+        .trim();
+
+      // Extract Devanagari characters, dandas (।॥), and Devanagari numerals (०-९)
+      // Range \u0900-\u097F covers full Devanagari block
+      // Also include visarga ः which might be encoded separately
+      const lines = devanagariText.split('\n').map(line => {
+        // Extract only Devanagari chars from each line
+        const chars = line.match(/[\u0900-\u097F।॥:]+/g);
+        return chars ? chars.join(' ').replace(/\s+/g, ' ').trim() : '';
+      }).filter(line => line.length > 0);
+
+      if (lines.length > 0) {
+        result.sanskrit = lines.join('\n');
       }
     }
 
@@ -105,8 +116,13 @@ function parseVedabaseHtml(html: string): {
         verseTextMatch[1]
           .replace(/<br\s*\/?>/gi, '\n')
           .replace(/<[^>]+>/g, ' ')
-          .replace(/\s+/g, ' ')
-      ).trim().replace(/^Verse text\s*/i, '').trim();
+      )
+        .split('\n')
+        .map(line => line.replace(/\s+/g, ' ').trim())
+        .filter(line => line)
+        .join('\n')
+        .replace(/^Verse text\s*/i, '')
+        .trim();
 
       if (text && /[āīūṛṝḷḹēōṃḥśṣṇṭḍñṅ]/.test(text)) {
         result.transliteration_en = text;
