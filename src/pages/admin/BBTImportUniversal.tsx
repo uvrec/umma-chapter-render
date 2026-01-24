@@ -25,8 +25,9 @@ import eaData from "@/data/ea-parsed.json";
 import noiData from "@/data/noi-parsed.json";
 import isoData from "@/data/iso-parsed.json";
 import pqnData from "@/data/pqn-parsed.json";
-import sb4Data from "@/data/sb4-parsed.json";
 import sbCanto2Data from "@/data/sb-canto2-combined.json";
+import sbCanto3Data from "@/data/sb-canto3-parsed.json";
+import sbCanto4Data from "@/data/sb-canto4-parsed.json";
 
 // Book configurations
 interface BookConfig {
@@ -164,16 +165,6 @@ const BOOK_CONFIGS: BookConfig[] = [
     data: pqnData as ParsedBookData,
   },
   {
-    id: "sb-4",
-    slug: "sb",
-    title_uk: "Шрімад-Бгаґаватам, Пісня 4, Частина 2",
-    title_en: "Srimad Bhagavatam, Canto 4, Part 2",
-    hasVerses: true,
-    hasChapters: true,
-    data: sb4Data as ParsedBookData,
-    cantoNumber: 4,
-  },
-  {
     id: "sb-2",
     slug: "sb",
     title_uk: "Шрімад-Бгаґаватам, Пісня 2",
@@ -183,6 +174,28 @@ const BOOK_CONFIGS: BookConfig[] = [
     data: sbCanto2Data as ParsedBookData,
     cantoNumber: 2,
     skipIntros: true, // Intro pages shared with other SB cantos
+  },
+  {
+    id: "sb-3",
+    slug: "sb",
+    title_uk: "Шрімад-Бгаґаватам, Пісня 3",
+    title_en: "Srimad Bhagavatam, Canto 3",
+    hasVerses: true,
+    hasChapters: true,
+    data: sbCanto3Data as ParsedBookData,
+    cantoNumber: 3,
+    skipIntros: true,
+  },
+  {
+    id: "sb-4",
+    slug: "sb",
+    title_uk: "Шрімад-Бгаґаватам, Пісня 4",
+    title_en: "Srimad Bhagavatam, Canto 4",
+    hasVerses: true,
+    hasChapters: true,
+    data: sbCanto4Data as ParsedBookData,
+    cantoNumber: 4,
+    skipIntros: true,
   },
 ];
 
