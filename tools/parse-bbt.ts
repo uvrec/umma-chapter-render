@@ -328,7 +328,7 @@ interface Verse {
 
 interface Chapter {
   chapter_number: number;
-  title_uk: string;
+  chapter_title_uk: string;
   verses: Verse[];
 }
 
@@ -444,7 +444,7 @@ function parseVentura(text: string): Chapter {
 
   flushBlock();
   if (currentVerse) verses.push(currentVerse);
-  return { chapter_number: chapterNumber, title_uk: chapterTitle, verses };
+  return { chapter_number: chapterNumber, chapter_title_uk: chapterTitle, verses };
 }
 
 function parseIntroPage(text: string, filePrefix: string): IntroPage | null {
@@ -544,7 +544,7 @@ function main() {
 
       if (chapter.verses.length > 0) {
         chapters.push(chapter);
-        console.log(`  → ${chapter.verses.length} verses, title: "${chapter.title_uk}"`);
+        console.log(`  → ${chapter.verses.length} verses, title: "${chapter.chapter_title_uk}"`);
       } else {
         console.log(`  → WARNING: No verses found!`);
       }
@@ -570,7 +570,12 @@ function main() {
   }
 
   // Write output
-  const output = { chapters, intros };
+  const output = {
+    title_uk: "Бгаґавад-ґіта як вона є",
+    title_en: "Bhagavad-gita As It Is",
+    chapters,
+    intros
+  };
   const outputPath = path.join(OUTPUT_DIR, "bbt-parsed.json");
   fs.writeFileSync(outputPath, JSON.stringify(output, null, 2), "utf8");
 

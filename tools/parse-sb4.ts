@@ -262,7 +262,7 @@ interface Verse {
 
 interface Chapter {
   chapter_number: number;
-  title_uk: string;
+  chapter_title_uk: string;
   verses: Verse[];
 }
 
@@ -367,7 +367,7 @@ function parseChapter(text: string): Chapter {
 
   flushBlock();
   if (currentVerse) verses.push(currentVerse);
-  return { chapter_number: chapterNumber, title_uk: chapterTitle, verses };
+  return { chapter_number: chapterNumber, chapter_title_uk: chapterTitle, verses };
 }
 
 function parseIntroPage(text: string, filePrefix: string): IntroPage | null {
@@ -452,9 +452,9 @@ function main() {
   if (!fs.existsSync(DOCS_DIR)) {
     console.log(`Directory ${DOCS_DIR} not found. Creating empty output.`);
     const output = {
-      book_slug: "bhagavatam",
-      book_title_uk: "Шрімад-Бгаґаватам, Пісня 4, Частина 2",
-      book_title_en: "Srimad Bhagavatam, Canto 4, Part 2",
+      canto: 4,
+      title_uk: "Шрімад-Бгаґаватам, Пісня 4, Частина 2",
+      title_en: "Srimad Bhagavatam, Canto 4, Part 2",
       chapters: [],
       intros: [],
     };
@@ -484,7 +484,7 @@ function main() {
 
       if (chapter.verses.length > 0) {
         chapters.push(chapter);
-        console.log(`  → ${chapter.verses.length} verses, title: "${chapter.title_uk}"`);
+        console.log(`  → ${chapter.verses.length} verses, title: "${chapter.chapter_title_uk}"`);
       } else {
         console.log(`  → WARNING: No verses found!`);
       }
@@ -511,9 +511,9 @@ function main() {
 
   // Write output
   const output = {
-    book_slug: "bhagavatam",
-    book_title_uk: "Шрімад-Бгаґаватам, Пісня 4, Частина 2",
-    book_title_en: "Srimad Bhagavatam, Canto 4, Part 2",
+    canto: 4,
+    title_uk: "Шрімад-Бгаґаватам, Пісня 4, Частина 2",
+    title_en: "Srimad Bhagavatam, Canto 4, Part 2",
     chapters,
     intros,
   };

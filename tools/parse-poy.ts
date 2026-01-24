@@ -248,7 +248,7 @@ function processQuote(text: string): string {
 
 interface Chapter {
   chapter_number: number;
-  title_uk: string;
+  chapter_title_uk: string;
   content_uk: string;
 }
 
@@ -318,7 +318,7 @@ function parseChapter(text: string, chapterNum: number): Chapter {
 
   return {
     chapter_number: chapterNum,
-    title_uk: chapterTitle || `Глава ${chapterNum}`,
+    chapter_title_uk: chapterTitle || `Глава ${chapterNum}`,
     content_uk: paragraphs.join("\n\n"),
   };
 }
@@ -445,9 +445,8 @@ function main() {
 
   // Write output
   const output = {
-    book_slug: "poy",
-    book_title_uk: "Досконалість йоґи",
-    book_title_en: "The Perfection of Yoga",
+    title_uk: "Досконалість йоґи",
+    title_en: "The Perfection of Yoga",
     chapters,
     intros,
   };

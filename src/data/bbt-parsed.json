@@ -1,8 +1,10 @@
 {
+  "title_uk": "Бгаґавад-ґіта як вона є",
+  "title_en": "Bhagavad-gita As It Is",
   "chapters": [
     {
       "chapter_number": 1,
-      "title_uk": "Огляд армій на полі\n битви Курукшетра",
+      "chapter_title_uk": "Огляд армій на полі\n битви Курукшетра",
       "verses": [
         {
           "verse_number": "1",
@@ -276,7 +278,7 @@
     },
     {
       "chapter_number": 2,
-      "title_uk": "Огляд «Бгаґавад-ґіти»",
+      "chapter_title_uk": "Огляд «Бгаґавад-ґіти»",
       "verses": [
         {
           "verse_number": "1",
@@ -778,7 +780,7 @@
     },
     {
       "chapter_number": 3,
-      "title_uk": "Карма-йоґа",
+      "chapter_title_uk": "Карма-йоґа",
       "verses": [
         {
           "verse_number": "1",
@@ -1085,7 +1087,7 @@
     },
     {
       "chapter_number": 4,
-      "title_uk": "Трансцендентне знання",
+      "chapter_title_uk": "Трансцендентне знання",
       "verses": [
         {
           "verse_number": "1",
@@ -1385,7 +1387,7 @@
     },
     {
       "chapter_number": 5,
-      "title_uk": "Карма-йоґа – діяльність\n у свідомості Крішни",
+      "chapter_title_uk": "Карма-йоґа – діяльність\n у свідомості Крішни",
       "verses": [
         {
           "verse_number": "1",
@@ -1580,7 +1582,7 @@
     },
     {
       "chapter_number": 6,
-      "title_uk": "Дгʼяна-йоґа",
+      "chapter_title_uk": "Дгʼяна-йоґа",
       "verses": [
         {
           "verse_number": "1",
@@ -1879,7 +1881,7 @@
     },
     {
       "chapter_number": 7,
-      "title_uk": "Знання Абсолюта",
+      "chapter_title_uk": "Знання Абсолюта",
       "verses": [
         {
           "verse_number": "1",
@@ -2095,7 +2097,7 @@
     },
     {
       "chapter_number": 8,
-      "title_uk": "Досягнення Всевишнього",
+      "chapter_title_uk": "Досягнення Всевишнього",
       "verses": [
         {
           "verse_number": "1",
@@ -2296,7 +2298,7 @@
     },
     {
       "chapter_number": 9,
-      "title_uk": "Найпотаємніше знання",
+      "chapter_title_uk": "Найпотаємніше знання",
       "verses": [
         {
           "verse_number": "1",
@@ -2540,7 +2542,7 @@
     },
     {
       "chapter_number": 10,
-      "title_uk": "Щедроти Абсолюта",
+      "chapter_title_uk": "Щедроти Абсолюта",
       "verses": [
         {
           "verse_number": "1",
@@ -2826,7 +2828,7 @@
     },
     {
       "chapter_number": 11,
-      "title_uk": "Всесвітня форма",
+      "chapter_title_uk": "Всесвітня форма",
       "verses": [
         {
           "verse_number": "1",
@@ -3185,7 +3187,7 @@
     },
     {
       "chapter_number": 12,
-      "title_uk": "Віддане служіння",
+      "chapter_title_uk": "Віддане служіння",
       "verses": [
         {
           "verse_number": "1",
@@ -3303,7 +3305,7 @@
     },
     {
       "chapter_number": 13,
-      "title_uk": "Природа, володар\n насолод і свідомість",
+      "chapter_title_uk": "Природа, володар\n насолод і свідомість",
       "verses": [
         {
           "verse_number": "1-2",
@@ -3512,7 +3514,7 @@
     },
     {
       "chapter_number": 14,
-      "title_uk": "Три ґуни\n матеріальної природи",
+      "chapter_title_uk": "Три ґуни\n матеріальної природи",
       "verses": [
         {
           "verse_number": "1",
@@ -3686,7 +3688,7 @@
     },
     {
       "chapter_number": 15,
-      "title_uk": "Йоґа Верховної Особи",
+      "chapter_title_uk": "Йоґа Верховної Особи",
       "verses": [
         {
           "verse_number": "1",
@@ -3825,7 +3827,7 @@
     },
     {
       "chapter_number": 16,
-      "title_uk": "Божественні\n і демонічні натури",
+      "chapter_title_uk": "Божественні\n і демонічні натури",
       "verses": [
         {
           "verse_number": "1-3",
@@ -3963,7 +3965,7 @@
     },
     {
       "chapter_number": 17,
-      "title_uk": "Різновиди віри",
+      "chapter_title_uk": "Різновиди віри",
       "verses": [
         {
           "verse_number": "1",
@@ -4148,7 +4150,7 @@
     },
     {
       "chapter_number": 18,
-      "title_uk": "Завершення.\n Досконалість зречення",
+      "chapter_title_uk": "Завершення.\n Досконалість зречення",
       "verses": [
         {
           "verse_number": "1",

@@ -1,9 +1,11 @@
 {
   "canto": 2,
+  "title_uk": "Шрімад-Бгаґаватам, Пісня 2",
+  "title_en": "Srimad Bhagavatam, Canto 2",
   "chapters": [
     {
       "chapter_number": 1,
-      "title_uk": "Перший крок в усвідомленні Бога",
+      "chapter_title_uk": "Перший крок в усвідомленні Бога",
       "verses": [
         {
           "verse_number": "ЗВЕРНЕННЯ",
@@ -314,7 +316,7 @@
     },
     {
       "chapter_number": 2,
-      "title_uk": "Господь у серці",
+      "chapter_title_uk": "Господь у серці",
       "verses": [
         {
           "verse_number": "1",
@@ -598,7 +600,7 @@
     },
     {
       "chapter_number": 3,
-      "title_uk": "Чисте віддане служіння: зміна в серці",
+      "chapter_title_uk": "Чисте віддане служіння: зміна в серці",
       "verses": [
         {
           "verse_number": "1",
@@ -762,7 +764,7 @@
     },
     {
       "chapter_number": 4,
-      "title_uk": "Творення",
+      "chapter_title_uk": "Творення",
       "verses": [
         {
           "verse_number": "1",
@@ -955,7 +957,7 @@
     },
     {
       "chapter_number": 5,
-      "title_uk": "Причина всіх причин",
+      "chapter_title_uk": "Причина всіх причин",
       "verses": [
         {
           "verse_number": "1",
@@ -1242,7 +1244,7 @@
     },
     {
       "chapter_number": 6,
-      "title_uk": "Підтвердження «Пуруша-сукти»",
+      "chapter_title_uk": "Підтвердження «Пуруша-сукти»",
       "verses": [
         {
           "verse_number": "1",
@@ -1548,7 +1550,7 @@
     },
     {
       "chapter_number": 7,
-      "title_uk": "Перелік визначних втілень Господа з описом їхніх цілей",
+      "chapter_title_uk": "Перелік визначних втілень Господа з описом їхніх цілей",
       "verses": [
         {
           "verse_number": "1",
@@ -1928,7 +1930,7 @@
     },
     {
       "chapter_number": 8,
-      "title_uk": "Запитання царя Парікшіта",
+      "chapter_title_uk": "Запитання царя Парікшіта",
       "verses": [
         {
           "verse_number": "1",
@@ -2153,7 +2155,7 @@
     },
     {
       "chapter_number": 9,
-      "title_uk": "Відповіді Шукадеви Ґосвамі з наведенням слів Самого Господа",
+      "chapter_title_uk": "Відповіді Шукадеви Ґосвамі з наведенням слів Самого Господа",
       "verses": [
         {
           "verse_number": "1",
@@ -2509,7 +2511,7 @@
     },
     {
       "chapter_number": 10,
-      "title_uk": "Бгаґаватам відповідає на всі запитання",
+      "chapter_title_uk": "Бгаґаватам відповідає на всі запитання",
       "verses": [
         {
           "verse_number": "1",

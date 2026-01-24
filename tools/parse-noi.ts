@@ -301,7 +301,7 @@ interface Verse {
 
 interface Chapter {
   chapter_number: number;
-  title_uk: string;
+  chapter_title_uk: string;
   verses: Verse[];
 }
 
@@ -468,10 +468,10 @@ function main() {
   if (!fs.existsSync(DOCS_DIR)) {
     console.log(`Directory ${DOCS_DIR} not found. Creating empty output.`);
     const output = {
-      book_slug: "noi",
-      book_title_uk: "Нектар настанов",
-      book_title_en: "The Nectar of Instruction",
-      chapters: [],
+      title_uk: "Нектар настанов",
+      title_en: "The Nectar of Instruction",
+      hasChapters: false,
+      verses: [],
       intros: [],
     };
     const outputPath = path.join(OUTPUT_DIR, "noi-parsed.json");
@@ -517,19 +517,12 @@ function main() {
     }
   }
 
-  // Create single chapter with all verses
-  const chapter: Chapter = {
-    chapter_number: 1,
-    title_uk: "Нектар настанов",
-    verses,
-  };
-
-  // Write output
+  // Write output - verses directly at book level (no chapters for this book)
   const output = {
-    book_slug: "noi",
-    book_title_uk: "Нектар настанов",
-    book_title_en: "The Nectar of Instruction",
-    chapters: verses.length > 0 ? [chapter] : [],
+    title_uk: "Нектар настанов",
+    title_en: "The Nectar of Instruction",
+    hasChapters: false,
+    verses,
     intros,
   };
 
