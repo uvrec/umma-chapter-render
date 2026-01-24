@@ -531,7 +531,7 @@ export default function BBTImportUniversal() {
 
             if (existingVerse) {
               // Only update fields that have actual values - preserve existing data
-              const updateData: Record<string, string> = {};
+              const updateData: { [key: string]: string } = {};
               // UK fields
               if (verse.sanskrit_uk) updateData.sanskrit_uk = verse.sanskrit_uk;
               if (verse.transliteration_uk) updateData.transliteration_uk = verse.transliteration_uk;
@@ -561,7 +561,7 @@ export default function BBTImportUniversal() {
               }
             } else {
               // For new verses, include all available fields
-              const insertData: Record<string, string> = {
+              const insertData: { [key: string]: string } = {
                 chapter_id: chapterId,
                 verse_number: verse.verse_number,
               };
