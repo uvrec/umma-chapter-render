@@ -273,7 +273,7 @@ export function SpineNavigation({
           </div>
         ) : (
           /* Normal mode: 4 action buttons */
-          <div className="flex flex-col items-center gap-4">
+          <div className="flex flex-col items-center gap-6 mt-auto mb-24">
             {spineButtons.map((btn) => {
               const Icon = btn.icon;
               return (
@@ -281,7 +281,7 @@ export function SpineNavigation({
                   key={btn.id}
                   onClick={btn.onClick}
                   className={cn(
-                    "spine-btn w-11 h-11 flex items-center justify-center",
+                    "spine-btn w-12 h-12 flex items-center justify-center",
                     "rounded-full transition-all duration-200",
                     btn.active
                       ? "bg-white/20 text-white"
@@ -290,7 +290,7 @@ export function SpineNavigation({
                   aria-label={btn.label}
                   aria-pressed={btn.active}
                 >
-                  <Icon className="h-5 w-5" />
+                  <Icon className="h-6 w-6" strokeWidth={2.5} />
                 </button>
               );
             })}
