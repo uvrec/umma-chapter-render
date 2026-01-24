@@ -194,7 +194,7 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
       }
     }
 
-    // ✅ 3. Optimized verse content search
+    // ✅ 3. Optimized verse content search with canto support
     if (searchQuery.length >= 3) {
       try {
         const { data: verseData } = await supabase
@@ -206,11 +206,12 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
             translation_en,
             chapter:chapters!inner(
               chapter_number,
-              book:books!inner(slug, title_uk, title_en)
+              canto:cantos(canto_number),
+              book:books!inner(slug, title_uk, title_en, has_cantos)
             )
           `)
           .or(`translation_uk.ilike.%${searchQuery}%,translation_en.ilike.%${searchQuery}%`)
-          .limit(8);
+          .limit(20);
 
         if (verseData && verseData.length > 0) {
           for (const verse of verseData) {
@@ -218,15 +219,30 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
             if (!chapter?.book) continue;
 
             const translation = language === "uk" ? verse.translation_uk : verse.translation_en;
-            const preview = translation?.substring(0, 60) + (translation && translation.length > 60 ? "..." : "");
+            const preview = translation?.substring(0, 80) + (translation && translation.length > 80 ? "..." : "");
             const bookTitle = language === "uk" ? chapter.book.title_uk : chapter.book.title_en;
+
+            // Handle canto-based books (SB, CC)
+            const cantoNumber = chapter.canto?.canto_number;
+            const hasCantos = chapter.book.has_cantos;
+
+            let versePath: string;
+            let verseRef: string;
+
+            if (hasCantos && cantoNumber) {
+              versePath = `/lib/${chapter.book.slug}/${cantoNumber}/${chapter.chapter_number}/${verse.verse_number}`;
+              verseRef = `${cantoNumber}.${chapter.chapter_number}.${verse.verse_number}`;
+            } else {
+              versePath = `/lib/${chapter.book.slug}/${chapter.chapter_number}/${verse.verse_number}`;
+              verseRef = `${chapter.chapter_number}.${verse.verse_number}`;
+            }
 
             newResults.push({
               type: "keyword",
               id: verse.id,
-              title: `${bookTitle || chapter.book.slug.toUpperCase()} ${chapter.chapter_number}.${verse.verse_number}`,
+              title: `${bookTitle || chapter.book.slug.toUpperCase()} ${verseRef}`,
               subtitle: preview,
-              path: getLocalizedPath(`/lib/${chapter.book.slug}/${chapter.chapter_number}/${verse.verse_number}`),
+              path: getLocalizedPath(versePath),
             });
           }
         }
