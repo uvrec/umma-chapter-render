@@ -24,7 +24,6 @@ import {
   Heart,
   Wallet,
   Building2,
-  Headphones,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -490,29 +489,7 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
 
           <Separator />
 
-          {/* 4. AUDIO Section */}
-          <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
-              {t("Аудіо", "Audio")}
-            </Label>
-            <div className="space-y-1">
-              <button
-                onClick={() => handleNavigate("/audio")}
-                className="w-full flex items-center justify-between px-2 py-3
-                  hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
-              >
-                <span className="flex items-center gap-3">
-                  <Headphones className="h-5 w-5 text-muted-foreground" />
-                  <span>{t("Аудіокниги та плейлісти", "Audiobooks & Playlists")}</span>
-                </span>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
-              </button>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* 5. ABOUT Section */}
+          {/* 4. ABOUT Section */}
           <div>
             <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
               {t("Про нас", "About")}
@@ -583,7 +560,7 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
 
           <Separator />
 
-          {/* 6. CONTACT & SUPPORT Section - 2-column icon grid */}
+          {/* 5. CONTACT & SUPPORT Section - 2-column icon grid */}
           <div>
             <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
               {t("Зв'язок і підтримка", "Contact & Support")}

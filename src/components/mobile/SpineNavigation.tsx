@@ -3,13 +3,14 @@
 // Мінімалістична бокова панель: тільки 4 іконки, свайп для навігації
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   List,
   Type,
   Search,
   Settings,
   Highlighter,
+  Headphones,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -37,7 +38,8 @@ export function SpineNavigation({
 }: SpineNavigationProps) {
   const [activePanel, setActivePanel] = useState<SpinePanel>("none");
   const location = useLocation();
-  const { language, t } = useLanguage();
+  const navigate = useNavigate();
+  const { language, t, getLocalizedPath } = useLanguage();
 
   // Use shared Spine theme from context - controls app theme
   const { gradient: spineGradient, nextTheme, prevTheme } = useSpineTheme();
@@ -135,6 +137,13 @@ export function SpineNavigation({
       label: t("Пошук", "Search"),
       onClick: () => togglePanel("search"),
       active: activePanel === "search",
+    },
+    {
+      id: "audio",
+      icon: Headphones,
+      label: t("Аудіо", "Audio"),
+      onClick: () => navigate(getLocalizedPath("/audio")),
+      active: location.pathname.includes("/audio"),
     },
     {
       id: "highlights",
