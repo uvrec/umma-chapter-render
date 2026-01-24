@@ -2,7 +2,8 @@
  * Парсер завантажених HTML файлів з vedabase.io
  * Об'єднує UK та EN версії в один JSON
  *
- * Використання: npx ts-node tools/parse-vedabase-html.ts
+ * Використання: npx ts-node tools/parse-vedabase-html.ts [canto_number]
+ * Example: npx ts-node tools/parse-vedabase-html.ts 4
  */
 
 import * as fs from 'fs';
@@ -12,10 +13,19 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const CANTO = 2;
+// Get canto from args
+const cantoArg = process.argv[2];
+const CANTO = cantoArg ? parseInt(cantoArg) : 2;
+
+if (isNaN(CANTO) || CANTO < 1 || CANTO > 12) {
+  console.error('Usage: npx ts-node tools/parse-vedabase-html.ts [canto_number]');
+  console.error('Example: npx ts-node tools/parse-vedabase-html.ts 4');
+  process.exit(1);
+}
+
 const HTML_DIR = path.join(__dirname, 'outputs', `vedabase_sb${CANTO}`);
-const UK_JSON = path.join(__dirname, '..', 'src', 'data', 'sb-canto2-parsed.json');
-const OUTPUT_JSON = path.join(__dirname, '..', 'src', 'data', 'sb-canto2-combined.json');
+const UK_JSON = path.join(__dirname, '..', 'src', 'data', `sb-canto${CANTO}-parsed.json`);
+const OUTPUT_JSON = path.join(__dirname, '..', 'src', 'data', `sb-canto${CANTO}-combined.json`);
 
 interface CombinedVerse {
   verse_number: string;
@@ -183,13 +193,20 @@ function parseVedabaseHtml(html: string): {
       const purportHtml = html.substring(startIdx, endIdx);
       const purportParts: string[] = [];
 
-      // Match divs with em-mb-4 and s-justify classes - these contain purport text
-      // Text is directly after opening tag, before any nested elements
-      const contentPattern = /<div class="em-mb-4[^"]*s-justify[^"]*"[^>]*>([^<]+)/gi;
+      // Match INNER divs with em-mb-4 and s-justify classes that contain paragraph text
+      // Structure is: <div id="bbXXX" class="em-mb-4..."><div class="em-mb-4 s-justify">CONTENT</div></div>
+      // We need to capture the FULL content including nested HTML tags, then strip them
+      const contentPattern = /<div class="em-mb-4[^"]*em-leading-8[^"]*em-text-base[^"]*s-justify"[^>]*>([\s\S]*?)<\/div>/gi;
 
       let match;
       while ((match = contentPattern.exec(purportHtml)) !== null) {
-        let text = decodeHtmlEntities(match[1]).trim();
+        // Strip HTML tags but preserve text content
+        let text = decodeHtmlEntities(
+          match[1]
+            .replace(/<br\s*\/?>/gi, ' ')
+            .replace(/<[^>]+>/g, '')  // Remove all HTML tags
+            .replace(/\s+/g, ' ')
+        ).trim();
 
         // Skip short or empty text
         if (!text || text.length < 30) continue;

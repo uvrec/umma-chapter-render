@@ -45,28 +45,45 @@ const UKRAINIAN_PUA_MAP: Record<string, string> = {
   "\uf129": "л̣̄",
 };
 
-// Intro file mapping for SB (UKS{canto}00 pattern)
+// Intro file mapping for SB (UKS{canto}00 and UKS{canto}01 patterns)
 function getIntroFileMap(cantoNum: number): Record<string, [string, string, number]> {
-  const prefix = `UKS${cantoNum}00`;
+  const prefix00 = `UKS${cantoNum}00`;
+  const prefix01 = `UKS${cantoNum}01`;  // Volume 1 specific files
+
   return {
-    [`${prefix}DC`]: ["dedication", "Посвята", 1],
-    [`${prefix}FW`]: ["foreword", "Передмова", 2],
-    [`${prefix}PF`]: ["preface", "Передмова до англійського видання", 3],
-    [`${prefix}PG`]: ["pronunciation", "Як читати санскрит", 4],
-    [`${prefix}ID`]: ["introduction", "Вступ", 5],
-    [`${prefix}TC`]: ["toc", "Зміст", 100],
-    [`${prefix}GL`]: ["glossary", "Словничок", 101],
-    [`${prefix}QV`]: ["verse-index", "Покажчик віршів", 102],
-    [`${prefix}RF`]: ["references", "Список літератури", 103],
-    [`${prefix}AU`]: ["about-author", "Про автора", 104],
-    [`${prefix}BL`]: ["books", "Книги", 105],
-    [`${prefix}XI`]: ["index", "Покажчик", 106],
-    [`${prefix}XS`]: ["subjects", "Тематичний покажчик", 107],
+    // Common canto files (UKS400XX pattern)
+    [`${prefix00}DC`]: ["dedication", "Посвята", 1],
+    [`${prefix00}FW`]: ["foreword", "Передмова", 2],
+    [`${prefix00}PF`]: ["preface", "Передмова до англійського видання", 3],
+    [`${prefix00}PG`]: ["pronunciation", "Як читати санскрит", 4],
+    [`${prefix00}ID`]: ["introduction", "Вступ", 5],
+    [`${prefix00}TC`]: ["toc", "Зміст", 100],
+    [`${prefix00}GL`]: ["glossary", "Словничок", 101],
+    [`${prefix00}QV`]: ["verse-index", "Покажчик віршів", 102],
+    [`${prefix00}RF`]: ["references", "Список літератури", 103],
+    [`${prefix00}AU`]: ["about-author", "Про автора", 104],
+    [`${prefix00}BL`]: ["books", "Книги", 105],
+    [`${prefix00}XI`]: ["index", "Покажчик", 106],
+    [`${prefix00}XS`]: ["subjects", "Тематичний покажчик", 107],
+    // Volume 1 specific files (UKS401XX pattern) - used in Canto 4
+    [`${prefix01}FW`]: ["foreword", "Передмова", 2],
+    [`${prefix01}PF`]: ["preface", "Передмова до англійського видання", 3],
+    [`${prefix01}PG`]: ["pronunciation", "Як читати санскрит", 4],
+    [`${prefix01}TC`]: ["toc", "Зміст", 100],
+    [`${prefix01}GL`]: ["glossary", "Словничок", 101],
+    [`${prefix01}QV`]: ["verse-index", "Покажчик віршів", 102],
+    [`${prefix01}RF`]: ["references", "Список літератури", 103],
+    [`${prefix01}AU`]: ["about-author", "Про автора", 104],
+    [`${prefix01}BL`]: ["books", "Книги", 105],
+    [`${prefix01}XI`]: ["index", "Покажчик", 106],
+    [`${prefix01}XS`]: ["subjects", "Тематичний покажчик", 107],
   };
 }
 
 // Ukrainian ordinals for chapter numbers
 const ORDINALS: [string, number][] = [
+  ["ТРИДЦЯТЬ ТРЕТЯ", 33],
+  ["ТРИДЦЯТЬ ДРУГА", 32],
   ["ТРИДЦЯТЬ ПЕРША", 31],
   ["ТРИДЦЯТА", 30],
   ["ДВАДЦЯТЬ ДЕВ'ЯТА", 29],
@@ -545,10 +562,25 @@ function main() {
 
   console.log(`SB Canto ${cantoNum} Ventura Parser\n`);
 
-  const docsDir = path.join(BASE_DOCS_DIR, String(cantoNum));
+  // Find all volume folders for this canto: {canto}, {canto}.1, {canto}.2, etc.
+  const docsDirs: string[] = [];
 
-  if (!fs.existsSync(docsDir)) {
-    console.error(`❌ Directory not found: ${docsDir}`);
+  // Try single folder first (e.g., "2")
+  const singleDir = path.join(BASE_DOCS_DIR, String(cantoNum));
+  if (fs.existsSync(singleDir)) {
+    docsDirs.push(singleDir);
+  }
+
+  // Try volume folders (e.g., "3.1", "3.2")
+  for (let vol = 1; vol <= 5; vol++) {
+    const volDir = path.join(BASE_DOCS_DIR, `${cantoNum}.${vol}`);
+    if (fs.existsSync(volDir)) {
+      docsDirs.push(volDir);
+    }
+  }
+
+  if (docsDirs.length === 0) {
+    console.error(`❌ No directories found for canto ${cantoNum}`);
     console.log(`Available cantos:`);
     if (fs.existsSync(BASE_DOCS_DIR)) {
       const available = fs.readdirSync(BASE_DOCS_DIR).filter(f =>
@@ -558,32 +590,41 @@ function main() {
     }
     process.exit(1);
   }
+  console.log(`Using source directories: ${docsDirs.join(', ')}`);
 
   // Create output directory
   if (!fs.existsSync(OUTPUT_DIR)) {
     fs.mkdirSync(OUTPUT_DIR, { recursive: true });
   }
 
-  const files = fs.readdirSync(docsDir);
+  // Collect files from all volume directories
+  const allFiles: { file: string; dir: string }[] = [];
+  for (const dir of docsDirs) {
+    const files = fs.readdirSync(dir);
+    for (const file of files) {
+      allFiles.push({ file, dir });
+    }
+  }
+
   const chapters: Chapter[] = [];
   const intros: IntroPage[] = [];
 
-  // Find all chapter files (UKS4XXXT pattern)
-  const chapterFiles = files
-    .filter(f => f.match(new RegExp(`^UKS${cantoNum}\\d{2}XT\\.H\\d+$`)) && !f.endsWith(".bak"))
-    .sort();
+  // Find all chapter files (UKS{canto}XXXT pattern) from all volumes
+  const chapterFiles = allFiles
+    .filter(({ file }) => file.match(new RegExp(`^UKS${cantoNum}\\d{2}XT\\.H\\d+$`)) && !file.endsWith(".bak"))
+    .sort((a, b) => a.file.localeCompare(b.file));
 
   console.log(`Found ${chapterFiles.length} chapter files`);
 
-  for (const chapterFile of chapterFiles) {
-    // Extract chapter number from filename (e.g., UKS420XT.H18 -> 20)
+  for (const { file: chapterFile, dir: chapterDir } of chapterFiles) {
+    // Extract chapter number from filename (e.g., UKS320XT.H18 -> 20)
     const match = chapterFile.match(new RegExp(`^UKS${cantoNum}(\\d{2})XT`));
     if (!match) continue;
 
     const chNum = parseInt(match[1]);
-    console.log(`Parsing chapter ${chNum}: ${chapterFile}`);
+    console.log(`Parsing chapter ${chNum}: ${chapterFile} (from ${path.basename(chapterDir)})`);
 
-    const text = readFile(path.join(docsDir, chapterFile));
+    const text = readFile(path.join(chapterDir, chapterFile));
     const chapter = parseVentura(text);
 
     // Override chapter number from filename if parsing failed
@@ -602,14 +643,14 @@ function main() {
   // Sort chapters by number
   chapters.sort((a, b) => a.chapter_number - b.chapter_number);
 
-  // Parse intro files
+  // Parse intro files from all volumes
   const introMap = getIntroFileMap(cantoNum);
   for (const [prefix] of Object.entries(introMap)) {
-    const introFile = files.find(f => f.startsWith(prefix) && !f.endsWith(".bak"));
+    const introEntry = allFiles.find(({ file }) => file.startsWith(prefix) && !file.endsWith(".bak"));
 
-    if (introFile) {
-      console.log(`Parsing intro: ${introFile}`);
-      const text = readFile(path.join(docsDir, introFile));
+    if (introEntry) {
+      console.log(`Parsing intro: ${introEntry.file}`);
+      const text = readFile(path.join(introEntry.dir, introEntry.file));
       const intro = parseIntroPage(text, prefix, introMap);
 
       if (intro) {
