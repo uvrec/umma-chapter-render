@@ -21,7 +21,7 @@ async function checkDatabaseState() {
     // 1. Перевірити книги
     const { data: books, error: booksError } = await supabase
       .from('books')
-      .select('id, slug, title_ua, title_en, has_cantos, is_published')
+      .select('id, slug, title_uk, title_en, has_cantos, is_published')
       .order('display_order', { ascending: true });
 
     if (booksError) {
@@ -31,7 +31,7 @@ async function checkDatabaseState() {
 
     console.log(`📚 Книги (всього ${books?.length || 0}):`);
     books?.forEach(book => {
-      console.log(`  • ${book.slug} - ${book.title_ua} (cantos: ${book.has_cantos ? 'так' : 'ні'}, published: ${book.is_published ? 'так' : 'ні'})`);
+      console.log(`  • ${book.slug} - ${book.title_uk} (cantos: ${book.has_cantos ? 'так' : 'ні'}, published: ${book.is_published ? 'так' : 'ні'})`);
     });
     console.log('');
 
@@ -45,7 +45,7 @@ async function checkDatabaseState() {
       // 3. Перевірити cantos для SB
       const { data: cantos, error: cantosError } = await supabase
         .from('cantos')
-        .select('id, canto_number, title_ua, title_en')
+        .select('id, canto_number, title_uk, title_en')
         .eq('book_id', sbBook.id)
         .order('canto_number', { ascending: true });
 
@@ -55,7 +55,7 @@ async function checkDatabaseState() {
         console.log(`🎵 Пісні Śrīmad-Bhāgavatam (всього ${cantos?.length || 0}):`);
         if (cantos && cantos.length > 0) {
           cantos.forEach(canto => {
-            console.log(`  • Пісня ${canto.canto_number}: ${canto.title_ua || canto.title_en || '(без назви)'}`);
+            console.log(`  • Пісня ${canto.canto_number}: ${canto.title_uk || canto.title_en || '(без назви)'}`);
           });
         } else {
           console.log('  ⚠️  Пісні НЕ ЗНАЙДЕНО');
@@ -67,7 +67,7 @@ async function checkDatabaseState() {
           for (const canto of cantos) {
             const { data: chapters, error: chaptersError } = await supabase
               .from('chapters')
-              .select('id, chapter_number, title_ua, chapter_type')
+              .select('id, chapter_number, title_uk, chapter_type')
               .eq('canto_id', canto.id)
               .order('chapter_number', { ascending: true });
 

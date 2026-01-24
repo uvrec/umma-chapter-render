@@ -4,7 +4,7 @@
 
 Парсить EN_BG_1972_epub_r2.epub і:
 1. Витягує IAST транслітерацію (transliteration_en)
-2. Конвертує IAST → українську кирилицю (transliteration_ua)
+2. Конвертує IAST → українську кирилицю (transliteration_uk)
 3. UPSERT в базу verses
 
 Використання:
@@ -29,12 +29,12 @@
 
 МАППІНГ ПОЛІВ (для джерел EN + Sanskrit/Bengali):
 =================================================
-- sanskrit_en / sanskrit_ua — Bengali/Sanskrit (Devanagari script), однаковий вміст
+- sanskrit_en / sanskrit_uk — Bengali/Sanskrit (Devanagari script), однаковий вміст
 - transliteration_en — IAST транслітерація (латинка з діакритикою)
-- transliteration_ua — українська кирилична транслітерація з діакритикою
+- transliteration_uk — українська кирилична транслітерація з діакритикою
   (конвертується з IAST за допомогою tools/translit_normalizer.py)
 - translation_en / purport_en — англійський переклад та пояснення
-- translation_ua / purport_ua — український переклад та пояснення
+- translation_uk / purport_uk — український переклад та пояснення
 """
 
 import argparse
@@ -196,7 +196,7 @@ class ParsedVerse:
     chapter_number: int
     verse_number: str  # "1", "2", "16-18"
     transliteration_en: str
-    transliteration_ua: str
+    transliteration_uk: str
 
 
 def extract_verses_from_chapter(html_content: str, chapter_number: int) -> List[ParsedVerse]:
@@ -255,13 +255,13 @@ def extract_verses_from_chapter(html_content: str, chapter_number: int) -> List[
         
         if transliteration_parts:
             transliteration_en = '\n'.join(transliteration_parts)
-            transliteration_ua = convert_iast_to_ukrainian(transliteration_en)
+            transliteration_uk = convert_iast_to_ukrainian(transliteration_en)
             
             verses.append(ParsedVerse(
                 chapter_number=chapter_number,
                 verse_number=verse_number,
                 transliteration_en=transliteration_en,
-                transliteration_ua=transliteration_ua,
+                transliteration_uk=transliteration_uk,
             ))
     
     return verses
@@ -300,7 +300,7 @@ def save_to_supabase(verses: List[ParsedVerse], dry_run: bool = False):
         for v in verses[:5]:
             print(f"\n--- Глава {v.chapter_number}, Вірш {v.verse_number} ---")
             print(f"EN: {v.transliteration_en[:100]}...")
-            print(f"UA: {v.transliteration_ua[:100]}...")
+            print(f"UA: {v.transliteration_uk[:100]}...")
         return
     
     # Імпорт Supabase
@@ -342,7 +342,7 @@ def save_to_supabase(verses: List[ParsedVerse], dry_run: bool = False):
             errors += 1
             continue
         
-        # UPSERT: оновлюємо тільки transliteration_en та transliteration_ua
+        # UPSERT: оновлюємо тільки transliteration_en та transliteration_uk
         try:
             # Знаходимо вірш за chapter_id та verse_number
             verse_result = supabase.table('verses').select('id').eq('chapter_id', chapter_id).eq('verse_number', verse.verse_number).execute()
@@ -352,7 +352,7 @@ def save_to_supabase(verses: List[ParsedVerse], dry_run: bool = False):
                 verse_id = verse_result.data[0]['id']
                 supabase.table('verses').update({
                     'transliteration_en': verse.transliteration_en,
-                    'transliteration_ua': verse.transliteration_ua,
+                    'transliteration_uk': verse.transliteration_uk,
                 }).eq('id', verse_id).execute()
                 updated += 1
                 print(f"✅ Оновлено: {verse.chapter_number}.{verse.verse_number}")

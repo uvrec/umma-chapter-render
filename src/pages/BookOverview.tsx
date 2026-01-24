@@ -430,27 +430,23 @@ export const BookOverview = () => {
         <meta name="description" content={bookDescription || `${bookTitle} - ${t('священне писання ведичної традиції', 'sacred scripture of the Vedic tradition')}`} />
       </Helmet>
 
-      {/* Book Title - minimalist */}
+      {/* Book Title and Description */}
       <div className="px-4 pt-6 pb-4 text-center">
-        <h1 className="text-2xl font-bold text-primary">{bookTitle}</h1>
+        <h1
+          className="text-2xl text-primary"
+          style={{ fontFamily: '"Crimson Text", Georgia, serif', fontStyle: 'italic', fontWeight: 400 }}
+        >
+          {bookTitle}
+        </h1>
+        {bookDescription && (
+          <p
+            className="text-sm text-muted-foreground mt-3 leading-relaxed"
+            style={{ fontFamily: '"Crimson Text", Georgia, serif' }}
+          >
+            {bookDescription}
+          </p>
+        )}
       </div>
-
-      {/* Intro chapters - simple list */}
-      {introChapters.length > 0 && (
-        <div className="divide-y divide-border/50">
-          {introChapters.map(intro => (
-            <Link
-              key={intro.id}
-              to={getLocalizedPath(`/lib/${bookSlug}/intro/${intro.slug}`)}
-              className="block px-4 py-4 active:bg-muted/50"
-            >
-              <div className="font-medium text-foreground">
-                {language === "uk" ? intro.title_uk : intro.title_en}
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
 
       {/* Cantos/Chapters - swipeable rows like library */}
       <div className="divide-y divide-border/50">
@@ -490,6 +486,23 @@ export const BookOverview = () => {
             ))
         }
       </div>
+
+      {/* Intro chapters - AFTER main chapters */}
+      {introChapters.length > 0 && (
+        <div className="divide-y divide-border/50 mt-4 pt-4 border-t">
+          {introChapters.map(intro => (
+            <Link
+              key={intro.id}
+              to={getLocalizedPath(`/lib/${bookSlug}/intro/${intro.slug}`)}
+              className="block px-4 py-4 active:bg-muted/50"
+            >
+              <div className="font-medium text-muted-foreground">
+                {language === "uk" ? intro.title_uk : intro.title_en}
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>;
   }
 
@@ -595,16 +608,16 @@ export const BookOverview = () => {
           }) :
           // NoI: show verses as list, otherwise chapters
           bookSlug === 'noi' && noiVerses.length > 0 ? noiVerses.map(verse => {
-            const titleUa = verse.translation_uk || `Текст ${verse.verse_number}`;
+            const titleUk = verse.translation_uk || `Текст ${verse.verse_number}`;
             const titleEn = verse.translation_en || `Text ${verse.verse_number}`;
             return dualLanguageMode ? <Link key={verse.id} to={getLocalizedPath(`/lib/noi/${verse.verse_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                         <div className="grid gap-8 md:grid-cols-2">
-                          <div className="text-lg text-foreground">{titleUa}</div>
+                          <div className="text-lg text-foreground">{titleUk}</div>
                           <div className="text-lg text-foreground">{titleEn}</div>
                         </div>
                       </Link> : <Link key={verse.id} to={getLocalizedPath(`/lib/noi/${verse.verse_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                         <div className="text-lg text-foreground">
-                          {language === "uk" ? titleUa : titleEn}
+                          {language === "uk" ? titleUk : titleEn}
                         </div>
                       </Link>;
           }) :

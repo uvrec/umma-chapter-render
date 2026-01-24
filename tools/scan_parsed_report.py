@@ -16,7 +16,7 @@ PRIVATE_USE_RE = re.compile(r"[\uE000-\uF8FF\uFFF0-\uFFFF]")
 CONTROL_CHARS_RE = re.compile(r"[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u202A-\u202E]")
 MOJIBAKE_GLYPHS = ['','','','','','�']
 
-FIELDS = ['transliteration','word_by_word','synonyms_ua','translation_ua','commentary_ua']
+FIELDS = ['transliteration','word_by_word','synonyms_uk','translation_uk','commentary_uk']
 
 
 def analyze_field(text: str) -> List[str]:

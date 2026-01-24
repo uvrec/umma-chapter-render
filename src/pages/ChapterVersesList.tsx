@@ -19,6 +19,7 @@ import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { toast } from "@/hooks/use-toast";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { stripParagraphTags, sanitizeForRender } from "@/utils/import/normalizers";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
 import { ChapterSchema, BreadcrumbSchema } from "@/components/StructuredData";
@@ -126,29 +127,6 @@ export const ChapterVersesList = () => {
   const verseRefs = useRef<Map<string, HTMLElement>>(new Map());
   const swipeStartX = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // Long-press to peek alternate language
-  const [peekingVerseId, setPeekingVerseId] = useState<string | null>(null);
-  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const LONG_PRESS_DURATION = 400; // ms to trigger peek
-
-  const handleVerseTouchStart = useCallback((verseId: string) => {
-    longPressTimerRef.current = setTimeout(() => {
-      setPeekingVerseId(verseId);
-      // Haptic feedback if available
-      if (navigator.vibrate) {
-        navigator.vibrate(50);
-      }
-    }, LONG_PRESS_DURATION);
-  }, []);
-
-  const handleVerseTouchEnd = useCallback(() => {
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current);
-      longPressTimerRef.current = null;
-    }
-    setPeekingVerseId(null);
-  }, []);
   const isCantoMode = !!cantoNumber;
   const effectiveChapterParam = chapterNumber;
   const {
@@ -395,6 +373,73 @@ export const ChapterVersesList = () => {
       navigate(getLocalizedPath(`/lib/${bookId}/${chapterNum}`));
     }
   };
+
+  // Keyboard navigation functions
+  const handlePrevChapter = useCallback(() => {
+    if (adjacentChapters?.prev) {
+      const chapterNum = adjacentChapters.prev.chapter_number;
+      if (isCantoMode) {
+        navigate(getLocalizedPath(`/lib/${bookId}/${cantoNumber}/${chapterNum}`));
+      } else {
+        navigate(getLocalizedPath(`/lib/${bookId}/${chapterNum}`));
+      }
+    }
+  }, [adjacentChapters?.prev, isCantoMode, navigate, getLocalizedPath, bookId, cantoNumber]);
+
+  const handleNextChapter = useCallback(() => {
+    if (adjacentChapters?.next) {
+      const chapterNum = adjacentChapters.next.chapter_number;
+      if (isCantoMode) {
+        navigate(getLocalizedPath(`/lib/${bookId}/${cantoNumber}/${chapterNum}`));
+      } else {
+        navigate(getLocalizedPath(`/lib/${bookId}/${chapterNum}`));
+      }
+    }
+  }, [adjacentChapters?.next, isCantoMode, navigate, getLocalizedPath, bookId, cantoNumber]);
+
+  // Keyboard shortcuts for chapter navigation
+  useKeyboardShortcuts({
+    enabled: !isEditingContent,
+    shortcuts: [
+      {
+        key: 'ArrowLeft',
+        description: language === 'uk' ? 'Попередня глава' : 'Previous chapter',
+        handler: handlePrevChapter,
+        category: 'navigation'
+      },
+      {
+        key: 'ArrowRight',
+        description: language === 'uk' ? 'Наступна глава' : 'Next chapter',
+        handler: handleNextChapter,
+        category: 'navigation'
+      },
+      {
+        key: 'ArrowUp',
+        description: language === 'uk' ? 'Попередня глава' : 'Previous chapter',
+        handler: handlePrevChapter,
+        category: 'navigation'
+      },
+      {
+        key: 'ArrowDown',
+        description: language === 'uk' ? 'Наступна глава' : 'Next chapter',
+        handler: handleNextChapter,
+        category: 'navigation'
+      },
+      {
+        key: '[',
+        description: language === 'uk' ? 'Попередня глава' : 'Previous chapter',
+        handler: handlePrevChapter,
+        category: 'navigation'
+      },
+      {
+        key: ']',
+        description: language === 'uk' ? 'Наступна глава' : 'Next chapter',
+        handler: handleNextChapter,
+        category: 'navigation'
+      },
+    ],
+  });
+
   const readerTextStyle = {
     fontSize: `${fontSize}px`,
     lineHeight: lineHeight
@@ -457,15 +502,6 @@ export const ChapterVersesList = () => {
     verseRefs.current.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
   }, [isMobile, verses]);
-
-  // Cleanup long-press timer on unmount
-  useEffect(() => {
-    return () => {
-      if (longPressTimerRef.current) {
-        clearTimeout(longPressTimerRef.current);
-      }
-    };
-  }, []);
 
   if (isLoading) {
     return <div className="flex min-h-screen flex-col">
@@ -537,16 +573,13 @@ export const ChapterVersesList = () => {
       )}
 
       <Header />
-      <main className="flex-1 bg-background pb-4 sm:pb-8">
+      <main className="flex-1 bg-background py-4 sm:py-8">
         <div className="container mx-auto max-w-6xl px-3 sm:px-4">
-          <div className="mb-2 sm:mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-2">
-            {/* Back button - hidden on mobile (swipe to go back) */}
-            {!isMobile && (
-              <Button variant="ghost" onClick={handleBack} className="gap-2" size="sm">
-                <ArrowLeft className="h-4 w-4" />
-                <span className="hidden xs:inline">Назад</span>
-              </Button>
-            )}
+          <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-2">
+            <Button variant="ghost" onClick={handleBack} className="gap-2" size="sm">
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden xs:inline">Назад</span>
+            </Button>
 
             <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
               {/* Навігація по главах - ховаємо на мобільних */}
@@ -581,7 +614,7 @@ export const ChapterVersesList = () => {
             </div>
           </div>
 
-          <div className="mb-8 sm:mb-10">
+          <div className="mb-6 sm:mb-8">
             <div className="mb-2 gap-2 text-xs sm:text-sm text-muted-foreground flex-wrap flex items-center justify-center">
               <BookOpen className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
               <span className="truncate max-w-[200px] sm:max-w-none">{bookTitle}</span>
@@ -658,15 +691,15 @@ export const ChapterVersesList = () => {
               }
               return paragraphs.filter(p => p.length > 0);
             };
-            const paragraphsUa = splitHtmlIntoParagraphs(effectiveChapterObj.content_uk || "");
+            const paragraphsUk = splitHtmlIntoParagraphs(effectiveChapterObj.content_uk || "");
             const paragraphsEn = splitHtmlIntoParagraphs(effectiveChapterObj.content_en || "");
 
             // Вирівнювання: довший переклад (зазвичай УКР) задає довжину
-            const maxLen = Math.max(paragraphsUa.length, paragraphsEn.length);
-            const alignedUa = [...paragraphsUa, ...Array(maxLen - paragraphsUa.length).fill("")];
+            const maxLen = Math.max(paragraphsUk.length, paragraphsEn.length);
+            const alignedUk = [...paragraphsUk, ...Array(maxLen - paragraphsUk.length).fill("")];
             const alignedEn = [...paragraphsEn, ...Array(maxLen - paragraphsEn.length).fill("")];
             return <div className="space-y-4" style={readerTextStyle}>
-                      {alignedUa.map((paraUa, idx) => {
+                      {alignedUk.map((paraUk, idx) => {
                         const paraEn = alignedEn[idx];
                         return (
                           <div
@@ -676,7 +709,7 @@ export const ChapterVersesList = () => {
                             <div
                               className="prose prose-slate dark:prose-invert max-w-none"
                               dangerouslySetInnerHTML={{
-                                __html: sanitizeForRender(paraUa || '<span class="italic text-muted-foreground">—</span>'),
+                                __html: sanitizeForRender(paraUk || '<span class="italic text-muted-foreground">—</span>'),
                               }}
                             />
                             <div
@@ -707,7 +740,6 @@ export const ChapterVersesList = () => {
           )}
 
           {/* Mobile Bible-style: суцільний текст з маленькими номерами */}
-          {/* Long-press on verse text to peek alternate language */}
           {isMobile ? (
             <div
               className="prose prose-lg max-w-none"
@@ -716,11 +748,7 @@ export const ChapterVersesList = () => {
             >
               <p className="text-foreground text-justify leading-relaxed">
                 {verses.map((verse: Verse) => {
-                  // Show alternate language when peeking this verse
-                  const isPeeking = peekingVerseId === verse.id;
-                  const displayLang = isPeeking ? (language === "uk" ? "en" : "uk") : language;
-                  const text = displayLang === "uk" ? verse.translation_uk : verse.translation_en;
-
+                  const text = language === "uk" ? verse.translation_uk : verse.translation_en;
                   return (
                     <span
                       key={verse.id}
@@ -728,16 +756,7 @@ export const ChapterVersesList = () => {
                         if (el) verseRefs.current.set(verse.verse_number, el);
                       }}
                       data-verse={verse.verse_number}
-                      className={`inline transition-all duration-200 ${isPeeking ? 'bg-primary/10 rounded px-0.5 -mx-0.5' : ''}`}
-                      onTouchStart={(e) => {
-                        // Don't trigger on sup (verse number) clicks
-                        if ((e.target as HTMLElement).tagName !== 'SUP') {
-                          handleVerseTouchStart(verse.id);
-                        }
-                      }}
-                      onTouchEnd={handleVerseTouchEnd}
-                      onTouchCancel={handleVerseTouchEnd}
-                      onTouchMove={handleVerseTouchEnd}
+                      className="inline"
                     >
                       <sup
                         className="text-primary font-bold text-xs mr-0.5 cursor-pointer hover:text-primary/80"
@@ -750,11 +769,6 @@ export const ChapterVersesList = () => {
                       </sup>
                       {stripParagraphTags(text || "") || (
                         <span className="italic text-muted-foreground">—</span>
-                      )}
-                      {isPeeking && (
-                        <sup className="text-[10px] text-muted-foreground ml-0.5">
-                          {displayLang.toUpperCase()}
-                        </sup>
                       )}{" "}
                     </span>
                   );
@@ -772,7 +786,7 @@ export const ChapterVersesList = () => {
           })}
             </div> : <div className="space-y-6">
               {verses.map((verse: Verse) => {
-            const translationUa = verse.translation_uk || "";
+            const translationUk = verse.translation_uk || "";
             const translationEn = verse.translation_en || "";
             return <div key={verse.id} className="space-y-3">
                     {dualLanguageMode ? <div className="grid gap-6 md:grid-cols-2">
@@ -813,7 +827,7 @@ export const ChapterVersesList = () => {
                               )}
                             </div>}
                           <p className="text-foreground text-justify" style={readerTextStyle}>
-                            {stripParagraphTags(translationUa) || <span className="italic text-muted-foreground">Немає перекладу</span>}
+                            {stripParagraphTags(translationUk) || <span className="italic text-muted-foreground">Немає перекладу</span>}
                           </p>
                         </div>
 
@@ -862,7 +876,7 @@ export const ChapterVersesList = () => {
                             )}
                           </div>}
                         <p className="text-foreground" style={readerTextStyle}>
-                          {language === "uk" ? stripParagraphTags(translationUa) || <span className="italic text-muted-foreground">Немає перекладу</span> : stripParagraphTags(translationEn) || <span className="italic text-muted-foreground">No translation</span>}
+                          {language === "uk" ? stripParagraphTags(translationUk) || <span className="italic text-muted-foreground">Немає перекладу</span> : stripParagraphTags(translationEn) || <span className="italic text-muted-foreground">No translation</span>}
                         </p>
                       </div>}
 

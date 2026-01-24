@@ -138,7 +138,7 @@
     "language_detection": {
       "ukrainian": "Наявність символів [а-яіїєґА-ЯІЇЄҐ]",
       "english": "Відсутність українських символів",
-      "storage": "Зберігати обидві мови окремо (_en, _ua суфікси)"
+      "storage": "Зберігати обидві мови окремо (_en, _uk суфікси)"
     },
     "verse_boundaries": {
       "start": "Розпізнавання номера вірша",
@@ -176,13 +176,13 @@
       "sanskrit": "string (Devanagari/Bengali)",
       "transliteration": "string (основна транслітерація)",
       "transliteration_en": "string (англійська IAST)",
-      "transliteration_ua": "string (українська транслітерація)",
+      "transliteration_uk": "string (українська транслітерація)",
       "synonyms_en": "string (англійські синоніми)",
-      "synonyms_ua": "string (українські синоніми)",
+      "synonyms_uk": "string (українські синоніми)",
       "translation_en": "string (англійський переклад)",
-      "translation_ua": "string (український переклад)",
+      "translation_uk": "string (український переклад)",
       "commentary_en": "string (англійське пояснення)",
-      "commentary_ua": "string (українське пояснення)"
+      "commentary_uk": "string (українське пояснення)"
     },
     "encoding": "UTF-8",
     "json_format": {
@@ -241,11 +241,11 @@
           "verse_number": "1",
           "sanskrit": "বন্দে গুরূনীশভক্তানীশমীশাবতারকান্‌",
           "transliteration_en": "vande gurūn īśa-bhaktān",
-          "transliteration_ua": "ванде ґурӯн īш́а-бгакта̄н",
+          "transliteration_uk": "ванде ґурӯн īш́а-бгакта̄н",
           "synonyms_en": "vande — I offer respectful obeisances",
-          "synonyms_ua": "ванде — я складаю шанобливі поклони",
+          "synonyms_uk": "ванде — я складаю шанобливі поклони",
           "translation_en": "I offer my respectful obeisances...",
-          "translation_ua": "Я складаю шанобливі поклони..."
+          "translation_uk": "Я складаю шанобливі поклони..."
         }
       ],
       "summary": {

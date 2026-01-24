@@ -1,6 +1,6 @@
 -- 🔍 Діагностика застарілих одинарних полів
 -- Проблема: В БД існують одинарні поля (transliteration, synonyms)
---           замість подвійних (transliteration_ua/en, synonyms_ua/en)
+--           замість подвійних (transliteration_uk/en, synonyms_uk/en)
 
 -- ============================================================
 -- 1. Перевірити схему таблиці verses
@@ -14,9 +14,9 @@ FROM information_schema.columns
 WHERE table_schema = 'public'
     AND table_name = 'verses'
     AND column_name IN (
-        'sanskrit', 'sanskrit_ua', 'sanskrit_en',
-        'transliteration', 'transliteration_ua', 'transliteration_en',
-        'synonyms', 'synonyms_ua', 'synonyms_en'
+        'sanskrit', 'sanskrit_uk', 'sanskrit_en',
+        'transliteration', 'transliteration_uk', 'transliteration_en',
+        'synonyms', 'synonyms_uk', 'synonyms_en'
     )
 ORDER BY column_name;
 
@@ -29,17 +29,17 @@ SELECT
 
     -- Sanskrit (одинарне)
     COUNT(sanskrit) FILTER (WHERE sanskrit IS NOT NULL AND sanskrit != '') as has_sanskrit_single,
-    COUNT(sanskrit_ua) FILTER (WHERE sanskrit_ua IS NOT NULL AND sanskrit_ua != '') as has_sanskrit_ua,
+    COUNT(sanskrit_uk) FILTER (WHERE sanskrit_uk IS NOT NULL AND sanskrit_uk != '') as has_sanskrit_uk,
     COUNT(sanskrit_en) FILTER (WHERE sanskrit_en IS NOT NULL AND sanskrit_en != '') as has_sanskrit_en,
 
     -- Transliteration
     COUNT(transliteration) FILTER (WHERE transliteration IS NOT NULL AND transliteration != '') as has_translit_single,
-    COUNT(transliteration_ua) FILTER (WHERE transliteration_ua IS NOT NULL AND transliteration_ua != '') as has_translit_ua,
+    COUNT(transliteration_uk) FILTER (WHERE transliteration_uk IS NOT NULL AND transliteration_uk != '') as has_translit_uk,
     COUNT(transliteration_en) FILTER (WHERE transliteration_en IS NOT NULL AND transliteration_en != '') as has_translit_en,
 
     -- Synonyms
     COUNT(synonyms) FILTER (WHERE synonyms IS NOT NULL AND synonyms != '') as has_synonyms_single,
-    COUNT(synonyms_ua) FILTER (WHERE synonyms_ua IS NOT NULL AND synonyms_ua != '') as has_synonyms_ua,
+    COUNT(synonyms_uk) FILTER (WHERE synonyms_uk IS NOT NULL AND synonyms_uk != '') as has_synonyms_uk,
     COUNT(synonyms_en) FILTER (WHERE synonyms_en IS NOT NULL AND synonyms_en != '') as has_synonyms_en
 FROM verses;
 
@@ -48,23 +48,23 @@ FROM verses;
 -- ============================================================
 SELECT
     b.slug,
-    b.title_ua,
+    b.title_uk,
     COUNT(*) as total_verses,
 
     -- Які поля використовуються
     COUNT(v.transliteration) FILTER (WHERE v.transliteration IS NOT NULL) as single_translit,
-    COUNT(v.transliteration_ua) FILTER (WHERE v.transliteration_ua IS NOT NULL) as ua_translit,
+    COUNT(v.transliteration_uk) FILTER (WHERE v.transliteration_uk IS NOT NULL) as ua_translit,
     COUNT(v.transliteration_en) FILTER (WHERE v.transliteration_en IS NOT NULL) as en_translit,
 
     COUNT(v.synonyms) FILTER (WHERE v.synonyms IS NOT NULL) as single_synonyms,
-    COUNT(v.synonyms_ua) FILTER (WHERE v.synonyms_ua IS NOT NULL) as ua_synonyms,
+    COUNT(v.synonyms_uk) FILTER (WHERE v.synonyms_uk IS NOT NULL) as ua_synonyms,
     COUNT(v.synonyms_en) FILTER (WHERE v.synonyms_en IS NOT NULL) as en_synonyms
 FROM verses v
 JOIN chapters ch ON ch.id = v.chapter_id
 LEFT JOIN cantos ca ON ca.id = ch.canto_id
 LEFT JOIN books b ON b.id = COALESCE(ca.book_id, ch.book_id)
 WHERE v.deleted_at IS NULL
-GROUP BY b.slug, b.title_ua
+GROUP BY b.slug, b.title_uk
 ORDER BY b.slug;
 
 -- ============================================================
@@ -85,7 +85,7 @@ WHERE v.deleted_at IS NULL
     )
     AND (
         -- НЕ використовує подвійні
-        (v.transliteration_ua IS NULL OR v.transliteration_ua = '')
+        (v.transliteration_uk IS NULL OR v.transliteration_uk = '')
         OR (v.transliteration_en IS NULL OR v.transliteration_en = '')
     )
 GROUP BY b.slug
@@ -105,7 +105,7 @@ SELECT
         WHEN v.synonyms IS NOT NULL THEN LEFT(v.synonyms, 80)
         ELSE NULL
     END as synonyms_sample,
-    v.transliteration_ua IS NOT NULL as has_ua,
+    v.transliteration_uk IS NOT NULL as has_uk,
     v.transliteration_en IS NOT NULL as has_en
 FROM verses v
 JOIN chapters ch ON ch.id = v.chapter_id
@@ -130,7 +130,7 @@ LEFT JOIN books b ON b.id = COALESCE(ca.book_id, ch.book_id)
 WHERE v.deleted_at IS NULL
     AND v.transliteration IS NOT NULL
     AND v.transliteration != ''
-    AND (v.transliteration_ua IS NOT NULL AND v.transliteration_ua != '')
+    AND (v.transliteration_uk IS NOT NULL AND v.transliteration_uk != '')
 GROUP BY b.slug
 
 UNION ALL
@@ -146,6 +146,6 @@ LEFT JOIN books b ON b.id = COALESCE(ca.book_id, ch.book_id)
 WHERE v.deleted_at IS NULL
     AND v.synonyms IS NOT NULL
     AND v.synonyms != ''
-    AND (v.synonyms_ua IS NOT NULL AND v.synonyms_ua != '')
+    AND (v.synonyms_uk IS NOT NULL AND v.synonyms_uk != '')
 GROUP BY b.slug
 ORDER BY issue, slug;

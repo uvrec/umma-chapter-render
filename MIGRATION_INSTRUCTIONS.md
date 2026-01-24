@@ -53,9 +53,9 @@ psql postgresql://[CONNECTION_STRING] -f supabase/migrations/20251107000001_crea
 1. **`public.lectures`** - метадані лекцій
    - id (UUID, PRIMARY KEY)
    - slug (TEXT, UNIQUE) - vedabase ID
-   - title_en, title_ua (TEXT)
+   - title_en, title_uk (TEXT)
    - lecture_date (DATE)
-   - location_en, location_ua (TEXT)
+   - location_en, location_uk (TEXT)
    - lecture_type (TEXT)
    - audio_url (TEXT, nullable)
    - book_slug, chapter_number, verse_number (nullable)
@@ -65,7 +65,7 @@ psql postgresql://[CONNECTION_STRING] -f supabase/migrations/20251107000001_crea
    - id (UUID, PRIMARY KEY)
    - lecture_id (UUID, FOREIGN KEY → lectures)
    - paragraph_number (INTEGER)
-   - content_en, content_ua (TEXT)
+   - content_en, content_uk (TEXT)
    - audio_timecode (INTEGER, nullable)
    - created_at (TIMESTAMP)
 
@@ -127,7 +127,7 @@ export type Database = {
           id: string;
           slug: string;
           title_en: string;
-          title_ua: string | null;
+          title_uk: string | null;
           // ... інші поля
         };
         Insert: { /* ... */ };
@@ -139,7 +139,7 @@ export type Database = {
           lecture_id: string;
           paragraph_number: number;
           content_en: string;
-          content_ua: string | null;
+          content_uk: string | null;
           // ... інші поля
         };
         Insert: { /* ... */ };

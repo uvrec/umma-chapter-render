@@ -112,7 +112,7 @@ function cleanPDFText(text: string): string {
 }
 
 /**
- * Розпізнає мову тексту (en/ua)
+ * Розпізнає мову тексту (en/uk)
  */
 function detectLanguage(text: string): 'en' | 'uk' {
   // Українські літери

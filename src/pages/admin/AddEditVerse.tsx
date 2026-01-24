@@ -43,7 +43,7 @@ export default function AddEditVerse() {
   const [audioUrl, setAudioUrl] = useState(""); // Legacy field
   const [fullVerseAudioUrl, setFullVerseAudioUrl] = useState(""); // PRIMARY: complete verse (95% use case)
   const [recitationAudioUrl, setRecitationAudioUrl] = useState(""); // Sanskrit + Transliteration
-  const [explanationUaAudioUrl, setExplanationUaAudioUrl] = useState(""); // Synonyms + Translation + Commentary UA
+  const [explanationUkAudioUrl, setExplanationUkAudioUrl] = useState(""); // Synonyms + Translation + Commentary UA
   const [explanationEnAudioUrl, setExplanationEnAudioUrl] = useState(""); // EN version
 
   // UI state for collapsible advanced audio section
@@ -241,11 +241,11 @@ export default function AddEditVerse() {
       // Simplified dual audio fields (4 fields)
       setFullVerseAudioUrl(verse.full_verse_audio_url || "");
       setRecitationAudioUrl(verse.recitation_audio_url || "");
-      setExplanationUaAudioUrl(verse.explanation_ua_audio_url || "");
+      setExplanationUkAudioUrl(verse.explanation_uk_audio_url || "");
       setExplanationEnAudioUrl(verse.explanation_en_audio_url || "");
 
       // Auto-expand advanced section if any secondary audio exists
-      if (verse.recitation_audio_url || verse.explanation_ua_audio_url || verse.explanation_en_audio_url) {
+      if (verse.recitation_audio_url || verse.explanation_uk_audio_url || verse.explanation_en_audio_url) {
         setShowAdvancedAudio(true);
       }
 
@@ -296,7 +296,7 @@ export default function AddEditVerse() {
     setAudioUrl("");
     setFullVerseAudioUrl("");
     setRecitationAudioUrl("");
-    setExplanationUaAudioUrl("");
+    setExplanationUkAudioUrl("");
     setExplanationEnAudioUrl("");
     setShowAdvancedAudio(false);
     setIsDirty(false); // Reset dirty flag for new form
@@ -322,7 +322,7 @@ export default function AddEditVerse() {
         audio_url: audioUrl || null, // Legacy field (kept for compatibility)
         full_verse_audio_url: fullVerseAudioUrl || null, // PRIMARY audio
         recitation_audio_url: recitationAudioUrl || null, // Sanskrit + Transliteration
-        explanation_ua_audio_url: explanationUaAudioUrl || null, // UA explanation
+        explanation_uk_audio_url: explanationUkAudioUrl || null, // UA explanation
         explanation_en_audio_url: explanationEnAudioUrl || null, // EN explanation
 
         is_published: true,
@@ -676,9 +676,9 @@ export default function AddEditVerse() {
                     <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                       Додаткові аудіо записи
                     </span>
-                    {(recitationAudioUrl || explanationUaAudioUrl || explanationEnAudioUrl) && (
+                    {(recitationAudioUrl || explanationUkAudioUrl || explanationEnAudioUrl) && (
                       <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full">
-                        {[recitationAudioUrl, explanationUaAudioUrl, explanationEnAudioUrl].filter(Boolean).length}
+                        {[recitationAudioUrl, explanationUkAudioUrl, explanationEnAudioUrl].filter(Boolean).length}
                       </span>
                     )}
                   </span>
@@ -701,8 +701,8 @@ export default function AddEditVerse() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <AudioUploader
                         label="Пояснення (українською)"
-                        value={explanationUaAudioUrl}
-                        onChange={(val) => { setExplanationUaAudioUrl(val); markDirty(); }}
+                        value={explanationUkAudioUrl}
+                        onChange={(val) => { setExplanationUkAudioUrl(val); markDirty(); }}
                         compact={true}
                       />
 

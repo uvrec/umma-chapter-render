@@ -43,7 +43,7 @@ python3 import_sb_epub.py \
 📊 Summary:
    - Chapters: 1
    - Verses: 48
-   - Fields filled: sanskrit, transliteration_ua/en, synonyms_ua/en, translation_ua/en, commentary_ua/en
+   - Fields filled: sanskrit, transliteration_uk/en, synonyms_uk/en, translation_uk/en, commentary_uk/en
 
 🚫 DRY RUN - Nothing saved to database
 ```
@@ -61,7 +61,7 @@ python3 import_sb_epub.py \
 
 ```sql
 -- Перевірити що глава створилась
-SELECT id, chapter_number, title_ua, title_en 
+SELECT id, chapter_number, title_uk, title_en 
 FROM chapters 
 WHERE canto_id = '45f1c43d-59c0-4faa-8599-67a52443d967' 
   AND chapter_number = 1;
@@ -72,7 +72,7 @@ FROM verses
 WHERE chapter_id = '<id_з_попереднього_запиту>';
 
 -- Перевірити перший вірш
-SELECT verse_number, sanskrit, translation_ua, translation_en 
+SELECT verse_number, sanskrit, translation_uk, translation_en 
 FROM verses 
 WHERE chapter_id = '<id_з_попереднього_запиту>' 
 ORDER BY verse_number 
@@ -126,9 +126,9 @@ python3 import_sb_epub.py \
 ```sql
 UPDATE cantos 
 SET 
-  title_ua = 'Статус-кво',
+  title_uk = 'Статус-кво',
   title_en = 'The Status Quo',
-  description_ua = 'Опис створення та космічної маніфестації. Розваги Господа Капіли.',
+  description_uk = 'Опис створення та космічної маніфестації. Розваги Господа Капіли.',
   description_en = 'The description of creation and cosmic manifestation. Pastimes of Lord Kapila.',
   is_published = true
 WHERE id = '45f1c43d-59c0-4faa-8599-67a52443d967';
@@ -153,12 +153,12 @@ WHERE ch.canto_id = '45f1c43d-59c0-4faa-8599-67a52443d967';
 -- Розподіл віршів по главах
 SELECT 
   ch.chapter_number,
-  ch.title_ua,
+  ch.title_uk,
   COUNT(v.id) as verses_count
 FROM chapters ch
 LEFT JOIN verses v ON v.chapter_id = ch.id
 WHERE ch.canto_id = '45f1c43d-59c0-4faa-8599-67a52443d967'
-GROUP BY ch.chapter_number, ch.title_ua
+GROUP BY ch.chapter_number, ch.title_uk
 ORDER BY ch.chapter_number;
 ```
 
@@ -169,13 +169,13 @@ ORDER BY ch.chapter_number;
 SELECT 
   verse_number,
   LENGTH(sanskrit) as sanskrit_len,
-  LENGTH(transliteration_ua) as translit_ua_len,
+  LENGTH(transliteration_uk) as translit_uk_len,
   LENGTH(transliteration_en) as translit_en_len,
-  LENGTH(synonyms_ua) as syn_ua_len,
+  LENGTH(synonyms_uk) as syn_uk_len,
   LENGTH(synonyms_en) as syn_en_len,
-  LENGTH(translation_ua) as trans_ua_len,
+  LENGTH(translation_uk) as trans_uk_len,
   LENGTH(translation_en) as trans_en_len,
-  LENGTH(commentary_ua) as comm_ua_len,
+  LENGTH(commentary_uk) as comm_uk_len,
   LENGTH(commentary_en) as comm_en_len
 FROM verses v
 JOIN chapters ch ON v.chapter_id = ch.id
@@ -193,7 +193,7 @@ ORDER BY verse_number;
 Ключові вимоги:
 - ✅ Використовувати `extractHTMLFromEPUB` + `JSZip`
 - ✅ Конвертувати IAST → українську через `convertIASTtoUkrainian()`
-- ✅ Генерувати `synonyms_ua` з `synonyms_en` через `generateSynonymsUA()`
+- ✅ Генерувати `synonyms_uk` з `synonyms_en` через `generateSynonymsUA()`
 - ✅ Використовувати UPSERT замість INSERT
 - ❌ НЕ автоматично запускати імпорт
 - ❌ НЕ використовувати видалені файли (`srimad_bhagavatam_epub_parser.ts`, `srimad_bhagavatam_merger.ts`)

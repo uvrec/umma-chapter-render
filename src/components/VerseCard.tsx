@@ -304,10 +304,10 @@ export const VerseCard = ({
   // Парсинг синонімів - використовуємо єдиний парсер з glossaryParser.ts
   const synonymPairs = parseSynonymPairs(isEditing ? edited.synonyms : synonyms);
 
-  // Визначаємо класи для контуру (не показуємо на мобільних для мінімалістичного дизайну)
+  // Визначаємо класи для контуру
   const contourClasses = isNowPlaying
     ? 'ring-2 ring-primary ring-offset-2 ring-offset-background now-playing'
-    : showVerseContour && !isMobile
+    : showVerseContour
       ? 'ring-1 ring-primary/30 ring-offset-1 ring-offset-background verse-contour'
       : '';
 
@@ -317,7 +317,7 @@ export const VerseCard = ({
       className={`verse-surface w-full animate-fade-in ${contourClasses}`}
     >
       <div
-        className="pb-6"
+        className="pt-2 pb-6"
         style={{
           fontSize: `${fontSize}px`,
           lineHeight,
@@ -325,7 +325,7 @@ export const VerseCard = ({
       >
         {/* НОМЕР ВІРША - відцентрований */}
         {showNumbers && (
-          <div className="flex flex-col items-center justify-center gap-2 mb-6 verse-number-block">
+          <div className="flex flex-col items-center justify-center gap-2 mb-4 verse-number-block">
             {isAdmin && verseId ? (
               <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} bookSlug={bookSlug} />
             ) : (
@@ -467,7 +467,7 @@ export const VerseCard = ({
 
         {/* Деванагарі з окремою кнопкою Volume2 */}
         {textDisplaySettings.showSanskrit && (isEditing || sanskritText) && (
-          <div className={`mb-10 synced-section transition-all duration-300 ${getSectionHighlightClass('sanskrit')}`} data-synced-section="sanskrit">
+          <div className={`mb-6 synced-section transition-all duration-300 ${getSectionHighlightClass('sanskrit')}`} data-synced-section="sanskrit">
             {/* Кнопка Volume2 для Санскриту - hidden on mobile (tap verse number to play) */}
             <div className="mb-4 hidden md:flex justify-center">
               <button
@@ -499,7 +499,7 @@ export const VerseCard = ({
 
         {/* Транслітерація */}
         {textDisplaySettings.showTransliteration && (isEditing || transliteration) && (
-          <div className={`mb-8 synced-section transition-all duration-300 ${getSectionHighlightClass('transliteration')}`} data-synced-section="transliteration">
+          <div className={`mb-4 synced-section transition-all duration-300 ${getSectionHighlightClass('transliteration')}`} data-synced-section="transliteration">
             {isEditing ? (
               <Textarea
                 value={edited.transliteration}
@@ -530,7 +530,7 @@ export const VerseCard = ({
         {textDisplaySettings.showSynonyms && (isEditing || synonyms) && (
           <div className={`mb-6 synced-section transition-all duration-300 ${getSectionHighlightClass('synonyms')}`} data-synced-section="synonyms">
             {/* Заголовок + кнопка Volume2 (hidden on mobile via CSS for clean reading) */}
-            <div className="section-header hidden md:flex items-center justify-center gap-4 mb-8">
+            <div className="section-header hidden md:flex items-center justify-center gap-4 mb-4">
               <h4 className="text-foreground">{labels.synonyms}</h4>
               <button
                 onClick={() => playSection("Послівний переклад", audioSynonyms)}
@@ -633,7 +633,7 @@ export const VerseCard = ({
         {textDisplaySettings.showTranslation && (isEditing || translation) && (
           <div className={`mb-6 synced-section transition-all duration-300 ${getSectionHighlightClass('translation')}`} data-synced-section="translation">
             {/* Заголовок + кнопка Volume2 (hidden on mobile via CSS for clean reading) */}
-            <div className="section-header hidden md:flex items-center justify-center gap-4 mb-8">
+            <div className="section-header hidden md:flex items-center justify-center gap-4 mb-4">
               <h4 className="text-foreground font-serif">{labels.translation}</h4>
               <button
                 onClick={() => playSection("Літературний переклад", audioTranslation)}
@@ -673,7 +673,7 @@ export const VerseCard = ({
         {textDisplaySettings.showCommentary && (isEditing || commentary) && (
           <div className={`synced-section transition-all duration-300 ${getSectionHighlightClass('commentary')}`} data-synced-section="commentary">
             {/* Заголовок + кнопка Volume2 (hidden on mobile via CSS for clean reading) */}
-            <div className="section-header hidden md:flex items-center justify-center gap-4 mb-8">
+            <div className="section-header hidden md:flex items-center justify-center gap-4 mb-4">
               <h4 className="text-foreground font-serif">{labels.commentary}</h4>
               <button
                 onClick={() => playSection("Пояснення", audioCommentary)}

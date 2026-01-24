@@ -264,7 +264,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
         // First, get the verse to find its chapter
         const { data: verse, error: verseError } = await supabase
           .from('verses')
-          .select('id, chapter_id, verse_number, sort_key, audio_url, full_verse_audio_url, recitation_audio_url, explanation_ua_audio_url, explanation_en_audio_url')
+          .select('id, chapter_id, verse_number, sort_key, audio_url, full_verse_audio_url, recitation_audio_url, explanation_uk_audio_url, explanation_en_audio_url')
           .eq('id', track.verseId)
           .maybeSingle();
 
@@ -277,7 +277,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
         // Get all verses from the same chapter that have audio
         const { data: chapterVerses, error: chapterError } = await supabase
           .from('verses')
-          .select('id, verse_number, sort_key, audio_url, full_verse_audio_url, recitation_audio_url, explanation_ua_audio_url, explanation_en_audio_url')
+          .select('id, verse_number, sort_key, audio_url, full_verse_audio_url, recitation_audio_url, explanation_uk_audio_url, explanation_en_audio_url')
           .eq('chapter_id', verse.chapter_id)
           .order('sort_key', { ascending: true });
 
@@ -288,7 +288,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
 
         // Filter verses that have any audio and build tracks
         const versesWithAudio = chapterVerses.filter(v =>
-          v.full_verse_audio_url || v.recitation_audio_url || v.explanation_ua_audio_url || v.explanation_en_audio_url || v.audio_url
+          v.full_verse_audio_url || v.recitation_audio_url || v.explanation_uk_audio_url || v.explanation_en_audio_url || v.audio_url
         );
 
         if (versesWithAudio.length <= 1) {
@@ -300,7 +300,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
         // Build playlist from chapter verses
         const chapterPlaylist: AudioTrack[] = versesWithAudio.map(v => {
           // Use the primary audio URL available (priority: full_verse > recitation > explanation > legacy)
-          const audioSrc = v.full_verse_audio_url || v.recitation_audio_url || v.explanation_ua_audio_url || v.explanation_en_audio_url || v.audio_url;
+          const audioSrc = v.full_verse_audio_url || v.recitation_audio_url || v.explanation_uk_audio_url || v.explanation_en_audio_url || v.audio_url;
           return {
             id: `verse-${v.id}`,
             title: `${v.verse_number}`,

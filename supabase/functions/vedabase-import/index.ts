@@ -246,7 +246,7 @@ function parseLecture(html: string, slug: string) {
   const paragraphs: Array<{
     paragraph_number: number;
     content_en: string;
-    content_ua: string | null;
+    content_uk: string | null;
     audio_timecode: number | null;
   }> = [];
 
@@ -277,7 +277,7 @@ function parseLecture(html: string, slug: string) {
       paragraphs.push({
         paragraph_number: paragraphNumber,
         content_en: text,
-        content_ua: null,
+        content_uk: null,
         audio_timecode: null,
       });
     }
@@ -287,10 +287,10 @@ function parseLecture(html: string, slug: string) {
     metadata: {
       slug,
       title_en: title,
-      title_ua: transliterateTitle(title),
+      title_uk: transliterateTitle(title),
       lecture_date: lectureDate,
       location_en: location,
-      location_ua: LOCATION_TRANSLATIONS[location] || null,
+      location_uk: LOCATION_TRANSLATIONS[location] || null,
       lecture_type: lectureType,
       audio_url: audioUrl,
       book_slug: bookSlug,
@@ -431,13 +431,13 @@ function parseLetter(html: string, slug: string) {
   return {
     slug,
     recipient_en: recipient,
-    recipient_ua: null,
+    recipient_uk: null,
     letter_date: letterDate,
     location_en: location,
-    location_ua: LOCATION_TRANSLATIONS[location] || null,
+    location_uk: LOCATION_TRANSLATIONS[location] || null,
     reference,
     content_en: content,
-    content_ua: null,
+    content_uk: null,
   };
 }
 

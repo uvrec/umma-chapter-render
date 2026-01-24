@@ -64,7 +64,7 @@ except ImportError:
 # Ukrainian chapter names
 # ============================================================================
 
-CHAPTER_NAMES_UA = {
+CHAPTER_NAMES_UK = {
     'перша': 1, 'друга': 2, 'третя': 3, 'четверта': 4, "п'ята": 5,
     'шоста': 6, 'сьома': 7, 'восьма': 8, "дев'ята": 9, 'десята': 10,
     'одинадцята': 11, 'дванадцята': 12, 'тринадцята': 13, 'чотирнадцята': 14,
@@ -82,16 +82,16 @@ CHAPTER_NAMES_UA = {
 
 @dataclass
 class Verse:
-    """Parsed verse - PDF дає Sanskrit, Translation_UA, Commentary_UA"""
+    """Parsed verse - PDF дає Sanskrit, Translation_UK, Commentary_UK"""
     verse_number: str
     sanskrit: str  # З PDF (Devanagari)
     transliteration_en: str  # З Vedabase (IAST)
-    transliteration_ua: str  # Генерується з transliteration_en
+    transliteration_uk: str  # Генерується з transliteration_en
     synonyms_en: str  # З Vedabase (IAST)
-    synonyms_ua: str  # Генерується з synonyms_en
-    translation_ua: str  # З PDF
+    synonyms_uk: str  # Генерується з synonyms_en
+    translation_uk: str  # З PDF
     translation_en: str  # З Vedabase
-    commentary_ua: str  # З PDF
+    commentary_uk: str  # З PDF
     commentary_en: str  # З Vedabase
 
 @dataclass
@@ -99,7 +99,7 @@ class Chapter:
     """Parsed chapter"""
     canto_number: int
     chapter_number: int
-    title_ua: str
+    title_uk: str
     title_en: str
     verses: List[Verse]
 
@@ -127,7 +127,7 @@ def extract_chapter_number(title: str) -> int:
 
     # Check Ukrainian names (sort by length DESC to match longer names first)
     # Це важливо бо "вісімнадцята" містить "сімнадцята" як підрядок
-    for name, num in sorted(CHAPTER_NAMES_UA.items(), key=lambda x: len(x[0]), reverse=True):
+    for name, num in sorted(CHAPTER_NAMES_UK.items(), key=lambda x: len(x[0]), reverse=True):
         if name in normalized:
             return num
 
@@ -183,8 +183,8 @@ def parse_verse_from_pdf(number: str, content: str) -> Verse:
     lines = [l.strip() for l in content.split('\n') if l.strip()]
 
     sanskrit = ''
-    translation_ua = ''
-    commentary_ua = ''
+    translation_uk = ''
+    commentary_uk = ''
 
     in_sanskrit = True
     in_translation = False
@@ -217,20 +217,20 @@ def parse_verse_from_pdf(number: str, content: str) -> Verse:
 
         # Збирання тексту
         if in_translation:
-            translation_ua += (' ' if translation_ua else '') + line
+            translation_uk += (' ' if translation_uk else '') + line
         elif in_commentary:
-            commentary_ua += (' ' if commentary_ua else '') + line
+            commentary_uk += (' ' if commentary_uk else '') + line
 
     return Verse(
         verse_number=number,
         sanskrit=sanskrit,
         transliteration_en='',  # Буде з Vedabase
-        transliteration_ua='',  # Буде згенеровано
+        transliteration_uk='',  # Буде згенеровано
         synonyms_en='',  # Буде з Vedabase
-        synonyms_ua='',  # Буде згенеровано
-        translation_ua=translation_ua,
+        synonyms_uk='',  # Буде згенеровано
+        translation_uk=translation_uk,
         translation_en='',  # Буде з Vedabase
-        commentary_ua=commentary_ua,
+        commentary_uk=commentary_uk,
         commentary_en=''  # Буде з Vedabase
     )
 
@@ -280,7 +280,7 @@ def parse_chapter_from_pdf(pdf_text: str, canto_number: int, chapter_filter: Opt
         return Chapter(
             canto_number=canto_number,
             chapter_number=chapter_number,
-            title_ua=chapter_title,
+            title_uk=chapter_title,
             title_en='',  # Will be filled from Vedabase
             verses=verses
         )
@@ -437,7 +437,7 @@ def save_chapter_to_db(supabase: Client, chapter: Chapter, book_slug: str = 'bha
         canto_insert = supabase.table('cantos').insert({
             'book_id': book_db_id,
             'canto_number': chapter.canto_number,
-            'title_ua': f'Пісня {chapter.canto_number}',
+            'title_uk': f'Пісня {chapter.canto_number}',
             'title_en': f'Canto {chapter.canto_number}'
         }).execute()
         canto_id = canto_insert.data[0]['id']
@@ -449,7 +449,7 @@ def save_chapter_to_db(supabase: Client, chapter: Chapter, book_slug: str = 'bha
         'canto_id': canto_id,
         'chapter_number': chapter.chapter_number,
         'chapter_type': 'verses',
-        'title_ua': chapter.title_ua,
+        'title_uk': chapter.title_uk,
         'title_en': chapter.title_en or f'Chapter {chapter.chapter_number}'
     }
 
@@ -475,12 +475,12 @@ def save_chapter_to_db(supabase: Client, chapter: Chapter, book_slug: str = 'bha
         verse_dict = {
             'sanskrit': verse.sanskrit,
             'transliteration_en': verse.transliteration_en,
-            'transliteration_ua': verse.transliteration_ua,
+            'transliteration_uk': verse.transliteration_uk,
             'synonyms_en': verse.synonyms_en,
-            'synonyms_ua': verse.synonyms_ua,
-            'translation_ua': verse.translation_ua,
+            'synonyms_uk': verse.synonyms_uk,
+            'translation_uk': verse.translation_uk,
             'translation_en': verse.translation_en,
-            'commentary_ua': verse.commentary_ua,
+            'commentary_uk': verse.commentary_uk,
             'commentary_en': verse.commentary_en
         }
 
@@ -492,12 +492,12 @@ def save_chapter_to_db(supabase: Client, chapter: Chapter, book_slug: str = 'bha
             'verse_number': verse.verse_number,
             'sanskrit': normalized.get('sanskrit', ''),
             'transliteration_en': normalized.get('transliteration_en', ''),
-            'transliteration_ua': normalized.get('transliteration_ua', ''),
+            'transliteration_uk': normalized.get('transliteration_uk', ''),
             'synonyms_en': normalized.get('synonyms_en', ''),
-            'synonyms_ua': normalized.get('synonyms_ua', ''),
-            'translation_ua': normalized.get('translation_ua', ''),
+            'synonyms_uk': normalized.get('synonyms_uk', ''),
+            'translation_uk': normalized.get('translation_uk', ''),
             'translation_en': normalized.get('translation_en', ''),
-            'commentary_ua': normalized.get('commentary_ua', ''),
+            'commentary_uk': normalized.get('commentary_uk', ''),
             'commentary_en': normalized.get('commentary_en', '')
         }
 
@@ -582,7 +582,7 @@ def main():
                 verse.translation_en = vedabase_data.get('translation_en', '')
                 verse.commentary_en = vedabase_data.get('commentary_en', '')
 
-                # Note: transliteration_ua and synonyms_ua will be generated by normalize_verse()
+                # Note: transliteration_uk and synonyms_uk will be generated by normalize_verse()
 
                 print(f"✅")
 
@@ -601,10 +601,10 @@ def main():
 
         # Print summary
         for chapter in chapters:
-            print(f"\n📖 Chapter {chapter.chapter_number}: {chapter.title_ua}")
+            print(f"\n📖 Chapter {chapter.chapter_number}: {chapter.title_uk}")
             print(f"   Verses: {len(chapter.verses)}")
             for verse in chapter.verses[:3]:  # First 3 verses
-                preview = verse.translation_ua[:60] + '...' if len(verse.translation_ua) > 60 else verse.translation_ua
+                preview = verse.translation_uk[:60] + '...' if len(verse.translation_uk) > 60 else verse.translation_uk
                 print(f"   • {verse.verse_number}: {preview}")
 
     print(f"\n✅ Import complete!")

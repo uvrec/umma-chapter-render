@@ -43,14 +43,14 @@ const zip = await JSZip.loadAsync(await epubFile.arrayBuffer());
 const chapterHTML = await zip.file('OEBPS/UKS317XT.xhtml').async('text');
 
 // 2. Парсити Ukrainian вірші з HTML
-const verses_ua = parseEPUBChapter(chapterHTML);
+const verses_uk = parseEPUBChapter(chapterHTML);
 
 // 3. Отримати English з Vedabase
 const vedabaseURL = `https://vedabase.io/en/library/sb/3/17/1`;
 const { data } = await supabase.functions.invoke("fetch-html", { body: { url: vedabaseURL } });
 const verse_en = parseVedabaseCC(data.html, vedabaseURL);
 
-// 4. Об'єднати UA + EN
+// 4. Об'єднати UK + EN
 const merged = {
   verse_number: "1",
   // Sanskrit (однаковий для обох мов)
@@ -59,21 +59,21 @@ const merged = {
   // Transliteration EN з Vedabase
   transliteration_en: verse_en.transliteration_en || "",
 
-  // Transliteration UA - КОНВЕРТУВАТИ з EN!
-  transliteration_ua: convertIASTtoUkrainian(verse_en.transliteration_en || ""),
+  // Transliteration UK - КОНВЕРТУВАТИ з EN!
+  transliteration_uk: convertIASTtoUkrainian(verse_en.transliteration_en || ""),
 
   // Synonyms EN з Vedabase
   synonyms_en: verse_en.synonyms_en || "",
 
-  // Synonyms UA - ГЕНЕРУВАТИ з EN термінів + fallback на EN переклади!
-  synonyms_ua: generateSynonymsUA(verse_en.synonyms_en || ""),
+  // Synonyms UK - ГЕНЕРУВАТИ з EN термінів + fallback на EN переклади!
+  synonyms_uk: generateSynonymsUK(verse_en.synonyms_en || ""),
 
   // Translations
-  translation_ua: verse_ua.translation || "",
+  translation_uk: verse_uk.translation || "",
   translation_en: verse_en.translation_en || "",
 
   // Commentary
-  commentary_ua: verse_ua.commentary || "",
+  commentary_uk: verse_uk.commentary || "",
   commentary_en: verse_en.purport_en || "",
 };
 
@@ -194,15 +194,15 @@ await supabase
 3. ❌ НЕ використовувати видалені файли (`srimad_bhagavatam_epub_parser`)
 4. ❌ НЕ чіпати механізм Gitabase (потрібен для CC)
 5. ❌ НЕ використовувати одинарні поля (`transliteration`, `synonyms`)
-6. ❌ НЕ зберігати без конвертації `transliteration_ua` з `transliteration_en`
+6. ❌ НЕ зберігати без конвертації `transliteration_uk` з `transliteration_en`
 
 ---
 
 ## ✅ Що РОБИТИ
 
 1. ✅ Використовувати `convertIASTtoUkrainian()` для всієї транслітерації
-2. ✅ Генерувати `synonyms_ua` з `synonyms_en` через `generateSynonymsUA()`
-3. ✅ Завжди заповнювати ОБИ поля: `_ua` ТА `_en`
+2. ✅ Генерувати `synonyms_uk` з `synonyms_en` через `generateSynonymsUK()`
+3. ✅ Завжди заповнювати ОБИ поля: `_uk` ТА `_en`
 4. ✅ Використовувати `UPSERT` з `onConflict`
 5. ✅ Логувати кожен крок в консоль
 6. ✅ Мати dry-run режим для тестування

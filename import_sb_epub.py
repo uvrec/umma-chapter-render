@@ -36,10 +36,10 @@ class ParsedVerse:
     """Структура для вірша з EPUB"""
     verse_number: str
     sanskrit: str              # З EPUB (Devanagari)
-    transliteration_ua: str    # З EPUB (IAST українською)
-    synonyms_ua: str           # З EPUB ("Послівний переклад")
-    translation_ua: str        # З EPUB ("Переклад")
-    commentary_ua: str         # З EPUB ("Пояснення")
+    transliteration_uk: str    # З EPUB (IAST українською)
+    synonyms_uk: str           # З EPUB ("Послівний переклад")
+    translation_uk: str        # З EPUB ("Переклад")
+    commentary_uk: str         # З EPUB ("Пояснення")
     transliteration_en: str    # З Vedabase (IAST)
     synonyms_en: str           # З Vedabase (IAST)
     translation_en: str        # З Vedabase
@@ -51,7 +51,7 @@ class ParsedChapter:
     """Структура для глави"""
     canto_number: int
     chapter_number: int
-    title_ua: str
+    title_uk: str
     title_en: str
     verses: List[ParsedVerse]
 
@@ -127,10 +127,10 @@ def parse_verse_from_html(verse_html: str, verse_number: str) -> ParsedVerse:
     lines = [line.strip() for line in verse_html.split('\n') if line.strip()]
 
     sanskrit = ''
-    transliteration_ua = ''
-    synonyms_ua = ''
-    translation_ua = ''
-    commentary_ua = ''
+    transliteration_uk = ''
+    synonyms_uk = ''
+    translation_uk = ''
+    commentary_uk = ''
 
     state = 'sanskrit'  # sanskrit -> translit -> synonyms -> translation -> commentary
 
@@ -156,30 +156,30 @@ def parse_verse_from_html(verse_html: str, verse_number: str) -> ParsedVerse:
         elif state == 'sanskrit' and not is_sanskrit_text(line):
             # Після Sanskrit йде transliteration
             state = 'translit'
-            transliteration_ua += line
+            transliteration_uk += line
         elif state == 'translit':
-            transliteration_ua += ' ' + line
+            transliteration_uk += ' ' + line
         elif state == 'synonyms':
-            synonyms_ua += (' ' if synonyms_ua else '') + line
+            synonyms_uk += (' ' if synonyms_uk else '') + line
         elif state == 'translation':
-            translation_ua += (' ' if translation_ua else '') + line
+            translation_uk += (' ' if translation_uk else '') + line
         elif state == 'commentary':
-            commentary_ua += (' ' if commentary_ua else '') + line
+            commentary_uk += (' ' if commentary_uk else '') + line
 
     # Нормалізація
     sanskrit = normalize_text(sanskrit)
-    transliteration_ua = normalize_text(transliteration_ua)
-    synonyms_ua = normalize_text(synonyms_ua)
-    translation_ua = normalize_text(translation_ua)
-    commentary_ua = normalize_text(commentary_ua)
+    transliteration_uk = normalize_text(transliteration_uk)
+    synonyms_uk = normalize_text(synonyms_uk)
+    translation_uk = normalize_text(translation_uk)
+    commentary_uk = normalize_text(commentary_uk)
 
     return ParsedVerse(
         verse_number=verse_number,
         sanskrit=sanskrit,
-        transliteration_ua=transliteration_ua,
-        synonyms_ua=synonyms_ua,
-        translation_ua=translation_ua,
-        commentary_ua=commentary_ua,
+        transliteration_uk=transliteration_uk,
+        synonyms_uk=synonyms_uk,
+        translation_uk=translation_uk,
+        commentary_uk=commentary_uk,
         transliteration_en='',  # Буде з Vedabase
         synonyms_en='',         # Буде з Vedabase
         translation_en='',      # Буде з Vedabase
@@ -210,10 +210,10 @@ def parse_chapter_from_epub(book: epub.EpubBook, chapter_file: str, canto_number
         print(f"❌ Chapter title not found in {chapter_file}")
         return None
 
-    title_ua = title_match.group(1).strip().upper()
-    chapter_number = extract_chapter_number(title_ua)
+    title_uk = title_match.group(1).strip().upper()
+    chapter_number = extract_chapter_number(title_uk)
 
-    print(f"📖 Found chapter: {chapter_number} - {title_ua}")
+    print(f"📖 Found chapter: {chapter_number} - {title_uk}")
 
     # Розбити на вірші
     verse_pattern = re.compile(r'Вірш\s+(\d+(?:\s*[-–—]\s*\d+)?)', re.I)
@@ -237,7 +237,7 @@ def parse_chapter_from_epub(book: epub.EpubBook, chapter_file: str, canto_number
     return ParsedChapter(
         canto_number=canto_number,
         chapter_number=chapter_number,
-        title_ua=title_ua,
+        title_uk=title_uk,
         title_en='',  # Буде з Vedabase
         verses=verses,
     )
@@ -336,13 +336,13 @@ def print_summary(chapters: List[ParsedChapter]) -> None:
     print("="*60)
 
     for chapter in chapters:
-        print(f"\n📖 Chapter {chapter.chapter_number}: {chapter.title_ua}")
+        print(f"\n📖 Chapter {chapter.chapter_number}: {chapter.title_uk}")
         if chapter.title_en:
             print(f"   EN: {chapter.title_en}")
         print(f"   Verses: {len(chapter.verses)}")
 
         for verse in chapter.verses[:3]:  # Show first 3 verses
-            print(f"   • {verse.verse_number}: {verse.translation_ua[:100]}...")
+            print(f"   • {verse.verse_number}: {verse.translation_uk[:100]}...")
 
 
 def parse_chapter_range(chapters_arg: str) -> Tuple[int, int]:

@@ -23,7 +23,7 @@
 
             try {
                 // URL для Antya-lila 3, chapter 6, verse 1
-                const url = 'https://gitabase.com/ua/CC/3/6/1';
+                const url = 'https://gitabase.com/uk/CC/3/6/1';
 
                 output.innerHTML += `<div class="log">🌐 URL: ${url}</div>`;
 
@@ -38,10 +38,10 @@
 
                 // Test selectors - EXACT selectors from user inspection
                 const tests = [
-                    { name: 'synonyms_ua', selector: 'div.dia_text' },
-                    { name: 'translation_ua (EXACT)', selector: 'div.row:nth-child(5) > div:nth-child(1) > div:nth-child(2) > h4:nth-child(1) > b:nth-child(1)' },
-                    { name: 'purport_ua container (EXACT)', selector: 'div.row:nth-child(6) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)' },
-                    { name: 'purport_ua paragraphs', selector: 'div.row:nth-child(6) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) p' },
+                    { name: 'synonyms_uk', selector: 'div.dia_text' },
+                    { name: 'translation_uk (EXACT)', selector: 'div.row:nth-child(5) > div:nth-child(1) > div:nth-child(2) > h4:nth-child(1) > b:nth-child(1)' },
+                    { name: 'purport_uk container (EXACT)', selector: 'div.row:nth-child(6) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)' },
+                    { name: 'purport_uk paragraphs', selector: 'div.row:nth-child(6) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) p' },
                 ];
 
                 tests.forEach(test => {
@@ -55,19 +55,19 @@
                     </div>`;
                 });
 
-                // Test synonyms_ua parsing with EXACT selector
+                // Test synonyms_uk parsing with EXACT selector
                 const diaTextEl = doc.querySelector('div.dia_text');
                 if (diaTextEl) {
-                    const synonyms_ua = diaTextEl.textContent?.trim() || '';
+                    const synonyms_uk = diaTextEl.textContent?.trim() || '';
                     output.innerHTML += `<div class="log success">
-                        📝 Parsed synonyms_ua from div.dia_text (${synonyms_ua.length} chars):
-                        <pre>${synonyms_ua.substring(0, 300)}...</pre>
+                        📝 Parsed synonyms_uk from div.dia_text (${synonyms_uk.length} chars):
+                        <pre>${synonyms_uk.substring(0, 300)}...</pre>
                     </div>`;
                 } else {
                     output.innerHTML += `<div class="log error">❌ div.dia_text not found for synonyms!</div>`;
                 }
 
-                // Test purport_ua parsing with EXACT selector
+                // Test purport_uk parsing with EXACT selector
                 const commentaryContainer = doc.querySelector('div.row:nth-child(6) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)');
                 if (commentaryContainer) {
                     const paragraphs = Array.from(commentaryContainer.querySelectorAll('p'));
@@ -78,10 +78,10 @@
                             parts.push(text);
                         }
                     });
-                    const purport_ua = parts.join('\n\n');
+                    const purport_uk = parts.join('\n\n');
                     output.innerHTML += `<div class="log success">
-                        📝 Parsed purport_ua (${paragraphs.length} paragraphs, ${purport_ua.length} chars total):
-                        <pre>${purport_ua.substring(0, 300)}...</pre>
+                        📝 Parsed purport_uk (${paragraphs.length} paragraphs, ${purport_uk.length} chars total):
+                        <pre>${purport_uk.substring(0, 300)}...</pre>
                     </div>`;
                 } else {
                     output.innerHTML += `<div class="log error">❌ purport container not found!</div>`;

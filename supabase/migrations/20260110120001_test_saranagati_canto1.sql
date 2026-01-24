@@ -1,6 +1,6 @@
 -- Import Saranagati by Bhaktivinoda Thakura
 -- Proper structure: books -> cantos -> chapters -> verses
--- Fields: sanskrit_en/ua, transliteration_en/ua, synonyms_en/ua, translation_en/ua, commentary_en/ua
+-- Fields: sanskrit_en/uk, transliteration_en/uk, synonyms_en/uk, translation_en/uk, commentary_en/uk
 
 BEGIN;
 

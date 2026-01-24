@@ -76,10 +76,10 @@ class SupabaseUploader:
         return {
             "slug": metadata.get("slug"),
             "title_en": metadata.get("title_en"),
-            "title_ua": metadata.get("title_ua"),
+            "title_uk": metadata.get("title_uk"),
             "lecture_date": metadata.get("lecture_date"),
             "location_en": metadata.get("location_en"),
-            "location_ua": metadata.get("location_ua"),
+            "location_uk": metadata.get("location_uk"),
             "lecture_type": metadata.get("lecture_type"),
             "audio_url": metadata.get("audio_url"),
             "book_slug": metadata.get("book_slug"),
@@ -102,7 +102,7 @@ class SupabaseUploader:
                 "lecture_id": lecture_id,
                 "paragraph_number": p.get("paragraph_number"),
                 "content_en": p.get("content_en"),
-                "content_ua": p.get("content_ua"),  # Буде None якщо не перекладено
+                "content_uk": p.get("content_uk"),  # Буде None якщо не перекладено
                 "audio_timecode": p.get("audio_timecode"),
             })
 
@@ -115,13 +115,13 @@ class SupabaseUploader:
         return {
             "slug": metadata.get("slug"),
             "recipient_en": metadata.get("recipient_en"),
-            "recipient_ua": metadata.get("recipient_ua"),
+            "recipient_uk": metadata.get("recipient_uk"),
             "letter_date": metadata.get("letter_date"),
             "location_en": metadata.get("location_en"),
-            "location_ua": metadata.get("location_ua"),
+            "location_uk": metadata.get("location_uk"),
             "reference": metadata.get("reference"),
             "content_en": data.get("content_en"),
-            "content_ua": data.get("content_ua"),  # Буде None якщо не перекладено
+            "content_uk": data.get("content_uk"),  # Буде None якщо не перекладено
             "is_published": True,
             "created_at": datetime.now().isoformat(),
             "updated_at": datetime.now().isoformat(),

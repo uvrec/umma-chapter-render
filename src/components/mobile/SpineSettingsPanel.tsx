@@ -3,6 +3,7 @@
 // Панель налаштувань: нагадування, читання, книги, про нас, контакти
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
 // Sheet replaced with custom implementation for Spine offset support
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -10,20 +11,16 @@ import { Separator } from "@/components/ui/separator";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Info,
   ChevronRight,
-  ChevronDown,
-  Check,
-  X,
   MessageCircle,
-  Lock,
   Send,
   Instagram,
   Youtube,
-  Heart,
-  Wallet,
-  Building2,
+  X,
+  Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -31,69 +28,6 @@ interface SpineSettingsPanelProps {
   open: boolean;
   onClose: () => void;
 }
-
-// Book/Translation source definitions for VedaVoice
-// Books can be: available (free/owned) or purchasable (with price)
-const BOOK_SOURCES = [
-  {
-    id: "prabhupada-uk",
-    title_uk: "Прабгупада солов'їною",
-    title_en: "Prabhupada in Ukrainian",
-    description_uk: "Офіційний український переклад творів Шріли Прабгупади. Безкоштовно для всіх читачів.",
-    description_en: "Official Ukrainian translation of Srila Prabhupada's works. Free for all readers.",
-    coverImage: "/images/books/prabhupada-uk-cover.jpg",
-    bgColor: "bg-gradient-to-br from-amber-600 to-orange-700",
-    available: true,
-    price: null,
-  },
-  {
-    id: "prabhupada-en",
-    title_uk: "Оригінал (English)",
-    title_en: "Original (English)",
-    description_uk: "Оригінальні твори Шріли Прабгупади англійською мовою - класичні переклади BBT.",
-    description_en: "Original works by Srila Prabhupada in English - classic BBT translations.",
-    coverImage: "/images/books/prabhupada-en-cover.jpg",
-    bgColor: "bg-gradient-to-br from-slate-700 to-slate-900",
-    available: true,
-    price: null,
-  },
-  {
-    id: "original-1972",
-    title_uk: "Оригінал 1972",
-    title_en: "Original 1972 Edition",
-    description_uk: "Оригінальне видання Бгаґавад-ґіти 1972 року, надруковане за життя Шріли Прабгупади.",
-    description_en: "Original 1972 Bhagavad-gita edition, printed during Srila Prabhupada's lifetime.",
-    coverImage: "/images/books/bg-1972-cover.jpg",
-    bgColor: "bg-gradient-to-br from-red-800 to-red-950",
-    available: false,
-    price: "4.99 €",
-    purchaseUrl: "https://store.krishna.org.ua/bg-1972",
-  },
-  {
-    id: "visvanatha",
-    title_uk: "Вішванатха Чакраварті",
-    title_en: "Visvanatha Chakravarti",
-    description_uk: "Коментарі Шріли Вішванатхи Чакраварті Тгакура до Бгаґавад-ґіти та Шрімад-Бгаґаватам.",
-    description_en: "Commentaries by Srila Visvanatha Chakravarti Thakura on Bhagavad-gita and Srimad-Bhagavatam.",
-    coverImage: "/images/books/visvanatha-cover.jpg",
-    bgColor: "bg-gradient-to-br from-purple-700 to-indigo-900",
-    available: false,
-    price: "6.99 €",
-    purchaseUrl: "https://store.krishna.org.ua/visvanatha",
-  },
-  {
-    id: "baladeva",
-    title_uk: "Баладева Відьябгушана",
-    title_en: "Baladeva Vidyabhusana",
-    description_uk: "Ґовінда-бгаш'я - коментар Шріли Баладеви Відьябгушани до Веданта-сутри.",
-    description_en: "Govinda-bhashya - Srila Baladeva Vidyabhusana's commentary on Vedanta-sutra.",
-    coverImage: "/images/books/baladeva-cover.jpg",
-    bgColor: "bg-gradient-to-br from-teal-700 to-cyan-900",
-    available: false,
-    price: "5.99 €",
-    purchaseUrl: "https://store.krishna.org.ua/baladeva",
-  },
-] as const;
 
 // Reading reminders localStorage key
 const REMINDERS_STORAGE_KEY = "vv_reading_reminders";
@@ -127,49 +61,35 @@ function saveReminders(settings: ReminderSettings) {
   }
 }
 
-// Social + Support links for contact section
-const EXTERNAL_LINKS = [
+// Social links for contact section
+const SOCIAL_LINKS = [
   {
     id: "telegram",
     label: "Telegram",
     icon: Send,
-    url: "https://t.me/prabhupada_ua",
+    url: "https://t.me/prabhupada_uk",
   },
   {
     id: "instagram",
     label: "Instagram",
     icon: Instagram,
-    url: "https://instagram.com/prabhupada_ua",
+    url: "https://instagram.com/prabhupada.ua",
   },
   {
     id: "youtube",
     label: "YouTube",
     icon: Youtube,
-    url: "https://youtube.com/@prabhupada_ua",
-  },
-  {
-    id: "paypal",
-    label: "PayPal",
-    icon: Wallet,
-    url: "https://paypal.me/andriiuvarov",
-  },
-  {
-    id: "monobank",
-    label: "Monobank",
-    icon: Building2,
-    url: "https://send.monobank.ua/jar/YAmYDYgti",
+    url: "https://youtube.com/@prabhupada_uk",
   },
 ];
 
 export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
   const { language, setLanguage, t, getLocalizedPath } = useLanguage();
   const navigate = useNavigate();
-  const [showBooksModal, setShowBooksModal] = useState(false);
-  const [selectedBookIndex, setSelectedBookIndex] = useState(0);
   const [showRemindersSheet, setShowRemindersSheet] = useState(false);
   const [reminders, setReminders] = useState<ReminderSettings>(loadReminders);
-  const [activeBookId, setActiveBookId] = useState("prabhupada-uk");
-  const [showSupportSection, setShowSupportSection] = useState(false);
+  const [showBooksModal, setShowBooksModal] = useState(false);
+  const [selectedBookIndex, setSelectedBookIndex] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -181,45 +101,34 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
     setDualLanguageMode,
   } = useReaderSettings();
 
+  // Fetch real books from library with descriptions
+  const { data: books = [] } = useQuery({
+    queryKey: ["settings-books"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("books")
+        .select("id, slug, title_uk, title_en, cover_image_url, description_uk, description_en")
+        .eq("is_published", true)
+        .order("display_order");
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
   const handleNavigate = (path: string) => {
     navigate(getLocalizedPath(path));
     onClose();
   };
 
-  // Handle language change with URL navigation
-  const handleLanguageChange = (newLang: "uk" | "en") => {
-    if (newLang === language) return;
-
-    setLanguage(newLang);
-
-    // Navigate to the same page in new language
-    const currentPath = window.location.pathname;
-    let newPath: string;
-
-    if (currentPath.startsWith('/uk/')) {
-      newPath = currentPath.replace('/uk/', `/${newLang}/`);
-    } else if (currentPath.startsWith('/en/')) {
-      newPath = currentPath.replace('/en/', `/${newLang}/`);
-    } else if (currentPath === '/uk' || currentPath === '/en') {
-      newPath = `/${newLang}`;
-    } else {
-      // No language prefix - add it
-      newPath = `/${newLang}${currentPath}`;
-    }
-
-    navigate(newPath);
-  };
-
-  const handleSelectBook = (id: string) => {
-    const book = BOOK_SOURCES.find(b => b.id === id);
-    if (book?.available) {
-      setActiveBookId(id);
-    }
-  };
-
   const handleBookCardClick = (index: number) => {
     setSelectedBookIndex(index);
     setShowBooksModal(true);
+  };
+
+  const handleSelectBook = (slug: string) => {
+    navigate(getLocalizedPath(`/lib/${slug}`));
+    setShowBooksModal(false);
+    onClose();
   };
 
   const handleRemindersToggle = (enabled: boolean) => {
@@ -236,10 +145,6 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
     setReminders(settings);
     saveReminders(settings);
     setShowRemindersSheet(false);
-  };
-
-  const handlePurchase = (url: string) => {
-    window.open(url, "_blank");
   };
 
   if (!open) return null;
@@ -261,354 +166,248 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
           "overflow-y-auto"
         )}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-4 border-b">
-          <h2 className="text-lg font-semibold">{t("Налаштування", "Settings")}</h2>
-          <button
-            onClick={onClose}
-            className="rounded-sm opacity-70 hover:opacity-100 transition-opacity"
-          >
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </button>
-        </div>
-
-        <div className="px-4 py-4 space-y-6">
-          {/* 0. GENERAL Section - Reading Reminders */}
-          <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
-              {t("Загальне", "General")}
+        <div className="px-4 py-6 space-y-5">
+          {/* Reading Reminders - no header */}
+          <div className="flex items-center justify-between">
+            <Label htmlFor="reading-reminders" className="cursor-pointer">
+              {t("Час читати", "Reading Time")}
             </Label>
+            <Switch
+              id="reading-reminders"
+              checked={reminders.enabled}
+              onCheckedChange={handleRemindersToggle}
+            />
+          </div>
+          {reminders.enabled && (
+            <button
+              onClick={() => setShowRemindersSheet(true)}
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              {reminders.days.filter(Boolean).length > 0
+                ? `${reminders.time} • ${reminders.days.filter(Boolean).length} ${t("днів", "days")}`
+                : t("Налаштувати", "Configure")}
+            </button>
+          )}
+
+          <Separator />
+
+          {/* Language Toggle - no header */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setLanguage("uk")}
+              className={cn(
+                "flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors",
+                language === "uk"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+              )}
+            >
+              Українська
+            </button>
+            <button
+              onClick={() => setLanguage("en")}
+              className={cn(
+                "flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors",
+                language === "en"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+              )}
+            >
+              English
+            </button>
+          </div>
+
+          <Separator />
+
+          {/* Reading Settings - no header */}
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label htmlFor="reading-reminders" className="cursor-pointer">
-                {t("Час читати", "Reading Time")}
+              <Label htmlFor="verse-numbers" className="cursor-pointer">
+                {t("Номери віршів", "Verse Numbers")}
               </Label>
               <Switch
-                id="reading-reminders"
-                checked={reminders.enabled}
-                onCheckedChange={handleRemindersToggle}
+                id="verse-numbers"
+                checked={showNumbers}
+                onCheckedChange={(v) => setShowNumbers(v)}
               />
             </div>
-            {reminders.enabled && (
-              <button
-                onClick={() => setShowRemindersSheet(true)}
-                className="text-sm text-muted-foreground mt-2 hover:text-foreground"
-              >
-                {reminders.days.filter(Boolean).length > 0
-                  ? `${reminders.time} • ${reminders.days.filter(Boolean).length} ${t("днів", "days")}`
-                  : t("Налаштувати", "Configure")}
-              </button>
-            )}
+            <div className="flex items-center justify-between">
+              <Label htmlFor="dual-lang" className="cursor-pointer">
+                {t("Двомовний режим", "Dual Language")}
+              </Label>
+              <Switch
+                id="dual-lang"
+                checked={dualLanguageMode}
+                onCheckedChange={(v) => setDualLanguageMode(v)}
+              />
+            </div>
           </div>
 
           <Separator />
 
-          {/* LANGUAGE Section */}
-          <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
-              {t("Мова", "Language")}
-            </Label>
+          {/* Text Blocks - no header */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="show-sanskrit" className="cursor-pointer">
+                {t("Санскрит", "Sanskrit")}
+              </Label>
+              <Switch
+                id="show-sanskrit"
+                checked={textDisplaySettings.showSanskrit}
+                onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showSanskrit: v }))}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="show-translit" className="cursor-pointer">
+                {t("Транслітерація", "Transliteration")}
+              </Label>
+              <Switch
+                id="show-translit"
+                checked={textDisplaySettings.showTransliteration}
+                onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showTransliteration: v }))}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="show-synonyms" className="cursor-pointer">
+                {t("Послівний переклад", "Synonyms")}
+              </Label>
+              <Switch
+                id="show-synonyms"
+                checked={textDisplaySettings.showSynonyms}
+                onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showSynonyms: v }))}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="show-translation" className="cursor-pointer">
+                {t("Переклад", "Translation")}
+              </Label>
+              <Switch
+                id="show-translation"
+                checked={textDisplaySettings.showTranslation}
+                onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showTranslation: v }))}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="show-commentary" className="cursor-pointer">
+                {t("Коментар", "Commentary")}
+              </Label>
+              <Switch
+                id="show-commentary"
+                checked={textDisplaySettings.showCommentary}
+                onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showCommentary: v }))}
+              />
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Books Carousel - real books from library */}
+          <div
+            ref={carouselRef}
+            className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide"
+            style={{ scrollSnapType: "x mandatory" }}
+          >
+            {books.map((book, index) => (
+              <button
+                key={book.id}
+                onClick={() => handleBookCardClick(index)}
+                className={cn(
+                  "flex-shrink-0 w-20 h-28 rounded-lg overflow-hidden relative",
+                  "transition-transform active:scale-95",
+                  "shadow-md bg-muted"
+                )}
+                style={{ scrollSnapAlign: "start" }}
+              >
+                {book.cover_image_url ? (
+                  <img
+                    src={book.cover_image_url}
+                    alt={language === "uk" ? book.title_uk : book.title_en}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
+                    <span className="text-2xl opacity-50">📖</span>
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
+
+          <Separator />
+
+          {/* About - icon link */}
+          <button
+            onClick={() => handleNavigate("/about")}
+            className="w-full flex items-center justify-between px-2 py-3
+              hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
+          >
+            <span className="flex items-center gap-3">
+              <Info className="h-5 w-5 text-muted-foreground" />
+              <span>{t("Про «Прабгупада солов'їною»", "About the Project")}</span>
+            </span>
+            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+          </button>
+
+          <Separator />
+
+          {/* Support Section - compact with buttons */}
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground text-center">
+              {t(
+                "Підтримайте проєкт фінансово або допоможіть з редагуванням",
+                "Support the project financially or help with editing"
+              )}
+            </p>
             <div className="flex gap-2">
               <button
-                onClick={() => handleLanguageChange("uk")}
-                className={cn(
-                  "flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors",
-                  language === "uk"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
-                )}
+                onClick={() => window.open("https://paypal.me/andriiuvarov", "_blank")}
+                className="flex-1 py-2.5 px-3 rounded-lg text-sm font-medium border border-border text-foreground bg-muted/50 hover:bg-muted transition-colors"
               >
-                Українська
+                PayPal
               </button>
               <button
-                onClick={() => handleLanguageChange("en")}
-                className={cn(
-                  "flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors",
-                  language === "en"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
-                )}
+                onClick={() => window.open("https://send.monobank.ua/jar/YAmYDYgti", "_blank")}
+                className="flex-1 py-2.5 px-3 rounded-lg text-sm font-medium border border-border text-foreground bg-muted/50 hover:bg-muted transition-colors"
               >
-                English
+                Monobank
               </button>
             </div>
           </div>
 
           <Separator />
 
-          {/* READING Section */}
-          <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
-              {t("Читання", "Reading")}
-            </Label>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="verse-numbers" className="cursor-pointer">
-                  {t("Номери віршів", "Verse Numbers")}
-                </Label>
-                <Switch
-                  id="verse-numbers"
-                  checked={showNumbers}
-                  onCheckedChange={(v) => setShowNumbers(v)}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="dual-lang" className="cursor-pointer">
-                  {t("Двомовний режим", "Dual Language")}
-                </Label>
-                <Switch
-                  id="dual-lang"
-                  checked={dualLanguageMode}
-                  onCheckedChange={(v) => setDualLanguageMode(v)}
-                />
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* TEXT BLOCKS Section */}
-          <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
-              {t("Блоки тексту", "Text Blocks")}
-            </Label>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="show-sanskrit" className="cursor-pointer">
-                  {t("Санскрит", "Sanskrit")}
-                </Label>
-                <Switch
-                  id="show-sanskrit"
-                  checked={textDisplaySettings.showSanskrit}
-                  onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showSanskrit: v }))}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="show-translit" className="cursor-pointer">
-                  {t("Транслітерація", "Transliteration")}
-                </Label>
-                <Switch
-                  id="show-translit"
-                  checked={textDisplaySettings.showTransliteration}
-                  onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showTransliteration: v }))}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="show-synonyms" className="cursor-pointer">
-                  {t("Послівний переклад", "Synonyms")}
-                </Label>
-                <Switch
-                  id="show-synonyms"
-                  checked={textDisplaySettings.showSynonyms}
-                  onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showSynonyms: v }))}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="show-translation" className="cursor-pointer">
-                  {t("Переклад", "Translation")}
-                </Label>
-                <Switch
-                  id="show-translation"
-                  checked={textDisplaySettings.showTranslation}
-                  onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showTranslation: v }))}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="show-commentary" className="cursor-pointer">
-                  {t("Коментар", "Commentary")}
-                </Label>
-                <Switch
-                  id="show-commentary"
-                  checked={textDisplaySettings.showCommentary}
-                  onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showCommentary: v }))}
-                />
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* 3. BOOKS Section - Translations/Books Carousel */}
-          <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
-              {t("Книги", "Books")}
-            </Label>
-
-            {/* See All Books link */}
+          {/* Social Links + Contact - no header */}
+          <div className="space-y-1">
+            {SOCIAL_LINKS.map((link) => {
+              const Icon = link.icon;
+              return (
+                <a
+                  key={link.id}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center px-2 py-3
+                    hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
+                >
+                  <span className="flex items-center gap-3">
+                    <Icon className="h-5 w-5 text-muted-foreground" />
+                    <span>{link.label}</span>
+                  </span>
+                </a>
+              );
+            })}
             <button
-              onClick={() => setShowBooksModal(true)}
-              className="text-brand-500 font-medium mb-4 hover:underline"
+              onClick={() => handleNavigate("/contact")}
+              className="w-full flex items-center justify-between px-2 py-3
+                hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
             >
-              {t("Всі книги", "See All Books")}
+              <span className="flex items-center gap-3">
+                <MessageCircle className="h-5 w-5 text-muted-foreground" />
+                <span>{t("Написати нам", "Write to Us")}</span>
+              </span>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
             </button>
-
-            {/* Horizontal carousel of book covers */}
-            <div
-              ref={carouselRef}
-              className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide"
-              style={{ scrollSnapType: "x mandatory" }}
-            >
-              {BOOK_SOURCES.map((book, index) => {
-                const isActive = activeBookId === book.id;
-                return (
-                  <button
-                    key={book.id}
-                    onClick={() => handleBookCardClick(index)}
-                    className={cn(
-                      "flex-shrink-0 w-28 h-40 rounded-lg overflow-hidden relative",
-                      "transition-transform active:scale-95",
-                      book.bgColor,
-                      "shadow-md"
-                    )}
-                    style={{ scrollSnapAlign: "start" }}
-                  >
-                    {/* Book cover or placeholder */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-2">
-                      <span className="text-[10px] font-medium text-center leading-tight">
-                        {language === "uk" ? book.title_uk : book.title_en}
-                      </span>
-                    </div>
-
-                    {/* Active indicator or Lock icon */}
-                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
-                      {isActive ? (
-                        <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
-                          <Check className="w-3 h-3 text-white" />
-                        </div>
-                      ) : !book.available ? (
-                        <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-                          <Lock className="w-3 h-3 text-white/70" />
-                        </div>
-                      ) : null}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* 4. ABOUT Section */}
-          <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
-              {t("Про нас", "About")}
-            </Label>
-            <div className="space-y-1">
-              <button
-                onClick={() => handleNavigate("/about")}
-                className="w-full flex items-center justify-between px-2 py-3
-                  hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
-              >
-                <span className="flex items-center gap-3">
-                  <Info className="h-5 w-5 text-muted-foreground" />
-                  <span>{t("Про «Прабгупада солов'їною»", "About the Project")}</span>
-                </span>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
-              </button>
-
-              <button
-                onClick={() => setShowSupportSection(!showSupportSection)}
-                className="w-full flex items-center justify-between px-2 py-3
-                  hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
-              >
-                <span className="flex items-center gap-3">
-                  <Heart className="h-5 w-5 text-muted-foreground" />
-                  <span>{t("Підтримати проєкт", "Support the Project")}</span>
-                </span>
-                <ChevronDown className={cn(
-                  "h-5 w-5 text-muted-foreground transition-transform",
-                  showSupportSection && "rotate-180"
-                )} />
-              </button>
-
-              {/* Expandable Support Section */}
-              {showSupportSection && (
-                <div className="px-2 py-3 space-y-3 animate-in slide-in-from-top-2 duration-200">
-                  <p className="text-sm text-muted-foreground">
-                    {t(
-                      "Якщо ви хочете підтримати проєкт, ви можете зробити це через:",
-                      "If you want to support the project, you can do so via:"
-                    )}
-                  </p>
-                  <div className="flex flex-col gap-2">
-                    <button
-                      onClick={() => window.open("https://paypal.me/andriiuvarov", '_blank', 'noopener,noreferrer')}
-                      className="flex items-center justify-between px-4 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-                    >
-                      <span className="flex items-center gap-2">
-                        <CreditCard className="h-5 w-5" />
-                        <span className="font-medium">PayPal</span>
-                      </span>
-                      <ExternalLink className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => window.open("https://send.monobank.ua/jar/YAmYDYgti", '_blank', 'noopener,noreferrer')}
-                      className="flex items-center justify-between px-4 py-3 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors"
-                    >
-                      <span className="flex items-center gap-2">
-                        <Building className="h-5 w-5" />
-                        <span className="font-medium">Monobank</span>
-                      </span>
-                      <ExternalLink className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* 5. CONTACT & SUPPORT Section - 2-column icon grid */}
-          <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
-              {t("Зв'язок і підтримка", "Contact & Support")}
-            </Label>
-            <div className="grid grid-cols-2 gap-3">
-              {EXTERNAL_LINKS.map((link) => {
-                const Icon = link.icon;
-                const isInternal = "internal" in link && link.internal;
-
-                if (isInternal) {
-                  return (
-                    <button
-                      key={link.id}
-                      onClick={() => handleNavigate(link.url)}
-                      className="flex items-center justify-center p-3
-                        hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
-                      aria-label={link.label}
-                    >
-                      <Icon className="h-6 w-6 text-muted-foreground" />
-                    </button>
-                  );
-                }
-
-                return (
-                  <a
-                    key={link.id}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center p-3
-                      hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
-                    aria-label={link.label}
-                  >
-                    <Icon className="h-6 w-6 text-muted-foreground" />
-                  </a>
-                );
-              })}
-
-              {/* Direct message button */}
-              <button
-                onClick={() => handleNavigate("/contact")}
-                className="flex items-center justify-center p-3
-                  hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
-                aria-label={t("Написати нам", "Write to Us")}
-              >
-                <MessageCircle className="h-6 w-6 text-muted-foreground" />
-              </button>
-            </div>
           </div>
 
           {/* Version Info */}
@@ -619,15 +418,12 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
       </div>
 
       {/* Full-screen Books Carousel Modal */}
-      {showBooksModal && (
+      {showBooksModal && books.length > 0 && (
         <BooksCarouselModal
-          open={showBooksModal}
-          onClose={() => setShowBooksModal(false)}
-          books={BOOK_SOURCES}
+          books={books}
           initialIndex={selectedBookIndex}
-          activeId={activeBookId}
           onSelect={handleSelectBook}
-          onPurchase={handlePurchase}
+          onClose={() => setShowBooksModal(false)}
           language={language}
         />
       )}
@@ -646,35 +442,36 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
   );
 }
 
-// Full-screen Books carousel modal (like Neu Bible)
+// Full-screen Books Carousel Modal (Neu Bible style)
+interface Book {
+  id: string;
+  slug: string;
+  title_uk: string | null;
+  title_en: string | null;
+  cover_image_url: string | null;
+  description_uk: string | null;
+  description_en: string | null;
+}
+
 interface BooksCarouselModalProps {
-  open: boolean;
-  onClose: () => void;
-  books: typeof BOOK_SOURCES;
+  books: Book[];
   initialIndex: number;
-  activeId: string;
-  onSelect: (id: string) => void;
-  onPurchase: (url: string) => void;
+  onSelect: (slug: string) => void;
+  onClose: () => void;
   language: "uk" | "en";
 }
 
 function BooksCarouselModal({
-  open,
-  onClose,
   books,
   initialIndex,
-  activeId,
   onSelect,
-  onPurchase,
+  onClose,
   language,
 }: BooksCarouselModalProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
-  const containerRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
 
   const currentBook = books[currentIndex];
-  const isActive = activeId === currentBook.id;
-  const isAvailable = currentBook.available;
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
@@ -698,93 +495,105 @@ function BooksCarouselModal({
     touchStartX.current = null;
   };
 
-  const handleSelect = () => {
-    if (isAvailable) {
-      onSelect(currentBook.id);
-      onClose();
-    } else if ("purchaseUrl" in currentBook && currentBook.purchaseUrl) {
-      onPurchase(currentBook.purchaseUrl);
-    }
-  };
+  const getTitle = (book: Book) =>
+    language === "uk" ? (book.title_uk || book.title_en) : (book.title_en || book.title_uk);
 
-  if (!open) return null;
+  const getDescription = (book: Book) =>
+    language === "uk" ? (book.description_uk || book.description_en) : (book.description_en || book.description_uk);
 
   return (
     <div className="fixed inset-0 z-[100] bg-black/90 flex flex-col">
       {/* Carousel area */}
       <div
-        ref={containerRef}
         className="flex-1 flex items-center justify-center px-8"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Previous card preview */}
+        {/* Previous book preview */}
         {currentIndex > 0 && (
-          <div
-            className={cn(
-              "absolute left-2 w-16 h-24 rounded-lg opacity-40",
-              books[currentIndex - 1].bgColor
+          <div className="absolute left-2 w-16 h-24 rounded-lg overflow-hidden opacity-40">
+            {books[currentIndex - 1].cover_image_url ? (
+              <img
+                src={books[currentIndex - 1].cover_image_url!}
+                alt=""
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-muted" />
             )}
-          />
+          </div>
         )}
 
-        {/* Current card */}
+        {/* Current book */}
         <div className="flex flex-col items-center max-w-xs">
-          <div
-            className={cn(
-              "w-44 h-64 rounded-xl shadow-2xl flex items-center justify-center text-white p-4",
-              currentBook.bgColor
+          <div className="w-44 h-64 rounded-xl shadow-2xl overflow-hidden">
+            {currentBook.cover_image_url ? (
+              <img
+                src={currentBook.cover_image_url}
+                alt={getTitle(currentBook) || ""}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-primary/30 to-primary/60 flex items-center justify-center">
+                <span className="text-4xl opacity-50">📖</span>
+              </div>
             )}
-          >
-            <span className="text-sm font-medium text-center leading-tight opacity-80">
-              {language === "uk" ? currentBook.title_uk : currentBook.title_en}
-            </span>
           </div>
 
-          {/* Title */}
-          <h2 className="text-white text-xl font-semibold mt-6 text-center italic">
-            {language === "uk" ? currentBook.title_uk : currentBook.title_en}
+          {/* Title - Crimson Text italic */}
+          <h2
+            className="text-white text-xl mt-6 text-center"
+            style={{ fontFamily: '"Crimson Text", Georgia, serif', fontStyle: 'italic', fontWeight: 400 }}
+          >
+            {getTitle(currentBook)}
           </h2>
 
-          {/* Description */}
-          <p className="text-white/70 text-sm text-center mt-3 px-4 leading-relaxed">
-            {language === "uk" ? currentBook.description_uk : currentBook.description_en}
-          </p>
+          {/* Description - Crimson Text */}
+          {getDescription(currentBook) && (
+            <p
+              className="text-white/70 text-sm text-center mt-3 px-4 leading-relaxed line-clamp-4"
+              style={{ fontFamily: '"Crimson Text", Georgia, serif' }}
+            >
+              {getDescription(currentBook)}
+            </p>
+          )}
 
-          {/* Action button: Select (if available/active) or Buy (if not available) */}
-          <div className="mt-6">
-            {isActive ? (
-              <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
-                <Check className="w-6 h-6 text-white" />
-              </div>
-            ) : isAvailable ? (
-              <button
-                onClick={handleSelect}
-                className="px-6 py-2 border border-white/30 rounded-full text-white/80
-                  hover:bg-white/10 transition-colors"
-              >
-                {language === "uk" ? "Обрати" : "Select"}
-              </button>
-            ) : (
-              <button
-                onClick={handleSelect}
-                className="px-6 py-2 border border-white/30 rounded-full text-white/80
-                  hover:bg-white/10 transition-colors"
-              >
-                {currentBook.price}
-              </button>
-            )}
+          {/* Action buttons */}
+          <div className="flex items-center gap-4 mt-6">
+            {/* Read online button */}
+            <button
+              onClick={() => onSelect(currentBook.slug)}
+              className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center
+                hover:bg-green-600 transition-colors"
+            >
+              <Check className="w-6 h-6 text-white" />
+            </button>
+
+            {/* Buy physical book */}
+            <button
+              onClick={() => window.open("https://books.krishna.ua/", "_blank")}
+              className="px-4 py-2 rounded-full border border-white/30 text-white/80
+                hover:bg-white/10 transition-colors text-sm"
+              style={{ fontFamily: '"Crimson Text", Georgia, serif' }}
+            >
+              Купити
+            </button>
           </div>
         </div>
 
-        {/* Next card preview */}
+        {/* Next book preview */}
         {currentIndex < books.length - 1 && (
-          <div
-            className={cn(
-              "absolute right-2 w-16 h-24 rounded-lg opacity-40",
-              books[currentIndex + 1].bgColor
+          <div className="absolute right-2 w-16 h-24 rounded-lg overflow-hidden opacity-40">
+            {books[currentIndex + 1].cover_image_url ? (
+              <img
+                src={books[currentIndex + 1].cover_image_url!}
+                alt=""
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-muted" />
             )}
-          />
+          </div>
         )}
       </div>
 

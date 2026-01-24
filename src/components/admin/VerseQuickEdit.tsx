@@ -29,7 +29,7 @@ interface Verse {
   commentary_en?: string;
   full_verse_audio_url?: string;
   recitation_audio_url?: string;
-  explanation_ua_audio_url?: string;
+  explanation_uk_audio_url?: string;
   explanation_en_audio_url?: string;
 }
 
@@ -72,7 +72,7 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
   // Audio fields
   const [fullVerseAudioUrl, setFullVerseAudioUrl] = useState("");
   const [recitationAudioUrl, setRecitationAudioUrl] = useState("");
-  const [explanationUaAudioUrl, setExplanationUaAudioUrl] = useState("");
+  const [explanationUkAudioUrl, setExplanationUkAudioUrl] = useState("");
   const [explanationEnAudioUrl, setExplanationEnAudioUrl] = useState("");
   const [isAudioOpen, setIsAudioOpen] = useState(false);
 
@@ -96,7 +96,7 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
       // Reset audio fields
       setFullVerseAudioUrl("");
       setRecitationAudioUrl("");
-      setExplanationUaAudioUrl("");
+      setExplanationUkAudioUrl("");
       setExplanationEnAudioUrl("");
       return;
     }
@@ -142,11 +142,11 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
         // Audio fields
         setFullVerseAudioUrl(data.full_verse_audio_url || "");
         setRecitationAudioUrl(data.recitation_audio_url || "");
-        setExplanationUaAudioUrl(data.explanation_ua_audio_url || "");
+        setExplanationUkAudioUrl(data.explanation_uk_audio_url || "");
         setExplanationEnAudioUrl(data.explanation_en_audio_url || "");
         // Auto-open audio section if verse has audio
         if (data.full_verse_audio_url || data.recitation_audio_url ||
-            data.explanation_ua_audio_url || data.explanation_en_audio_url) {
+            data.explanation_uk_audio_url || data.explanation_en_audio_url) {
           setIsAudioOpen(true);
         }
 
@@ -225,7 +225,7 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
         // Audio fields
         full_verse_audio_url: fullVerseAudioUrl || null,
         recitation_audio_url: recitationAudioUrl || null,
-        explanation_ua_audio_url: explanationUaAudioUrl || null,
+        explanation_uk_audio_url: explanationUkAudioUrl || null,
         explanation_en_audio_url: explanationEnAudioUrl || null,
       };
 
@@ -490,9 +490,9 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
                 <span className="flex items-center gap-2">
                   <Volume2 className="h-4 w-4" />
                   Аудіо
-                  {(fullVerseAudioUrl || recitationAudioUrl || explanationUaAudioUrl || explanationEnAudioUrl) && (
+                  {(fullVerseAudioUrl || recitationAudioUrl || explanationUkAudioUrl || explanationEnAudioUrl) && (
                     <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded">
-                      {[fullVerseAudioUrl, recitationAudioUrl, explanationUaAudioUrl, explanationEnAudioUrl].filter(Boolean).length}
+                      {[fullVerseAudioUrl, recitationAudioUrl, explanationUkAudioUrl, explanationEnAudioUrl].filter(Boolean).length}
                     </span>
                   )}
                 </span>
@@ -521,8 +521,8 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
               {/* Explanation Audio - Ukrainian */}
               <AudioUploader
                 label="Пояснення (українською)"
-                value={explanationUaAudioUrl}
-                onChange={setExplanationUaAudioUrl}
+                value={explanationUkAudioUrl}
+                onChange={setExplanationUkAudioUrl}
                 compact={true}
                 showManualInput={false}
               />

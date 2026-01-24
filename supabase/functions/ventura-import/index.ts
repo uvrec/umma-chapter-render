@@ -14,8 +14,8 @@
  *   file_prefix?: string (for intro files, e.g., "UKBG00PF")
  *
  * Response:
- *   For chapters: { chapter_number, title_ua, verses: [...] }
- *   For intros: { slug, title_ua, content_ua, display_order }
+ *   For chapters: { chapter_number, title_uk, verses: [...] }
+ *   For intros: { slug, title_uk, content_uk, display_order }
  *
  * REQUIRES AUTHENTICATION: Admin only
  */
@@ -392,22 +392,22 @@ function extractChapterNumber(text: string): number {
 
 interface Verse {
   verse_number: string;
-  transliteration_ua?: string;
-  synonyms_ua?: string;
-  translation_ua?: string;
-  commentary_ua?: string;
+  transliteration_uk?: string;
+  synonyms_uk?: string;
+  translation_uk?: string;
+  commentary_uk?: string;
 }
 
 interface Chapter {
   chapter_number: number;
-  title_ua: string;
+  title_uk: string;
   verses: Verse[];
 }
 
 interface IntroPage {
   slug: string;
-  title_ua: string;
-  content_ua: string;
+  title_uk: string;
+  content_uk: string;
   display_order: number;
 }
 
@@ -443,28 +443,28 @@ function parseVentura(text: string): Chapter {
     } else if (['v-uvaca', 'v-anustubh', 'v-tristubh'].includes(currentTag)) {
       if (currentVerse) {
         const translit = processTransliteration(content);
-        currentVerse.transliteration_ua = currentVerse.transliteration_ua
-          ? currentVerse.transliteration_ua + '\n' + translit
+        currentVerse.transliteration_uk = currentVerse.transliteration_uk
+          ? currentVerse.transliteration_uk + '\n' + translit
           : translit;
       }
     } else if (currentTag === 'eqs') {
       if (currentVerse) {
         const synonyms = processSynonyms(content);
-        currentVerse.synonyms_ua = currentVerse.synonyms_ua
-          ? currentVerse.synonyms_ua + ' ' + synonyms
+        currentVerse.synonyms_uk = currentVerse.synonyms_uk
+          ? currentVerse.synonyms_uk + ' ' + synonyms
           : synonyms;
       }
     } else if (currentTag === 'translation') {
       if (currentVerse) {
-        currentVerse.translation_ua = processProse(content, false);
+        currentVerse.translation_uk = processProse(content, false);
       }
     } else if (currentTag === 'p-indent') {
       // First paragraph with drop cap
       if (currentVerse) {
         const para = processFirstParagraph(content);
         if (para) {
-          currentVerse.commentary_ua = currentVerse.commentary_ua
-            ? currentVerse.commentary_ua + '\n\n' + para
+          currentVerse.commentary_uk = currentVerse.commentary_uk
+            ? currentVerse.commentary_uk + '\n\n' + para
             : para;
         }
       }
@@ -474,8 +474,8 @@ function parseVentura(text: string): Chapter {
         if (para) {
           // Wrap in <p class="purport">
           const wrapped = `<p class="purport">${para}</p>`;
-          currentVerse.commentary_ua = currentVerse.commentary_ua
-            ? currentVerse.commentary_ua + '\n\n' + wrapped
+          currentVerse.commentary_uk = currentVerse.commentary_uk
+            ? currentVerse.commentary_uk + '\n\n' + wrapped
             : wrapped;
         }
       }
@@ -483,8 +483,8 @@ function parseVentura(text: string): Chapter {
       // "КОМЕНТАР" header - styled as centered header
       if (currentVerse) {
         const header = `<p class="purport-title">${processInlineTags(content)}</p>`;
-        currentVerse.commentary_ua = currentVerse.commentary_ua
-          ? currentVerse.commentary_ua + '\n\n' + header
+        currentVerse.commentary_uk = currentVerse.commentary_uk
+          ? currentVerse.commentary_uk + '\n\n' + header
           : header;
       }
     } else if (['ql', 'q', 'q-p'].includes(currentTag)) {
@@ -493,8 +493,8 @@ function parseVentura(text: string): Chapter {
         const quote = processProse(content, true);
         if (quote) {
           const blockquote = `<blockquote class="verse-quote">${quote}</blockquote>`;
-          currentVerse.commentary_ua = currentVerse.commentary_ua
-            ? currentVerse.commentary_ua + '\n\n' + blockquote
+          currentVerse.commentary_uk = currentVerse.commentary_uk
+            ? currentVerse.commentary_uk + '\n\n' + blockquote
             : blockquote;
         }
       }
@@ -502,8 +502,8 @@ function parseVentura(text: string): Chapter {
       // Outro paragraph (end of chapter) - styled differently
       if (currentVerse) {
         const outro = `<p class="purport-outro"><em>${processProse(content, true)}</em></p>`;
-        currentVerse.commentary_ua = currentVerse.commentary_ua
-          ? currentVerse.commentary_ua + '\n\n' + outro
+        currentVerse.commentary_uk = currentVerse.commentary_uk
+          ? currentVerse.commentary_uk + '\n\n' + outro
           : outro;
       }
     }
@@ -533,7 +533,7 @@ function parseVentura(text: string): Chapter {
   console.log(`parseVentura result: chapter=${chapterNumber}, title="${chapterTitle}", verses=${verses.length}`);
   console.log(`Found tags: ${Array.from(foundTags).join(', ')}`);
 
-  return { chapter_number: chapterNumber, title_ua: chapterTitle, verses };
+  return { chapter_number: chapterNumber, title_uk: chapterTitle, verses };
 }
 
 function parseIntroPage(text: string, filePrefix: string): IntroPage | null {
@@ -643,8 +643,8 @@ function parseIntroPage(text: string, filePrefix: string): IntroPage | null {
 
   return {
     slug,
-    title_ua: title,
-    content_ua: paragraphs.join('\n\n'),
+    title_uk: title,
+    content_uk: paragraphs.join('\n\n'),
     display_order: displayOrder,
   };
 }
@@ -776,7 +776,7 @@ Deno.serve(async (req) => {
               tag_count: tagMatches.length,
               first_10_tags: tagMatches.slice(0, 10),
               chapter_number_found: result.chapter_number,
-              title_found: result.title_ua,
+              title_found: result.title_uk,
             }
           }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }

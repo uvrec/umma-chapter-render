@@ -5,10 +5,10 @@
 НЕ чіпаємо санскрит (деванаґарі) та англійську!
 
 Витягує:
-- transliteration_ua (з @v-uvaca, @v-anustubh, @v-tristubh)
-- synonyms_ua (з @eqs)
-- translation_ua (з @translation)
-- commentary_ua (з @p-indent, @p, @p0, @p1)
+- transliteration_uk (з @v-uvaca, @v-anustubh, @v-tristubh)
+- synonyms_uk (з @eqs)
+- translation_uk (з @translation)
+- commentary_uk (з @p-indent, @p, @p0, @p1)
 
 Використання:
     python bg_ukrainian_importer.py docs/UKBG02XT.H93 -o chapter2.json
@@ -31,12 +31,12 @@ PUA_MAP нижче конвертує Private Use Area символи в укр�
 
 МАППІНГ ПОЛІВ (для джерел EN + Sanskrit/Bengali):
 =================================================
-- sanskrit_en / sanskrit_ua — Bengali/Sanskrit (Devanagari script), однаковий вміст
+- sanskrit_en / sanskrit_uk — Bengali/Sanskrit (Devanagari script), однаковий вміст
 - transliteration_en — IAST транслітерація (латинка з діакритикою)
-- transliteration_ua — українська кирилична транслітерація з діакритикою
+- transliteration_uk — українська кирилична транслітерація з діакритикою
   (конвертується з IAST за допомогою tools/translit_normalizer.py)
 - translation_en / purport_en — англійський переклад та пояснення
-- translation_ua / purport_ua — український переклад та пояснення
+- translation_uk / purport_uk — український переклад та пояснення
 """
 
 import re
@@ -79,34 +79,34 @@ UKRAINIAN_PUA_MAP: Dict[str, str] = {
 class Verse:
     """Вірш — тільки українські поля"""
     verse_number: str
-    transliteration_ua: Optional[str] = None
-    synonyms_ua: Optional[str] = None
-    translation_ua: Optional[str] = None
-    commentary_ua: Optional[str] = None
+    transliteration_uk: Optional[str] = None
+    synonyms_uk: Optional[str] = None
+    translation_uk: Optional[str] = None
+    commentary_uk: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
         d = {'verse_number': self.verse_number}
-        if self.transliteration_ua:
-            d['transliteration_ua'] = self.transliteration_ua
-        if self.synonyms_ua:
-            d['synonyms_ua'] = self.synonyms_ua
-        if self.translation_ua:
-            d['translation_ua'] = self.translation_ua
-        if self.commentary_ua:
-            d['commentary_ua'] = self.commentary_ua
+        if self.transliteration_uk:
+            d['transliteration_uk'] = self.transliteration_uk
+        if self.synonyms_uk:
+            d['synonyms_uk'] = self.synonyms_uk
+        if self.translation_uk:
+            d['translation_uk'] = self.translation_uk
+        if self.commentary_uk:
+            d['commentary_uk'] = self.commentary_uk
         return d
 
 @dataclass
 class Chapter:
     """Глава"""
     chapter_number: int
-    title_ua: str
+    title_uk: str
     verses: List[Verse] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             'chapter_number': self.chapter_number,
-            'title_ua': self.title_ua,
+            'title_uk': self.title_uk,
             'verses': [v.to_dict() for v in self.verses],
             'verse_count': len(self.verses)
         }
@@ -116,15 +116,15 @@ class Chapter:
 class IntroPage:
     """Вступна сторінка (Про автора, Передмова тощо)"""
     slug: str
-    title_ua: str
-    content_ua: str
+    title_uk: str
+    content_uk: str
     display_order: int = 0
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             'slug': self.slug,
-            'title_ua': self.title_ua,
-            'content_ua': self.content_ua,
+            'title_uk': self.title_uk,
+            'content_uk': self.content_uk,
             'display_order': self.display_order
         }
 
@@ -507,34 +507,34 @@ def parse_ventura(text: str) -> Chapter:
         elif current_tag in ('v-uvaca', 'v-anustubh', 'v-tristubh'):
             if current_verse:
                 translit = process_transliteration(content)
-                if current_verse.transliteration_ua:
-                    current_verse.transliteration_ua += '\n' + translit
+                if current_verse.transliteration_uk:
+                    current_verse.transliteration_uk += '\n' + translit
                 else:
-                    current_verse.transliteration_ua = translit
+                    current_verse.transliteration_uk = translit
 
         # Синоніми
         elif current_tag == 'eqs':
             if current_verse:
                 synonyms = process_synonyms(content)
-                if current_verse.synonyms_ua:
-                    current_verse.synonyms_ua += ' ' + synonyms
+                if current_verse.synonyms_uk:
+                    current_verse.synonyms_uk += ' ' + synonyms
                 else:
-                    current_verse.synonyms_ua = synonyms
+                    current_verse.synonyms_uk = synonyms
 
         # Переклад
         elif current_tag == 'translation':
             if current_verse:
-                current_verse.translation_ua = process_prose(content, keep_html=False)
+                current_verse.translation_uk = process_prose(content, keep_html=False)
 
         # Коментар — зберігаємо HTML форматування
         elif current_tag in ('p-indent', 'p', 'p0', 'p1'):
             if current_verse:
                 para = process_prose(content, keep_html=True)
                 if para:
-                    if current_verse.commentary_ua:
-                        current_verse.commentary_ua += '\n\n' + para
+                    if current_verse.commentary_uk:
+                        current_verse.commentary_uk += '\n\n' + para
                     else:
-                        current_verse.commentary_ua = para
+                        current_verse.commentary_uk = para
 
     # Парсимо рядки
     for line in lines:
@@ -562,7 +562,7 @@ def parse_ventura(text: str) -> Chapter:
 
     return Chapter(
         chapter_number=chapter_number,
-        title_ua=chapter_title,
+        title_uk=chapter_title,
         verses=verses
     )
 
@@ -701,12 +701,12 @@ def parse_intro_page(text: str, file_prefix: str) -> Optional[IntroPage]:
         return None
 
     # Об'єднуємо параграфи з \n\n
-    content_ua = '\n\n'.join(paragraphs)
+    content_uk = '\n\n'.join(paragraphs)
 
     return IntroPage(
         slug=slug,
-        title_ua=title,
-        content_ua=content_ua,
+        title_uk=title,
+        content_uk=content_uk,
         display_order=display_order
     )
 
@@ -789,7 +789,7 @@ def main():
                     with open(out_file, 'w', encoding='utf-8') as f:
                         json.dump(intro.to_dict(), f, ensure_ascii=False, indent=indent)
 
-                    para_count = intro.content_ua.count('\n\n') + 1
+                    para_count = intro.content_uk.count('\n\n') + 1
                     print(f"✓ {h_file.name} → intro_pages/{intro.slug}.json ({para_count} параграфів)")
                     total_intro += 1
                 else:
@@ -828,11 +828,11 @@ def main():
 
             if args.stats:
                 print(f"Slug: {intro.slug}")
-                print(f"Заголовок: {intro.title_ua}")
+                print(f"Заголовок: {intro.title_uk}")
                 print(f"Порядок: {intro.display_order}")
-                print(f"Параграфів: {intro.content_ua.count(chr(10)+chr(10)) + 1}")
+                print(f"Параграфів: {intro.content_uk.count(chr(10)+chr(10)) + 1}")
                 print(f"\n--- Контент (перші 500 символів) ---")
-                print(intro.content_ua[:500])
+                print(intro.content_uk[:500])
                 return
 
             indent = 2 if args.pretty else None
@@ -850,19 +850,19 @@ def main():
             chapter = parse_ventura(text)
 
             if args.stats:
-                print(f"Глава {chapter.chapter_number}: {chapter.title_ua}")
+                print(f"Глава {chapter.chapter_number}: {chapter.title_uk}")
                 print(f"Віршів: {len(chapter.verses)}")
                 for v in chapter.verses:
                     print(f"  {v.verse_number}: ", end='')
                     parts = []
-                    if v.transliteration_ua:
+                    if v.transliteration_uk:
                         parts.append('транслітерація')
-                    if v.synonyms_ua:
+                    if v.synonyms_uk:
                         parts.append('синоніми')
-                    if v.translation_ua:
+                    if v.translation_uk:
                         parts.append('переклад')
-                    if v.commentary_ua:
-                        parts.append(f'коментар ({len(v.commentary_ua)} символів)')
+                    if v.commentary_uk:
+                        parts.append(f'коментар ({len(v.commentary_uk)} символів)')
                     print(', '.join(parts) if parts else '(порожній)')
                 return
 

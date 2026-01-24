@@ -177,7 +177,7 @@
    - Витягує: Bengali, transliteration (IAST), synonyms, translation, purport
 
 2. **parseGitabaseCC** - парсить UA сторінки з Gitabase (тільки для CC та NoI)
-   - Витягує: transliteration_ua (часто зіпсована), synonyms_ua, translation_ua, purport_ua
+   - Витягує: transliteration_uk (часто зіпсована), synonyms_uk, translation_uk, purport_uk
    - ⚠️ Транслітерація UA **НЕ використовується** з Gitabase (там вона часто неправильна)
    - Замість цього використовується конвертація IAST → Ukrainian Cyrillic з діакритикою
 
@@ -201,27 +201,27 @@
 ### Структура бази даних
 
 ```
-books (slug, title_ua, title_en)
+books (slug, title_uk, title_en)
   ├─ cantos (тільки для багатотомних книг: CC, SB)
   │    ├─ canto_number
-  │    ├─ title_ua, title_en
+  │    ├─ title_uk, title_en
   │    └─ chapters
   └─ chapters
        ├─ chapter_number
        ├─ chapter_type: "verses" | "text"
-       ├─ title_ua, title_en
-       ├─ content_ua, content_en (для intro/text chapters)
+       ├─ title_uk, title_en
+       ├─ content_uk, content_en (для intro/text chapters)
        └─ verses
             ├─ verse_number
             ├─ sanskrit
             ├─ transliteration_en (IAST)
-            ├─ transliteration_ua (Cyrillic з діакритиками)
+            ├─ transliteration_uk (Cyrillic з діакритиками)
             ├─ synonyms_en
-            ├─ synonyms_ua
+            ├─ synonyms_uk
             ├─ translation_en
-            ├─ translation_ua
+            ├─ translation_uk
             ├─ commentary_en
-            └─ commentary_ua
+            └─ commentary_uk
 ```
 
 ## Поширені проблеми та рішення

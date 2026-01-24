@@ -160,12 +160,12 @@ const { data: verses } = await supabase
     id,
     verse_number,
     chapter_id,
-    translation_ua,
+    translation_uk,
     translation_en,
     chapter:chapters (
       id,
       chapter_number,
-      title_ua,
+      title_uk,
       title_en,
       canto_id,
       canto:cantos (
@@ -173,13 +173,13 @@ const { data: verses } = await supabase
       ),
       book:books (
         slug,
-        title_ua,
+        title_uk,
         title_en,
         has_cantos
       )
     )
   `)
-  .not("translation_ua", "is", null)
+  .not("translation_uk", "is", null)
   .not("translation_en", "is", null)
   .order("id")
   .range(offset, offset)

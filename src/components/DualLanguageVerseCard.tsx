@@ -319,10 +319,10 @@ export const DualLanguageVerseCard = ({
         lineHeight,
       }}
     >
-      <div className={flowMode ? "pb-6" : "px-6 pb-6"}>
+      <div className={flowMode ? "pt-2 pb-6" : "pt-2 px-6 pb-6"}>
         {/* НОМЕР ВІРША */}
         {showNumbers && (
-          <div className="flex flex-col items-center mb-6">
+          <div className="flex flex-col items-center mb-4">
             <div className="flex items-center justify-center gap-4">
               {isAdmin && verseId ? (
                 <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} bookSlug={bookSlug} />
@@ -399,7 +399,7 @@ export const DualLanguageVerseCard = ({
 
         {/* НАВІГАЦІЯ МІЖ ВІРШАМИ - приховано на мобільних (є свайп) */}
         {onPrevVerse && onNextVerse && !isMobile && (
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-4">
             <Button variant="outline" onClick={onPrevVerse} disabled={isPrevDisabled}>
               <ChevronLeft className="mr-2 h-4 w-4" />
               {prevLabel}
@@ -432,7 +432,7 @@ export const DualLanguageVerseCard = ({
 
         {/* САНСКРИТ */}
         {textDisplaySettings.showSanskrit && (isEditing || sanskritTextUk || sanskritTextEn) && (
-          <div className="mb-10">
+          <div className="mb-6">
             {/* Аудіо кнопка для санскриту */}
             <div className="mb-4 flex justify-center">
               <button
@@ -726,7 +726,7 @@ export const DualLanguageVerseCard = ({
                 />
               </div>
             ) : (
-              <DualLanguageText uaParagraphs={null} enParagraphs={null} uaText={translationUk} enText={translationEn} bold fontSize={fontSize} lineHeight={lineHeight} />
+              <DualLanguageText ukParagraphs={null} enParagraphs={null} ukText={translationUk} enText={translationEn} bold fontSize={fontSize} lineHeight={lineHeight} />
             )}
           </div>
         )}
@@ -792,7 +792,7 @@ export const DualLanguageVerseCard = ({
                 />
               </div>
             ) : (
-              <DualLanguageText uaParagraphs={null} enParagraphs={null} uaText={commentaryUk} enText={commentaryEn} enableDropCap fontSize={fontSize} lineHeight={lineHeight} />
+              <DualLanguageText ukParagraphs={null} enParagraphs={null} ukText={commentaryUk} enText={commentaryEn} enableDropCap fontSize={fontSize} lineHeight={lineHeight} />
             )}
           </div>
         )}

@@ -8,9 +8,9 @@
 SELECT
   c.id as chapter_id,
   c.chapter_number,
-  c.title_ua,
+  c.title_uk,
   b.slug as book_slug,
-  b.title_ua as book_title
+  b.title_uk as book_title
 FROM chapters c
 JOIN books b ON c.book_id = b.id
 WHERE
@@ -28,7 +28,7 @@ WHERE
 SELECT
   c.id as canto_id,
   c.canto_number,
-  c.title_ua,
+  c.title_uk,
   c.title_en,
   b.slug as book_slug
 FROM cantos c

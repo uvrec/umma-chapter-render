@@ -154,13 +154,13 @@ python3 import_sb_pdf.py \
 
 ```sql
 -- Перевірити створені глави
-SELECT c.chapter_number, c.title_ua, COUNT(v.id) as verse_count
+SELECT c.chapter_number, c.title_uk, COUNT(v.id) as verse_count
 FROM chapters c
 LEFT JOIN verses v ON v.chapter_id = c.id
 WHERE c.canto_id IN (
   SELECT id FROM cantos WHERE canto_number = 3
 )
-GROUP BY c.id, c.chapter_number, c.title_ua
+GROUP BY c.id, c.chapter_number, c.title_uk
 ORDER BY c.chapter_number;
 
 -- Приклад віршу
@@ -168,9 +168,9 @@ SELECT
   verse_number,
   LENGTH(sanskrit) as sanskrit_len,
   LENGTH(transliteration_en) as translit_en_len,
-  LENGTH(transliteration_ua) as translit_ua_len,
-  LENGTH(translation_ua) as trans_ua_len,
-  LENGTH(commentary_ua) as comm_ua_len
+  LENGTH(transliteration_uk) as translit_uk_len,
+  LENGTH(translation_uk) as trans_uk_len,
+  LENGTH(commentary_uk) as comm_uk_len
 FROM verses
 WHERE chapter_id IN (
   SELECT id FROM chapters
@@ -241,12 +241,12 @@ time.sleep(1)  # 1 секунда між запитами
 | `verse_number` | `"1"` |
 | `sanskrit` | `मैत्रेय उवाच निषम्यात्मभुवा गीतं...` |
 | `transliteration_en` | `maitreya uvāca niṣamyātma-bhuvā gītaṃ...` |
-| `transliteration_ua` | `маітрейа увāча нішамйāтма-бхувā ґīтам...` |
+| `transliteration_uk` | `маітрейа увāча нішамйāтма-бхувā ґīтам...` |
 | `synonyms_en` | `maitreyaḥ — the sage Maitreya; uvāca — said...` |
-| `synonyms_ua` | `маітрейах̣ — мудрець Майтрея; увāча — сказав...` |
-| `translation_ua` | `Шрі Майтрея сказав: Коли Брахма...` |
+| `synonyms_uk` | `маітрейах̣ — мудрець Майтрея; увāча — сказав...` |
+| `translation_uk` | `Шрі Майтрея сказав: Коли Брахма...` |
 | `translation_en` | `Maitreya said: When Brahmā, born from Viṣṇu...` |
-| `commentary_ua` | `Півбоги, жителі вищих планет...` |
+| `commentary_uk` | `Півбоги, жителі вищих планет...` |
 | `commentary_en` | `The demigods, who are residents of the higher...` |
 
 ## Наступні кроки
@@ -274,7 +274,7 @@ cantos (
   id: uuid
   book_id: uuid → books.id
   canto_number: 3
-  title_ua: 'Пісня третя'
+  title_uk: 'Пісня третя'
 )
 
 -- Глава
@@ -282,7 +282,7 @@ chapters (
   id: uuid
   canto_id: uuid → cantos.id
   chapter_number: 17
-  title_ua: 'Хіраньякша завойовує всі сторони світу'
+  title_uk: 'Хіраньякша завойовує всі сторони світу'
   chapter_type: 'verses'
 )
 
@@ -295,13 +295,13 @@ verses (
 
   sanskrit: text
   transliteration_en: text
-  transliteration_ua: text
+  transliteration_uk: text
   synonyms_en: text
-  synonyms_ua: text
+  synonyms_uk: text
   translation_en: text
-  translation_ua: text
+  translation_uk: text
   commentary_en: text
-  commentary_ua: text
+  commentary_uk: text
 )
 ```
 
@@ -339,7 +339,7 @@ export function normalizeVerseField(text: string, fieldType: string): string {
 
 - ~30 віршів
 - Час імпорту: ~2-3 хвилини (30 запитів до Vedabase)
-- Всі 10 полів заповнені: sanskrit, transliteration_en/ua, synonyms_en/ua, translation_en/ua, commentary_en/ua
+- Всі 10 полів заповнені: sanskrit, transliteration_en/uk, synonyms_en/uk, translation_en/uk, commentary_en/uk
 
 ### Всі глави 17-33:
 

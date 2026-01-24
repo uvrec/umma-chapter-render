@@ -1829,8 +1829,8 @@ export default function UniversalImportFixed() {
       const totalChapters = parsedChapters.length;
 
       for (let i = 0; i < parsedChapters.length; i++) {
-        const uaChapter = parsedChapters[i];
-        const chapterNum = uaChapter.chapter_number;
+        const ukChapter = parsedChapters[i];
+        const chapterNum = ukChapter.chapter_number;
 
         setProgress(10 + Math.round((i / totalChapters) * 40));
         toast({
@@ -1859,9 +1859,9 @@ export default function UniversalImportFixed() {
         // Об'єднуємо UA та EN
         const merged = mergeRajaVidyaChapters(
           {
-            chapter_number: uaChapter.chapter_number,
-            title_uk: uaChapter.title_uk,
-            content_uk: uaChapter.content_uk || '',
+            chapter_number: ukChapter.chapter_number,
+            title_uk: ukChapter.title_uk,
+            content_uk: ukChapter.content_uk || '',
           },
           enChapter
         );

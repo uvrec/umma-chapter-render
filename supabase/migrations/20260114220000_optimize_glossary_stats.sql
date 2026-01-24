@@ -170,7 +170,7 @@ CREATE INDEX IF NOT EXISTS idx_glossary_stats_cache_en_book ON public.glossary_s
 
 -- 3. Create optimized get_glossary_stats function using the cached view
 CREATE OR REPLACE FUNCTION public.get_glossary_stats(
-  search_language text DEFAULT 'ua'
+  search_language text DEFAULT 'uk'
 )
 RETURNS TABLE(
   total_terms bigint,
@@ -184,7 +184,7 @@ SECURITY DEFINER
 SET search_path TO 'public'
 AS $$
 BEGIN
-  IF search_language = 'ua' THEN
+  IF search_language = 'uk' THEN
     RETURN QUERY
       WITH book_aggregates AS (
         SELECT

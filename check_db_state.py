@@ -24,7 +24,7 @@ def check_database_state():
 
         # 1. Перевірити книги
         books_response = supabase.table('books') \
-            .select('id, slug, title_ua, title_en, has_cantos, is_published') \
+            .select('id, slug, title_uk, title_en, has_cantos, is_published') \
             .order('display_order', desc=False) \
             .execute()
 
@@ -34,7 +34,7 @@ def check_database_state():
         for book in books:
             cantos_str = 'так' if book.get('has_cantos') else 'ні'
             pub_str = 'так' if book.get('is_published') else 'ні'
-            print(f"  • {book['slug']} - {book['title_ua']}")
+            print(f"  • {book['slug']} - {book['title_uk']}")
             print(f"    (cantos: {cantos_str}, published: {pub_str})")
 
         print('')
@@ -50,7 +50,7 @@ def check_database_state():
 
         # 3. Перевірити cantos для SB
         cantos_response = supabase.table('cantos') \
-            .select('id, canto_number, title_ua, title_en') \
+            .select('id, canto_number, title_uk, title_en') \
             .eq('book_id', sb_book['id']) \
             .order('canto_number', desc=False) \
             .execute()
@@ -60,7 +60,7 @@ def check_database_state():
         print(f"🎵 Пісні Śrīmad-Bhāgavatam (всього {len(cantos)}):\n")
         if cantos:
             for canto in cantos:
-                title = canto.get('title_ua') or canto.get('title_en') or '(без назви)'
+                title = canto.get('title_uk') or canto.get('title_en') or '(без назви)'
                 print(f"  • Пісня {canto['canto_number']}: {title}")
         else:
             print('  ⚠️  Пісні НЕ ЗНАЙДЕНО')
@@ -71,7 +71,7 @@ def check_database_state():
         if cantos:
             for canto in cantos:
                 chapters_response = supabase.table('chapters') \
-                    .select('id, chapter_number, title_ua, chapter_type') \
+                    .select('id, chapter_number, title_uk, chapter_type') \
                     .eq('canto_id', canto['id']) \
                     .order('chapter_number', desc=False) \
                     .execute()

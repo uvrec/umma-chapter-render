@@ -302,22 +302,22 @@ function extractMantraNumber(text: string): string {
 
 interface Verse {
   verse_number: string;
-  transliteration_ua?: string;
-  synonyms_ua?: string;
-  translation_ua?: string;
-  commentary_ua?: string;
+  transliteration_uk?: string;
+  synonyms_uk?: string;
+  translation_uk?: string;
+  commentary_uk?: string;
 }
 
 interface Chapter {
   chapter_number: number;
-  title_ua: string;
+  chapter_title_uk: string;
   verses: Verse[];
 }
 
 interface IntroPage {
   slug: string;
-  title_ua: string;
-  content_ua: string;
+  title_uk: string;
+  content_uk: string;
   display_order: number;
 }
 
@@ -332,8 +332,8 @@ function parseMantra(text: string, mantraNum: number): Verse {
   let inList: boolean = false;
 
   function closeListIfNeeded() {
-    if (inList && verse.commentary_ua) {
-      verse.commentary_ua = verse.commentary_ua + "\n</ol>";
+    if (inList && verse.commentary_uk) {
+      verse.commentary_uk = verse.commentary_uk + "\n</ol>";
       inList = false;
     }
   }
@@ -354,40 +354,40 @@ function parseMantra(text: string, mantraNum: number): Verse {
       if (extracted) verse.verse_number = extracted;
     } else if (["v-uvaca", "v-anustubh", "v-tristubh"].includes(currentTag)) {
       const translit = processTransliteration(content);
-      verse.transliteration_ua = verse.transliteration_ua
-        ? verse.transliteration_ua + "\n" + translit
+      verse.transliteration_uk = verse.transliteration_uk
+        ? verse.transliteration_uk + "\n" + translit
         : translit;
     } else if (currentTag === "eqs") {
       const synonyms = processSynonyms(content);
-      verse.synonyms_ua = verse.synonyms_ua ? verse.synonyms_ua + " " + synonyms : synonyms;
+      verse.synonyms_uk = verse.synonyms_uk ? verse.synonyms_uk + " " + synonyms : synonyms;
     } else if (currentTag === "translation") {
-      verse.translation_ua = processProse(content, false);
+      verse.translation_uk = processProse(content, false);
     } else if (currentTag === "p-indent") {
       const para = processFirstParagraph(content);
       if (para) {
-        verse.commentary_ua = verse.commentary_ua ? verse.commentary_ua + "\n\n" + para : para;
+        verse.commentary_uk = verse.commentary_uk ? verse.commentary_uk + "\n\n" + para : para;
       }
     } else if (["p", "p0", "p1"].includes(currentTag)) {
       const para = processProse(content, true);
       if (para) {
         const wrapped = `<p class="purport">${para}</p>`;
-        verse.commentary_ua = verse.commentary_ua ? verse.commentary_ua + "\n\n" + wrapped : wrapped;
+        verse.commentary_uk = verse.commentary_uk ? verse.commentary_uk + "\n\n" + wrapped : wrapped;
       }
     } else if (["ql", "q", "q-p"].includes(currentTag)) {
       const quote = processQuote(content);
       if (quote) {
         const blockquote = `<blockquote class="verse-quote"><p>${quote}</p></blockquote>`;
-        verse.commentary_ua = verse.commentary_ua ? verse.commentary_ua + "\n\n" + blockquote : blockquote;
+        verse.commentary_uk = verse.commentary_uk ? verse.commentary_uk + "\n\n" + blockquote : blockquote;
       }
     } else if (["p-anustubh", "p-uvaca", "p-tristubh", "p-gayatri", "p-indravajra", "p-sakkari"].includes(currentTag)) {
       const translit = processTransliteration(content);
       if (translit) {
         const blockquote = `<blockquote class="verse-quote verse-translit">${translit}</blockquote>`;
-        verse.commentary_ua = verse.commentary_ua ? verse.commentary_ua + "\n\n" + blockquote : blockquote;
+        verse.commentary_uk = verse.commentary_uk ? verse.commentary_uk + "\n\n" + blockquote : blockquote;
       }
     } else if (currentTag === "p-outro") {
       const outro = `<p class="purport-outro"><em>${processProse(content, true)}</em></p>`;
-      verse.commentary_ua = verse.commentary_ua ? verse.commentary_ua + "\n\n" + outro : outro;
+      verse.commentary_uk = verse.commentary_uk ? verse.commentary_uk + "\n\n" + outro : outro;
     } else if (currentTag === "li-digit" || currentTag === "li-digit-0") {
       // Close previous list if not in one, then store digit for next li-body
       pendingListDigit = content.replace(/<[^>]+>/g, "").replace(/[.\s]/g, "").trim();
@@ -398,13 +398,13 @@ function parseMantra(text: string, mantraNum: number): Verse {
         const li = `<li value="${digit}">${body}</li>`;
         if (!inList) {
           // Start new list
-          verse.commentary_ua = verse.commentary_ua
-            ? verse.commentary_ua + `\n\n<ol class="purport-list">\n${li}`
+          verse.commentary_uk = verse.commentary_uk
+            ? verse.commentary_uk + `\n\n<ol class="purport-list">\n${li}`
             : `<ol class="purport-list">\n${li}`;
           inList = true;
         } else {
           // Continue existing list
-          verse.commentary_ua = verse.commentary_ua + `\n${li}`;
+          verse.commentary_uk = verse.commentary_uk + `\n${li}`;
         }
         pendingListDigit = "";
       }
@@ -482,7 +482,7 @@ function parseIntroPage(text: string, filePrefix: string): IntroPage | null {
 
   flushBlock();
   if (paragraphs.length === 0) return null;
-  return { slug, title_ua: title, content_ua: paragraphs.join("\n\n"), display_order: displayOrder };
+  return { slug, title_uk: title, content_uk: paragraphs.join("\n\n"), display_order: displayOrder };
 }
 
 // ============= FILE HANDLING =============
@@ -514,10 +514,10 @@ function main() {
   if (!fs.existsSync(DOCS_DIR)) {
     console.log(`Directory ${DOCS_DIR} not found. Creating empty output.`);
     const output = {
-      book_slug: "iso",
-      book_title_ua: "Шрі Ішопанішада",
-      book_title_en: "Sri Isopanisad",
-      chapters: [],
+      title_uk: "Шрі Ішопанішада",
+      title_en: "Sri Isopanisad",
+      hasChapters: false,
+      verses: [],
       intros: [],
     };
     const outputPath = path.join(OUTPUT_DIR, "iso-parsed.json");
@@ -558,24 +558,17 @@ function main() {
 
       if (intro) {
         intros.push(intro);
-        console.log(`  → "${intro.title_ua}"`);
+        console.log(`  → "${intro.title_uk}"`);
       }
     }
   }
 
-  // Create single chapter with all mantras
-  const chapter: Chapter = {
-    chapter_number: 1,
-    title_ua: "Шрі Ішопанішада",
-    verses,
-  };
-
-  // Write output
+  // Write output - verses directly at book level (no chapters for this book)
   const output = {
-    book_slug: "iso",
-    book_title_ua: "Шрі Ішопанішада",
-    book_title_en: "Sri Isopanisad",
-    chapters: verses.length > 0 ? [chapter] : [],
+    title_uk: "Шрі Ішопанішада",
+    title_en: "Sri Isopanisad",
+    hasChapters: false,
+    verses,
     intros,
   };
 

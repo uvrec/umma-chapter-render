@@ -29,7 +29,7 @@ const slugify = (s: string) =>
 
 // ——— схема валідації
 const IntroChapterSchema = z.object({
-  title_uk: z.string().trim().min(1, "Назва (ua) обовʼязкова"),
+  title_uk: z.string().trim().min(1, "Назва (uk) обовʼязкова"),
   title_en: z.string().trim().min(1, "Назва (en) обовʼязкова"),
   slug: z
     .string()

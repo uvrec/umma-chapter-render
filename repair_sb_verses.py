@@ -53,7 +53,7 @@ def main():
 
     # Знайти книгу
     book_response = supabase.table('books') \
-        .select('id, slug, title_ua') \
+        .select('id, slug, title_uk') \
         .eq('slug', 'srimad-bhagavatam') \
         .maybeSingle() \
         .execute()
@@ -63,11 +63,11 @@ def main():
         print('❌ Книга не знайдена! Спробуйте інший slug.')
         sys.exit(1)
 
-    print(f"✅ Знайдено: {book['title_ua']} (ID: {book['id']})\n")
+    print(f"✅ Знайдено: {book['title_uk']} (ID: {book['id']})\n")
 
     # Знайти всі cantos
     cantos_query = supabase.table('cantos') \
-        .select('id, canto_number, title_ua') \
+        .select('id, canto_number, title_uk') \
         .eq('book_id', book['id']) \
         .order('canto_number')
 
@@ -88,11 +88,11 @@ def main():
     total_restored = 0
 
     for canto in cantos:
-        print(f"\n🎵 Пісня {canto['canto_number']}: {canto['title_ua']}")
+        print(f"\n🎵 Пісня {canto['canto_number']}: {canto['title_uk']}")
 
         # Знайти chapters для цієї canto
         chapters_query = supabase.table('chapters') \
-            .select('id, chapter_number, title_ua') \
+            .select('id, chapter_number, title_uk') \
             .eq('canto_id', canto['id']) \
             .order('chapter_number')
 
