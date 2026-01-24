@@ -789,106 +789,148 @@ export const ChapterVersesList = () => {
                       </span>}
                   </p>;
           })}
-            </div> : <div className="space-y-6">
-              {verses.map((verse: Verse) => {
-            const translationUk = verse.translation_uk || "";
-            const translationEn = verse.translation_en || "";
-            return <div key={verse.id} className="space-y-3">
-                    {dualLanguageMode ? <div className="grid gap-6 md:grid-cols-2">
-                        <div className="space-y-3">
-                          {showNumbers && <div className="flex items-center gap-2">
-                              <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
-                                ВІРШ {verse.verse_number}
-                              </Link>
-                              {!isMobile && isAdmin && (
-                                verseToDelete === verse.id ? (
-                                  <div className="flex items-center gap-1">
-                                    <Button
-                                      variant="destructive"
-                                      size="sm"
-                                      onClick={() => deleteVerseMutation.mutate(verse.id)}
-                                      disabled={deleteVerseMutation.isPending}
-                                    >
-                                      Так
-                                    </Button>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => setVerseToDelete(null)}
-                                    >
-                                      Ні
-                                    </Button>
-                                  </div>
-                                ) : (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => setVerseToDelete(verse.id)}
-                                    className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 px-2"
-                                  >
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                  </Button>
-                                )
-                              )}
-                            </div>}
-                          <p className="text-foreground text-justify" style={readerTextStyle}>
-                            {stripParagraphTags(translationUk) || <span className="italic text-muted-foreground">Немає перекладу</span>}
-                          </p>
-                        </div>
+            </div> : dualLanguageMode ? (
+              /* Poetry-style dual language layout - like vedabase.io */
+              <div className="grid gap-8 md:grid-cols-2">
+                {/* Ukrainian column */}
+                <div className="space-y-4" style={readerTextStyle}>
+                  {verses.map((verse: Verse) => {
+                    const translationUk = verse.translation_uk || "";
+                    return (
+                      <p key={verse.id} className="text-foreground text-justify leading-relaxed">
+                        {showNumbers && (
+                          <>
+                            <Link
+                              to={getVerseUrl(verse.verse_number)}
+                              className="text-primary font-semibold hover:text-primary/80 transition-colors"
+                            >
+                              Вірш {verse.verse_number}:
+                            </Link>{" "}
+                          </>
+                        )}
+                        {stripParagraphTags(translationUk) || (
+                          <span className="italic text-muted-foreground">Немає перекладу</span>
+                        )}
+                        {!isMobile && isAdmin && (
+                          verseToDelete === verse.id ? (
+                            <span className="inline-flex items-center gap-1 ml-2">
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => deleteVerseMutation.mutate(verse.id)}
+                                disabled={deleteVerseMutation.isPending}
+                                className="h-6 px-2 text-xs"
+                              >
+                                Так
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setVerseToDelete(null)}
+                                className="h-6 px-2 text-xs"
+                              >
+                                Ні
+                              </Button>
+                            </span>
+                          ) : (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setVerseToDelete(verse.id)}
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10 h-6 w-6 p-0 ml-1 inline-flex"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          )
+                        )}
+                      </p>
+                    );
+                  })}
+                </div>
 
-                        <div className="space-y-3 border-l border-border pl-6">
-                          {showNumbers && <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
-                              TEXT {verse.verse_number}
-                            </Link>}
-                          <p className="text-foreground text-justify" style={readerTextStyle}>
-                            {stripParagraphTags(translationEn) || <span className="italic text-muted-foreground">No translation</span>}
-                          </p>
-                        </div>
-                      </div> : <div className="space-y-3">
-                        {showNumbers && <div className="flex items-center gap-2">
-                            <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
-                              {language === "uk" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
-                            </Link>
-                            {!isMobile && isAdmin && (
-                              verseToDelete === verse.id ? (
-                                <div className="flex items-center gap-1">
-                                  <Button
-                                    variant="destructive"
-                                    size="sm"
-                                    onClick={() => deleteVerseMutation.mutate(verse.id)}
-                                    disabled={deleteVerseMutation.isPending}
-                                  >
-                                    {language === "uk" ? "Так" : "Yes"}
-                                  </Button>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => setVerseToDelete(null)}
-                                  >
-                                    {language === "uk" ? "Ні" : "No"}
-                                  </Button>
-                                </div>
-                              ) : (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => setVerseToDelete(verse.id)}
-                                  className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 px-2"
-                                >
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                </Button>
-                              )
-                            )}
-                          </div>}
-                        <p className="text-foreground" style={readerTextStyle}>
-                          {language === "uk" ? stripParagraphTags(translationUk) || <span className="italic text-muted-foreground">Немає перекладу</span> : stripParagraphTags(translationEn) || <span className="italic text-muted-foreground">No translation</span>}
-                        </p>
-                      </div>}
-
-                    <div className="h-4" />
-                  </div>;
-          })}
-            </div>}
+                {/* English column */}
+                <div className="space-y-4 border-l border-border pl-6" style={readerTextStyle}>
+                  {verses.map((verse: Verse) => {
+                    const translationEn = verse.translation_en || "";
+                    return (
+                      <p key={verse.id} className="text-foreground text-justify leading-relaxed">
+                        {showNumbers && (
+                          <>
+                            <Link
+                              to={getVerseUrl(verse.verse_number)}
+                              className="text-primary font-semibold hover:text-primary/80 transition-colors"
+                            >
+                              Text {verse.verse_number}:
+                            </Link>{" "}
+                          </>
+                        )}
+                        {stripParagraphTags(translationEn) || (
+                          <span className="italic text-muted-foreground">No translation</span>
+                        )}
+                      </p>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              /* Single language poetry-style layout */
+              <div className="space-y-4 max-w-4xl mx-auto" style={readerTextStyle}>
+                {verses.map((verse: Verse) => {
+                  const translationUk = verse.translation_uk || "";
+                  const translationEn = verse.translation_en || "";
+                  return (
+                    <p key={verse.id} className="text-foreground text-justify leading-relaxed">
+                      {showNumbers && (
+                        <>
+                          <Link
+                            to={getVerseUrl(verse.verse_number)}
+                            className="text-primary font-semibold hover:text-primary/80 transition-colors"
+                          >
+                            {language === "uk" ? `Вірш ${verse.verse_number}:` : `Text ${verse.verse_number}:`}
+                          </Link>{" "}
+                        </>
+                      )}
+                      {language === "uk"
+                        ? stripParagraphTags(translationUk) || <span className="italic text-muted-foreground">Немає перекладу</span>
+                        : stripParagraphTags(translationEn) || <span className="italic text-muted-foreground">No translation</span>
+                      }
+                      {!isMobile && isAdmin && (
+                        verseToDelete === verse.id ? (
+                          <span className="inline-flex items-center gap-1 ml-2">
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => deleteVerseMutation.mutate(verse.id)}
+                              disabled={deleteVerseMutation.isPending}
+                              className="h-6 px-2 text-xs"
+                            >
+                              {language === "uk" ? "Так" : "Yes"}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setVerseToDelete(null)}
+                              className="h-6 px-2 text-xs"
+                            >
+                              {language === "uk" ? "Ні" : "No"}
+                            </Button>
+                          </span>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setVerseToDelete(verse.id)}
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10 h-6 w-6 p-0 ml-1 inline-flex"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        )
+                      )}
+                    </p>
+                  );
+                })}
+              </div>
+            )}
 
           {verses.length === 0}
 
