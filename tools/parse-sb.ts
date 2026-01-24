@@ -103,7 +103,9 @@ const ORDINALS: [string, number][] = [
 ];
 
 const SKIP_TAGS = new Set(["rh-verso", "rh-recto", "logo", "text-rh", "special"]);
-const DEVANAGARI_TAGS = new Set(["d-uvaca", "d-anustubh", "d-tristubh", "devanagari"]);
+// d-uvaca etc are speaker tags in devanagari font - skip them
+// devanagari tag contains the actual sanskrit verse text - we parse it separately
+const DEVANAGARI_SPEAKER_TAGS = new Set(["d-uvaca", "d-anustubh", "d-tristubh"]);
 
 // ============= TEXT PROCESSING =============
 
@@ -318,6 +320,7 @@ function extractChapterNumber(text: string): number {
 
 interface Verse {
   verse_number: string;
+  sanskrit?: string;
   transliteration_uk?: string;
   synonyms_uk?: string;
   translation_uk?: string;
@@ -347,7 +350,7 @@ function parseVentura(text: string): Chapter {
   let currentContent: string[] = [];
 
   function flushBlock() {
-    if (!currentTag || SKIP_TAGS.has(currentTag) || DEVANAGARI_TAGS.has(currentTag)) return;
+    if (!currentTag || SKIP_TAGS.has(currentTag) || DEVANAGARI_SPEAKER_TAGS.has(currentTag)) return;
     const content = currentContent.join(" ").trim();
     if (!content) return;
 
@@ -359,6 +362,24 @@ function parseVentura(text: string): Chapter {
     } else if (["h2-number", "h2-number-2", "ch"].includes(currentTag)) {
       if (currentVerse) verses.push(currentVerse);
       currentVerse = { verse_number: extractVerseNumber(content) };
+    } else if (currentTag === "devanagari") {
+      // Sanskrit verse text in devanagari encoding
+      if (currentVerse) {
+        // Clean up the content: remove line break markers and tags
+        let sanskrit = content
+          .replace(/<\/?R>/g, "\n")
+          .replace(/<[^>]+>/g, "")
+          .replace(/@\w+\s*=?\s*/g, "") // Remove any @tag = patterns
+          .split("\n")
+          .map(line => line.trim())
+          .filter(line => line && !line.startsWith("@"))
+          .join("\n");
+        if (sanskrit) {
+          currentVerse.sanskrit = currentVerse.sanskrit
+            ? currentVerse.sanskrit + "\n" + sanskrit
+            : sanskrit;
+        }
+      }
     } else if (["v-uvaca", "v-anustubh", "v-tristubh"].includes(currentTag)) {
       if (currentVerse) {
         const translit = processTransliteration(content);
