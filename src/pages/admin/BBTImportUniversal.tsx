@@ -26,7 +26,7 @@ import noiData from "@/data/noi-parsed.json";
 import isoData from "@/data/iso-parsed.json";
 import pqnData from "@/data/pqn-parsed.json";
 import sb4Data from "@/data/sb4-parsed.json";
-import sbCanto2Data from "@/data/sb-canto2-parsed.json";
+import sbCanto2Data from "@/data/sb-canto2-combined.json";
 
 // Book configurations
 interface BookConfig {
@@ -41,12 +41,23 @@ interface BookConfig {
 interface ParsedChapterWithVerses {
   chapter_number: number;
   title_uk: string;
+  chapter_title_uk?: string; // Alternative field name from combined JSON
+  chapter_title_en?: string;
   verses: {
     verse_number: string;
+    // UK fields
+    sanskrit_uk?: string;
     transliteration_uk?: string;
     synonyms_uk?: string;
     translation_uk?: string;
     commentary_uk?: string;
+    // EN fields (from vedabase)
+    sanskrit_en?: string;
+    transliteration_en?: string;
+    synonyms_en?: string;
+    translation_en?: string;
+    commentary_en?: string;
+    source_url?: string;
   }[];
 }
 
@@ -282,12 +293,17 @@ export default function BBTImportUniversal() {
 
         const { data: existingChapter } = await chapterQuery.single();
 
+        // Get chapter title from various possible field names
+        const chapterTitleUk = (hasVerses(chapter) ? chapter.chapter_title_uk : undefined) || chapter.title_uk || '';
+        const chapterTitleEn = (hasVerses(chapter) ? chapter.chapter_title_en : undefined) || '';
+
         if (existingChapter) {
           chapterId = existingChapter.id;
 
           // Update chapter
           const updateData = {
-            title_uk: chapter.title_uk.replace(/\n/g, ' '),
+            title_uk: chapterTitleUk.replace(/\n/g, ' '),
+            ...(chapterTitleEn && { title_en: chapterTitleEn.replace(/\n/g, ' ') }),
             ...(cantoId && { canto_id: cantoId }),
             ...(!bookConfig.hasVerses && hasContent(chapter) && {
               content_uk: chapter.content_uk,
@@ -304,8 +320,8 @@ export default function BBTImportUniversal() {
           const insertData = {
             book_id: bookId,
             chapter_number: chapter.chapter_number,
-            title_uk: chapter.title_uk.replace(/\n/g, ' '),
-            title_en: chapter.title_uk.replace(/\n/g, ' '), // Fallback
+            title_uk: chapterTitleUk.replace(/\n/g, ' '),
+            title_en: chapterTitleEn ? chapterTitleEn.replace(/\n/g, ' ') : chapterTitleUk.replace(/\n/g, ' '),
             ...(cantoId && { canto_id: cantoId }),
             ...(!bookConfig.hasVerses && hasContent(chapter) && {
               content_uk: chapter.content_uk,
@@ -342,10 +358,18 @@ export default function BBTImportUniversal() {
               const { error } = await supabase
                 .from("verses")
                 .update({
+                  // UK fields
+                  sanskrit_uk: verse.sanskrit_uk,
                   transliteration_uk: verse.transliteration_uk,
                   synonyms_uk: verse.synonyms_uk,
                   translation_uk: verse.translation_uk,
                   commentary_uk: verse.commentary_uk,
+                  // EN fields
+                  sanskrit_en: verse.sanskrit_en,
+                  transliteration_en: verse.transliteration_en,
+                  synonyms_en: verse.synonyms_en,
+                  translation_en: verse.translation_en,
+                  commentary_en: verse.commentary_en,
                 })
                 .eq("id", existingVerse.id);
 
@@ -358,10 +382,18 @@ export default function BBTImportUniversal() {
               const { error } = await supabase.from("verses").insert({
                 chapter_id: chapterId,
                 verse_number: verse.verse_number,
+                // UK fields
+                sanskrit_uk: verse.sanskrit_uk,
                 transliteration_uk: verse.transliteration_uk,
                 synonyms_uk: verse.synonyms_uk,
                 translation_uk: verse.translation_uk,
                 commentary_uk: verse.commentary_uk,
+                // EN fields
+                sanskrit_en: verse.sanskrit_en,
+                transliteration_en: verse.transliteration_en,
+                synonyms_en: verse.synonyms_en,
+                translation_en: verse.translation_en,
+                commentary_en: verse.commentary_en,
               });
 
               if (error) {
