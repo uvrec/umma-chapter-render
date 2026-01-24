@@ -106,7 +106,9 @@ function SwipeableCantoRow({
         >
           <div className="flex-1 min-w-0">
             <div className="font-medium text-foreground">{label}</div>
-            <div className="text-sm text-muted-foreground">{chapterCount} глав</div>
+            {chapterCount > 0 && (
+              <div className="text-sm text-muted-foreground">{chapterCount} глав</div>
+            )}
           </div>
         </div>
 
@@ -233,7 +235,9 @@ function SwipeableChapterRow({
         >
           <div className="flex-1 min-w-0">
             <div className="font-medium text-foreground">{chapterNum}. {title}</div>
-            <div className="text-sm text-muted-foreground">{verseCount} віршів</div>
+            {verseCount > 0 && (
+              <div className="text-sm text-muted-foreground">{verseCount} віршів</div>
+            )}
           </div>
         </div>
 
