@@ -470,7 +470,8 @@ function main() {
     const output = {
       title_uk: "Нектар настанов",
       title_en: "The Nectar of Instruction",
-      chapters: [],
+      hasChapters: false,
+      verses: [],
       intros: [],
     };
     const outputPath = path.join(OUTPUT_DIR, "noi-parsed.json");
@@ -516,18 +517,12 @@ function main() {
     }
   }
 
-  // Create single chapter with all verses
-  const chapter: Chapter = {
-    chapter_number: 1,
-    chapter_title_uk: "Нектар настанов",
-    verses,
-  };
-
-  // Write output
+  // Write output - verses directly at book level (no chapters for this book)
   const output = {
     title_uk: "Нектар настанов",
     title_en: "The Nectar of Instruction",
-    chapters: verses.length > 0 ? [chapter] : [],
+    hasChapters: false,
+    verses,
     intros,
   };
 

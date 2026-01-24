@@ -516,7 +516,8 @@ function main() {
     const output = {
       title_uk: "Шрі Ішопанішада",
       title_en: "Sri Isopanisad",
-      chapters: [],
+      hasChapters: false,
+      verses: [],
       intros: [],
     };
     const outputPath = path.join(OUTPUT_DIR, "iso-parsed.json");
@@ -562,18 +563,12 @@ function main() {
     }
   }
 
-  // Create single chapter with all mantras
-  const chapter: Chapter = {
-    chapter_number: 1,
-    chapter_title_uk: "Шрі Ішопанішада",
-    verses,
-  };
-
-  // Write output
+  // Write output - verses directly at book level (no chapters for this book)
   const output = {
     title_uk: "Шрі Ішопанішада",
     title_en: "Sri Isopanisad",
-    chapters: verses.length > 0 ? [chapter] : [],
+    hasChapters: false,
+    verses,
     intros,
   };
 
