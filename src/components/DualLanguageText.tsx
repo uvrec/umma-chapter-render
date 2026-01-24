@@ -86,7 +86,7 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
     <div className={`space-y-4 ${className}`}>
       {Array.from({ length: maxLength }).map((_, idx) => {
         // Apply drop-cap to first paragraph only if enabled and text exists
-        const uaContent = ukParas[idx]?.text || "&nbsp;";
+        const ukContent = ukParas[idx]?.text || "&nbsp;";
         const enContent = enParas[idx]?.text || "&nbsp;";
         const isFirstParagraph = idx === 0;
 
@@ -100,9 +100,9 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
               style={textStyle}
               dangerouslySetInnerHTML={{
                 __html: sanitizeForRender(
-                  isFirstParagraph && enableDropCap && uaContent !== "&nbsp;"
-                    ? applyDropCap(uaContent)
-                    : uaContent
+                  isFirstParagraph && enableDropCap && ukContent !== "&nbsp;"
+                    ? applyDropCap(ukContent)
+                    : ukContent
                 ),
               }}
             />
