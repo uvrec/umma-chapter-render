@@ -2,7 +2,8 @@
  * Парсер завантажених HTML файлів з vedabase.io
  * Об'єднує UK та EN версії в один JSON
  *
- * Використання: npx ts-node tools/parse-vedabase-html.ts
+ * Використання: npx ts-node tools/parse-vedabase-html.ts [canto_number]
+ * Example: npx ts-node tools/parse-vedabase-html.ts 4
  */
 
 import * as fs from 'fs';
@@ -12,10 +13,19 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const CANTO = 2;
+// Get canto from args
+const cantoArg = process.argv[2];
+const CANTO = cantoArg ? parseInt(cantoArg) : 2;
+
+if (isNaN(CANTO) || CANTO < 1 || CANTO > 12) {
+  console.error('Usage: npx ts-node tools/parse-vedabase-html.ts [canto_number]');
+  console.error('Example: npx ts-node tools/parse-vedabase-html.ts 4');
+  process.exit(1);
+}
+
 const HTML_DIR = path.join(__dirname, 'outputs', `vedabase_sb${CANTO}`);
-const UK_JSON = path.join(__dirname, '..', 'src', 'data', 'sb-canto2-parsed.json');
-const OUTPUT_JSON = path.join(__dirname, '..', 'src', 'data', 'sb-canto2-combined.json');
+const UK_JSON = path.join(__dirname, '..', 'src', 'data', `sb-canto${CANTO}-parsed.json`);
+const OUTPUT_JSON = path.join(__dirname, '..', 'src', 'data', `sb-canto${CANTO}-combined.json`);
 
 interface CombinedVerse {
   verse_number: string;

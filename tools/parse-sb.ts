@@ -45,23 +45,38 @@ const UKRAINIAN_PUA_MAP: Record<string, string> = {
   "\uf129": "л̣̄",
 };
 
-// Intro file mapping for SB (UKS{canto}00 pattern)
+// Intro file mapping for SB (UKS{canto}00 and UKS{canto}01 patterns)
 function getIntroFileMap(cantoNum: number): Record<string, [string, string, number]> {
-  const prefix = `UKS${cantoNum}00`;
+  const prefix00 = `UKS${cantoNum}00`;
+  const prefix01 = `UKS${cantoNum}01`;  // Volume 1 specific files
+
   return {
-    [`${prefix}DC`]: ["dedication", "Посвята", 1],
-    [`${prefix}FW`]: ["foreword", "Передмова", 2],
-    [`${prefix}PF`]: ["preface", "Передмова до англійського видання", 3],
-    [`${prefix}PG`]: ["pronunciation", "Як читати санскрит", 4],
-    [`${prefix}ID`]: ["introduction", "Вступ", 5],
-    [`${prefix}TC`]: ["toc", "Зміст", 100],
-    [`${prefix}GL`]: ["glossary", "Словничок", 101],
-    [`${prefix}QV`]: ["verse-index", "Покажчик віршів", 102],
-    [`${prefix}RF`]: ["references", "Список літератури", 103],
-    [`${prefix}AU`]: ["about-author", "Про автора", 104],
-    [`${prefix}BL`]: ["books", "Книги", 105],
-    [`${prefix}XI`]: ["index", "Покажчик", 106],
-    [`${prefix}XS`]: ["subjects", "Тематичний покажчик", 107],
+    // Common canto files (UKS400XX pattern)
+    [`${prefix00}DC`]: ["dedication", "Посвята", 1],
+    [`${prefix00}FW`]: ["foreword", "Передмова", 2],
+    [`${prefix00}PF`]: ["preface", "Передмова до англійського видання", 3],
+    [`${prefix00}PG`]: ["pronunciation", "Як читати санскрит", 4],
+    [`${prefix00}ID`]: ["introduction", "Вступ", 5],
+    [`${prefix00}TC`]: ["toc", "Зміст", 100],
+    [`${prefix00}GL`]: ["glossary", "Словничок", 101],
+    [`${prefix00}QV`]: ["verse-index", "Покажчик віршів", 102],
+    [`${prefix00}RF`]: ["references", "Список літератури", 103],
+    [`${prefix00}AU`]: ["about-author", "Про автора", 104],
+    [`${prefix00}BL`]: ["books", "Книги", 105],
+    [`${prefix00}XI`]: ["index", "Покажчик", 106],
+    [`${prefix00}XS`]: ["subjects", "Тематичний покажчик", 107],
+    // Volume 1 specific files (UKS401XX pattern) - used in Canto 4
+    [`${prefix01}FW`]: ["foreword", "Передмова", 2],
+    [`${prefix01}PF`]: ["preface", "Передмова до англійського видання", 3],
+    [`${prefix01}PG`]: ["pronunciation", "Як читати санскрит", 4],
+    [`${prefix01}TC`]: ["toc", "Зміст", 100],
+    [`${prefix01}GL`]: ["glossary", "Словничок", 101],
+    [`${prefix01}QV`]: ["verse-index", "Покажчик віршів", 102],
+    [`${prefix01}RF`]: ["references", "Список літератури", 103],
+    [`${prefix01}AU`]: ["about-author", "Про автора", 104],
+    [`${prefix01}BL`]: ["books", "Книги", 105],
+    [`${prefix01}XI`]: ["index", "Покажчик", 106],
+    [`${prefix01}XS`]: ["subjects", "Тематичний покажчик", 107],
   };
 }
 
@@ -545,7 +560,11 @@ function main() {
 
   console.log(`SB Canto ${cantoNum} Ventura Parser\n`);
 
-  const docsDir = path.join(BASE_DOCS_DIR, String(cantoNum));
+  // Try both {canto} and {canto}.1 folder patterns (for multi-volume cantos like 4.1)
+  let docsDir = path.join(BASE_DOCS_DIR, String(cantoNum));
+  if (!fs.existsSync(docsDir)) {
+    docsDir = path.join(BASE_DOCS_DIR, `${cantoNum}.1`);
+  }
 
   if (!fs.existsSync(docsDir)) {
     console.error(`❌ Directory not found: ${docsDir}`);
@@ -558,6 +577,7 @@ function main() {
     }
     process.exit(1);
   }
+  console.log(`Using source directory: ${docsDir}`);
 
   // Create output directory
   if (!fs.existsSync(OUTPUT_DIR)) {
