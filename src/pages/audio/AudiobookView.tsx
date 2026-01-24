@@ -125,41 +125,40 @@ export const AudiobookView = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           {/* Back */}
-          <Link to="/audiobooks" className="inline-flex items-center mb-6 text-primary hover:text-primary/80">
+          <Link to="/audio" className="inline-flex items-center mb-6 text-primary hover:text-primary/80">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Назад до аудіокниг
           </Link>
 
-          {/* ВИПРАВЛЕНО: Layout зліва картинка, справа плеєр */}
-          <div className="grid gap-8 lg:grid-cols-[320px_1fr]">
-            {/* Ліва колонка: Картинка + Опис */}
+          {/* Mobile: compact horizontal header, Desktop: sidebar layout */}
+          <div className="grid gap-6 lg:gap-8 lg:grid-cols-[280px_1fr]">
+            {/* Ліва колонка: Інфо */}
             <div>
-              <div>
-                {/* Зменшена картинка */}
+              {/* Mobile: горизонтальний компактний лейаут */}
+              <div className="flex gap-4 lg:flex-col">
+                {/* Картинка - маленька на мобільному */}
                 {audiobook.cover_image_url && (
-                  <div className="w-full max-w-xs mx-auto mb-6 bg-muted rounded-lg overflow-hidden">
+                  <div className="w-24 h-32 lg:w-full lg:h-auto flex-shrink-0 bg-muted rounded-lg overflow-hidden">
                     <img
                       src={audiobook.cover_image_url}
                       alt={audiobook.title_uk || audiobook.title_en || "Аудіокнига"}
-                      className="w-full h-auto object-cover aspect-[3/4]"
+                      className="w-full h-full object-cover lg:aspect-[3/4]"
                     />
                   </div>
                 )}
 
-                <div className="space-y-4">
-                  <div>
-                    <h1 className="text-2xl font-bold text-foreground mb-2">
-                      {audiobook.title_uk || audiobook.title_en || "Аудіокнига"}
-                    </h1>
-                    {audiobook.author && (
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <User className="w-4 h-4" />
-                        <span>{audiobook.author}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                {/* Інфо поруч з картинкою на мобільному */}
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-lg lg:text-2xl font-bold text-foreground mb-1 lg:mb-2 line-clamp-2">
+                    {audiobook.title_uk || audiobook.title_en || "Аудіокнига"}
+                  </h1>
+                  {audiobook.author && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                      <User className="w-4 h-4 flex-shrink-0" />
+                      <span className="truncate">{audiobook.author}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Music className="w-4 h-4" />
                       <span>{tracks.length} треків</span>
@@ -171,14 +170,18 @@ export const AudiobookView = () => {
                       </>
                     )}
                   </div>
+                </div>
+              </div>
 
+              {/* Опис - тільки на десктопі або під картинкою */}
+              {(audiobook.description_uk || audiobook.description_en) && (
+                <div className="mt-4 lg:mt-6 hidden lg:block">
                   {audiobook.description_uk && (
-                    <div className="prose prose-sm text-foreground">
+                    <div className="prose prose-sm text-foreground mb-4">
                       <h3 className="text-lg font-semibold mb-2">Про книгу</h3>
                       <p className="text-muted-foreground leading-relaxed">{audiobook.description_uk}</p>
                     </div>
                   )}
-
                   {audiobook.description_en && (
                     <div className="prose prose-sm text-foreground">
                       <h3 className="text-lg font-semibold mb-2">About</h3>
@@ -186,7 +189,7 @@ export const AudiobookView = () => {
                     </div>
                   )}
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Права колонка: Плеєр */}
