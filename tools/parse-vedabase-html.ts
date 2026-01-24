@@ -193,13 +193,20 @@ function parseVedabaseHtml(html: string): {
       const purportHtml = html.substring(startIdx, endIdx);
       const purportParts: string[] = [];
 
-      // Match divs with em-mb-4 and s-justify classes - these contain purport text
-      // Text is directly after opening tag, before any nested elements
-      const contentPattern = /<div class="em-mb-4[^"]*s-justify[^"]*"[^>]*>([^<]+)/gi;
+      // Match INNER divs with em-mb-4 and s-justify classes that contain paragraph text
+      // Structure is: <div id="bbXXX" class="em-mb-4..."><div class="em-mb-4 s-justify">CONTENT</div></div>
+      // We need to capture the FULL content including nested HTML tags, then strip them
+      const contentPattern = /<div class="em-mb-4[^"]*em-leading-8[^"]*em-text-base[^"]*s-justify"[^>]*>([\s\S]*?)<\/div>/gi;
 
       let match;
       while ((match = contentPattern.exec(purportHtml)) !== null) {
-        let text = decodeHtmlEntities(match[1]).trim();
+        // Strip HTML tags but preserve text content
+        let text = decodeHtmlEntities(
+          match[1]
+            .replace(/<br\s*\/?>/gi, ' ')
+            .replace(/<[^>]+>/g, '')  // Remove all HTML tags
+            .replace(/\s+/g, ' ')
+        ).trim();
 
         // Skip short or empty text
         if (!text || text.length < 30) continue;
