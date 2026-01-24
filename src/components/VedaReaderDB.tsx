@@ -243,7 +243,7 @@ export const VedaReaderDB = () => {
     }
   });
 
-  // VERSES (main)
+  // VERSES (main) - включає verse_lyrics для синхронізації аудіо
   const {
     data: versesMain = [],
     isLoading: isLoadingVersesMain
@@ -261,7 +261,14 @@ export const VedaReaderDB = () => {
           start_verse,
           end_verse,
           verse_count,
-          sort_key
+          sort_key,
+          verse_lyrics (
+            lrc_content,
+            timestamps,
+            language,
+            sync_type,
+            audio_type
+          )
         `).eq("chapter_id", chapter.id).is("deleted_at", null).order("sort_key", {
         ascending: true
       });
@@ -270,7 +277,7 @@ export const VedaReaderDB = () => {
     }
   });
 
-  // VERSES (fallback)
+  // VERSES (fallback) - включає verse_lyrics для синхронізації аудіо
   const {
     data: versesFallback = [],
     isLoading: isLoadingVersesFallback
@@ -288,7 +295,14 @@ export const VedaReaderDB = () => {
           start_verse,
           end_verse,
           verse_count,
-          sort_key
+          sort_key,
+          verse_lyrics (
+            lrc_content,
+            timestamps,
+            language,
+            sync_type,
+            audio_type
+          )
         `).eq("chapter_id", fallbackChapter.id).is("deleted_at", null).order("sort_key", {
         ascending: true
       });
@@ -1479,6 +1493,7 @@ export const VedaReaderDB = () => {
                   audioSanskrit={(verse as any).recitation_audio_url || ""}
                   audioTranslation={language === "uk" ? (verse as any).explanation_uk_audio_url || "" : (verse as any).explanation_en_audio_url || ""}
                   audioCommentary={language === "uk" ? (verse as any).explanation_uk_audio_url || "" : (verse as any).explanation_en_audio_url || ""}
+                  lrcContent={(verse as any).verse_lyrics?.[0]?.lrc_content || null}
                   is_composite={(verse as any).is_composite}
                   start_verse={(verse as any).start_verse}
                   end_verse={(verse as any).end_verse}
@@ -1568,6 +1583,7 @@ export const VedaReaderDB = () => {
                 audioSanskrit={(currentVerse as any).recitation_audio_url || ""}
                 audioTranslation={language === "uk" ? (currentVerse as any).explanation_uk_audio_url || "" : (currentVerse as any).explanation_en_audio_url || ""}
                 audioCommentary={language === "uk" ? (currentVerse as any).explanation_uk_audio_url || "" : (currentVerse as any).explanation_en_audio_url || ""}
+                lrcContent={(currentVerse as any).verse_lyrics?.[0]?.lrc_content || null}
                 is_composite={(currentVerse as any).is_composite}
                 start_verse={(currentVerse as any).start_verse}
                 end_verse={(currentVerse as any).end_verse}
