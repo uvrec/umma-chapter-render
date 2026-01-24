@@ -374,47 +374,32 @@ export default function BBTImportUniversal() {
         const chapterTitleUk = chapter.chapter_title_uk || chapter.title_uk || '';
         const chapterTitleEn = (hasVerses(chapter) ? chapter.chapter_title_en : undefined) || '';
 
-        // First try to find chapter by book_id + canto_id + chapter_number
+        // Find existing chapter - the constraint is on (canto_id, chapter_number)
+        // so we search by those fields primarily
         let existingChapter: { id: string } | null = null;
 
         if (cantoId) {
+          // For canto-based books: search by canto_id + chapter_number (matches the constraint)
           const { data, error } = await supabase
             .from("chapters")
-            .select("id")
-            .eq("book_id", bookId)
+            .select("id, book_id")
             .eq("canto_id", cantoId)
             .eq("chapter_number", chapter.chapter_number)
             .maybeSingle();
-          console.log(`Query 1 (with canto): data=${JSON.stringify(data)}, error=${JSON.stringify(error)}`);
+          console.log(`Query 1 (canto + chapter): data=${JSON.stringify(data)}, error=${JSON.stringify(error)}`);
           existingChapter = data;
         }
 
-        // If not found with canto_id, try without it (for chapters created before canto system)
+        // Fallback: try by book_id + chapter_number (for books without cantos or legacy data)
         if (!existingChapter) {
           const { data, error } = await supabase
             .from("chapters")
             .select("id")
             .eq("book_id", bookId)
             .eq("chapter_number", chapter.chapter_number)
-            .is("canto_id", null)
             .maybeSingle();
-          console.log(`Query 2 (canto is null): data=${JSON.stringify(data)}, error=${JSON.stringify(error)}`);
+          console.log(`Query 2 (book + chapter): data=${JSON.stringify(data)}, error=${JSON.stringify(error)}`);
           existingChapter = data;
-        }
-
-        // Also try without canto_id filter at all - use limit(1) in case there are multiple
-        if (!existingChapter && cantoId) {
-          const { data, error } = await supabase
-            .from("chapters")
-            .select("id")
-            .eq("book_id", bookId)
-            .eq("chapter_number", chapter.chapter_number)
-            .limit(1)
-            .single();
-          console.log(`Query 3 (any canto): data=${JSON.stringify(data)}, error=${JSON.stringify(error)}`);
-          if (data) {
-            existingChapter = data;
-          }
         }
 
         if (existingChapter) {
@@ -466,17 +451,31 @@ export default function BBTImportUniversal() {
             // If duplicate key error, try to find and update the existing chapter
             if (chapterError?.code === '23505') {
               console.log(`Duplicate key, trying to find existing chapter ${chapter.chapter_number} with canto_id=${cantoId}`);
-              // The constraint is on (canto_id, chapter_number), so search with canto_id
-              const { data: fallbackChapters } = await supabase
-                .from("chapters")
-                .select("id")
-                .eq("book_id", bookId)
-                .eq("canto_id", cantoId)
-                .eq("chapter_number", chapter.chapter_number)
-                .limit(1);
+              // The constraint is on (canto_id, chapter_number) - search WITHOUT book_id
+              let fallbackChapter: { id: string } | undefined;
 
-              const fallbackChapter = fallbackChapters?.[0];
-              console.log(`Fallback query result: ${JSON.stringify(fallbackChapter)}`);
+              if (cantoId) {
+                const { data } = await supabase
+                  .from("chapters")
+                  .select("id")
+                  .eq("canto_id", cantoId)
+                  .eq("chapter_number", chapter.chapter_number)
+                  .limit(1);
+                fallbackChapter = data?.[0];
+                console.log(`Fallback query (canto+chapter): ${JSON.stringify(fallbackChapter)}`);
+              }
+
+              if (!fallbackChapter) {
+                // Try by book_id + chapter_number as last resort
+                const { data } = await supabase
+                  .from("chapters")
+                  .select("id")
+                  .eq("book_id", bookId)
+                  .eq("chapter_number", chapter.chapter_number)
+                  .limit(1);
+                fallbackChapter = data?.[0];
+                console.log(`Fallback query (book+chapter): ${JSON.stringify(fallbackChapter)}`);
+              }
 
               if (fallbackChapter) {
                 chapterId = fallbackChapter.id;
@@ -485,6 +484,7 @@ export default function BBTImportUniversal() {
                   .update({
                     title_uk: chapterTitleUk.replace(/\n/g, ' '),
                     ...(chapterTitleEn && { title_en: chapterTitleEn.replace(/\n/g, ' ') }),
+                    book_id: bookId, // Ensure book_id is set correctly
                   })
                   .eq("id", chapterId);
                 console.log(`Updated fallback chapter ${chapter.chapter_number} with id ${chapterId}`);
