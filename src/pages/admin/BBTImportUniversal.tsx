@@ -28,6 +28,9 @@ import pqnData from "@/data/pqn-parsed.json";
 import sbCanto2Data from "@/data/sb-canto2-combined.json";
 import sbCanto3Data from "@/data/sb-canto3-parsed.json";
 import sbCanto4Data from "@/data/sb-canto4-parsed.json";
+import bbdData from "@/data/bbd-parsed.json";
+import lcflData from "@/data/lcfl-parsed.json";
+import sovaData from "@/data/sova-parsed.json";
 
 // Book configurations
 interface BookConfig {
@@ -196,6 +199,33 @@ const BOOK_CONFIGS: BookConfig[] = [
     data: sbCanto4Data as ParsedBookData,
     cantoNumber: 4,
     skipIntros: true,
+  },
+  {
+    id: "bbd",
+    slug: "bbd",
+    title_uk: "По той бік народження і смерті",
+    title_en: "Beyond Birth and Death",
+    hasVerses: false,
+    hasChapters: true,
+    data: bbdData as ParsedBookData,
+  },
+  {
+    id: "lcfl",
+    slug: "lcfl",
+    title_uk: "Життя походить із життя",
+    title_en: "Life Comes From Life",
+    hasVerses: false,
+    hasChapters: true,
+    data: lcflData as ParsedBookData,
+  },
+  {
+    id: "sova",
+    slug: "sova",
+    title_uk: "Пісні ачар'їв-вайшнавів",
+    title_en: "Songs of the Vaiṣṇava Ācāryas",
+    hasVerses: false,
+    hasChapters: true,
+    data: sovaData as ParsedBookData,
   },
 ];
 
