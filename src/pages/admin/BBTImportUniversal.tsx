@@ -370,26 +370,50 @@ export default function BBTImportUniversal() {
         console.log(`Processing chapter ${chapter.chapter_number}: ${chapter.chapter_title_uk}`);
         let chapterId: string;
 
-        // Build query for finding existing chapter
-        let chapterQuery = supabase
-          .from("chapters")
-          .select("id")
-          .eq("book_id", bookId)
-          .eq("chapter_number", chapter.chapter_number);
-
-        // For canto-based books, also filter by canto_id
-        if (cantoId) {
-          chapterQuery = chapterQuery.eq("canto_id", cantoId);
-        }
-
-        const { data: existingChapter } = await chapterQuery.single();
-
         // Get chapter title from various possible field names (chapter_title_uk is primary, title_uk is legacy)
         const chapterTitleUk = chapter.chapter_title_uk || chapter.title_uk || '';
         const chapterTitleEn = (hasVerses(chapter) ? chapter.chapter_title_en : undefined) || '';
 
+        // First try to find chapter by book_id + canto_id + chapter_number
+        let existingChapter: { id: string } | null = null;
+
+        if (cantoId) {
+          const { data } = await supabase
+            .from("chapters")
+            .select("id")
+            .eq("book_id", bookId)
+            .eq("canto_id", cantoId)
+            .eq("chapter_number", chapter.chapter_number)
+            .maybeSingle();
+          existingChapter = data;
+        }
+
+        // If not found with canto_id, try without it (for chapters created before canto system)
+        if (!existingChapter) {
+          const { data } = await supabase
+            .from("chapters")
+            .select("id")
+            .eq("book_id", bookId)
+            .eq("chapter_number", chapter.chapter_number)
+            .is("canto_id", null)
+            .maybeSingle();
+          existingChapter = data;
+        }
+
+        // Also try without canto_id filter at all (in case it has a different canto_id)
+        if (!existingChapter && cantoId) {
+          const { data } = await supabase
+            .from("chapters")
+            .select("id")
+            .eq("book_id", bookId)
+            .eq("chapter_number", chapter.chapter_number)
+            .maybeSingle();
+          existingChapter = data;
+        }
+
         if (existingChapter) {
           chapterId = existingChapter.id;
+          console.log(`Found existing chapter ${chapter.chapter_number} with id ${chapterId}`);
 
           // Update chapter
           const updateData = {
@@ -402,12 +426,17 @@ export default function BBTImportUniversal() {
             }),
           };
 
-          await supabase
+          const { error: updateError } = await supabase
             .from("chapters")
             .update(updateData)
             .eq("id", chapterId);
+
+          if (updateError) {
+            console.error(`Error updating chapter ${chapter.chapter_number}:`, updateError);
+          }
         } else {
           // Create new chapter
+          console.log(`Creating new chapter ${chapter.chapter_number}`);
           const insertData = {
             book_id: bookId,
             chapter_number: chapter.chapter_number,
@@ -428,9 +457,36 @@ export default function BBTImportUniversal() {
 
           if (chapterError || !newChapter) {
             console.error(`Error creating chapter ${chapter.chapter_number}:`, chapterError);
-            continue;
+            // If duplicate key error, try to find and update the existing chapter
+            if (chapterError?.code === '23505') {
+              console.log(`Duplicate key, trying to find existing chapter ${chapter.chapter_number}`);
+              const { data: fallbackChapter } = await supabase
+                .from("chapters")
+                .select("id")
+                .eq("book_id", bookId)
+                .eq("chapter_number", chapter.chapter_number)
+                .maybeSingle();
+
+              if (fallbackChapter) {
+                chapterId = fallbackChapter.id;
+                await supabase
+                  .from("chapters")
+                  .update({
+                    title_uk: chapterTitleUk.replace(/\n/g, ' '),
+                    ...(chapterTitleEn && { title_en: chapterTitleEn.replace(/\n/g, ' ') }),
+                    ...(cantoId && { canto_id: cantoId }),
+                  })
+                  .eq("id", chapterId);
+                console.log(`Updated fallback chapter ${chapter.chapter_number} with id ${chapterId}`);
+              } else {
+                continue;
+              }
+            } else {
+              continue;
+            }
+          } else {
+            chapterId = newChapter.id;
           }
-          chapterId = newChapter.id;
         }
 
         savedChapters++;
@@ -444,7 +500,7 @@ export default function BBTImportUniversal() {
               .select("id")
               .eq("chapter_id", chapterId)
               .eq("verse_number", verse.verse_number)
-              .single();
+              .maybeSingle();
 
             if (existingVerse) {
               const { error } = await supabase
@@ -512,7 +568,7 @@ export default function BBTImportUniversal() {
           .select("id")
           .eq("book_id", bookId)
           .eq("chapter_number", 1)
-          .single();
+          .maybeSingle();
 
         if (existingMainChapter) {
           mainChapterId = existingMainChapter.id;
@@ -543,7 +599,7 @@ export default function BBTImportUniversal() {
             .select("id")
             .eq("chapter_id", mainChapterId)
             .eq("verse_number", verse.verse_number)
-            .single();
+            .maybeSingle();
 
           if (existingVerse) {
             const { error } = await supabase
@@ -602,7 +658,7 @@ export default function BBTImportUniversal() {
           .select("id")
           .eq("book_id", bookId)
           .eq("slug", intro.slug)
-          .single();
+          .maybeSingle();
 
         if (existingIntro) {
           const { error } = await supabase
