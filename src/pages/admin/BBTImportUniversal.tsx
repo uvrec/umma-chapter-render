@@ -26,6 +26,7 @@ import noiData from "@/data/noi-parsed.json";
 import isoData from "@/data/iso-parsed.json";
 import pqnData from "@/data/pqn-parsed.json";
 import sb4Data from "@/data/sb4-parsed.json";
+import sbCanto2Data from "@/data/sb-canto2-parsed.json";
 
 // Book configurations
 interface BookConfig {
@@ -117,6 +118,14 @@ const BOOK_CONFIGS: BookConfig[] = [
     hasVerses: true,
     data: sb4Data as ParsedBookData,
     cantoNumber: 4,
+  },
+  {
+    slug: "sb",
+    title_uk: "Шрімад-Бгаґаватам, Пісня 2",
+    title_en: "Srimad Bhagavatam, Canto 2",
+    hasVerses: true,
+    data: sbCanto2Data as ParsedBookData,
+    cantoNumber: 2,
   },
 ];
 
