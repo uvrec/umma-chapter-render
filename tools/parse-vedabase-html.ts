@@ -160,21 +160,44 @@ function parseVedabaseHtml(html: string): {
     }
 
     // 5. ПОЯСНЕННЯ
-    const purportMatch = html.match(/av-purport[^>]*>([\s\S]*?)(?:<\/div>\s*<\/div>|<div[^>]*class)/i);
-    if (purportMatch) {
-      const paragraphMatches = purportMatch[1].matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi);
+    // Find the av-purport section
+    const purportStartMatch = html.match(/class="av-purport"[^>]*>/i);
+    if (purportStartMatch) {
+      const startIdx = html.indexOf(purportStartMatch[0]) + purportStartMatch[0].length;
+
+      // Find end - look for footer patterns
+      let endIdx = html.length;
+      const footerPatterns = [
+        /Donate\s+Thanks\s+to/i,
+        /Content\s+used\s+with\s+permission/i,
+        /Privacy\s+policy/i,
+      ];
+
+      for (const pattern of footerPatterns) {
+        const match = html.substring(startIdx).search(pattern);
+        if (match > 0 && match < endIdx - startIdx) {
+          endIdx = startIdx + match;
+        }
+      }
+
+      const purportHtml = html.substring(startIdx, endIdx);
       const purportParts: string[] = [];
 
-      for (const match of paragraphMatches) {
-        const text = decodeHtmlEntities(
-          match[1]
-            .replace(/<br\s*\/?>/gi, ' ')
-            .replace(/<[^>]+>/g, '')
-            .replace(/\s+/g, ' ')
-        ).trim();
-        if (text && text.length > 10) {
-          purportParts.push(text);
-        }
+      // Match divs with em-mb-4 and s-justify classes - these contain purport text
+      // Text is directly after opening tag, before any nested elements
+      const contentPattern = /<div class="em-mb-4[^"]*s-justify[^"]*"[^>]*>([^<]+)/gi;
+
+      let match;
+      while ((match = contentPattern.exec(purportHtml)) !== null) {
+        let text = decodeHtmlEntities(match[1]).trim();
+
+        // Skip short or empty text
+        if (!text || text.length < 30) continue;
+
+        // Skip headings like "ŚB 2.1.1"
+        if (/^ŚB\s+\d+\.\d+\.\d+$/i.test(text)) continue;
+
+        purportParts.push(text);
       }
 
       if (purportParts.length > 0) {
