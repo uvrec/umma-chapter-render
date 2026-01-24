@@ -39,7 +39,7 @@ const BOOKS: Record<string, {
   },
   sova: {
     folder: 'sova',
-    title_uk: 'Пісні вайшнавських ачарʼїв',
+    title_uk: "Пісні ачар'їв-вайшнавів",
     title_en: 'Songs of the Vaiṣṇava Ācāryas',
     slug: 'sova',
     chapterPrefix: 'UKSO',
