@@ -16,7 +16,7 @@ import bbtData from "@/data/bbt-parsed.json";
 
 interface ParsedChapter {
   chapter_number: number;
-  title_uk: string;
+  chapter_title_uk: string;
   verses: {
     verse_number: string;
     transliteration_uk?: string;
@@ -104,7 +104,7 @@ export default function BBTImport() {
           // Update chapter title if needed
           await supabase
             .from("chapters")
-            .update({ title_uk: chapter.title_uk.replace(/\n/g, ' ') })
+            .update({ title_uk: chapter.chapter_title_uk.replace(/\n/g, ' ') })
             .eq("id", chapterId);
         } else {
           // Create new chapter
@@ -113,8 +113,8 @@ export default function BBTImport() {
             .insert({
               book_id: bookId,
               chapter_number: chapter.chapter_number,
-              title_uk: chapter.title_uk.replace(/\n/g, ' '),
-              title_en: chapter.title_uk.replace(/\n/g, ' '), // Fallback
+              title_uk: chapter.chapter_title_uk.replace(/\n/g, ' '),
+              title_en: chapter.chapter_title_uk.replace(/\n/g, ' '), // Fallback
             })
             .select("id")
             .single();
@@ -340,7 +340,7 @@ export default function BBTImport() {
                     htmlFor={`chapter-${ch.chapter_number}`}
                     className="flex-1 cursor-pointer"
                   >
-                    Глава {ch.chapter_number}: {ch.title_uk.replace(/\n/g, ' ')} ({ch.verses.length} віршів)
+                    Глава {ch.chapter_number}: {ch.chapter_title_uk.replace(/\n/g, ' ')} ({ch.verses.length} віршів)
                   </Label>
                 </div>
               ))}
