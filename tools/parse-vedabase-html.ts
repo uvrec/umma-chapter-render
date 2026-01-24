@@ -237,12 +237,14 @@ async function main() {
 
   for (const ukChapter of ukData.chapters) {
     const chapterNum = ukChapter.chapter_number;
-    console.log(`\nChapter ${chapterNum}: ${ukChapter.chapter_title || ''}`);
+    // Support both field names: title_uk and chapter_title
+    const chapterTitleUk = ukChapter.title_uk || ukChapter.chapter_title || '';
+    console.log(`\nChapter ${chapterNum}: ${chapterTitleUk}`);
     console.log('-'.repeat(40));
 
     const chapter: CombinedChapter = {
       chapter_number: chapterNum,
-      chapter_title_uk: ukChapter.chapter_title,
+      chapter_title_uk: chapterTitleUk,
       verses: []
     };
 
