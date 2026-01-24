@@ -233,11 +233,21 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
   // 🔧 Enhanced: Better format support
   const playTrack = useCallback(
     (track: AudioTrack) => {
+      // Validate audio URL
+      if (!track.src || !track.src.trim()) {
+        console.error("[Audio] playTrack: track.src is empty or missing", { track });
+        return;
+      }
+
+      console.log("[Audio] playTrack:", { id: track.id, src: track.src.substring(0, 80) + "..." });
+
       const existingIndex = playlist.findIndex((t) => t.id === track.id);
 
       if (existingIndex >= 0) {
+        console.log("[Audio] Track exists at index", existingIndex);
         setCurrentIndex(existingIndex);
       } else {
+        console.log("[Audio] Adding new track to playlist");
         setPlaylist((prev) => {
           // Set index to the new track position (end of new playlist)
           setCurrentIndex(prev.length);
@@ -254,8 +264,17 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
   // 🔧 NEW: Play verse with chapter context - loads all chapter verses with audio
   const playVerseWithChapterContext = useCallback(
     async (track: AudioTrack) => {
+      console.log("[Audio] playVerseWithChapterContext:", { id: track.id, verseId: track.verseId, src: track.src?.substring(0, 80) });
+
+      // Validate track.src before proceeding
+      if (!track.src || !track.src.trim()) {
+        console.error("[Audio] playVerseWithChapterContext: track.src is empty or missing", { track });
+        return;
+      }
+
       // If no verseId, just play the single track
       if (!track.verseId) {
+        console.log("[Audio] No verseId, falling back to playTrack");
         playTrack(track);
         return;
       }
@@ -268,7 +287,14 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
           .eq('id', track.verseId)
           .maybeSingle();
 
-        if (verseError || !verse || !verse.chapter_id) {
+        if (verseError) {
+          console.error("[Audio] Failed to fetch verse:", verseError);
+          playTrack(track);
+          return;
+        }
+
+        if (!verse || !verse.chapter_id) {
+          console.log("[Audio] Verse not found or no chapter_id, falling back to playTrack");
           // Fallback to single track play
           playTrack(track);
           return;
@@ -281,18 +307,30 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
           .eq('chapter_id', verse.chapter_id)
           .order('sort_key', { ascending: true });
 
-        if (chapterError || !chapterVerses) {
+        if (chapterError) {
+          console.error("[Audio] Failed to fetch chapter verses:", chapterError);
           playTrack(track);
           return;
         }
+
+        if (!chapterVerses) {
+          console.log("[Audio] No chapter verses found, falling back to playTrack");
+          playTrack(track);
+          return;
+        }
+
+        console.log("[Audio] Found", chapterVerses.length, "verses in chapter");
 
         // Filter verses that have any audio and build tracks
         const versesWithAudio = chapterVerses.filter(v =>
           v.full_verse_audio_url || v.recitation_audio_url || v.explanation_uk_audio_url || v.explanation_en_audio_url || v.audio_url
         );
 
+        console.log("[Audio] Verses with audio:", versesWithAudio.length);
+
         if (versesWithAudio.length <= 1) {
           // Only one or no verses with audio, just play single track
+          console.log("[Audio] Only 0-1 verses with audio, falling back to playTrack");
           playTrack(track);
           return;
         }
@@ -319,14 +357,18 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
 
         // Find the index of the current track in the playlist
         const startIndex = chapterPlaylist.findIndex(t => t.verseId === track.verseId);
+        const actualStartIndex = startIndex >= 0 ? startIndex : 0;
+
+        console.log("[Audio] Built chapter playlist with", chapterPlaylist.length, "tracks, starting at index", actualStartIndex);
+        console.log("[Audio] Starting track:", chapterPlaylist[actualStartIndex]);
 
         // Play the playlist starting from the current verse
         setPlaylist(chapterPlaylist);
-        setCurrentIndex(startIndex >= 0 ? startIndex : 0);
+        setCurrentIndex(actualStartIndex);
         setIsPlaying(true);
-        trackPlay(chapterPlaylist[startIndex >= 0 ? startIndex : 0].id);
+        trackPlay(chapterPlaylist[actualStartIndex].id);
       } catch (err) {
-        console.error('Failed to load chapter context:', err);
+        console.error('[Audio] Failed to load chapter context:', err);
         // Fallback to single track play
         playTrack(track);
       }
@@ -336,24 +378,24 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
 
   // Enhanced: Error handling for audio
   const play = useCallback(async () => {
-    if (!audioRef.current || !audioRef.current.src) return;
+    const audio = audioRef.current;
+    if (!audio) {
+      console.warn("[Audio] play() called but audioRef is null");
+      return;
+    }
+    if (!audio.src) {
+      console.warn("[Audio] play() called but audio.src is empty");
+      return;
+    }
 
     try {
-      // Check if file is accessible
-      const response = await fetch(audioRef.current.src, { method: "HEAD" });
-      if (!response.ok) {
-        throw new Error(`Audio file not accessible: ${response.status}`);
-      }
-
-      await audioRef.current.play();
+      console.log("[Audio] Starting playback:", audio.src.substring(0, 80) + "...");
+      await audio.play();
       setIsPlaying(true);
+      console.log("[Audio] Playback started successfully");
     } catch (err) {
-      console.error("Play failed:", err);
-
-      // Try next track if current fails
-      if (playlist.length > 1) {
-        nextTrack();
-      }
+      console.error("[Audio] Play failed:", err);
+      setIsPlaying(false);
     }
   }, []);
 
@@ -679,19 +721,37 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
   // Update audio source when track changes
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio || currentIndex === null) return;
+    if (!audio || currentIndex === null) {
+      console.log("[Audio] useEffect: audio or currentIndex is null", { hasAudio: !!audio, currentIndex });
+      return;
+    }
 
     const track = playlist[currentIndex];
-    if (!track) return;
+    if (!track) {
+      console.log("[Audio] useEffect: track is null at index", currentIndex);
+      return;
+    }
+
+    console.log("[Audio] useEffect: Setting audio src to:", track.src?.substring(0, 80) + "...");
+
+    // Validate src before setting
+    if (!track.src || !track.src.trim()) {
+      console.error("[Audio] useEffect: track.src is empty!", { track });
+      setIsPlaying(false);
+      return;
+    }
 
     audio.src = track.src;
     audio.playbackRate = playbackRate;
 
     if (isPlaying) {
+      console.log("[Audio] useEffect: isPlaying is true, calling audio.play()");
       audio.play().catch((err) => {
-        console.error("Playback failed:", err);
+        console.error("[Audio] Playback failed:", err);
         setIsPlaying(false);
       });
+    } else {
+      console.log("[Audio] useEffect: isPlaying is false, not auto-playing");
     }
 
     // Media Session API
