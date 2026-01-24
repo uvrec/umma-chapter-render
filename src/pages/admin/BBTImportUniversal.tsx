@@ -517,8 +517,11 @@ export default function BBTImportUniversal() {
         console.log(`Saved chapter ${chapter.chapter_number}, total savedChapters: ${savedChapters}`);
 
         // Save verses if book has verses (like Gita)
+        console.log(`DEBUG: bookConfig.hasVerses=${bookConfig.hasVerses}, hasVerses(chapter)=${hasVerses(chapter)}, chapter.verses?.length=${(chapter as any).verses?.length}`);
         if (bookConfig.hasVerses && hasVerses(chapter)) {
+          console.log(`DEBUG: Entering verse loop for chapter ${chapter.chapter_number}, ${chapter.verses.length} verses`);
           for (const verse of chapter.verses) {
+            console.log(`DEBUG: Processing verse ${verse.verse_number}, has transliteration_uk: ${!!verse.transliteration_uk}`);
             const { data: existingVerse } = await supabase
               .from("verses")
               .select("id")
