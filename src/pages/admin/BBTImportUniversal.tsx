@@ -38,6 +38,7 @@ interface BookConfig {
   hasChapters: boolean; // false for NOI, ISO, BS - verses directly at book level
   data: ParsedBookData | ParsedBookDataNoChapters;
   cantoNumber?: number; // For multi-canto books like Bhagavatam
+  skipIntros?: boolean; // true for SB cantos after the first - intros are shared
 }
 
 interface ParsedChapterWithVerses {
@@ -181,6 +182,7 @@ const BOOK_CONFIGS: BookConfig[] = [
     hasChapters: true,
     data: sbCanto2Data as ParsedBookData,
     cantoNumber: 2,
+    skipIntros: true, // Intro pages shared with other SB cantos
   },
 ];
 
@@ -217,7 +219,8 @@ export default function BBTImportUniversal() {
 
   const chapters = isBookWithChapters(bookConfig.data) ? bookConfig.data.chapters : [];
   const directVerses = !isBookWithChapters(bookConfig.data) ? bookConfig.data.verses : [];
-  const intros = bookConfig.data.intros || [];
+  // Skip intros for books that share intros (like SB cantos)
+  const intros = bookConfig.skipIntros ? [] : (bookConfig.data.intros || []);
 
   const [selectedItems, setSelectedItems] = useState<Set<string>>(() => {
     const allIds = new Set<string>();
@@ -242,7 +245,10 @@ export default function BBTImportUniversal() {
       } else if (!config.hasChapters && !isBookWithChapters(config.data)) {
         config.data.verses.forEach((v) => allIds.add(`verse-${v.verse_number}`));
       }
-      (config.data.intros || []).forEach((i) => allIds.add(`intro-${i.slug}`));
+      // Skip intros for books that share intros
+      if (!config.skipIntros) {
+        (config.data.intros || []).forEach((i) => allIds.add(`intro-${i.slug}`));
+      }
       setSelectedItems(allIds);
     }
   };
@@ -266,6 +272,17 @@ export default function BBTImportUniversal() {
     const selectedIntros = intros.filter((i) =>
       selectedItems.has(`intro-${i.slug}`)
     );
+
+    // Debug logging
+    console.log('Import debug:', {
+      bookConfig: bookConfig.id,
+      hasChapters: bookConfig.hasChapters,
+      chaptersCount: chapters.length,
+      selectedChaptersCount: selectedChapters.length,
+      introsCount: intros.length,
+      selectedIntrosCount: selectedIntros.length,
+      selectedItems: Array.from(selectedItems),
+    });
 
     const totalItems = bookConfig.hasChapters
       ? selectedChapters.length + selectedIntros.length
@@ -710,9 +727,11 @@ export default function BBTImportUniversal() {
             Дані готові до імпорту: {bookConfig.title_uk}
           </CardTitle>
           <CardDescription className="text-green-700">
-            {bookConfig.hasVerses
-              ? "Книга з віршами (як Бгаґавад-ґіта)"
-              : "Книга з суцільним текстом (глави без віршів)"
+            {bookConfig.cantoNumber
+              ? `Книга з піснями: пісня ${bookConfig.cantoNumber} (глави → вірші)`
+              : bookConfig.hasVerses
+                ? (bookConfig.hasChapters ? "Книга з главами та віршами" : "Книга з віршами (без глав)")
+                : "Книга з суцільним текстом"
             }
           </CardDescription>
         </CardHeader>
