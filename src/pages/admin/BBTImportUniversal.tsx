@@ -277,11 +277,17 @@ export default function BBTImportUniversal() {
     console.log('Import debug:', {
       bookConfig: bookConfig.id,
       hasChapters: bookConfig.hasChapters,
+      hasVerses: bookConfig.hasVerses,
+      cantoNumber: bookConfig.cantoNumber,
+      skipIntros: bookConfig.skipIntros,
       chaptersCount: chapters.length,
       selectedChaptersCount: selectedChapters.length,
+      directVersesCount: directVerses.length,
+      selectedDirectVersesCount: selectedDirectVerses.length,
       introsCount: intros.length,
       selectedIntrosCount: selectedIntros.length,
       selectedItems: Array.from(selectedItems),
+      firstChapter: chapters[0] ? { number: chapters[0].chapter_number, title: chapters[0].chapter_title_uk } : null,
     });
 
     const totalItems = bookConfig.hasChapters
@@ -359,7 +365,9 @@ export default function BBTImportUniversal() {
       }
 
       // Save chapters
+      console.log(`Starting chapter save loop for ${selectedChapters.length} chapters`);
       for (const chapter of selectedChapters) {
+        console.log(`Processing chapter ${chapter.chapter_number}: ${chapter.chapter_title_uk}`);
         let chapterId: string;
 
         // Build query for finding existing chapter
@@ -426,6 +434,7 @@ export default function BBTImportUniversal() {
         }
 
         savedChapters++;
+        console.log(`Saved chapter ${chapter.chapter_number}, total savedChapters: ${savedChapters}`);
 
         // Save verses if book has verses (like Gita)
         if (bookConfig.hasVerses && hasVerses(chapter)) {
@@ -630,6 +639,8 @@ export default function BBTImportUniversal() {
         processed++;
         setSaveProgress(Math.round((processed / totalItems) * 100));
       }
+
+      console.log('Import complete:', { savedChapters, savedVerses, savedIntros });
 
       const resultParts: string[] = [];
       if (savedChapters > 0) resultParts.push(`${savedChapters} глав`);
