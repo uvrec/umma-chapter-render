@@ -1,6 +1,8 @@
 // Audio.tsx - Minimalist audio library page (NeuBibel style)
 import { useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Header } from "@/components/Header";
@@ -8,90 +10,40 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Headphones, Mic, Music, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Audio content data
-const AUDIOBOOKS = [
-  {
-    id: "sb",
-    slug: "sb",
-    title_uk: "Шрімад-Бгаґаватам",
-    title_en: "Srimad Bhagavatam",
-    track_count: 12,
-    cover: "/assets/srimad-bhagavatam-1-cover.webp",
-  },
-  {
-    id: "bg",
-    slug: "bg",
-    title_uk: "Бгаґавад-ґіта",
-    title_en: "Bhagavad-gita",
-    track_count: 18,
-    cover: "/assets/bhagavad-gita-cover.webp",
-  },
-  {
-    id: "iso",
-    slug: "iso",
-    title_uk: "Шрі Ішопанішад",
-    title_en: "Sri Isopanishad",
-    track_count: 18,
-    cover: "/assets/sri-isopanishad-cover.webp",
-  },
-  {
-    id: "noi",
-    slug: "noi",
-    title_uk: "Нектар віддності",
-    title_en: "Nectar of Instruction",
-    track_count: 11,
-    cover: "/assets/noi-cover.webp",
-  },
-];
+// Types
+type AudioCategory = {
+  id: string;
+  slug: string;
+  name_uk: string | null;
+  name_en: string | null;
+  display_order: number | null;
+};
 
-const PLAYLISTS = [
-  {
-    id: "morning",
-    slug: "morning",
-    title_uk: "Ранкова програма",
-    title_en: "Morning Program",
-    track_count: 8,
-  },
-  {
-    id: "bhajans",
-    slug: "bhajans",
-    title_uk: "Бгаджани",
-    title_en: "Bhajans",
-    track_count: 24,
-  },
-  {
-    id: "kirtans",
-    slug: "kirtans",
-    title_uk: "Кіртани",
-    title_en: "Kirtans",
-    track_count: 16,
-  },
-];
+type AudioPlaylist = {
+  id: string;
+  title_uk: string | null;
+  title_en: string | null;
+  cover_image_url: string | null;
+  category_id: string;
+  is_published: boolean | null;
+  tracks?: { count: number }[];
+};
 
-const LECTURES = [
-  {
-    id: "prabhupada",
-    slug: "prabhupada",
-    title_uk: "Лекції Прабгупади",
-    title_en: "Prabhupada Lectures",
-    track_count: 156,
-  },
-  {
-    id: "seminars",
-    slug: "seminars",
-    title_uk: "Семінари",
-    title_en: "Seminars",
-    track_count: 42,
-  },
-];
+// Category slug to icon mapping
+const CATEGORY_ICONS: Record<string, typeof Headphones> = {
+  audiobooks: Headphones,
+  playlists: Music,
+  lectures: Mic,
+  bhajans: Music,
+  kirtans: Music,
+};
 
 // Swipeable audio row component
 interface SwipeableAudioRowProps {
   item: {
     id: string;
-    slug: string;
-    title_uk: string;
-    title_en: string;
+    title_uk: string | null;
+    title_en: string | null;
     track_count: number;
   };
   onRowClick: () => void;
@@ -112,7 +64,7 @@ function SwipeableAudioRow({
   const touchStartRef = useRef<{ x: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const title = language === "uk" ? item.title_uk : item.title_en;
+  const title = language === "uk" ? (item.title_uk || item.title_en) : (item.title_en || item.title_uk);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartRef.current = { x: e.touches[0].clientX };
@@ -188,7 +140,7 @@ function SwipeableAudioRow({
           onClick={handleRowTap}
         >
           <div className="flex-1 min-w-0">
-            <div className="font-medium text-foreground">{title}</div>
+            <div className="font-medium text-foreground">{title || "Без назви"}</div>
             <div className="text-sm text-muted-foreground">
               {item.track_count} {t("треків", "tracks")}
             </div>
@@ -226,30 +178,56 @@ function SwipeableAudioRow({
 
 // Mobile list component
 interface MobileAudioListProps {
-  items: typeof AUDIOBOOKS;
-  basePath: string;
+  items: AudioPlaylist[];
+  isLoading: boolean;
 }
 
-function MobileAudioList({ items, basePath }: MobileAudioListProps) {
+function MobileAudioList({ items, isLoading }: MobileAudioListProps) {
   const { language, t, getLocalizedPath } = useLanguage();
   const navigate = useNavigate();
 
-  const handleRowClick = useCallback((slug: string) => {
-    navigate(getLocalizedPath(`${basePath}/${slug}`));
-  }, [navigate, getLocalizedPath, basePath]);
+  const handleRowClick = useCallback((id: string) => {
+    navigate(getLocalizedPath(`/audiobooks/${id}`));
+  }, [navigate, getLocalizedPath]);
 
-  const handleTrackClick = useCallback((slug: string, track: number) => {
-    navigate(getLocalizedPath(`${basePath}/${slug}/${track}`));
-  }, [navigate, getLocalizedPath, basePath]);
+  const handleTrackClick = useCallback((id: string, track: number) => {
+    navigate(getLocalizedPath(`/audiobooks/${id}?track=${track}`));
+  }, [navigate, getLocalizedPath]);
+
+  if (isLoading) {
+    return (
+      <div className="divide-y divide-border/50">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="px-4 py-4 animate-pulse">
+            <div className="h-4 w-40 bg-muted rounded mb-2" />
+            <div className="h-3 w-20 bg-muted rounded" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="text-center py-12 text-muted-foreground">
+        {t("Поки що немає записів", "No recordings yet")}
+      </div>
+    );
+  }
 
   return (
     <div className="divide-y divide-border/50">
       {items.map((item) => (
         <SwipeableAudioRow
           key={item.id}
-          item={item}
-          onRowClick={() => handleRowClick(item.slug)}
-          onTrackClick={(track) => handleTrackClick(item.slug, track)}
+          item={{
+            id: item.id,
+            title_uk: item.title_uk,
+            title_en: item.title_en,
+            track_count: item.tracks?.[0]?.count || 0,
+          }}
+          onRowClick={() => handleRowClick(item.id)}
+          onTrackClick={(track) => handleTrackClick(item.id, track)}
           language={language}
           t={t}
         />
@@ -260,32 +238,54 @@ function MobileAudioList({ items, basePath }: MobileAudioListProps) {
 
 // Desktop grid component
 interface DesktopAudioGridProps {
-  items: typeof AUDIOBOOKS;
-  basePath: string;
+  items: AudioPlaylist[];
+  isLoading: boolean;
 }
 
-function DesktopAudioGrid({ items, basePath }: DesktopAudioGridProps) {
-  const { language, getLocalizedPath } = useLanguage();
+function DesktopAudioGrid({ items, isLoading }: DesktopAudioGridProps) {
+  const { language, t, getLocalizedPath } = useLanguage();
   const navigate = useNavigate();
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+        {[...Array(8)].map((_, i) => (
+          <div key={i} className="animate-pulse">
+            <div className="aspect-square bg-muted rounded-lg mb-2" />
+            <div className="h-4 w-3/4 bg-muted rounded mx-auto mb-1" />
+            <div className="h-3 w-1/2 bg-muted rounded mx-auto" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="text-center py-12 text-muted-foreground">
+        {t("Поки що немає записів", "No recordings yet")}
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
       {items.map((item) => {
-        const title = language === "uk" ? item.title_uk : item.title_en;
-        const cover = (item as any).cover;
+        const title = language === "uk" ? (item.title_uk || item.title_en) : (item.title_en || item.title_uk);
+        const trackCount = item.tracks?.[0]?.count || 0;
 
         return (
           <div
             key={item.id}
-            onClick={() => navigate(getLocalizedPath(`${basePath}/${item.slug}`))}
+            onClick={() => navigate(getLocalizedPath(`/audiobooks/${item.id}`))}
             className="group cursor-pointer"
           >
             {/* Cover */}
             <div className="relative aspect-square overflow-hidden rounded-lg shadow-md group-hover:shadow-xl transition-all duration-300">
-              {cover ? (
+              {item.cover_image_url ? (
                 <img
-                  src={cover}
-                  alt={title}
+                  src={item.cover_image_url}
+                  alt={title || ""}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   loading="lazy"
                 />
@@ -299,10 +299,10 @@ function DesktopAudioGrid({ items, basePath }: DesktopAudioGridProps) {
 
             {/* Title */}
             <h3 className="mt-2 sm:mt-3 text-xs sm:text-sm font-medium text-center line-clamp-2 text-foreground group-hover:text-primary transition-colors px-1">
-              {title}
+              {title || t("Без назви", "Untitled")}
             </h3>
             <p className="text-xs text-center text-muted-foreground">
-              {item.track_count} треків
+              {trackCount} {t("треків", "tracks")}
             </p>
           </div>
         );
@@ -312,66 +312,105 @@ function DesktopAudioGrid({ items, basePath }: DesktopAudioGridProps) {
 }
 
 export const Audio = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const isMobile = useIsMobile();
+
+  // Fetch audio categories
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery({
+    queryKey: ["audio-categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("audio_categories")
+        .select("id, slug, name_uk, name_en, display_order")
+        .order("display_order", { ascending: true, nullsFirst: false });
+      if (error) throw error;
+      return (data || []) as AudioCategory[];
+    },
+  });
+
+  // Fetch all published playlists with track counts
+  const { data: playlists = [], isLoading: playlistsLoading } = useQuery({
+    queryKey: ["audio-playlists-all"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("audio_playlists")
+        .select(`
+          id,
+          title_uk,
+          title_en,
+          cover_image_url,
+          category_id,
+          is_published,
+          tracks:audio_tracks(count)
+        `)
+        .eq("is_published", true)
+        .order("display_order", { ascending: true, nullsFirst: false });
+      if (error) throw error;
+      return (data || []) as AudioPlaylist[];
+    },
+  });
+
+  // Group playlists by category
+  const playlistsByCategory = categories.reduce((acc, category) => {
+    acc[category.slug] = playlists.filter(p => p.category_id === category.id);
+    return acc;
+  }, {} as Record<string, AudioPlaylist[]>);
+
+  const isLoading = categoriesLoading || playlistsLoading;
+
+  // Default tab to first category
+  const defaultTab = categories[0]?.slug || "audiobooks";
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
 
       <div className="container mx-auto px-4 py-3 sm:py-4">
-        <Tabs defaultValue="audiobooks" className="w-full">
-          <TabsList className="flex justify-center gap-8 bg-transparent mb-6 h-auto p-0">
-            <TabsTrigger
-              value="audiobooks"
-              className="flex items-center gap-2 bg-transparent px-0 py-2 data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none text-muted-foreground data-[state=active]:text-primary"
-            >
-              <Headphones className="w-4 h-4" />
-              <span>{t("Аудіокниги", "Audiobooks")}</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="playlists"
-              className="flex items-center gap-2 bg-transparent px-0 py-2 data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none text-muted-foreground data-[state=active]:text-primary"
-            >
-              <Music className="w-4 h-4" />
-              <span>{t("Плейлісти", "Playlists")}</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="lectures"
-              className="flex items-center gap-2 bg-transparent px-0 py-2 data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none text-muted-foreground data-[state=active]:text-primary"
-            >
-              <Mic className="w-4 h-4" />
-              <span>{t("Лекції", "Lectures")}</span>
-            </TabsTrigger>
-          </TabsList>
+        {categories.length > 0 ? (
+          <Tabs defaultValue={defaultTab} className="w-full">
+            <TabsList className="flex justify-center gap-8 bg-transparent mb-6 h-auto p-0">
+              {categories.map((category) => {
+                const Icon = CATEGORY_ICONS[category.slug] || Music;
+                const label = language === "uk" ? category.name_uk : category.name_en;
 
-          {/* Audiobooks Tab */}
-          <TabsContent value="audiobooks">
-            {isMobile ? (
-              <MobileAudioList items={AUDIOBOOKS} basePath="/audio/book" />
-            ) : (
-              <DesktopAudioGrid items={AUDIOBOOKS} basePath="/audio/book" />
-            )}
-          </TabsContent>
+                return (
+                  <TabsTrigger
+                    key={category.id}
+                    value={category.slug}
+                    className="flex items-center gap-2 bg-transparent px-0 py-2 data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none text-muted-foreground data-[state=active]:text-primary"
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{label}</span>
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
 
-          {/* Playlists Tab */}
-          <TabsContent value="playlists">
-            {isMobile ? (
-              <MobileAudioList items={PLAYLISTS} basePath="/audio/playlist" />
-            ) : (
-              <DesktopAudioGrid items={PLAYLISTS} basePath="/audio/playlist" />
-            )}
-          </TabsContent>
-
-          {/* Lectures Tab */}
-          <TabsContent value="lectures">
-            {isMobile ? (
-              <MobileAudioList items={LECTURES} basePath="/audio/lectures" />
-            ) : (
-              <DesktopAudioGrid items={LECTURES} basePath="/audio/lectures" />
-            )}
-          </TabsContent>
-        </Tabs>
+            {categories.map((category) => (
+              <TabsContent key={category.id} value={category.slug}>
+                {isMobile ? (
+                  <MobileAudioList
+                    items={playlistsByCategory[category.slug] || []}
+                    isLoading={isLoading}
+                  />
+                ) : (
+                  <DesktopAudioGrid
+                    items={playlistsByCategory[category.slug] || []}
+                    isLoading={isLoading}
+                  />
+                )}
+              </TabsContent>
+            ))}
+          </Tabs>
+        ) : isLoading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto" />
+          </div>
+        ) : (
+          <div className="text-center py-12 text-muted-foreground">
+            {t("Аудіо поки що недоступне", "Audio not available yet")}
+          </div>
+        )}
       </div>
     </div>
   );
