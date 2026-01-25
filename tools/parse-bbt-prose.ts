@@ -81,31 +81,31 @@ const PUA_MAP: Record<number, string> = {
   0xF0FC: 'Ś', 0xF0FD: 'Ṣ', 0xF0FE: 'Ḥ', 0xF0FF: 'Ṁ',
 };
 
-// Additional PUA map for diacritics (from parse-bbt.ts)
+// Additional PUA map for Ukrainian diacritics (Cyrillic + combining marks)
 const UKRAINIAN_PUA_MAP: Record<string, string> = {
-  '\uf100': 'А',
-  '\uf101': 'ā',
-  '\uf102': 'ī',
-  '\uf121': 'ī',
-  '\uf123': 'ū',
-  '\uf103': 'ḍ',
-  '\uf105': '',
-  '\uf109': 'ṁ',
-  '\uf107': 'м\u0310',
-  '\uf10d': 'м\u0310',
-  '\uf10f': 'ṅ',
-  '\uf111': 'ṇ',
-  '\uf113': 'ñ',
-  '\uf115': 'ṛ',
-  '\uf117': 'ṛ',
-  '\uf119': 'ṭ',
-  '\uf11b': 'ḥ',
-  '\uf11c': 'Ś',
-  '\uf11d': 'ś',
-  '\uf11f': 'ṣ',
-  '\uf125': 'ṝ',
-  '\uf127': 'ḷ',
-  '\uf129': 'ḹ',
+  '\uf100': 'А',     // Capital A
+  '\uf101': 'а̄',    // а + macron (long a)
+  '\uf102': 'ī',     // ī (long i) - used in Sanskrit portions
+  '\uf121': 'ī',     // ī (dotless i + macron)
+  '\uf123': 'ū',     // ū (long u)
+  '\uf103': 'д̣',    // д + dot below (retroflex d)
+  '\uf105': '',      // Style marker, remove
+  '\uf109': 'м̇',    // м + dot above (anusvara)
+  '\uf107': 'м\u0310', // м + candrabindu
+  '\uf10d': 'м\u0310', // м + candrabindu variant
+  '\uf10f': 'н̇',    // н + dot above (velar nasal)
+  '\uf111': 'н̣',    // н + dot below (retroflex n)
+  '\uf113': 'н̃',    // н + tilde (palatal nasal)
+  '\uf115': 'р̣',    // р + dot below (vocalic r)
+  '\uf117': 'р̣',    // р + dot below (alternate)
+  '\uf119': 'т̣',    // т + dot below (retroflex t)
+  '\uf11b': 'х̣',    // х + dot below (visarga)
+  '\uf11c': 'Ш́',    // Ш + acute (capital ś)
+  '\uf11d': 'ш́',    // ш + acute (ś)
+  '\uf11f': 'ш̣',    // ш + dot below (ṣ)
+  '\uf125': 'р̣̄',   // р + dot below + macron (long vocalic r)
+  '\uf127': 'л̣',    // л + dot below (vocalic l)
+  '\uf129': 'л̣̄',   // л + dot below + macron (long vocalic l)
 };
 
 /**
