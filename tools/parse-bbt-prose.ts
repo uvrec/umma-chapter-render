@@ -309,15 +309,20 @@ function parseSOVA(filePath: string, chapterNum: number): ChapterWithVerses | nu
     const text = currentContent.join(' ').trim();
     if (!text) return;
 
-    if (currentTag === 'h1') {
+    // Title tags: h1, h1+h2, h1+source, h1+by
+    if (currentTag.startsWith('h1')) {
       chapterTitle = processInlineTags(text);
-    } else if (currentTag === 'h3-verse') {
-      // Sanskrit/transliteration - start new verse
-      if (currentVerse) verses.push(currentVerse);
-      currentVerse = {
-        verse_number: String(verses.length + 1),
-        transliteration_uk: processTransliteration(text),
-      };
+    } else if (currentTag === 'h3-verse' || currentTag.startsWith('verse-s') || currentTag.startsWith('verse-')) {
+      // Sanskrit/transliteration - various formats: @h3-verse, @verse-s60, @verse-#-40
+      // Skip if it's just a verse number like "1" or "2"
+      const cleanText = text.replace(/<[^>]+>/g, '').trim();
+      if (!/^\d+$/.test(cleanText)) {
+        if (currentVerse) verses.push(currentVerse);
+        currentVerse = {
+          verse_number: String(verses.length + 1),
+          transliteration_uk: processTransliteration(text),
+        };
+      }
     } else if (currentTag === 'eqs') {
       // Synonyms
       if (currentVerse) {
