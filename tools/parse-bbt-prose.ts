@@ -216,9 +216,29 @@ function processInlineTags(text: string, keepHtml: boolean = false): string {
 function processSynonyms(text: string): string {
   let result = processLineContinuations(text);
   result = result.split('\n').join(' ');
+
+  // Remove <N>, <N150>, <N|> etc. tags before processing
+  result = result.replace(/<N\d*\|?>/g, '');
+
   // Handle <MI><_dt>term<_/dt><D> – <_dd>meaning<_/dd> pattern
-  result = result.replace(/<MI><_dt>([^<]*)<_\/dt><D>\s*[-–—]?\s*<_dd>([^<]*)<_\/dd>/g, '<em>$1</em> — $2');
-  result = result.replace(/<_dt>([^<]*)<_\/dt>\s*[-–—]?\s*<_dd>([^<]*)<_\/dd>/g, '<em>$1</em> — $2');
+  // The meaning can contain nested tags like <MI>word<D>
+  // Use a more flexible regex that captures content until <_/dd>
+  result = result.replace(/<MI><_dt>([^<]*)<_\/dt><D>\s*[-–—]?\s*<_dd>([\s\S]*?)<_\/dd>/g, (_, term, meaning) => {
+    // Process inline tags within the meaning
+    let cleanMeaning = meaning.replace(/<MI>([^<]*)<D>/g, '<em>$1</em>');
+    cleanMeaning = cleanMeaning.replace(/<MI>/g, '<em>').replace(/<D>/g, '</em>');
+    cleanMeaning = cleanMeaning.replace(/<em><\/em>/g, '');
+    return `<em>${term}</em> — ${cleanMeaning}`;
+  });
+
+  // Handle remaining <_dt>...<_/dt> – <_dd>...<_/dd> patterns (without <MI>)
+  result = result.replace(/<_dt>([^<]*)<_\/dt>\s*[-–—]?\s*<_dd>([\s\S]*?)<_\/dd>/g, (_, term, meaning) => {
+    let cleanMeaning = meaning.replace(/<MI>([^<]*)<D>/g, '<em>$1</em>');
+    cleanMeaning = cleanMeaning.replace(/<MI>/g, '<em>').replace(/<D>/g, '</em>');
+    cleanMeaning = cleanMeaning.replace(/<em><\/em>/g, '');
+    return `<em>${term}</em> — ${cleanMeaning}`;
+  });
+
   result = processInlineTags(result, true);
   result = result.replace(/\s+/g, ' ').trim();
   result = result.replace(/ – /g, ' — ');
@@ -251,7 +271,7 @@ function processProse(text: string, keepHtml: boolean = false): string {
 }
 
 // Skip these tags
-const SKIP_TAGS = new Set(['rh-verso', 'rh-recto', 'logo', 'text-rh', 'special']);
+const SKIP_TAGS = new Set(['rh-verso', 'rh-recto', 'logo', 'text-rh', 'special', 'h3-trans', 'h3-synonyms']);
 
 interface Verse {
   verse_number: string;
@@ -306,6 +326,8 @@ function parseSOVA(filePath: string, chapterNum: number): ChapterWithVerses | nu
 
   function flushBlock() {
     if (!currentTag || SKIP_TAGS.has(currentTag)) return;
+    // Skip text-* tags (spacing markers)
+    if (currentTag.startsWith('text-')) return;
     const text = currentContent.join(' ').trim();
     if (!text) return;
 
