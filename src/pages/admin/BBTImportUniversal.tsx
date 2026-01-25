@@ -7,6 +7,11 @@ import { toast } from "@/hooks/use-toast";
 import { BookOpen, CheckCircle, Loader2, Database, Library } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import type { Database } from "@/integrations/supabase/types";
+
+// Supabase verse types for proper typing
+type VerseInsert = Database["public"]["Tables"]["verses"]["Insert"];
+type VerseUpdate = Database["public"]["Tables"]["verses"]["Update"];
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -223,7 +228,7 @@ const BOOK_CONFIGS: BookConfig[] = [
     slug: "sova",
     title_uk: "Пісні ачар'їв-вайшнавів",
     title_en: "Songs of the Vaiṣṇava Ācāryas",
-    hasVerses: false,
+    hasVerses: true, // Has transliteration, synonyms, translation like BG
     hasChapters: true,
     data: sovaData as ParsedBookData,
   },
@@ -561,19 +566,20 @@ export default function BBTImportUniversal() {
 
             if (existingVerse) {
               // Only update fields that have actual values - preserve existing data
-              const updateData: { [key: string]: string } = {};
-              // UK fields
-              if (verse.sanskrit_uk) updateData.sanskrit_uk = verse.sanskrit_uk;
-              if (verse.transliteration_uk) updateData.transliteration_uk = verse.transliteration_uk;
-              if (verse.synonyms_uk) updateData.synonyms_uk = verse.synonyms_uk;
-              if (verse.translation_uk) updateData.translation_uk = verse.translation_uk;
-              if (verse.commentary_uk) updateData.commentary_uk = verse.commentary_uk;
-              // EN fields - only update if source has values
-              if (verse.sanskrit_en) updateData.sanskrit_en = verse.sanskrit_en;
-              if (verse.transliteration_en) updateData.transliteration_en = verse.transliteration_en;
-              if (verse.synonyms_en) updateData.synonyms_en = verse.synonyms_en;
-              if (verse.translation_en) updateData.translation_en = verse.translation_en;
-              if (verse.commentary_en) updateData.commentary_en = verse.commentary_en;
+              const updateData: VerseUpdate = {
+                // UK fields
+                ...(verse.sanskrit_uk && { sanskrit_uk: verse.sanskrit_uk }),
+                ...(verse.transliteration_uk && { transliteration_uk: verse.transliteration_uk }),
+                ...(verse.synonyms_uk && { synonyms_uk: verse.synonyms_uk }),
+                ...(verse.translation_uk && { translation_uk: verse.translation_uk }),
+                ...(verse.commentary_uk && { commentary_uk: verse.commentary_uk }),
+                // EN fields - only update if source has values
+                ...(verse.sanskrit_en && { sanskrit_en: verse.sanskrit_en }),
+                ...(verse.transliteration_en && { transliteration_en: verse.transliteration_en }),
+                ...(verse.synonyms_en && { synonyms_en: verse.synonyms_en }),
+                ...(verse.translation_en && { translation_en: verse.translation_en }),
+                ...(verse.commentary_en && { commentary_en: verse.commentary_en }),
+              };
 
               if (Object.keys(updateData).length > 0) {
                 const { error } = await supabase
@@ -591,22 +597,22 @@ export default function BBTImportUniversal() {
               }
             } else {
               // For new verses, include all available fields
-              const insertData: { [key: string]: string } = {
+              const insertData: VerseInsert = {
                 chapter_id: chapterId,
                 verse_number: verse.verse_number,
+                // UK fields
+                ...(verse.sanskrit_uk && { sanskrit_uk: verse.sanskrit_uk }),
+                ...(verse.transliteration_uk && { transliteration_uk: verse.transliteration_uk }),
+                ...(verse.synonyms_uk && { synonyms_uk: verse.synonyms_uk }),
+                ...(verse.translation_uk && { translation_uk: verse.translation_uk }),
+                ...(verse.commentary_uk && { commentary_uk: verse.commentary_uk }),
+                // EN fields
+                ...(verse.sanskrit_en && { sanskrit_en: verse.sanskrit_en }),
+                ...(verse.transliteration_en && { transliteration_en: verse.transliteration_en }),
+                ...(verse.synonyms_en && { synonyms_en: verse.synonyms_en }),
+                ...(verse.translation_en && { translation_en: verse.translation_en }),
+                ...(verse.commentary_en && { commentary_en: verse.commentary_en }),
               };
-              // UK fields
-              if (verse.sanskrit_uk) insertData.sanskrit_uk = verse.sanskrit_uk;
-              if (verse.transliteration_uk) insertData.transliteration_uk = verse.transliteration_uk;
-              if (verse.synonyms_uk) insertData.synonyms_uk = verse.synonyms_uk;
-              if (verse.translation_uk) insertData.translation_uk = verse.translation_uk;
-              if (verse.commentary_uk) insertData.commentary_uk = verse.commentary_uk;
-              // EN fields
-              if (verse.sanskrit_en) insertData.sanskrit_en = verse.sanskrit_en;
-              if (verse.transliteration_en) insertData.transliteration_en = verse.transliteration_en;
-              if (verse.synonyms_en) insertData.synonyms_en = verse.synonyms_en;
-              if (verse.translation_en) insertData.translation_en = verse.translation_en;
-              if (verse.commentary_en) insertData.commentary_en = verse.commentary_en;
 
               const { error } = await supabase.from("verses").insert([insertData]);
 
@@ -669,17 +675,18 @@ export default function BBTImportUniversal() {
 
           if (existingVerse) {
             // Only update fields that have actual values - preserve existing data
-            const updateData: Record<string, string> = {};
-            if (verse.sanskrit_uk) updateData.sanskrit_uk = verse.sanskrit_uk;
-            if (verse.transliteration_uk) updateData.transliteration_uk = verse.transliteration_uk;
-            if (verse.synonyms_uk) updateData.synonyms_uk = verse.synonyms_uk;
-            if (verse.translation_uk) updateData.translation_uk = verse.translation_uk;
-            if (verse.commentary_uk) updateData.commentary_uk = verse.commentary_uk;
-            if (verse.sanskrit_en) updateData.sanskrit_en = verse.sanskrit_en;
-            if (verse.transliteration_en) updateData.transliteration_en = verse.transliteration_en;
-            if (verse.synonyms_en) updateData.synonyms_en = verse.synonyms_en;
-            if (verse.translation_en) updateData.translation_en = verse.translation_en;
-            if (verse.commentary_en) updateData.commentary_en = verse.commentary_en;
+            const updateData: VerseUpdate = {
+              ...(verse.sanskrit_uk && { sanskrit_uk: verse.sanskrit_uk }),
+              ...(verse.transliteration_uk && { transliteration_uk: verse.transliteration_uk }),
+              ...(verse.synonyms_uk && { synonyms_uk: verse.synonyms_uk }),
+              ...(verse.translation_uk && { translation_uk: verse.translation_uk }),
+              ...(verse.commentary_uk && { commentary_uk: verse.commentary_uk }),
+              ...(verse.sanskrit_en && { sanskrit_en: verse.sanskrit_en }),
+              ...(verse.transliteration_en && { transliteration_en: verse.transliteration_en }),
+              ...(verse.synonyms_en && { synonyms_en: verse.synonyms_en }),
+              ...(verse.translation_en && { translation_en: verse.translation_en }),
+              ...(verse.commentary_en && { commentary_en: verse.commentary_en }),
+            };
 
             if (Object.keys(updateData).length > 0) {
               const { error } = await supabase
@@ -696,20 +703,20 @@ export default function BBTImportUniversal() {
               savedVerses++;
             }
           } else {
-            const insertData: Record<string, string> = {
+            const insertData: VerseInsert = {
               chapter_id: mainChapterId,
               verse_number: verse.verse_number,
+              ...(verse.sanskrit_uk && { sanskrit_uk: verse.sanskrit_uk }),
+              ...(verse.transliteration_uk && { transliteration_uk: verse.transliteration_uk }),
+              ...(verse.synonyms_uk && { synonyms_uk: verse.synonyms_uk }),
+              ...(verse.translation_uk && { translation_uk: verse.translation_uk }),
+              ...(verse.commentary_uk && { commentary_uk: verse.commentary_uk }),
+              ...(verse.sanskrit_en && { sanskrit_en: verse.sanskrit_en }),
+              ...(verse.transliteration_en && { transliteration_en: verse.transliteration_en }),
+              ...(verse.synonyms_en && { synonyms_en: verse.synonyms_en }),
+              ...(verse.translation_en && { translation_en: verse.translation_en }),
+              ...(verse.commentary_en && { commentary_en: verse.commentary_en }),
             };
-            if (verse.sanskrit_uk) insertData.sanskrit_uk = verse.sanskrit_uk;
-            if (verse.transliteration_uk) insertData.transliteration_uk = verse.transliteration_uk;
-            if (verse.synonyms_uk) insertData.synonyms_uk = verse.synonyms_uk;
-            if (verse.translation_uk) insertData.translation_uk = verse.translation_uk;
-            if (verse.commentary_uk) insertData.commentary_uk = verse.commentary_uk;
-            if (verse.sanskrit_en) insertData.sanskrit_en = verse.sanskrit_en;
-            if (verse.transliteration_en) insertData.transliteration_en = verse.transliteration_en;
-            if (verse.synonyms_en) insertData.synonyms_en = verse.synonyms_en;
-            if (verse.translation_en) insertData.translation_en = verse.translation_en;
-            if (verse.commentary_en) insertData.commentary_en = verse.commentary_en;
 
             const { error } = await supabase.from("verses").insert([insertData]);
 

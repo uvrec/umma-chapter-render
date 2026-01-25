@@ -1,8 +1,8 @@
 /**
- * Parser for BBT prose books (Beyond Birth and Death, Life Comes From Life, etc.)
+ * Parser for BBT prose books and SOVA
  *
  * Usage: npx ts-node tools/parse-bbt-prose.ts [book_code]
- * Example: npx ts-node tools/parse-bbt-prose.ts bbad
+ * Example: npx ts-node tools/parse-bbt-prose.ts sova
  */
 
 import * as fs from 'fs';
@@ -20,6 +20,7 @@ const BOOKS: Record<string, {
   slug: string;
   chapterPrefix: string;
   chapterFiles: string[];
+  hasVerses: boolean; // true = verse structure like BG, false = prose
 }> = {
   bbd: {
     folder: 'BBAD',
@@ -28,6 +29,7 @@ const BOOKS: Record<string, {
     slug: 'bbd',
     chapterPrefix: 'UKBB',
     chapterFiles: ['01xt', '02xt', '03XT', '04XT', '05XT'],
+    hasVerses: false,
   },
   lcfl: {
     folder: 'LCFL',
@@ -36,6 +38,7 @@ const BOOKS: Record<string, {
     slug: 'lcfl',
     chapterPrefix: 'UKLC',
     chapterFiles: Array.from({ length: 16 }, (_, i) => String(i + 1).padStart(2, '0') + 'XT'),
+    hasVerses: false,
   },
   sova: {
     folder: 'sova',
@@ -43,8 +46,8 @@ const BOOKS: Record<string, {
     title_en: 'Songs of the Vaiṣṇava Ācāryas',
     slug: 'sova',
     chapterPrefix: 'UKSO',
-    // Dynamic - will be populated at runtime
-    chapterFiles: [],
+    chapterFiles: [], // Dynamic - will be populated at runtime
+    hasVerses: true, // Like BG - has transliteration, synonyms, translation
   },
 };
 
@@ -78,6 +81,33 @@ const PUA_MAP: Record<number, string> = {
   0xF0FC: 'Ś', 0xF0FD: 'Ṣ', 0xF0FE: 'Ḥ', 0xF0FF: 'Ṁ',
 };
 
+// Additional PUA map for diacritics (from parse-bbt.ts)
+const UKRAINIAN_PUA_MAP: Record<string, string> = {
+  '\uf100': 'А',
+  '\uf101': 'ā',
+  '\uf102': 'ī',
+  '\uf121': 'ī',
+  '\uf123': 'ū',
+  '\uf103': 'ḍ',
+  '\uf105': '',
+  '\uf109': 'ṁ',
+  '\uf107': 'м\u0310',
+  '\uf10d': 'м\u0310',
+  '\uf10f': 'ṅ',
+  '\uf111': 'ṇ',
+  '\uf113': 'ñ',
+  '\uf115': 'ṛ',
+  '\uf117': 'ṛ',
+  '\uf119': 'ṭ',
+  '\uf11b': 'ḥ',
+  '\uf11c': 'Ś',
+  '\uf11d': 'ś',
+  '\uf11f': 'ṣ',
+  '\uf125': 'ṝ',
+  '\uf127': 'ḷ',
+  '\uf129': 'ḹ',
+};
+
 /**
  * Decode PUA characters to Ukrainian/IAST
  */
@@ -87,60 +117,274 @@ function decodePUA(text: string): string {
     const code = char.charCodeAt(0);
     result += PUA_MAP[code] || char;
   }
+  // Also apply string-based PUA map
+  for (const [pua, uni] of Object.entries(UKRAINIAN_PUA_MAP)) {
+    result = result.split(pua).join(uni);
+  }
   return result;
 }
 
 /**
- * Clean and format text
+ * Process line continuations (from parse-bbt.ts)
  */
-function cleanText(text: string): string {
-  return text
-    // Remove soft hyphens and line continuation
-    .replace(/<->\s*\n\s*/g, '')
-    .replace(/<->/g, '')
-    // Handle line breaks
-    .replace(/<R>\s*/g, '\n')
-    .replace(/<N>/g, '')
-    .replace(/<S>/g, ' ')
-    .replace(/<&>\s*\n\s*/g, '')
-    // Handle formatting tags
-    .replace(/<MI>/g, '<em>')
-    .replace(/<M>/g, '</em>')
-    .replace(/<D>/g, '</em>')
-    .replace(/<B>/g, '<strong>')
-    .replace(/<\/B>/g, '</strong>')
-    // Remove other tags
-    .replace(/<[A-Z0-9.]+>/g, '')
-    .replace(/<~>/g, '')
-    // Clean up whitespace
-    .replace(/\s+/g, ' ')
-    .trim();
-}
+function processLineContinuations(text: string): string {
+  if (!text.includes('<->') && !text.includes('<&>')) return text;
 
-interface Chapter {
-  chapter_number: number;
-  chapter_title_uk: string;
-  content_uk: string;
-  verses?: Array<{
-    sanskrit?: string;
-    translation?: string;
-  }>;
+  const lines = text.split('\n');
+  const result: string[] = [];
+  let buffer = '';
+
+  for (const line of lines) {
+    const stripped = line.trimEnd();
+    if (stripped.endsWith('<->')) {
+      let l = stripped.slice(0, -3);
+      if (l.endsWith('-')) l = l.slice(0, -1);
+      buffer += l;
+    } else if (stripped.endsWith('-<&>')) {
+      buffer += stripped.slice(0, -4);
+    } else if (stripped.endsWith('<&>')) {
+      buffer += stripped.slice(0, -3);
+    } else {
+      if (buffer) {
+        result.push(buffer + line);
+        buffer = '';
+      } else {
+        result.push(line);
+      }
+    }
+  }
+  if (buffer) result.push(buffer);
+  return result.join('\n');
 }
 
 /**
- * Parse a chapter file
+ * Process inline tags (from parse-bbt.ts)
  */
-function parseChapter(filePath: string, chapterNum: number): Chapter | null {
+function processInlineTags(text: string, keepHtml: boolean = false): string {
+  let result = processLineContinuations(text);
+  result = result.replace(/<->\s*/g, '');
+  result = result.replace(/<&>\s*/g, '');
+  result = result.replace(/<=>\s*/g, '');
+  result = result.replace(/<_?R>/g, '\n');
+  result = result.replace(/<N\|?>/g, '');
+  result = result.replace(/<S>/g, ' ');
+  result = result.replace(/<_>/g, ' ');
+
+  if (keepHtml) {
+    result = result.replace(/<BI>([^<]*)<\/?D>/g, '<strong><em>$1</em></strong>');
+    result = result.replace(/<B>([^<]*)<\/?D>/g, '<strong>$1</strong>');
+    result = result.replace(/<B>/g, '<strong>');
+    result = result.replace(/<MI>([^<]*)<\/?D>/g, '<em>$1</em>');
+    result = result.replace(/<MI>/g, '<em>');
+    result = result.replace(/<\/?D>/g, '</em>');
+    result = result.replace(/<\/em>\s*<em>([,.\;:])/g, '</em>$1');
+    result = result.replace(/<em><\/em>/g, '');
+    result = result.replace(/<\/em>\s*<em>/g, ' ');
+  } else {
+    result = result.replace(/<BI>([^<]*)<\/?D>/g, '$1');
+    result = result.replace(/<B>([^<]*)<\/?D>/g, '$1');
+    result = result.replace(/<B>/g, '');
+    result = result.replace(/<MI>([^<]*)<\/?D>/g, '$1');
+    result = result.replace(/<MI>/g, '');
+    result = result.replace(/<\/?D>/g, '');
+  }
+
+  // Handle <_dt>/<_dd> tags
+  result = result.replace(/<_dt>([^<]*)<_\/dt>/g, '$1');
+  result = result.replace(/<_dt>|<_\/dt>/g, '');
+  result = result.replace(/<_dd>|<_\/dd>/g, '');
+  result = result.replace(/<_MI>|<_D>/g, '');
+  result = result.replace(/<_bt>([^<]*)<_\/bt>/g, '«$1»');
+
+  result = decodePUA(result);
+
+  // Remove remaining tags
+  result = result.replace(/<_[^>]*>/g, '');
+  result = result.replace(/<[A-Z0-9.]+>/g, '');
+  result = result.replace(/<\|>/g, '');
+  result = result.replace(/<L-\d+>/g, '');
+  result = result.replace(/<~>/g, '');
+
+  result = result.replace(/[ \t]+/g, ' ');
+  result = result.replace(/\n\s*\n/g, '\n\n');
+  return result.trim();
+}
+
+/**
+ * Process synonyms with <_dt>/<_dd> tags (from parse-bbt.ts)
+ */
+function processSynonyms(text: string): string {
+  let result = processLineContinuations(text);
+  result = result.split('\n').join(' ');
+  // Handle <MI><_dt>term<_/dt><D> – <_dd>meaning<_/dd> pattern
+  result = result.replace(/<MI><_dt>([^<]*)<_\/dt><D>\s*[-–—]?\s*<_dd>([^<]*)<_\/dd>/g, '<em>$1</em> — $2');
+  result = result.replace(/<_dt>([^<]*)<_\/dt>\s*[-–—]?\s*<_dd>([^<]*)<_\/dd>/g, '<em>$1</em> — $2');
+  result = processInlineTags(result, true);
+  result = result.replace(/\s+/g, ' ').trim();
+  result = result.replace(/ – /g, ' — ');
+  result = result.replace(/ - /g, ' — ');
+  return result;
+}
+
+/**
+ * Process transliteration
+ */
+function processTransliteration(text: string): string {
+  let result = processLineContinuations(text);
+  result = result.replace(/<_R><_>/g, '\n');
+  result = result.replace(/<R>/g, '\n');
+  result = result.replace(/<_>/g, ' ');
+  result = processInlineTags(result);
+  const lines = result.split('\n').map(l => l.trim()).filter(l => l);
+  return lines.join('\n');
+}
+
+/**
+ * Process prose text
+ */
+function processProse(text: string, keepHtml: boolean = false): string {
+  let result = processLineContinuations(text);
+  result = result.split('\n').join(' ');
+  result = processInlineTags(result, keepHtml);
+  result = result.replace(/\s+/g, ' ').trim();
+  return result;
+}
+
+// Skip these tags
+const SKIP_TAGS = new Set(['rh-verso', 'rh-recto', 'logo', 'text-rh', 'special']);
+
+interface Verse {
+  verse_number: string;
+  transliteration_uk?: string;
+  synonyms_uk?: string;
+  translation_uk?: string;
+  commentary_uk?: string;
+}
+
+interface ChapterWithVerses {
+  chapter_number: number;
+  chapter_title_uk: string;
+  verses: Verse[];
+}
+
+interface ChapterWithContent {
+  chapter_number: number;
+  chapter_title_uk: string;
+  content_uk: string;
+}
+
+/**
+ * Parse SOVA (verse-based book) - same structure as BG
+ */
+function parseSOVA(filePath: string, chapterNum: number): ChapterWithVerses | null {
   if (!fs.existsSync(filePath)) {
     console.log(`  File not found: ${filePath}`);
     return null;
   }
 
-  // Read file - detect encoding (UTF-16 LE or UTF-8)
   const buffer = fs.readFileSync(filePath);
   let raw: string;
 
-  // Check for UTF-16 LE BOM (0xFF 0xFE)
+  if (buffer[0] === 0xFF && buffer[1] === 0xFE) {
+    raw = buffer.toString('utf16le');
+  } else {
+    raw = buffer.toString('utf-8');
+  }
+
+  let content = decodePUA(raw);
+  // Remove BOM if present
+  if (content.charCodeAt(0) === 0xFEFF) {
+    content = content.slice(1);
+  }
+  const lines = content.split('\n');
+
+  let chapterTitle = '';
+  const verses: Verse[] = [];
+  let currentVerse: Verse | null = null;
+  let currentTag: string | null = null;
+  let currentContent: string[] = [];
+
+  function flushBlock() {
+    if (!currentTag || SKIP_TAGS.has(currentTag)) return;
+    const text = currentContent.join(' ').trim();
+    if (!text) return;
+
+    // Title tags: h1, h1+h2, h1+source, h1+by
+    if (currentTag.startsWith('h1')) {
+      chapterTitle = processInlineTags(text);
+    } else if (currentTag === 'h3-verse' || currentTag.startsWith('verse-s') || currentTag.startsWith('verse-')) {
+      // Sanskrit/transliteration - various formats: @h3-verse, @verse-s60, @verse-#-40
+      // Skip if it's just a verse number like "1" or "2"
+      const cleanText = text.replace(/<[^>]+>/g, '').trim();
+      if (!/^\d+$/.test(cleanText)) {
+        if (currentVerse) verses.push(currentVerse);
+        currentVerse = {
+          verse_number: String(verses.length + 1),
+          transliteration_uk: processTransliteration(text),
+        };
+      }
+    } else if (currentTag === 'eqs') {
+      // Synonyms
+      if (currentVerse) {
+        const synonyms = processSynonyms(text);
+        currentVerse.synonyms_uk = currentVerse.synonyms_uk
+          ? currentVerse.synonyms_uk + ' ' + synonyms
+          : synonyms;
+      }
+    } else if (currentTag === 'translation') {
+      // Translation
+      if (currentVerse) {
+        const trans = processProse(text, false);
+        currentVerse.translation_uk = currentVerse.translation_uk
+          ? currentVerse.translation_uk + '\n\n' + trans
+          : trans;
+      }
+    } else if (['p', 'p0', 'p1', 'purp'].includes(currentTag)) {
+      // Commentary
+      if (currentVerse) {
+        const para = processProse(text, true);
+        if (para) {
+          const wrapped = `<p class="purport">${para}</p>`;
+          currentVerse.commentary_uk = currentVerse.commentary_uk
+            ? currentVerse.commentary_uk + '\n\n' + wrapped
+            : wrapped;
+        }
+      }
+    }
+  }
+
+  for (const line of lines) {
+    const tagMatch = line.match(/^@([a-z0-9_-]+)\s*=?\s*(.*)/i);
+    if (tagMatch) {
+      flushBlock();
+      currentTag = tagMatch[1].toLowerCase();
+      currentContent = tagMatch[2] ? [tagMatch[2]] : [];
+    } else if (currentTag && !line.match(/^@/)) {
+      currentContent.push(line);
+    }
+  }
+  flushBlock();
+  if (currentVerse) verses.push(currentVerse);
+
+  return {
+    chapter_number: chapterNum,
+    chapter_title_uk: chapterTitle,
+    verses,
+  };
+}
+
+/**
+ * Parse prose book (BBD, LCFL)
+ */
+function parseProse(filePath: string, chapterNum: number): ChapterWithContent | null {
+  if (!fs.existsSync(filePath)) {
+    console.log(`  File not found: ${filePath}`);
+    return null;
+  }
+
+  const buffer = fs.readFileSync(filePath);
+  let raw: string;
+
   if (buffer[0] === 0xFF && buffer[1] === 0xFE) {
     raw = buffer.toString('utf16le');
   } else {
@@ -149,84 +393,48 @@ function parseChapter(filePath: string, chapterNum: number): Chapter | null {
 
   const content = decodePUA(raw);
 
-  // Extract chapter title - try different formats
+  // Extract chapter title
   let chapterTitle = '';
-  const titlePatterns = [
-    /@chapter\s*(?:head|title)\s*=\s*([^\n@]+)/i,
-    /@h1\s*=\s*([^\n@]+)/i,
-  ];
-  for (const pattern of titlePatterns) {
-    const match = content.match(pattern);
-    if (match) {
-      chapterTitle = cleanText(match[1]);
-      break;
-    }
+  const titleMatch = content.match(/@(?:chapter\s*(?:head|title)|h1)\s*=\s*([^\n@]+)/i);
+  if (titleMatch) {
+    chapterTitle = processInlineTags(titleMatch[1]);
   }
 
-  // Extract all content paragraphs
+  // Extract paragraphs
   const paragraphs: string[] = [];
-  const verses: Array<{ sanskrit?: string; translation?: string }> = [];
-
-  // Match different content types
   const lines = content.split('\n');
-  let currentPara = '';
+  let currentTag: string | null = null;
+  let currentContent: string[] = [];
 
-  // Content tag patterns (for different book formats)
-  const contentTags = [
-    /^@purp/i,
-    /^@p-speech/i,
-    /^@p-intro/i,
-    /^@p\d*\s*=/i,
-    /^@h4\s*=/i,
-    /^@translation\s*=/i,
-    /^@eqs\s*=/i,
-    /^@text-/i,
-  ];
+  const contentTags = ['purp', 'p-speech', 'p-intro', 'p', 'p0', 'p1', 'h4', 'translation'];
+
+  function flushBlock() {
+    if (!currentTag) return;
+    const text = currentContent.join(' ').trim();
+    if (!text) return;
+
+    if (contentTags.some(t => currentTag?.startsWith(t))) {
+      const para = processProse(text, true);
+      if (para) paragraphs.push(para);
+    }
+  }
 
   for (const line of lines) {
-    // Skip metadata/header lines
     if (line.match(/^@(book|chapter)\s*(title|head|=)/i)) continue;
-    if (line.match(/^@chapter\s*=\s*\d+/i)) continue;
     if (line.match(/^@h1\s*=/i)) continue;
-    if (line.match(/^@h2\s*=/i)) continue;
     if (line.match(/^@rh-/i)) continue;
 
-    // Sanskrit verse (various formats)
-    if (line.match(/^@verse/i) || line.match(/^@h3-verse\s*=/i)) {
-      if (currentPara) {
-        paragraphs.push(cleanText(currentPara));
-        currentPara = '';
-      }
-      const verseText = line.replace(/^@(verse[^=]*|h3-verse)\s*=\s*/i, '');
-      verses.push({ sanskrit: cleanText(verseText) });
-      continue;
-    }
-
-    // Content paragraph (various formats)
-    let isContentTag = false;
-    for (const tagPattern of contentTags) {
-      if (line.match(tagPattern)) {
-        if (currentPara) {
-          paragraphs.push(cleanText(currentPara));
-        }
-        currentPara = line.replace(/^@[a-z0-9-]+\s*=\s*/i, '');
-        isContentTag = true;
-        break;
-      }
-    }
-    if (isContentTag) continue;
-
-    // Continue current paragraph (non-tag lines)
-    if (currentPara && !line.match(/^@/)) {
-      currentPara += ' ' + line;
+    const tagMatch = line.match(/^@([a-z0-9_-]+)\s*=?\s*(.*)/i);
+    if (tagMatch) {
+      flushBlock();
+      currentTag = tagMatch[1].toLowerCase();
+      currentContent = tagMatch[2] ? [tagMatch[2]] : [];
+    } else if (currentTag && !line.match(/^@/)) {
+      currentContent.push(line);
     }
   }
+  flushBlock();
 
-  if (currentPara) {
-    paragraphs.push(cleanText(currentPara));
-  }
-
-  // Build HTML content
   const htmlContent = paragraphs
     .filter(p => p.trim())
     .map(p => `<p>${p}</p>`)
@@ -236,7 +444,6 @@ function parseChapter(filePath: string, chapterNum: number): Chapter | null {
     chapter_number: chapterNum,
     chapter_title_uk: chapterTitle,
     content_uk: htmlContent,
-    verses: verses.length > 0 ? verses : undefined,
   };
 }
 
@@ -259,6 +466,7 @@ function main() {
   console.log('='.repeat(60));
   console.log(`Parsing: ${book.title_uk}`);
   console.log(`Folder: ${docsDir}`);
+  console.log(`Type: ${book.hasVerses ? 'verse-based (like BG)' : 'prose'}`);
   console.log('='.repeat(60));
 
   // For SOVA, dynamically discover all song files
@@ -269,15 +477,16 @@ function main() {
       .filter(f => f.match(/^UKSO\d{4}/i))
       .sort()
       .map(f => f.replace(/^UKSO/i, '').replace(/\.H\d+$/i, ''));
+    // Remove duplicates
+    chapterFiles = [...new Set(chapterFiles)];
   }
 
-  const chapters: Chapter[] = [];
+  const chapters: (ChapterWithVerses | ChapterWithContent)[] = [];
 
   for (let i = 0; i < chapterFiles.length; i++) {
     const chapterFile = chapterFiles[i];
     const pattern = `${book.chapterPrefix}${chapterFile}`;
 
-    // Find matching file (case-insensitive)
     const files = fs.readdirSync(docsDir);
     const matchingFile = files.find(f => f.toUpperCase().startsWith(pattern.toUpperCase()));
 
@@ -289,15 +498,21 @@ function main() {
     const filePath = path.join(docsDir, matchingFile);
     console.log(`Chapter ${i + 1}: ${matchingFile}`);
 
-    const chapter = parseChapter(filePath, i + 1);
+    const chapter = book.hasVerses
+      ? parseSOVA(filePath, i + 1)
+      : parseProse(filePath, i + 1);
+
     if (chapter) {
       chapters.push(chapter);
       console.log(`  Title: ${chapter.chapter_title_uk}`);
-      console.log(`  Content: ${chapter.content_uk.length} chars`);
+      if ('verses' in chapter) {
+        console.log(`  Verses: ${chapter.verses.length}`);
+      } else {
+        console.log(`  Content: ${chapter.content_uk.length} chars`);
+      }
     }
   }
 
-  // Output
   const output = {
     book_code: book.slug,
     title_uk: book.title_uk,
