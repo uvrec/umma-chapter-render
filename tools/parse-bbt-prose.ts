@@ -81,31 +81,31 @@ const PUA_MAP: Record<number, string> = {
   0xF0FC: 'Ś', 0xF0FD: 'Ṣ', 0xF0FE: 'Ḥ', 0xF0FF: 'Ṁ',
 };
 
-// Additional PUA map for diacritics (from parse-bbt.ts)
+// Additional PUA map for Ukrainian diacritics (Cyrillic + combining marks)
 const UKRAINIAN_PUA_MAP: Record<string, string> = {
-  '\uf100': 'А',
-  '\uf101': 'ā',
-  '\uf102': 'ī',
-  '\uf121': 'ī',
-  '\uf123': 'ū',
-  '\uf103': 'ḍ',
-  '\uf105': '',
-  '\uf109': 'ṁ',
-  '\uf107': 'м\u0310',
-  '\uf10d': 'м\u0310',
-  '\uf10f': 'ṅ',
-  '\uf111': 'ṇ',
-  '\uf113': 'ñ',
-  '\uf115': 'ṛ',
-  '\uf117': 'ṛ',
-  '\uf119': 'ṭ',
-  '\uf11b': 'ḥ',
-  '\uf11c': 'Ś',
-  '\uf11d': 'ś',
-  '\uf11f': 'ṣ',
-  '\uf125': 'ṝ',
-  '\uf127': 'ḷ',
-  '\uf129': 'ḹ',
+  '\uf100': 'А',     // Capital A
+  '\uf101': 'а̄',    // а + macron (long a)
+  '\uf102': 'ī',     // ī (long i) - used in Sanskrit portions
+  '\uf121': 'ī',     // ī (dotless i + macron)
+  '\uf123': 'ū',     // ū (long u)
+  '\uf103': 'д̣',    // д + dot below (retroflex d)
+  '\uf105': '',      // Style marker, remove
+  '\uf109': 'м̇',    // м + dot above (anusvara)
+  '\uf107': 'м\u0310', // м + candrabindu
+  '\uf10d': 'м\u0310', // м + candrabindu variant
+  '\uf10f': 'н̇',    // н + dot above (velar nasal)
+  '\uf111': 'н̣',    // н + dot below (retroflex n)
+  '\uf113': 'н̃',    // н + tilde (palatal nasal)
+  '\uf115': 'р̣',    // р + dot below (vocalic r)
+  '\uf117': 'р̣',    // р + dot below (alternate)
+  '\uf119': 'т̣',    // т + dot below (retroflex t)
+  '\uf11b': 'х̣',    // х + dot below (visarga)
+  '\uf11c': 'Ш́',    // Ш + acute (capital ś)
+  '\uf11d': 'ш́',    // ш + acute (ś)
+  '\uf11f': 'ш̣',    // ш + dot below (ṣ)
+  '\uf125': 'р̣̄',   // р + dot below + macron (long vocalic r)
+  '\uf127': 'л̣',    // л + dot below (vocalic l)
+  '\uf129': 'л̣̄',   // л + dot below + macron (long vocalic l)
 };
 
 /**
@@ -216,9 +216,29 @@ function processInlineTags(text: string, keepHtml: boolean = false): string {
 function processSynonyms(text: string): string {
   let result = processLineContinuations(text);
   result = result.split('\n').join(' ');
+
+  // Remove <N>, <N150>, <N|> etc. tags before processing
+  result = result.replace(/<N\d*\|?>/g, '');
+
   // Handle <MI><_dt>term<_/dt><D> – <_dd>meaning<_/dd> pattern
-  result = result.replace(/<MI><_dt>([^<]*)<_\/dt><D>\s*[-–—]?\s*<_dd>([^<]*)<_\/dd>/g, '<em>$1</em> — $2');
-  result = result.replace(/<_dt>([^<]*)<_\/dt>\s*[-–—]?\s*<_dd>([^<]*)<_\/dd>/g, '<em>$1</em> — $2');
+  // The meaning can contain nested tags like <MI>word<D>
+  // Use a more flexible regex that captures content until <_/dd>
+  result = result.replace(/<MI><_dt>([^<]*)<_\/dt><D>\s*[-–—]?\s*<_dd>([\s\S]*?)<_\/dd>/g, (_, term, meaning) => {
+    // Process inline tags within the meaning
+    let cleanMeaning = meaning.replace(/<MI>([^<]*)<D>/g, '<em>$1</em>');
+    cleanMeaning = cleanMeaning.replace(/<MI>/g, '<em>').replace(/<D>/g, '</em>');
+    cleanMeaning = cleanMeaning.replace(/<em><\/em>/g, '');
+    return `<em>${term}</em> — ${cleanMeaning}`;
+  });
+
+  // Handle remaining <_dt>...<_/dt> – <_dd>...<_/dd> patterns (without <MI>)
+  result = result.replace(/<_dt>([^<]*)<_\/dt>\s*[-–—]?\s*<_dd>([\s\S]*?)<_\/dd>/g, (_, term, meaning) => {
+    let cleanMeaning = meaning.replace(/<MI>([^<]*)<D>/g, '<em>$1</em>');
+    cleanMeaning = cleanMeaning.replace(/<MI>/g, '<em>').replace(/<D>/g, '</em>');
+    cleanMeaning = cleanMeaning.replace(/<em><\/em>/g, '');
+    return `<em>${term}</em> — ${cleanMeaning}`;
+  });
+
   result = processInlineTags(result, true);
   result = result.replace(/\s+/g, ' ').trim();
   result = result.replace(/ – /g, ' — ');
@@ -251,7 +271,7 @@ function processProse(text: string, keepHtml: boolean = false): string {
 }
 
 // Skip these tags
-const SKIP_TAGS = new Set(['rh-verso', 'rh-recto', 'logo', 'text-rh', 'special']);
+const SKIP_TAGS = new Set(['rh-verso', 'rh-recto', 'logo', 'text-rh', 'special', 'h3-trans', 'h3-synonyms']);
 
 interface Verse {
   verse_number: string;
@@ -306,12 +326,18 @@ function parseSOVA(filePath: string, chapterNum: number): ChapterWithVerses | nu
 
   function flushBlock() {
     if (!currentTag || SKIP_TAGS.has(currentTag)) return;
+    // Skip text-* tags (spacing markers)
+    if (currentTag.startsWith('text-')) return;
     const text = currentContent.join(' ').trim();
     if (!text) return;
 
     // Title tags: h1, h1+h2, h1+source, h1+by
     if (currentTag.startsWith('h1')) {
-      chapterTitle = processInlineTags(text);
+      // Replace <R> tags with space, join multi-line titles
+      let titleText = text.replace(/<_?R>/g, ' ');
+      titleText = titleText.split('\n').map(l => l.trim()).filter(l => l).join(' ');
+      titleText = titleText.replace(/\s+/g, ' ').trim();
+      chapterTitle = processInlineTags(titleText);
     } else if (currentTag === 'h3-verse' || currentTag.startsWith('verse-s') || currentTag.startsWith('verse-')) {
       // Sanskrit/transliteration - various formats: @h3-verse, @verse-s60, @verse-#-40
       // Skip if it's just a verse number like "1" or "2"
@@ -354,7 +380,7 @@ function parseSOVA(filePath: string, chapterNum: number): ChapterWithVerses | nu
   }
 
   for (const line of lines) {
-    const tagMatch = line.match(/^@([a-z0-9_-]+)\s*=?\s*(.*)/i);
+    const tagMatch = line.match(/^@([a-z0-9_+-]+)\s*=?\s*(.*)/i);
     if (tagMatch) {
       flushBlock();
       currentTag = tagMatch[1].toLowerCase();
@@ -371,6 +397,26 @@ function parseSOVA(filePath: string, chapterNum: number): ChapterWithVerses | nu
     chapter_title_uk: chapterTitle,
     verses,
   };
+}
+
+/**
+ * Process a verse for embedding in prose (blockquote style)
+ */
+function processEmbeddedVerse(text: string): string {
+  let result = processLineContinuations(text);
+  result = result.replace(/<_R><_>/g, '\n');
+  result = result.replace(/<R>/g, '\n');
+  result = result.replace(/<_>/g, ' ');
+  result = result.replace(/<~>/g, '');
+  // Handle italic tags
+  result = result.replace(/<MI>([^<]*)<\/?[DM]>/g, '<em>$1</em>');
+  result = result.replace(/<MI>/g, '<em>');
+  result = result.replace(/<\/?[DM]>/g, '</em>');
+  result = result.replace(/<em><\/em>/g, '');
+  result = decodePUA(result);
+  result = result.replace(/<[A-Z0-9.]+>/g, '');
+  const lines = result.split('\n').map(l => l.trim()).filter(l => l);
+  return lines.join('<br>\n');
 }
 
 /**
@@ -391,43 +437,100 @@ function parseProse(filePath: string, chapterNum: number): ChapterWithContent | 
     raw = buffer.toString('utf-8');
   }
 
-  const content = decodePUA(raw);
+  let content = decodePUA(raw);
+  // Remove BOM if present
+  if (content.charCodeAt(0) === 0xFEFF) {
+    content = content.slice(1);
+  }
+
+  const lines = content.split('\n');
 
   // Extract chapter title
   let chapterTitle = '';
-  const titleMatch = content.match(/@(?:chapter\s*(?:head|title)|h1)\s*=\s*([^\n@]+)/i);
-  if (titleMatch) {
-    chapterTitle = processInlineTags(titleMatch[1]);
-  }
 
-  // Extract paragraphs
-  const paragraphs: string[] = [];
-  const lines = content.split('\n');
+  // Content blocks
+  const blocks: string[] = [];
   let currentTag: string | null = null;
   let currentContent: string[] = [];
 
-  const contentTags = ['purp', 'p-speech', 'p-intro', 'p', 'p0', 'p1', 'h4', 'translation'];
+  // Tags that contain prose content
+  const proseTags = new Set([
+    'purport', 'purp para', 'purp',
+    'p-speech', 'p-intro', 'p', 'p0', 'p1', 'p2',
+    'li-p', 'li-number', 'li-number-0'
+  ]);
+
+  // Tags for embedded verses
+  const verseTags = new Set(['verse nosp', 'verse in purp', 'verse']);
+
+  // Tags for headings within content
+  const headingTags = new Set(['h4', 'h3', 'h2']);
+
+  // Skip these tags
+  const skipTags = new Set(['rh-verso', 'rh-recto', 'chapter', 'book title', 'chapter head', 'chapter title']);
 
   function flushBlock() {
     if (!currentTag) return;
-    const text = currentContent.join(' ').trim();
+    const text = currentContent.join('\n').trim();
     if (!text) return;
 
-    if (contentTags.some(t => currentTag?.startsWith(t))) {
+    const tagLower = currentTag.toLowerCase();
+
+    // Title tags
+    if (tagLower === 'h1' || tagLower === 'chapter head' || tagLower === 'chapter title') {
+      if (!chapterTitle) {
+        // Replace <R> tags with space, then join multi-line titles
+        let titleText = text.replace(/<_?R>/g, ' ');
+        titleText = titleText.split('\n').map(l => l.trim()).filter(l => l).join(' ');
+        titleText = titleText.replace(/\s+/g, ' ').trim();
+        chapterTitle = processInlineTags(titleText);
+      }
+      return;
+    }
+
+    // Skip tags
+    if (skipTags.has(tagLower)) return;
+
+    // Embedded verse (blockquote)
+    if (verseTags.has(tagLower)) {
+      const verseHtml = processEmbeddedVerse(text);
+      if (verseHtml) {
+        blocks.push(`<blockquote class="verse">${verseHtml}</blockquote>`);
+      }
+      return;
+    }
+
+    // Heading within content
+    if (headingTags.has(tagLower)) {
+      const headingText = processProse(text, true);
+      if (headingText) {
+        blocks.push(`<h4>${headingText}</h4>`);
+      }
+      return;
+    }
+
+    // List items
+    if (tagLower === 'li-number' || tagLower === 'li-number-0') {
+      // Just a dash or number, skip - will be combined with li-p
+      return;
+    }
+
+    // Prose content
+    if (proseTags.has(tagLower) || tagLower.startsWith('purp') || tagLower.startsWith('p')) {
       const para = processProse(text, true);
-      if (para) paragraphs.push(para);
+      if (para) {
+        blocks.push(`<p>${para}</p>`);
+      }
+      return;
     }
   }
 
   for (const line of lines) {
-    if (line.match(/^@(book|chapter)\s*(title|head|=)/i)) continue;
-    if (line.match(/^@h1\s*=/i)) continue;
-    if (line.match(/^@rh-/i)) continue;
-
-    const tagMatch = line.match(/^@([a-z0-9_-]+)\s*=?\s*(.*)/i);
+    // Match tag lines: @tag = content or @tag content
+    const tagMatch = line.match(/^@([a-z0-9_ -]+)\s*=?\s*(.*)/i);
     if (tagMatch) {
       flushBlock();
-      currentTag = tagMatch[1].toLowerCase();
+      currentTag = tagMatch[1].trim();
       currentContent = tagMatch[2] ? [tagMatch[2]] : [];
     } else if (currentTag && !line.match(/^@/)) {
       currentContent.push(line);
@@ -435,10 +538,7 @@ function parseProse(filePath: string, chapterNum: number): ChapterWithContent | 
   }
   flushBlock();
 
-  const htmlContent = paragraphs
-    .filter(p => p.trim())
-    .map(p => `<p>${p}</p>`)
-    .join('\n\n');
+  const htmlContent = blocks.join('\n\n');
 
   return {
     chapter_number: chapterNum,
