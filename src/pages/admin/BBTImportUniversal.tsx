@@ -102,14 +102,14 @@ interface ParsedVerse {
 // Books with chapters (BG, SB, etc.)
 interface ParsedBookData {
   chapters: (ParsedChapterWithVerses | ParsedChapterWithContent)[];
-  intros: ParsedIntro[];
+  intros?: ParsedIntro[];
 }
 
 // Books without chapters - verses directly at book level (NOI, ISO, BS)
 interface ParsedBookDataNoChapters {
   hasChapters: false;
   verses: ParsedVerse[];
-  intros: ParsedIntro[];
+  intros?: ParsedIntro[];
 }
 
 const BOOK_CONFIGS: BookConfig[] = [
@@ -608,7 +608,7 @@ export default function BBTImportUniversal() {
               if (verse.translation_en) insertData.translation_en = verse.translation_en;
               if (verse.commentary_en) insertData.commentary_en = verse.commentary_en;
 
-              const { error } = await supabase.from("verses").insert(insertData);
+              const { error } = await supabase.from("verses").insert([insertData]);
 
               if (error) {
                 console.error(`Error inserting verse ${verse.verse_number}:`, error);
@@ -711,7 +711,7 @@ export default function BBTImportUniversal() {
             if (verse.translation_en) insertData.translation_en = verse.translation_en;
             if (verse.commentary_en) insertData.commentary_en = verse.commentary_en;
 
-            const { error } = await supabase.from("verses").insert(insertData);
+            const { error } = await supabase.from("verses").insert([insertData]);
 
             if (error) {
               console.error(`Error inserting verse ${verse.verse_number}:`, error);
