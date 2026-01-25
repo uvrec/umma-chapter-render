@@ -295,6 +295,7 @@ interface ChapterWithContent {
 
 /**
  * Parse SOVA (verse-based book) - same structure as BG
+ * Handles files where verses, translations, and synonyms are grouped separately
  */
 function parseSOVA(filePath: string, chapterNum: number): ChapterWithVerses | null {
   if (!fs.existsSync(filePath)) {
@@ -319,60 +320,138 @@ function parseSOVA(filePath: string, chapterNum: number): ChapterWithVerses | nu
   const lines = content.split('\n');
 
   let chapterTitle = '';
-  const verses: Verse[] = [];
-  let currentVerse: Verse | null = null;
+  // Use a map to store verses by number (since translations/synonyms come later)
+  const versesMap: Map<number, Verse> = new Map();
+  let currentVerseNum = 0;
   let currentTag: string | null = null;
   let currentContent: string[] = [];
 
   function flushBlock() {
     if (!currentTag || SKIP_TAGS.has(currentTag)) return;
-    // Skip text-* tags (spacing markers)
-    if (currentTag.startsWith('text-')) return;
     const text = currentContent.join(' ').trim();
-    if (!text) return;
 
     // Title tags: h1, h1+h2, h1+source, h1+by
     if (currentTag.startsWith('h1')) {
-      // Replace <R> tags with space, join multi-line titles
       let titleText = text.replace(/<_?R>/g, ' ');
       titleText = titleText.split('\n').map(l => l.trim()).filter(l => l).join(' ');
       titleText = titleText.replace(/\s+/g, ' ').trim();
       chapterTitle = processInlineTags(titleText);
-    } else if (currentTag === 'h3-verse' || currentTag.startsWith('verse-s') || currentTag.startsWith('verse-')) {
-      // Sanskrit/transliteration - various formats: @h3-verse, @verse-s60, @verse-#-40
+      return;
+    }
+
+    // Skip if no text content
+    if (!text) return;
+
+    // Verse number tag: @verse-number = N
+    if (currentTag === 'verse-number') {
+      const num = parseInt(text, 10);
+      if (!isNaN(num)) {
+        currentVerseNum = num;
+        // Create verse entry if it doesn't exist
+        if (!versesMap.has(num)) {
+          versesMap.set(num, { verse_number: String(num) });
+        }
+      }
+      return;
+    }
+
+    // Text number tags: @text-# = N, @text-#-1-br = N, @text-#-1-sp = N, @text-#R = N
+    if (currentTag.startsWith('text-')) {
+      const num = parseInt(text, 10);
+      if (!isNaN(num)) {
+        currentVerseNum = num;
+        // Create verse entry if it doesn't exist
+        if (!versesMap.has(num)) {
+          versesMap.set(num, { verse_number: String(num) });
+        }
+      }
+      return;
+    }
+
+    // Skip section headers
+    if (currentTag === 'h3-trans' || currentTag === 'h3-synonyms') {
+      return;
+    }
+
+    // Transliteration: @h3-verse, @verse-s60, @verse-#-40, etc.
+    if (currentTag === 'h3-verse' || currentTag.startsWith('verse-s') || currentTag.startsWith('verse-')) {
       // Skip if it's just a verse number like "1" or "2"
       const cleanText = text.replace(/<[^>]+>/g, '').trim();
-      if (!/^\d+$/.test(cleanText)) {
-        if (currentVerse) verses.push(currentVerse);
-        currentVerse = {
-          verse_number: String(verses.length + 1),
-          transliteration_uk: processTransliteration(text),
-        };
+      if (/^\d+$/.test(cleanText)) return;
+
+      // If no verse number set yet, auto-increment
+      if (currentVerseNum === 0) {
+        currentVerseNum = versesMap.size + 1;
       }
-    } else if (currentTag === 'eqs') {
-      // Synonyms
-      if (currentVerse) {
-        const synonyms = processSynonyms(text);
-        currentVerse.synonyms_uk = currentVerse.synonyms_uk
-          ? currentVerse.synonyms_uk + ' ' + synonyms
-          : synonyms;
+
+      // Create or update verse
+      if (!versesMap.has(currentVerseNum)) {
+        versesMap.set(currentVerseNum, { verse_number: String(currentVerseNum) });
       }
-    } else if (currentTag === 'translation') {
-      // Translation
-      if (currentVerse) {
-        const trans = processProse(text, false);
-        currentVerse.translation_uk = currentVerse.translation_uk
-          ? currentVerse.translation_uk + '\n\n' + trans
-          : trans;
+      const verse = versesMap.get(currentVerseNum)!;
+      const translit = processTransliteration(text);
+      verse.transliteration_uk = verse.transliteration_uk
+        ? verse.transliteration_uk + '\n\n' + translit
+        : translit;
+
+      // Auto-increment for next verse if we see another @h3-verse
+      currentVerseNum++;
+      return;
+    }
+
+    // Translation
+    if (currentTag === 'translation') {
+      // Find the verse to add translation to
+      let targetNum = currentVerseNum > 0 ? currentVerseNum : 1;
+      // If translation comes before verse number is set, use the last verse
+      if (!versesMap.has(targetNum) && versesMap.size > 0) {
+        targetNum = Math.max(...versesMap.keys());
       }
-    } else if (['p', 'p0', 'p1', 'purp'].includes(currentTag)) {
-      // Commentary
-      if (currentVerse) {
+
+      if (!versesMap.has(targetNum)) {
+        versesMap.set(targetNum, { verse_number: String(targetNum) });
+      }
+      const verse = versesMap.get(targetNum)!;
+      const trans = processProse(text, false);
+      verse.translation_uk = verse.translation_uk
+        ? verse.translation_uk + '\n\n' + trans
+        : trans;
+      return;
+    }
+
+    // Synonyms
+    if (currentTag === 'eqs') {
+      // Find the verse to add synonyms to
+      let targetNum = currentVerseNum > 0 ? currentVerseNum : 1;
+      if (!versesMap.has(targetNum) && versesMap.size > 0) {
+        targetNum = Math.max(...versesMap.keys());
+      }
+
+      if (!versesMap.has(targetNum)) {
+        versesMap.set(targetNum, { verse_number: String(targetNum) });
+      }
+      const verse = versesMap.get(targetNum)!;
+      const synonyms = processSynonyms(text);
+      verse.synonyms_uk = verse.synonyms_uk
+        ? verse.synonyms_uk + ' ' + synonyms
+        : synonyms;
+      return;
+    }
+
+    // Commentary/purport
+    if (['p', 'p0', 'p1', 'purp'].includes(currentTag)) {
+      let targetNum = currentVerseNum > 0 ? currentVerseNum : 1;
+      if (!versesMap.has(targetNum) && versesMap.size > 0) {
+        targetNum = Math.max(...versesMap.keys());
+      }
+
+      if (versesMap.has(targetNum)) {
+        const verse = versesMap.get(targetNum)!;
         const para = processProse(text, true);
         if (para) {
           const wrapped = `<p class="purport">${para}</p>`;
-          currentVerse.commentary_uk = currentVerse.commentary_uk
-            ? currentVerse.commentary_uk + '\n\n' + wrapped
+          verse.commentary_uk = verse.commentary_uk
+            ? verse.commentary_uk + '\n\n' + wrapped
             : wrapped;
         }
       }
@@ -380,7 +459,7 @@ function parseSOVA(filePath: string, chapterNum: number): ChapterWithVerses | nu
   }
 
   for (const line of lines) {
-    const tagMatch = line.match(/^@([a-z0-9_+-]+)\s*=?\s*(.*)/i);
+    const tagMatch = line.match(/^@([a-z0-9_#+-]+)\s*=?\s*(.*)/i);
     if (tagMatch) {
       flushBlock();
       currentTag = tagMatch[1].toLowerCase();
@@ -390,7 +469,11 @@ function parseSOVA(filePath: string, chapterNum: number): ChapterWithVerses | nu
     }
   }
   flushBlock();
-  if (currentVerse) verses.push(currentVerse);
+
+  // Convert map to sorted array
+  const verses = Array.from(versesMap.entries())
+    .sort((a, b) => a[0] - b[0])
+    .map(([_, verse]) => verse);
 
   return {
     chapter_number: chapterNum,
