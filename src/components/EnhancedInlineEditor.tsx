@@ -90,7 +90,13 @@ import {
   Code,
   Minus,
   RemoveFormatting,
+  Zap,
 } from "lucide-react";
+import {
+  applyNormalizationRules,
+  defaultRules,
+  ruleCategories,
+} from "@/utils/text/textNormalizationRules";
 
 /**
  * Custom Span mark to preserve <span> elements with class, style, id and data-* attributes
@@ -187,6 +193,7 @@ interface EnhancedInlineEditorProps {
   editable?: boolean;
   minHeight?: string;
   compact?: boolean; // Компактний режим для меншого toolbar
+  showNormalizeButton?: boolean; // Show text normalization button in toolbar
   // Scroll sync props
   onScroll?: (scrollRatio: number) => void; // Reports scroll position as ratio (0-1)
   syncScrollRatio?: number; // Receives scroll ratio from paired editor
@@ -201,6 +208,7 @@ export const EnhancedInlineEditor = ({
   editable = true,
   minHeight = "200px",
   compact = false,
+  showNormalizeButton = false,
   onScroll,
   syncScrollRatio,
   scrollSyncId,
@@ -551,6 +559,57 @@ export const EnhancedInlineEditor = ({
 
   const clearFormatting = useCallback(() => {
     editor?.chain().focus().clearNodes().unsetAllMarks().run();
+  }, [editor]);
+
+  // Normalize text using normalization rules (preserves HTML structure)
+  const normalizeText = useCallback(() => {
+    if (!editor) return;
+
+    const html = editor.getHTML();
+
+    // Create a temporary div to parse HTML
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+
+    // Walk through all text nodes and apply normalization
+    const walker = document.createTreeWalker(temp, NodeFilter.SHOW_TEXT, null);
+    const textNodes: Text[] = [];
+
+    let node;
+    while ((node = walker.nextNode())) {
+      textNodes.push(node as Text);
+    }
+
+    // Enable all categories for normalization
+    const enabledCategories = new Set(ruleCategories.map(c => c.id));
+    let totalChanges = 0;
+
+    // Apply normalization to each text node
+    for (const textNode of textNodes) {
+      const originalText = textNode.textContent || '';
+      if (!originalText.trim()) continue;
+
+      const { result, changes } = applyNormalizationRules(originalText, defaultRules, enabledCategories);
+
+      if (result !== originalText) {
+        textNode.textContent = result;
+        totalChanges += changes.length;
+      }
+    }
+
+    if (totalChanges > 0) {
+      // Update editor content
+      editor.commands.setContent(temp.innerHTML);
+      toast({
+        title: "Нормалізовано",
+        description: `Застосовано ${totalChanges} змін`,
+      });
+    } else {
+      toast({
+        title: "Текст вже нормалізований",
+        description: "Змін не потрібно",
+      });
+    }
   }, [editor]);
 
   if (!editor) {
@@ -982,6 +1041,19 @@ export const EnhancedInlineEditor = ({
               >
                 <RemoveFormatting className="h-3 w-3" />
               </Button>
+              {showNormalizeButton && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={normalizeText}
+                  onMouseDown={(e) => e.preventDefault()}
+                  title="Нормалізувати текст (виправити транслітерацію)"
+                >
+                  <Zap className="h-3 w-3" />
+                </Button>
+              )}
             </div>
           </div>
         </div>
