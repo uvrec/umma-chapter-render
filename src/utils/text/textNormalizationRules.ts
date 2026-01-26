@@ -985,16 +985,25 @@ export function applyNormalizationRules(
     while ((match = pattern.exec(tempResult)) !== null) {
       // Determine the correct replacement with case preservation
       let replacement = rule.correct;
-      if (!rule.caseSensitive && match[0][0] === match[0][0].toUpperCase() && match[0][0] !== match[0][0].toLowerCase()) {
-        replacement = rule.correct.charAt(0).toUpperCase() + rule.correct.slice(1);
+      if (!rule.caseSensitive) {
+        if (match[0][0] === match[0][0].toUpperCase() && match[0][0] !== match[0][0].toLowerCase()) {
+          // Original starts with uppercase - capitalize replacement
+          replacement = rule.correct.charAt(0).toUpperCase() + rule.correct.slice(1);
+        } else {
+          // Original starts with lowercase - lowercase replacement
+          replacement = rule.correct.charAt(0).toLowerCase() + rule.correct.slice(1);
+        }
       }
-      changes.push({
-        ruleId: rule.id,
-        original: match[0],
-        replacement,
-        position: match.index,
-        category: rule.category,
-      });
+      // Only record change if replacement is actually different from original
+      if (replacement !== match[0]) {
+        changes.push({
+          ruleId: rule.id,
+          original: match[0],
+          replacement,
+          position: match.index,
+          category: rule.category,
+        });
+      }
       // Prevent infinite loop for zero-length matches
       if (match.index === pattern.lastIndex) {
         pattern.lastIndex++;
@@ -1006,9 +1015,14 @@ export function applyNormalizationRules(
       result = result.replace(pattern, (match) => {
         // If original match starts with uppercase, capitalize the replacement
         if (match[0] === match[0].toUpperCase() && match[0] !== match[0].toLowerCase()) {
-          return rule.correct.charAt(0).toUpperCase() + rule.correct.slice(1);
+          const replacement = rule.correct.charAt(0).toUpperCase() + rule.correct.slice(1);
+          // Only replace if actually different
+          return replacement !== match ? replacement : match;
         }
-        return rule.correct;
+        // If original match starts with lowercase, lowercase the replacement
+        const replacement = rule.correct.charAt(0).toLowerCase() + rule.correct.slice(1);
+        // Only replace if actually different
+        return replacement !== match ? replacement : match;
       });
     } else {
       result = result.replace(pattern, rule.correct);
