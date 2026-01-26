@@ -694,7 +694,7 @@ export const defaultRules: NormalizationRule[] = [
   { id: "ending_nilambar", incorrect: "Нілямбара", correct: "Ніламбар", category: "endings", description: "Ніламбар (не Нілямбара)" },
   { id: "ending_bharadvaj", incorrect: "Бгарадваджа", correct: "Бгарадвадж", category: "endings", description: "Бгарадвадж (не Бгарадваджа)" },
   { id: "ending_prabhas", incorrect: "Прабгаса", correct: "Прабгас", category: "endings", description: "Прабгас (не Прабгаса)" },
-  { id: "ending_aniruddha", incorrect: "Аніруддга", correct: "Аніруддг", category: "endings", description: "Аніруддг (не Аніруддга)" },
+  // Removed: ending_aniruddha - "Аніруддга" is correct (deity name, keeps -а like Васудева, Баладева)
   { id: "ending_virochan", incorrect: "Вірочана", correct: "Вірочан", category: "endings", description: "Вірочан (не Вірочана)" },
   { id: "ending_kashishvar", incorrect: "Кашішвара", correct: "Кашішвар", category: "endings", description: "Кашішвар (не Кашішвара)" },
   { id: "ending_anupam", incorrect: "Анупама", correct: "Анупам", category: "endings", description: "Анупам (не Анупама)" },
@@ -937,6 +937,16 @@ export function parseTextRules(textContent: string): NormalizationRule[] {
 }
 
 /**
+ * Check if text contains non-Cyrillic/Latin scripts (Bengali, Devanagari, etc.)
+ * These should not be modified by normalization rules
+ */
+function containsNonLatinCyrillic(text: string): boolean {
+  // Match Bengali, Devanagari, and other Indic scripts
+  const indicScriptPattern = /[\u0980-\u09FF\u0900-\u097F\u0A00-\u0A7F\u0A80-\u0AFF\u0B00-\u0B7F\u0B80-\u0BFF\u0C00-\u0C7F\u0C80-\u0CFF\u0D00-\u0D7F]/;
+  return indicScriptPattern.test(text);
+}
+
+/**
  * Apply normalization rules to text
  */
 export function applyNormalizationRules(
@@ -975,6 +985,10 @@ export function applyNormalizationRules(
       if (rule.category === "endings") {
         const wordBoundary = "(?![\\p{L}\\p{M}'ʼ])";
         pattern = new RegExp(escapeRegExp(rule.incorrect) + wordBoundary, flags);
+      } else if (rule.category === "scriptures") {
+        // For scriptures, don't match if already in quotes «»
+        const notInQuotes = "(?<!«)" + escapeRegExp(rule.incorrect) + "(?!»)";
+        pattern = new RegExp(notInQuotes, flags);
       } else {
         pattern = new RegExp(escapeRegExp(rule.incorrect), flags);
       }
@@ -983,6 +997,25 @@ export function applyNormalizationRules(
     let match;
     const tempResult = result;
     while ((match = pattern.exec(tempResult)) !== null) {
+      // Skip if match contains non-Latin/Cyrillic characters (Bengali, Devanagari, etc.)
+      if (containsNonLatinCyrillic(match[0])) {
+        if (match.index === pattern.lastIndex) {
+          pattern.lastIndex++;
+        }
+        continue;
+      }
+
+      // Skip if surrounding context contains non-Latin/Cyrillic (protect Bengali/Devanagari text)
+      const contextStart = Math.max(0, match.index - 5);
+      const contextEnd = Math.min(tempResult.length, match.index + match[0].length + 5);
+      const context = tempResult.slice(contextStart, contextEnd);
+      if (containsNonLatinCyrillic(context)) {
+        if (match.index === pattern.lastIndex) {
+          pattern.lastIndex++;
+        }
+        continue;
+      }
+
       // Determine the correct replacement with case preservation
       let replacement = rule.correct;
       if (!rule.caseSensitive) {
@@ -1013,6 +1046,10 @@ export function applyNormalizationRules(
     // Preserve original case when doing case-insensitive replacements
     if (!rule.caseSensitive) {
       result = result.replace(pattern, (match) => {
+        // Skip if match contains non-Latin/Cyrillic characters
+        if (containsNonLatinCyrillic(match)) {
+          return match;
+        }
         // If original match starts with uppercase, capitalize the replacement
         if (match[0] === match[0].toUpperCase() && match[0] !== match[0].toLowerCase()) {
           const replacement = rule.correct.charAt(0).toUpperCase() + rule.correct.slice(1);
@@ -1025,7 +1062,13 @@ export function applyNormalizationRules(
         return replacement !== match ? replacement : match;
       });
     } else {
-      result = result.replace(pattern, rule.correct);
+      result = result.replace(pattern, (match) => {
+        // Skip if match contains non-Latin/Cyrillic characters
+        if (containsNonLatinCyrillic(match)) {
+          return match;
+        }
+        return rule.correct;
+      });
     }
   }
 
