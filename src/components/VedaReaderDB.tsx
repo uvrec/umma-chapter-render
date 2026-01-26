@@ -226,12 +226,13 @@ export const VedaReaderDB = () => {
   });
 
   // Fallback: legacy chapter without canto
+  // Only use fallback when NOT in canto mode, or when canto lookup failed
   const {
     data: fallbackChapter
   } = useQuery({
     queryKey: ["fallback-chapter", book?.id, effectiveChapterParam],
     staleTime: 60_000,
-    enabled: !!book?.id && !!effectiveChapterParam,
+    enabled: !!book?.id && !!effectiveChapterParam && (!isCantoMode || !canto?.id),
     queryFn: async () => {
       if (!book?.id || !effectiveChapterParam) return null;
       const {
