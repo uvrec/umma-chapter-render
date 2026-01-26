@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "@/hooks/use-toast";
-import { BookOpen, CheckCircle, Loader2, Database, Library } from "lucide-react";
+import { BookOpen, CheckCircle, Loader2, Database as DatabaseIcon, Library } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Database } from "@/integrations/supabase/types";
@@ -1029,7 +1029,7 @@ export default function BBTImportUniversal() {
               </>
             ) : (
               <>
-                <Database className="w-4 h-4 mr-2" />
+                <DatabaseIcon className="w-4 h-4 mr-2" />
                 Імпортувати в Supabase ({selectedItems.size} елементів)
               </>
             )}
