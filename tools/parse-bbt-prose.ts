@@ -141,7 +141,8 @@ function processLineContinuations(text: string): string {
       if (l.endsWith('-')) l = l.slice(0, -1);
       buffer += l;
     } else if (stripped.endsWith('-<&>')) {
-      buffer += stripped.slice(0, -4);
+      // Keep the hyphen, just remove <&>
+      buffer += stripped.slice(0, -3);
     } else if (stripped.endsWith('<&>')) {
       buffer += stripped.slice(0, -3);
     } else {
@@ -166,20 +167,45 @@ function processInlineTags(text: string, keepHtml: boolean = false): string {
   result = result.replace(/<&>\s*/g, '');
   result = result.replace(/<=>\s*/g, '');
   result = result.replace(/<_?R>/g, '\n');
+
+  // Handle spacing tags: <N40>, <N60> etc. - replace with space
+  result = result.replace(/<N\d+>/g, ' ');
   result = result.replace(/<N\|?>/g, '');
   result = result.replace(/<S>/g, ' ');
   result = result.replace(/<_>/g, ' ');
 
+  // Handle footnote markers: <P7><j2.5><|>19<P><j> → superscript
+  result = result.replace(/<P\d*><j[\d.]*><\|>(\d+)<P><j>/g, '<sup>$1</sup>');
+  result = result.replace(/<P\d*><j[\d.]*><\|>(\d+)<j><P>/g, '<sup>$1</sup>');
+  result = result.replace(/<j[\d.]*><\|>(\d+)<j>/g, '<sup>$1</sup>');
+
+  // Handle quotes tags - just remove, content already has quotes
+  result = result.replace(/<_qm>/g, '');
+  result = result.replace(/<\/_qm>/g, '');
+
   if (keepHtml) {
+    // Handle bold-italic
     result = result.replace(/<BI>([^<]*)<\/?D>/g, '<strong><em>$1</em></strong>');
+
+    // Handle bold: <B>text<D> → <strong>text</strong>
     result = result.replace(/<B>([^<]*)<\/?D>/g, '<strong>$1</strong>');
-    result = result.replace(/<B>/g, '<strong>');
+
+    // Handle italic: <MI>text<D> → <em>text</em>
+    // But skip punctuation-only: <MI>,<D> → just ","
+    result = result.replace(/<MI>([,.\;:]+)<\/?D>/g, '$1');
     result = result.replace(/<MI>([^<]*)<\/?D>/g, '<em>$1</em>');
+
+    // Handle remaining unclosed tags
+    result = result.replace(/<B>/g, '<strong>');
     result = result.replace(/<MI>/g, '<em>');
-    result = result.replace(/<\/?D>/g, '</em>');
-    result = result.replace(/<\/em>\s*<em>([,.\;:])/g, '</em>$1');
+    result = result.replace(/<D>/g, '</em>');
+
+    // Clean up adjacent em tags
+    result = result.replace(/<\/em><em>/g, '');
     result = result.replace(/<em><\/em>/g, '');
-    result = result.replace(/<\/em>\s*<em>/g, ' ');
+
+    // Fix closing strong tags
+    result = result.replace(/<\/em>(\s*)(<\/strong>)/g, '$2$1');
   } else {
     result = result.replace(/<BI>([^<]*)<\/?D>/g, '$1');
     result = result.replace(/<B>([^<]*)<\/?D>/g, '$1');
@@ -198,12 +224,14 @@ function processInlineTags(text: string, keepHtml: boolean = false): string {
 
   result = decodePUA(result);
 
-  // Remove remaining tags
+  // Remove remaining Ventura tags
   result = result.replace(/<_[^>]*>/g, '');
-  result = result.replace(/<[A-Z0-9.]+>/g, '');
+  result = result.replace(/<\/?[A-Z][A-Z0-9.]*>/g, '');
   result = result.replace(/<\|>/g, '');
   result = result.replace(/<L-\d+>/g, '');
   result = result.replace(/<~>/g, '');
+  result = result.replace(/<P\d*>/g, '');
+  result = result.replace(/<j[\d.]*>/g, '');
 
   result = result.replace(/[ \t]+/g, ' ');
   result = result.replace(/\n\s*\n/g, '\n\n');
@@ -295,6 +323,7 @@ interface ChapterWithContent {
 
 /**
  * Parse SOVA (verse-based book) - same structure as BG
+ * Handles files where verses, translations, and synonyms are grouped separately
  */
 function parseSOVA(filePath: string, chapterNum: number): ChapterWithVerses | null {
   if (!fs.existsSync(filePath)) {
@@ -319,60 +348,138 @@ function parseSOVA(filePath: string, chapterNum: number): ChapterWithVerses | nu
   const lines = content.split('\n');
 
   let chapterTitle = '';
-  const verses: Verse[] = [];
-  let currentVerse: Verse | null = null;
+  // Use a map to store verses by number (since translations/synonyms come later)
+  const versesMap: Map<number, Verse> = new Map();
+  let currentVerseNum = 0;
   let currentTag: string | null = null;
   let currentContent: string[] = [];
 
   function flushBlock() {
     if (!currentTag || SKIP_TAGS.has(currentTag)) return;
-    // Skip text-* tags (spacing markers)
-    if (currentTag.startsWith('text-')) return;
     const text = currentContent.join(' ').trim();
-    if (!text) return;
 
     // Title tags: h1, h1+h2, h1+source, h1+by
     if (currentTag.startsWith('h1')) {
-      // Replace <R> tags with space, join multi-line titles
       let titleText = text.replace(/<_?R>/g, ' ');
       titleText = titleText.split('\n').map(l => l.trim()).filter(l => l).join(' ');
       titleText = titleText.replace(/\s+/g, ' ').trim();
       chapterTitle = processInlineTags(titleText);
-    } else if (currentTag === 'h3-verse' || currentTag.startsWith('verse-s') || currentTag.startsWith('verse-')) {
-      // Sanskrit/transliteration - various formats: @h3-verse, @verse-s60, @verse-#-40
+      return;
+    }
+
+    // Skip if no text content
+    if (!text) return;
+
+    // Verse number tag: @verse-number = N
+    if (currentTag === 'verse-number') {
+      const num = parseInt(text, 10);
+      if (!isNaN(num)) {
+        currentVerseNum = num;
+        // Create verse entry if it doesn't exist
+        if (!versesMap.has(num)) {
+          versesMap.set(num, { verse_number: String(num) });
+        }
+      }
+      return;
+    }
+
+    // Text number tags: @text-# = N, @text-#-1-br = N, @text-#-1-sp = N, @text-#R = N
+    if (currentTag.startsWith('text-')) {
+      const num = parseInt(text, 10);
+      if (!isNaN(num)) {
+        currentVerseNum = num;
+        // Create verse entry if it doesn't exist
+        if (!versesMap.has(num)) {
+          versesMap.set(num, { verse_number: String(num) });
+        }
+      }
+      return;
+    }
+
+    // Skip section headers
+    if (currentTag === 'h3-trans' || currentTag === 'h3-synonyms') {
+      return;
+    }
+
+    // Transliteration: @h3-verse, @verse-s60, @verse-#-40, etc.
+    if (currentTag === 'h3-verse' || currentTag.startsWith('verse-s') || currentTag.startsWith('verse-')) {
       // Skip if it's just a verse number like "1" or "2"
       const cleanText = text.replace(/<[^>]+>/g, '').trim();
-      if (!/^\d+$/.test(cleanText)) {
-        if (currentVerse) verses.push(currentVerse);
-        currentVerse = {
-          verse_number: String(verses.length + 1),
-          transliteration_uk: processTransliteration(text),
-        };
+      if (/^\d+$/.test(cleanText)) return;
+
+      // If no verse number set yet, auto-increment
+      if (currentVerseNum === 0) {
+        currentVerseNum = versesMap.size + 1;
       }
-    } else if (currentTag === 'eqs') {
-      // Synonyms
-      if (currentVerse) {
-        const synonyms = processSynonyms(text);
-        currentVerse.synonyms_uk = currentVerse.synonyms_uk
-          ? currentVerse.synonyms_uk + ' ' + synonyms
-          : synonyms;
+
+      // Create or update verse
+      if (!versesMap.has(currentVerseNum)) {
+        versesMap.set(currentVerseNum, { verse_number: String(currentVerseNum) });
       }
-    } else if (currentTag === 'translation') {
-      // Translation
-      if (currentVerse) {
-        const trans = processProse(text, false);
-        currentVerse.translation_uk = currentVerse.translation_uk
-          ? currentVerse.translation_uk + '\n\n' + trans
-          : trans;
+      const verse = versesMap.get(currentVerseNum)!;
+      const translit = processTransliteration(text);
+      verse.transliteration_uk = verse.transliteration_uk
+        ? verse.transliteration_uk + '\n\n' + translit
+        : translit;
+
+      // Auto-increment for next verse if we see another @h3-verse
+      currentVerseNum++;
+      return;
+    }
+
+    // Translation
+    if (currentTag === 'translation') {
+      // Find the verse to add translation to
+      let targetNum = currentVerseNum > 0 ? currentVerseNum : 1;
+      // If translation comes before verse number is set, use the last verse
+      if (!versesMap.has(targetNum) && versesMap.size > 0) {
+        targetNum = Math.max(...versesMap.keys());
       }
-    } else if (['p', 'p0', 'p1', 'purp'].includes(currentTag)) {
-      // Commentary
-      if (currentVerse) {
+
+      if (!versesMap.has(targetNum)) {
+        versesMap.set(targetNum, { verse_number: String(targetNum) });
+      }
+      const verse = versesMap.get(targetNum)!;
+      const trans = processProse(text, false);
+      verse.translation_uk = verse.translation_uk
+        ? verse.translation_uk + '\n\n' + trans
+        : trans;
+      return;
+    }
+
+    // Synonyms
+    if (currentTag === 'eqs') {
+      // Find the verse to add synonyms to
+      let targetNum = currentVerseNum > 0 ? currentVerseNum : 1;
+      if (!versesMap.has(targetNum) && versesMap.size > 0) {
+        targetNum = Math.max(...versesMap.keys());
+      }
+
+      if (!versesMap.has(targetNum)) {
+        versesMap.set(targetNum, { verse_number: String(targetNum) });
+      }
+      const verse = versesMap.get(targetNum)!;
+      const synonyms = processSynonyms(text);
+      verse.synonyms_uk = verse.synonyms_uk
+        ? verse.synonyms_uk + ' ' + synonyms
+        : synonyms;
+      return;
+    }
+
+    // Commentary/purport
+    if (['p', 'p0', 'p1', 'purp'].includes(currentTag)) {
+      let targetNum = currentVerseNum > 0 ? currentVerseNum : 1;
+      if (!versesMap.has(targetNum) && versesMap.size > 0) {
+        targetNum = Math.max(...versesMap.keys());
+      }
+
+      if (versesMap.has(targetNum)) {
+        const verse = versesMap.get(targetNum)!;
         const para = processProse(text, true);
         if (para) {
           const wrapped = `<p class="purport">${para}</p>`;
-          currentVerse.commentary_uk = currentVerse.commentary_uk
-            ? currentVerse.commentary_uk + '\n\n' + wrapped
+          verse.commentary_uk = verse.commentary_uk
+            ? verse.commentary_uk + '\n\n' + wrapped
             : wrapped;
         }
       }
@@ -380,7 +487,7 @@ function parseSOVA(filePath: string, chapterNum: number): ChapterWithVerses | nu
   }
 
   for (const line of lines) {
-    const tagMatch = line.match(/^@([a-z0-9_+-]+)\s*=?\s*(.*)/i);
+    const tagMatch = line.match(/^@([a-z0-9_#+-]+)\s*=?\s*(.*)/i);
     if (tagMatch) {
       flushBlock();
       currentTag = tagMatch[1].toLowerCase();
@@ -390,7 +497,11 @@ function parseSOVA(filePath: string, chapterNum: number): ChapterWithVerses | nu
     }
   }
   flushBlock();
-  if (currentVerse) verses.push(currentVerse);
+
+  // Convert map to sorted array
+  const verses = Array.from(versesMap.entries())
+    .sort((a, b) => a[0] - b[0])
+    .map(([_, verse]) => verse);
 
   return {
     chapter_number: chapterNum,
