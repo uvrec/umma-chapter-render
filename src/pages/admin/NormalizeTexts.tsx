@@ -611,7 +611,7 @@ export default function NormalizeTexts() {
                         checked={enabledCategories.has(category.id)}
                         onCheckedChange={() => toggleCategory(category.id)}
                       />
-                      {category.name}
+                      {category.name_uk}
                     </label>
                   ))}
                 </div>
