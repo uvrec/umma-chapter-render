@@ -694,7 +694,7 @@ export const defaultRules: NormalizationRule[] = [
   { id: "ending_nilambar", incorrect: "Нілямбара", correct: "Ніламбар", category: "endings", description: "Ніламбар (не Нілямбара)" },
   { id: "ending_bharadvaj", incorrect: "Бгарадваджа", correct: "Бгарадвадж", category: "endings", description: "Бгарадвадж (не Бгарадваджа)" },
   { id: "ending_prabhas", incorrect: "Прабгаса", correct: "Прабгас", category: "endings", description: "Прабгас (не Прабгаса)" },
-  { id: "ending_aniruddha", incorrect: "Аніруддга", correct: "Аніруддг", category: "endings", description: "Аніруддг (не Аніруддга)" },
+  // Removed: ending_aniruddha - "Аніруддга" is correct (deity name, keeps -а like Васудева, Баладева)
   { id: "ending_virochan", incorrect: "Вірочана", correct: "Вірочан", category: "endings", description: "Вірочан (не Вірочана)" },
   { id: "ending_kashishvar", incorrect: "Кашішвара", correct: "Кашішвар", category: "endings", description: "Кашішвар (не Кашішвара)" },
   { id: "ending_anupam", incorrect: "Анупама", correct: "Анупам", category: "endings", description: "Анупам (не Анупама)" },
