@@ -141,7 +141,8 @@ function processLineContinuations(text: string): string {
       if (l.endsWith('-')) l = l.slice(0, -1);
       buffer += l;
     } else if (stripped.endsWith('-<&>')) {
-      buffer += stripped.slice(0, -4);
+      // Keep the hyphen, just remove <&>
+      buffer += stripped.slice(0, -3);
     } else if (stripped.endsWith('<&>')) {
       buffer += stripped.slice(0, -3);
     } else {
@@ -166,20 +167,45 @@ function processInlineTags(text: string, keepHtml: boolean = false): string {
   result = result.replace(/<&>\s*/g, '');
   result = result.replace(/<=>\s*/g, '');
   result = result.replace(/<_?R>/g, '\n');
+
+  // Handle spacing tags: <N40>, <N60> etc. - replace with space
+  result = result.replace(/<N\d+>/g, ' ');
   result = result.replace(/<N\|?>/g, '');
   result = result.replace(/<S>/g, ' ');
   result = result.replace(/<_>/g, ' ');
 
+  // Handle footnote markers: <P7><j2.5><|>19<P><j> → superscript
+  result = result.replace(/<P\d*><j[\d.]*><\|>(\d+)<P><j>/g, '<sup>$1</sup>');
+  result = result.replace(/<P\d*><j[\d.]*><\|>(\d+)<j><P>/g, '<sup>$1</sup>');
+  result = result.replace(/<j[\d.]*><\|>(\d+)<j>/g, '<sup>$1</sup>');
+
+  // Handle quotes tags - just remove, content already has quotes
+  result = result.replace(/<_qm>/g, '');
+  result = result.replace(/<\/_qm>/g, '');
+
   if (keepHtml) {
+    // Handle bold-italic
     result = result.replace(/<BI>([^<]*)<\/?D>/g, '<strong><em>$1</em></strong>');
+
+    // Handle bold: <B>text<D> → <strong>text</strong>
     result = result.replace(/<B>([^<]*)<\/?D>/g, '<strong>$1</strong>');
-    result = result.replace(/<B>/g, '<strong>');
+
+    // Handle italic: <MI>text<D> → <em>text</em>
+    // But skip punctuation-only: <MI>,<D> → just ","
+    result = result.replace(/<MI>([,.\;:]+)<\/?D>/g, '$1');
     result = result.replace(/<MI>([^<]*)<\/?D>/g, '<em>$1</em>');
+
+    // Handle remaining unclosed tags
+    result = result.replace(/<B>/g, '<strong>');
     result = result.replace(/<MI>/g, '<em>');
-    result = result.replace(/<\/?D>/g, '</em>');
-    result = result.replace(/<\/em>\s*<em>([,.\;:])/g, '</em>$1');
+    result = result.replace(/<D>/g, '</em>');
+
+    // Clean up adjacent em tags
+    result = result.replace(/<\/em><em>/g, '');
     result = result.replace(/<em><\/em>/g, '');
-    result = result.replace(/<\/em>\s*<em>/g, ' ');
+
+    // Fix closing strong tags
+    result = result.replace(/<\/em>(\s*)(<\/strong>)/g, '$2$1');
   } else {
     result = result.replace(/<BI>([^<]*)<\/?D>/g, '$1');
     result = result.replace(/<B>([^<]*)<\/?D>/g, '$1');
@@ -198,12 +224,14 @@ function processInlineTags(text: string, keepHtml: boolean = false): string {
 
   result = decodePUA(result);
 
-  // Remove remaining tags
+  // Remove remaining Ventura tags
   result = result.replace(/<_[^>]*>/g, '');
-  result = result.replace(/<[A-Z0-9.]+>/g, '');
+  result = result.replace(/<\/?[A-Z][A-Z0-9.]*>/g, '');
   result = result.replace(/<\|>/g, '');
   result = result.replace(/<L-\d+>/g, '');
   result = result.replace(/<~>/g, '');
+  result = result.replace(/<P\d*>/g, '');
+  result = result.replace(/<j[\d.]*>/g, '');
 
   result = result.replace(/[ \t]+/g, ' ');
   result = result.replace(/\n\s*\n/g, '\n\n');
