@@ -261,7 +261,7 @@ export default function NormalizeTexts() {
               field: field.key,
               original: originalText,
               normalized: result,
-              changes: changes.map(c => ({ from: c.from, to: c.to, position: c.position })),
+              changes: changes.map(c => ({ from: c.original, to: c.replacement, position: c.position })),
             });
           }
         }
