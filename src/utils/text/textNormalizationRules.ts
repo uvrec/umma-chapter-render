@@ -83,8 +83,15 @@ export const ruleCategories: RuleCategory[] = [
     id: "encoding",
     name_uk: "Кодування (Balaram/ScaSeries)",
     name_en: "Encoding (Balaram/ScaSeries)",
-    description_uk: "Виправлення пошкодженого кодування з PDF та старих шрифтів (кракозябри)",
-    description_en: "Fix corrupted encoding from PDFs and legacy fonts (Balaram, ScaSeries)",
+    description_uk: "Виправлення кракозябр з PDF та старих шрифтів → прості літери БЕЗ діакритики (для перекладів)",
+    description_en: "Fix corrupted encoding from PDFs/legacy fonts → plain letters WITHOUT diacritics (for translations)",
+  },
+  {
+    id: "diacritics",
+    name_uk: "Видалення діакритики",
+    name_en: "Remove diacritics",
+    description_uk: "Видалення діакритичних знаків з кириличного тексту (для перекладів, де не потрібна транслітерація)",
+    description_en: "Remove diacritical marks from Cyrillic text (for translations where transliteration is not needed)",
   },
   {
     id: "custom",
@@ -805,91 +812,143 @@ export const defaultRules: NormalizationRule[] = [
   // Private Use Area (PUA) characters → правильний Unicode
   // =====================================================
 
-  // --- Голосні з макроном (довгі) ---
-  { id: "enc_a_macron_lower", incorrect: "\uF0E0", correct: "а̄", category: "encoding", description: "ā → а̄ (довга а)", caseSensitive: true },
-  { id: "enc_a_macron_upper", incorrect: "\uF0C0", correct: "А̄", category: "encoding", description: "Ā → А̄ (велика довга а)", caseSensitive: true },
-  { id: "enc_i_macron_lower", incorrect: "\uF0E8", correct: "ı̄", category: "encoding", description: "ī → ı̄ (довга і без крапки)", caseSensitive: true },
-  { id: "enc_i_macron_upper", incorrect: "\uF0C8", correct: "Ī", category: "encoding", description: "Ī → Ī (велика довга і)", caseSensitive: true },
-  { id: "enc_u_macron_lower", incorrect: "\uF0ED", correct: "ӯ", category: "encoding", description: "ū → ӯ (довга у)", caseSensitive: true },
-  { id: "enc_u_macron_upper", incorrect: "\uF0CD", correct: "Ӯ", category: "encoding", description: "Ū → Ӯ (велика довга у)", caseSensitive: true },
+  // --- Голосні з макроном (довгі) → прості літери без діакритики ---
+  // В перекладах не використовується діакритика - імена пишуться за правилами української мови
+  { id: "enc_a_macron_lower", incorrect: "\uF0E0", correct: "а", category: "encoding", description: "ā → а", caseSensitive: true },
+  { id: "enc_a_macron_upper", incorrect: "\uF0C0", correct: "А", category: "encoding", description: "Ā → А", caseSensitive: true },
+  { id: "enc_i_macron_lower", incorrect: "\uF0E8", correct: "і", category: "encoding", description: "ī → і", caseSensitive: true },
+  { id: "enc_i_macron_upper", incorrect: "\uF0C8", correct: "І", category: "encoding", description: "Ī → І", caseSensitive: true },
+  { id: "enc_u_macron_lower", incorrect: "\uF0ED", correct: "у", category: "encoding", description: "ū → у", caseSensitive: true },
+  { id: "enc_u_macron_upper", incorrect: "\uF0CD", correct: "У", category: "encoding", description: "Ū → У", caseSensitive: true },
 
-  // --- Голосні з підточкою ---
-  { id: "enc_r_vocalic_lower", incorrect: "\uF0F1", correct: "р̣", category: "encoding", description: "ṛ → р̣ (вокалічна р)", caseSensitive: true },
-  { id: "enc_r_vocalic_upper", incorrect: "\uF0D1", correct: "Р̣", category: "encoding", description: "Ṛ → Р̣ (велика вокалічна р)", caseSensitive: true },
-  { id: "enc_r_vocalic_long", incorrect: "\uF0F2", correct: "р̣̄", category: "encoding", description: "ṝ → р̣̄ (довга вокалічна р)", caseSensitive: true },
-  { id: "enc_l_vocalic_lower", incorrect: "\uF0F5", correct: "л̣", category: "encoding", description: "ḷ → л̣ (вокалічна л)", caseSensitive: true },
-  { id: "enc_l_vocalic_upper", incorrect: "\uF0D5", correct: "Л̣", category: "encoding", description: "Ḷ → Л̣ (велика вокалічна л)", caseSensitive: true },
+  // --- Голосні з підточкою → прості літери ---
+  { id: "enc_r_vocalic_lower", incorrect: "\uF0F1", correct: "р", category: "encoding", description: "ṛ → р", caseSensitive: true },
+  { id: "enc_r_vocalic_upper", incorrect: "\uF0D1", correct: "Р", category: "encoding", description: "Ṛ → Р", caseSensitive: true },
+  { id: "enc_r_vocalic_long", incorrect: "\uF0F2", correct: "р", category: "encoding", description: "ṝ → р", caseSensitive: true },
+  { id: "enc_l_vocalic_lower", incorrect: "\uF0F5", correct: "л", category: "encoding", description: "ḷ → л", caseSensitive: true },
+  { id: "enc_l_vocalic_upper", incorrect: "\uF0D5", correct: "Л", category: "encoding", description: "Ḷ → Л", caseSensitive: true },
 
-  // --- Шиплячі з діакритикою ---
-  { id: "enc_s_acute_lower", incorrect: "\uF0E5", correct: "ш́", category: "encoding", description: "ś → ш́ (палатальна ш)", caseSensitive: true },
-  { id: "enc_s_acute_upper", incorrect: "\uF0C5", correct: "Ш́", category: "encoding", description: "Ś → Ш́ (велика палатальна ш)", caseSensitive: true },
-  { id: "enc_s_underdot_lower", incorrect: "\uF0F3", correct: "ш̣", category: "encoding", description: "ṣ → ш̣ (ретрофлексна ш)", caseSensitive: true },
-  { id: "enc_s_underdot_upper", incorrect: "\uF0D3", correct: "Ш̣", category: "encoding", description: "Ṣ → Ш̣ (велика ретрофлексна ш)", caseSensitive: true },
+  // --- Шиплячі з діакритикою → прості літери ---
+  { id: "enc_s_acute_lower", incorrect: "\uF0E5", correct: "ш", category: "encoding", description: "ś → ш", caseSensitive: true },
+  { id: "enc_s_acute_upper", incorrect: "\uF0C5", correct: "Ш", category: "encoding", description: "Ś → Ш", caseSensitive: true },
+  { id: "enc_s_underdot_lower", incorrect: "\uF0F3", correct: "ш", category: "encoding", description: "ṣ → ш", caseSensitive: true },
+  { id: "enc_s_underdot_upper", incorrect: "\uF0D3", correct: "Ш", category: "encoding", description: "Ṣ → Ш", caseSensitive: true },
 
-  // --- Висарга та анусвара ---
-  { id: "enc_visarga", incorrect: "\uF0EC", correct: "х̣", category: "encoding", description: "ḥ → х̣ (висарга)", caseSensitive: true },
-  { id: "enc_anusvara", incorrect: "\uF0E3", correct: "м̐", category: "encoding", description: "ṁ → м̐ (анусвара/чандрабінду)", caseSensitive: true },
-  { id: "enc_anusvara_upper", incorrect: "\uF0C3", correct: "М̐", category: "encoding", description: "Ṁ → М̐ (велика анусвара)", caseSensitive: true },
-  { id: "enc_chandrabindu", incorrect: "\uF0E1", correct: "м̐", category: "encoding", description: "чандрабінду → м̐", caseSensitive: true },
+  // --- Висарга та анусвара → прості літери ---
+  { id: "enc_visarga", incorrect: "\uF0EC", correct: "х", category: "encoding", description: "ḥ → х", caseSensitive: true },
+  { id: "enc_anusvara", incorrect: "\uF0E3", correct: "м", category: "encoding", description: "ṁ → м", caseSensitive: true },
+  { id: "enc_anusvara_upper", incorrect: "\uF0C3", correct: "М", category: "encoding", description: "Ṁ → М", caseSensitive: true },
+  { id: "enc_chandrabindu", incorrect: "\uF0E1", correct: "м", category: "encoding", description: "чандрабінду → м", caseSensitive: true },
 
-  // --- Носові приголосні ---
-  { id: "enc_n_overdot_lower", incorrect: "\uF0EE", correct: "н̇", category: "encoding", description: "ṅ → н̇ (веларна н)", caseSensitive: true },
-  { id: "enc_n_overdot_upper", incorrect: "\uF0CE", correct: "Н̇", category: "encoding", description: "Ṅ → Н̇ (велика веларна н)", caseSensitive: true },
-  { id: "enc_n_tilde_lower", incorrect: "\uF0EF", correct: "н̃", category: "encoding", description: "ñ → н̃ (палатальна н)", caseSensitive: true },
-  { id: "enc_n_tilde_upper", incorrect: "\uF0CF", correct: "Н̃", category: "encoding", description: "Ñ → Н̃ (велика палатальна н)", caseSensitive: true },
-  { id: "enc_n_underdot_lower", incorrect: "\uF0F0", correct: "н̣", category: "encoding", description: "ṇ → н̣ (ретрофлексна н)", caseSensitive: true },
-  { id: "enc_n_underdot_upper", incorrect: "\uF0D0", correct: "Н̣", category: "encoding", description: "Ṇ → Н̣ (велика ретрофлексна н)", caseSensitive: true },
+  // --- Носові приголосні → прості літери ---
+  { id: "enc_n_overdot_lower", incorrect: "\uF0EE", correct: "н", category: "encoding", description: "ṅ → н", caseSensitive: true },
+  { id: "enc_n_overdot_upper", incorrect: "\uF0CE", correct: "Н", category: "encoding", description: "Ṅ → Н", caseSensitive: true },
+  { id: "enc_n_tilde_lower", incorrect: "\uF0EF", correct: "н", category: "encoding", description: "ñ → н", caseSensitive: true },
+  { id: "enc_n_tilde_upper", incorrect: "\uF0CF", correct: "Н", category: "encoding", description: "Ñ → Н", caseSensitive: true },
+  { id: "enc_n_underdot_lower", incorrect: "\uF0F0", correct: "н", category: "encoding", description: "ṇ → н", caseSensitive: true },
+  { id: "enc_n_underdot_upper", incorrect: "\uF0D0", correct: "Н", category: "encoding", description: "Ṇ → Н", caseSensitive: true },
 
-  // --- Ретрофлексні приголосні ---
-  { id: "enc_t_underdot_lower", incorrect: "\uF0F4", correct: "т̣", category: "encoding", description: "ṭ → т̣ (ретрофлексна т)", caseSensitive: true },
-  { id: "enc_t_underdot_upper", incorrect: "\uF0D4", correct: "Т̣", category: "encoding", description: "Ṭ → Т̣ (велика ретрофлексна т)", caseSensitive: true },
-  { id: "enc_th_underdot", incorrect: "\uF0E6", correct: "т̣х", category: "encoding", description: "ṭh → т̣х (ретрофлексна тх)", caseSensitive: true },
-  { id: "enc_d_underdot_lower", incorrect: "\uF0E2", correct: "д̣", category: "encoding", description: "ḍ → д̣ (ретрофлексна д)", caseSensitive: true },
-  { id: "enc_d_underdot_upper", incorrect: "\uF0C2", correct: "Д̣", category: "encoding", description: "Ḍ → Д̣ (велика ретрофлексна д)", caseSensitive: true },
-  { id: "enc_dh_underdot", incorrect: "\uF0E7", correct: "д̣х", category: "encoding", description: "ḍh → д̣х (ретрофлексна дх)", caseSensitive: true },
+  // --- Ретрофлексні приголосні → прості літери ---
+  { id: "enc_t_underdot_lower", incorrect: "\uF0F4", correct: "т", category: "encoding", description: "ṭ → т", caseSensitive: true },
+  { id: "enc_t_underdot_upper", incorrect: "\uF0D4", correct: "Т", category: "encoding", description: "Ṭ → Т", caseSensitive: true },
+  { id: "enc_th_underdot", incorrect: "\uF0E6", correct: "тх", category: "encoding", description: "ṭh → тх", caseSensitive: true },
+  { id: "enc_d_underdot_lower", incorrect: "\uF0E2", correct: "д", category: "encoding", description: "ḍ → д", caseSensitive: true },
+  { id: "enc_d_underdot_upper", incorrect: "\uF0C2", correct: "Д", category: "encoding", description: "Ḍ → Д", caseSensitive: true },
+  { id: "enc_dh_underdot", incorrect: "\uF0E7", correct: "дх", category: "encoding", description: "ḍh → дх", caseSensitive: true },
 
-  // --- Додаткові символи Balaram ---
-  { id: "enc_jn_ligature", incorrect: "\uF0EA", correct: "джн̃", category: "encoding", description: "jñ → джн̃ (ліґатура jña)", caseSensitive: true },
+  // --- Додаткові символи Balaram → прості літери ---
+  { id: "enc_jn_ligature", incorrect: "\uF0EA", correct: "джн", category: "encoding", description: "jñ → джн", caseSensitive: true },
 
-  // --- Balaram шрифт варіант 2 (U+F1xx діапазон, з gitabase.com) ---
-  { id: "enc_balaram2_a_macron", incorrect: "\uF101", correct: "а̄", category: "encoding", description: "ā (Balaram F101) → а̄", caseSensitive: true },
-  { id: "enc_balaram2_d_underdot", incorrect: "\uF103", correct: "д̣", category: "encoding", description: "ḍ (Balaram F103) → д̣ (ретрофлексна д)", caseSensitive: true },
-  { id: "enc_balaram2_anusvara", incorrect: "\uF109", correct: "м̇", category: "encoding", description: "ṁ (Balaram F109) → м̇", caseSensitive: true },
-  { id: "enc_balaram2_n_overdot", incorrect: "\uF10F", correct: "н̇", category: "encoding", description: "ṅ (Balaram F10F) → н̇ (веларна н)", caseSensitive: true },
-  { id: "enc_balaram2_n_underdot", incorrect: "\uF111", correct: "н̣", category: "encoding", description: "ṇ (Balaram F111) → н̣", caseSensitive: true },
-  { id: "enc_balaram2_n_tilde", incorrect: "\uF113", correct: "н̃", category: "encoding", description: "ñ (Balaram F113) → н̃ (палатальна н)", caseSensitive: true },
-  { id: "enc_balaram2_r_vocalic", incorrect: "\uF115", correct: "р̣", category: "encoding", description: "ṛ (Balaram F115) → р̣", caseSensitive: true },
-  { id: "enc_balaram2_t_underdot", incorrect: "\uF119", correct: "т̣", category: "encoding", description: "ṭ (Balaram F119) → т̣", caseSensitive: true },
-  { id: "enc_balaram2_visarga", incorrect: "\uF11B", correct: "х̣", category: "encoding", description: "ḥ (Balaram F11B) → х̣", caseSensitive: true },
-  { id: "enc_balaram2_s_acute", incorrect: "\uF11D", correct: "ш́", category: "encoding", description: "ś (Balaram F11D) → ш́", caseSensitive: true },
+  // --- Balaram шрифт варіант 2 (U+F1xx діапазон, з gitabase.com) → прості літери ---
+  { id: "enc_balaram2_a_macron", incorrect: "\uF101", correct: "а", category: "encoding", description: "ā (Balaram F101) → а", caseSensitive: true },
+  { id: "enc_balaram2_d_underdot", incorrect: "\uF103", correct: "д", category: "encoding", description: "ḍ (Balaram F103) → д", caseSensitive: true },
+  { id: "enc_balaram2_anusvara", incorrect: "\uF109", correct: "м", category: "encoding", description: "ṁ (Balaram F109) → м", caseSensitive: true },
+  { id: "enc_balaram2_n_overdot", incorrect: "\uF10F", correct: "н", category: "encoding", description: "ṅ (Balaram F10F) → н", caseSensitive: true },
+  { id: "enc_balaram2_n_underdot", incorrect: "\uF111", correct: "н", category: "encoding", description: "ṇ (Balaram F111) → н", caseSensitive: true },
+  { id: "enc_balaram2_n_tilde", incorrect: "\uF113", correct: "н", category: "encoding", description: "ñ (Balaram F113) → н", caseSensitive: true },
+  { id: "enc_balaram2_r_vocalic", incorrect: "\uF115", correct: "р", category: "encoding", description: "ṛ (Balaram F115) → р", caseSensitive: true },
+  { id: "enc_balaram2_t_underdot", incorrect: "\uF119", correct: "т", category: "encoding", description: "ṭ (Balaram F119) → т", caseSensitive: true },
+  { id: "enc_balaram2_visarga", incorrect: "\uF11B", correct: "х", category: "encoding", description: "ḥ (Balaram F11B) → х", caseSensitive: true },
+  { id: "enc_balaram2_s_acute", incorrect: "\uF11D", correct: "ш", category: "encoding", description: "ś (Balaram F11D) → ш", caseSensitive: true },
 
-  // --- ScaSeries шрифт (альтернативні коди) ---
-  { id: "enc_sca_a_macron", incorrect: "\u0100", correct: "А̄", category: "encoding", description: "Ā (Latin) → А̄", caseSensitive: true },
-  { id: "enc_sca_a_macron_lower", incorrect: "\u0101", correct: "а̄", category: "encoding", description: "ā (Latin) → а̄", caseSensitive: true },
-  { id: "enc_sca_i_macron", incorrect: "\u012A", correct: "Ī", category: "encoding", description: "Ī (Latin) → Ī", caseSensitive: true },
-  { id: "enc_sca_i_macron_lower", incorrect: "\u012B", correct: "ı̄", category: "encoding", description: "ī (Latin) → ı̄", caseSensitive: true },
-  { id: "enc_sca_u_macron", incorrect: "\u016A", correct: "Ӯ", category: "encoding", description: "Ū (Latin) → Ӯ", caseSensitive: true },
-  { id: "enc_sca_u_macron_lower", incorrect: "\u016B", correct: "ӯ", category: "encoding", description: "ū (Latin) → ӯ", caseSensitive: true },
-  { id: "enc_sca_r_underdot", incorrect: "\u1E5B", correct: "р̣", category: "encoding", description: "ṛ (Latin) → р̣", caseSensitive: true },
-  { id: "enc_sca_r_underdot_upper", incorrect: "\u1E5A", correct: "Р̣", category: "encoding", description: "Ṛ (Latin) → Р̣", caseSensitive: true },
-  { id: "enc_sca_l_underdot", incorrect: "\u1E37", correct: "л̣", category: "encoding", description: "ḷ (Latin) → л̣", caseSensitive: true },
-  { id: "enc_sca_s_acute", incorrect: "\u015B", correct: "ш́", category: "encoding", description: "ś (Latin) → ш́", caseSensitive: true },
-  { id: "enc_sca_s_acute_upper", incorrect: "\u015A", correct: "Ш́", category: "encoding", description: "Ś (Latin) → Ш́", caseSensitive: true },
-  { id: "enc_sca_s_underdot", incorrect: "\u1E63", correct: "ш̣", category: "encoding", description: "ṣ (Latin) → ш̣", caseSensitive: true },
-  { id: "enc_sca_s_underdot_upper", incorrect: "\u1E62", correct: "Ш̣", category: "encoding", description: "Ṣ (Latin) → Ш̣", caseSensitive: true },
-  { id: "enc_sca_h_underdot", incorrect: "\u1E25", correct: "х̣", category: "encoding", description: "ḥ (Latin) → х̣", caseSensitive: true },
-  { id: "enc_sca_m_overdot", incorrect: "\u1E41", correct: "м̐", category: "encoding", description: "ṁ (Latin) → м̐", caseSensitive: true },
-  { id: "enc_sca_m_overdot_upper", incorrect: "\u1E40", correct: "М̐", category: "encoding", description: "Ṁ (Latin) → М̐", caseSensitive: true },
-  { id: "enc_sca_n_overdot", incorrect: "\u1E45", correct: "н̇", category: "encoding", description: "ṅ (Latin) → н̇", caseSensitive: true },
-  { id: "enc_sca_n_overdot_upper", incorrect: "\u1E44", correct: "Н̇", category: "encoding", description: "Ṅ (Latin) → Н̇", caseSensitive: true },
-  { id: "enc_sca_n_tilde", incorrect: "\u00F1", correct: "н̃", category: "encoding", description: "ñ (Latin) → н̃", caseSensitive: true },
-  { id: "enc_sca_n_tilde_upper", incorrect: "\u00D1", correct: "Н̃", category: "encoding", description: "Ñ (Latin) → Н̃", caseSensitive: true },
-  { id: "enc_sca_n_underdot", incorrect: "\u1E47", correct: "н̣", category: "encoding", description: "ṇ (Latin) → н̣", caseSensitive: true },
-  { id: "enc_sca_n_underdot_upper", incorrect: "\u1E46", correct: "Н̣", category: "encoding", description: "Ṇ (Latin) → Н̣", caseSensitive: true },
-  { id: "enc_sca_t_underdot", incorrect: "\u1E6D", correct: "т̣", category: "encoding", description: "ṭ (Latin) → т̣", caseSensitive: true },
-  { id: "enc_sca_t_underdot_upper", incorrect: "\u1E6C", correct: "Т̣", category: "encoding", description: "Ṭ (Latin) → Т̣", caseSensitive: true },
-  { id: "enc_sca_d_underdot", incorrect: "\u1E0D", correct: "д̣", category: "encoding", description: "ḍ (Latin) → д̣", caseSensitive: true },
-  { id: "enc_sca_d_underdot_upper", incorrect: "\u1E0C", correct: "Д̣", category: "encoding", description: "Ḍ (Latin) → Д̣", caseSensitive: true },
+  // --- ScaSeries шрифт (латинські IAST символи) → прості літери ---
+  { id: "enc_sca_a_macron", incorrect: "\u0100", correct: "А", category: "encoding", description: "Ā (Latin) → А", caseSensitive: true },
+  { id: "enc_sca_a_macron_lower", incorrect: "\u0101", correct: "а", category: "encoding", description: "ā (Latin) → а", caseSensitive: true },
+  { id: "enc_sca_i_macron", incorrect: "\u012A", correct: "І", category: "encoding", description: "Ī (Latin) → І", caseSensitive: true },
+  { id: "enc_sca_i_macron_lower", incorrect: "\u012B", correct: "і", category: "encoding", description: "ī (Latin) → і", caseSensitive: true },
+  { id: "enc_sca_u_macron", incorrect: "\u016A", correct: "У", category: "encoding", description: "Ū (Latin) → У", caseSensitive: true },
+  { id: "enc_sca_u_macron_lower", incorrect: "\u016B", correct: "у", category: "encoding", description: "ū (Latin) → у", caseSensitive: true },
+  { id: "enc_sca_r_underdot", incorrect: "\u1E5B", correct: "р", category: "encoding", description: "ṛ (Latin) → р", caseSensitive: true },
+  { id: "enc_sca_r_underdot_upper", incorrect: "\u1E5A", correct: "Р", category: "encoding", description: "Ṛ (Latin) → Р", caseSensitive: true },
+  { id: "enc_sca_l_underdot", incorrect: "\u1E37", correct: "л", category: "encoding", description: "ḷ (Latin) → л", caseSensitive: true },
+  { id: "enc_sca_s_acute", incorrect: "\u015B", correct: "ш", category: "encoding", description: "ś (Latin) → ш", caseSensitive: true },
+  { id: "enc_sca_s_acute_upper", incorrect: "\u015A", correct: "Ш", category: "encoding", description: "Ś (Latin) → Ш", caseSensitive: true },
+  { id: "enc_sca_s_underdot", incorrect: "\u1E63", correct: "ш", category: "encoding", description: "ṣ (Latin) → ш", caseSensitive: true },
+  { id: "enc_sca_s_underdot_upper", incorrect: "\u1E62", correct: "Ш", category: "encoding", description: "Ṣ (Latin) → Ш", caseSensitive: true },
+  { id: "enc_sca_h_underdot", incorrect: "\u1E25", correct: "х", category: "encoding", description: "ḥ (Latin) → х", caseSensitive: true },
+  { id: "enc_sca_m_overdot", incorrect: "\u1E41", correct: "м", category: "encoding", description: "ṁ (Latin) → м", caseSensitive: true },
+  { id: "enc_sca_m_overdot_upper", incorrect: "\u1E40", correct: "М", category: "encoding", description: "Ṁ (Latin) → М", caseSensitive: true },
+  { id: "enc_sca_n_overdot", incorrect: "\u1E45", correct: "н", category: "encoding", description: "ṅ (Latin) → н", caseSensitive: true },
+  { id: "enc_sca_n_overdot_upper", incorrect: "\u1E44", correct: "Н", category: "encoding", description: "Ṅ (Latin) → Н", caseSensitive: true },
+  { id: "enc_sca_n_tilde", incorrect: "\u00F1", correct: "н", category: "encoding", description: "ñ (Latin) → н", caseSensitive: true },
+  { id: "enc_sca_n_tilde_upper", incorrect: "\u00D1", correct: "Н", category: "encoding", description: "Ñ (Latin) → Н", caseSensitive: true },
+  { id: "enc_sca_n_underdot", incorrect: "\u1E47", correct: "н", category: "encoding", description: "ṇ (Latin) → н", caseSensitive: true },
+  { id: "enc_sca_n_underdot_upper", incorrect: "\u1E46", correct: "Н", category: "encoding", description: "Ṇ (Latin) → Н", caseSensitive: true },
+  { id: "enc_sca_t_underdot", incorrect: "\u1E6D", correct: "т", category: "encoding", description: "ṭ (Latin) → т", caseSensitive: true },
+  { id: "enc_sca_t_underdot_upper", incorrect: "\u1E6C", correct: "Т", category: "encoding", description: "Ṭ (Latin) → Т", caseSensitive: true },
+  { id: "enc_sca_d_underdot", incorrect: "\u1E0D", correct: "д", category: "encoding", description: "ḍ (Latin) → д", caseSensitive: true },
+  { id: "enc_sca_d_underdot_upper", incorrect: "\u1E0C", correct: "Д", category: "encoding", description: "Ḍ (Latin) → Д", caseSensitive: true },
+
+  // =====================================================
+  // ВИДАЛЕННЯ ДІАКРИТИКИ (з кириличного тексту)
+  // Для перекладів - імена та терміни пишуться БЕЗ діакритики
+  // Наприклад: Кр̣шн̣а → Кршна, ш́локі → шлокі
+  // =====================================================
+
+  // --- Голосні з макроном (довгі) → прості літери ---
+  { id: "diac_a_macron_lower", incorrect: "а\u0304", correct: "а", category: "diacritics", description: "а̄ → а", caseSensitive: true },
+  { id: "diac_a_macron_upper", incorrect: "А\u0304", correct: "А", category: "diacritics", description: "А̄ → А", caseSensitive: true },
+  { id: "diac_i_macron_lower", incorrect: "і\u0304", correct: "і", category: "diacritics", description: "і̄ → і", caseSensitive: true },
+  { id: "diac_i_macron_upper", incorrect: "І\u0304", correct: "І", category: "diacritics", description: "І̄ → І", caseSensitive: true },
+  { id: "diac_i_nodot_macron", incorrect: "ı\u0304", correct: "і", category: "diacritics", description: "ı̄ → і", caseSensitive: true },
+  { id: "diac_u_macron_lower", incorrect: "у\u0304", correct: "у", category: "diacritics", description: "ӯ → у", caseSensitive: true },
+  { id: "diac_u_macron_upper", incorrect: "У\u0304", correct: "У", category: "diacritics", description: "Ӯ → У", caseSensitive: true },
+  { id: "diac_u_cyr_macron", incorrect: "ӯ", correct: "у", category: "diacritics", description: "ӯ (precomposed) → у", caseSensitive: true },
+  { id: "diac_u_cyr_macron_upper", incorrect: "Ӯ", correct: "У", category: "diacritics", description: "Ӯ (precomposed) → У", caseSensitive: true },
+
+  // --- Приголосні з підточкою (combining dot below U+0323) → прості літери ---
+  { id: "diac_r_underdot_lower", incorrect: "р\u0323", correct: "р", category: "diacritics", description: "р̣ → р", caseSensitive: true },
+  { id: "diac_r_underdot_upper", incorrect: "Р\u0323", correct: "Р", category: "diacritics", description: "Р̣ → Р", caseSensitive: true },
+  { id: "diac_l_underdot_lower", incorrect: "л\u0323", correct: "л", category: "diacritics", description: "л̣ → л", caseSensitive: true },
+  { id: "diac_l_underdot_upper", incorrect: "Л\u0323", correct: "Л", category: "diacritics", description: "Л̣ → Л", caseSensitive: true },
+  { id: "diac_n_underdot_lower", incorrect: "н\u0323", correct: "н", category: "diacritics", description: "н̣ → н", caseSensitive: true },
+  { id: "diac_n_underdot_upper", incorrect: "Н\u0323", correct: "Н", category: "diacritics", description: "Н̣ → Н", caseSensitive: true },
+  { id: "diac_t_underdot_lower", incorrect: "т\u0323", correct: "т", category: "diacritics", description: "т̣ → т", caseSensitive: true },
+  { id: "diac_t_underdot_upper", incorrect: "Т\u0323", correct: "Т", category: "diacritics", description: "Т̣ → Т", caseSensitive: true },
+  { id: "diac_d_underdot_lower", incorrect: "д\u0323", correct: "д", category: "diacritics", description: "д̣ → д", caseSensitive: true },
+  { id: "diac_d_underdot_upper", incorrect: "Д\u0323", correct: "Д", category: "diacritics", description: "Д̣ → Д", caseSensitive: true },
+  { id: "diac_sh_underdot_lower", incorrect: "ш\u0323", correct: "ш", category: "diacritics", description: "ш̣ → ш", caseSensitive: true },
+  { id: "diac_sh_underdot_upper", incorrect: "Ш\u0323", correct: "Ш", category: "diacritics", description: "Ш̣ → Ш", caseSensitive: true },
+  { id: "diac_kh_underdot_lower", incorrect: "х\u0323", correct: "х", category: "diacritics", description: "х̣ → х", caseSensitive: true },
+  { id: "diac_kh_underdot_upper", incorrect: "Х\u0323", correct: "Х", category: "diacritics", description: "Х̣ → Х", caseSensitive: true },
+
+  // --- Приголосні з наддточкою (combining dot above U+0307) → прості літери ---
+  { id: "diac_m_overdot_lower", incorrect: "м\u0307", correct: "м", category: "diacritics", description: "м̇ → м", caseSensitive: true },
+  { id: "diac_m_overdot_upper", incorrect: "М\u0307", correct: "М", category: "diacritics", description: "М̇ → М", caseSensitive: true },
+  { id: "diac_n_overdot_lower", incorrect: "н\u0307", correct: "н", category: "diacritics", description: "н̇ → н", caseSensitive: true },
+  { id: "diac_n_overdot_upper", incorrect: "Н\u0307", correct: "Н", category: "diacritics", description: "Н̇ → Н", caseSensitive: true },
+
+  // --- Приголосні з чандрабінду (combining candrabindu U+0310) → прості літери ---
+  { id: "diac_m_chandrabindu_lower", incorrect: "м\u0310", correct: "м", category: "diacritics", description: "м̐ → м", caseSensitive: true },
+  { id: "diac_m_chandrabindu_upper", incorrect: "М\u0310", correct: "М", category: "diacritics", description: "М̐ → М", caseSensitive: true },
+
+  // --- Приголосні з тільдою (combining tilde U+0303) → прості літери ---
+  { id: "diac_n_tilde_lower", incorrect: "н\u0303", correct: "н", category: "diacritics", description: "н̃ → н", caseSensitive: true },
+  { id: "diac_n_tilde_upper", incorrect: "Н\u0303", correct: "Н", category: "diacritics", description: "Н̃ → Н", caseSensitive: true },
+
+  // --- Приголосні з акутом (combining acute U+0301) → прості літери ---
+  { id: "diac_sh_acute_lower", incorrect: "ш\u0301", correct: "ш", category: "diacritics", description: "ш́ → ш", caseSensitive: true },
+  { id: "diac_sh_acute_upper", incorrect: "Ш\u0301", correct: "Ш", category: "diacritics", description: "Ш́ → Ш", caseSensitive: true },
 ];
 
 /**
