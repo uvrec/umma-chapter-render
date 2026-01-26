@@ -100,6 +100,8 @@ export default function TextNormalization() {
   const [useRichText, setUseRichText] = useState(false);
   const [inputHtml, setInputHtml] = useState("");
   const [outputHtml, setOutputHtml] = useState("");
+  const [showAllChanges, setShowAllChanges] = useState(false);
+  const [excludedChangeIndices, setExcludedChangeIndices] = useState<Set<number>>(new Set());
 
 
   // Combine rules
@@ -148,6 +150,37 @@ export default function TextNormalization() {
   }, []);
 
   /**
+   * Apply changes to text, optionally excluding some
+   */
+  const applyChangesToText = useCallback((
+    originalText: string,
+    changesToApply: NormalizationChange[],
+    excludedIndices: Set<number>
+  ): string => {
+    if (changesToApply.length === 0 || excludedIndices.size === 0) {
+      // If no exclusions, return the fully normalized text
+      const { result } = applyNormalizationRules(originalText, allRules, enabledCategories);
+      return result;
+    }
+
+    // We need to apply changes selectively
+    // Sort changes by position (descending) to apply from end to start
+    const indexedChanges = changesToApply
+      .map((change, idx) => ({ ...change, idx }))
+      .filter(c => !excludedIndices.has(c.idx))
+      .sort((a, b) => b.position - a.position);
+
+    let result = originalText;
+    for (const change of indexedChanges) {
+      const before = result.slice(0, change.position);
+      const after = result.slice(change.position + change.original.length);
+      result = before + change.replacement + after;
+    }
+
+    return result;
+  }, [allRules, enabledCategories]);
+
+  /**
    * Perform normalization
    */
   const performNormalization = useCallback(() => {
@@ -167,6 +200,8 @@ export default function TextNormalization() {
 
     setOutputText(result);
     setChanges(newChanges);
+    // Reset excluded changes when input changes
+    setExcludedChangeIndices(new Set());
 
     // If in rich text mode, also normalize the HTML
     if (useRichText && inputHtml) {
@@ -176,6 +211,35 @@ export default function TextNormalization() {
       setOutputHtml("");
     }
   }, [inputText, inputHtml, allRules, enabledCategories, useRichText, normalizeHtml]);
+
+  /**
+   * Toggle exclusion of a specific change
+   */
+  const toggleChangeExclusion = useCallback((index: number) => {
+    setExcludedChangeIndices(prev => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  }, []);
+
+  /**
+   * Recompute output when exclusions change
+   */
+  useEffect(() => {
+    if (changes.length > 0 && excludedChangeIndices.size > 0) {
+      const newOutput = applyChangesToText(inputText, changes, excludedChangeIndices);
+      setOutputText(newOutput);
+    } else if (changes.length > 0 && excludedChangeIndices.size === 0) {
+      // Re-apply all changes
+      const { result } = applyNormalizationRules(inputText, allRules, enabledCategories);
+      setOutputText(result);
+    }
+  }, [excludedChangeIndices, changes, inputText, applyChangesToText, allRules, enabledCategories]);
 
   /**
    * Live preview with debounce
@@ -812,28 +876,73 @@ export default function TextNormalization() {
               <Collapsible className="px-4 pb-4">
                 <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium hover:text-primary">
                   <ChevronRight className="w-4 h-4 transition-transform data-[state=open]:rotate-90" />
-                  {t("Список змін", "Change list")} ({changes.length})
+                  {t("Список змін", "Change list")} ({changes.length - excludedChangeIndices.size}/{changes.length})
                 </CollapsibleTrigger>
                 <CollapsibleContent className="mt-3">
-                  <div className="max-h-48 overflow-y-auto rounded-lg border bg-muted/20 p-3">
+                  <div className={`${showAllChanges ? 'max-h-96' : 'max-h-48'} overflow-y-auto rounded-lg border bg-muted/20 p-3`}>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                      {changes.slice(0, 50).map((change, idx) => (
-                        <div
-                          key={idx}
-                          className="text-xs p-2 rounded bg-background flex items-center gap-2"
-                        >
-                          <span className="text-red-500 line-through">{change.original}</span>
-                          <span className="text-muted-foreground">→</span>
-                          <span className="text-green-600 font-medium">{change.replacement}</span>
-                        </div>
-                      ))}
+                      {(showAllChanges ? changes : changes.slice(0, 50)).map((change, idx) => {
+                        const isExcluded = excludedChangeIndices.has(idx);
+                        return (
+                          <div
+                            key={idx}
+                            className={`text-xs p-2 rounded flex items-center gap-2 cursor-pointer transition-colors ${
+                              isExcluded
+                                ? 'bg-muted/50 opacity-50'
+                                : 'bg-background hover:bg-muted/30'
+                            }`}
+                            onClick={() => toggleChangeExclusion(idx)}
+                            title={isExcluded
+                              ? t("Клікніть щоб застосувати", "Click to apply")
+                              : t("Клікніть щоб скасувати", "Click to reject")}
+                          >
+                            <Checkbox
+                              checked={!isExcluded}
+                              onCheckedChange={() => toggleChangeExclusion(idx)}
+                              className="h-3 w-3"
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                            <span className={`${isExcluded ? 'text-muted-foreground' : 'text-red-500'} ${isExcluded ? '' : 'line-through'}`}>
+                              {change.original}
+                            </span>
+                            <span className="text-muted-foreground">→</span>
+                            <span className={`${isExcluded ? 'text-muted-foreground' : 'text-green-600'} font-medium`}>
+                              {change.replacement}
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
                     {changes.length > 50 && (
-                      <p className="text-xs text-muted-foreground mt-2 text-center">
-                        {t(`...та ще ${changes.length - 50} змін`, `...and ${changes.length - 50} more changes`)}
-                      </p>
+                      <div className="mt-3 text-center">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowAllChanges(!showAllChanges)}
+                          className="text-xs"
+                        >
+                          {showAllChanges
+                            ? t("Згорнути", "Collapse")
+                            : t(`...та ще ${changes.length - 50} змін (показати всі)`, `...and ${changes.length - 50} more (show all)`)}
+                        </Button>
+                      </div>
                     )}
                   </div>
+                  {excludedChangeIndices.size > 0 && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <Badge variant="outline" className="text-xs">
+                        {t(`Скасовано: ${excludedChangeIndices.size}`, `Rejected: ${excludedChangeIndices.size}`)}
+                      </Badge>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs h-6"
+                        onClick={() => setExcludedChangeIndices(new Set())}
+                      >
+                        {t("Скинути всі", "Reset all")}
+                      </Button>
+                    </div>
+                  )}
                 </CollapsibleContent>
               </Collapsible>
             )}
