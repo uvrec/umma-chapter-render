@@ -956,7 +956,7 @@ export function applyNormalizationRules(
     // Skip rules that would replace with the same value
     if (rule.incorrect === rule.correct) continue;
 
-    const flags = rule.caseSensitive ? "g" : "gi";
+    const flags = rule.caseSensitive ? "gu" : "giu";
 
     let pattern: RegExp;
     if (rule.regex) {
@@ -966,7 +966,18 @@ export function applyNormalizationRules(
         pattern = new RegExp(escapeRegExp(rule.incorrect), flags);
       }
     } else {
-      pattern = new RegExp(escapeRegExp(rule.incorrect), flags);
+      // For "endings" category, add word boundary assertion
+      // to prevent matching in the middle of words (e.g., "бгакт" in "бгактāн")
+      // The negative lookahead ensures we don't match when followed by:
+      // - Any Unicode letter (\p{L}) - covers Cyrillic, Latin with diacritics, etc.
+      // - Combining diacritical marks (\p{M}) - like macrons
+      // - Apostrophes (commonly used in transliteration)
+      if (rule.category === "endings") {
+        const wordBoundary = "(?![\\p{L}\\p{M}'ʼ])";
+        pattern = new RegExp(escapeRegExp(rule.incorrect) + wordBoundary, flags);
+      } else {
+        pattern = new RegExp(escapeRegExp(rule.incorrect), flags);
+      }
     }
 
     let match;
