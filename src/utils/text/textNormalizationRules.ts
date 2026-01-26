@@ -851,6 +851,15 @@ export const defaultRules: NormalizationRule[] = [
   // --- Додаткові символи Balaram ---
   { id: "enc_jn_ligature", incorrect: "\uF0EA", correct: "джн̃", category: "encoding", description: "jñ → джн̃ (ліґатура jña)", caseSensitive: true },
 
+  // --- Balaram шрифт варіант 2 (U+F1xx діапазон, з gitabase.com) ---
+  { id: "enc_balaram2_a_macron", incorrect: "\uF101", correct: "а̄", category: "encoding", description: "ā (Balaram F101) → а̄", caseSensitive: true },
+  { id: "enc_balaram2_anusvara", incorrect: "\uF109", correct: "м̇", category: "encoding", description: "ṁ (Balaram F109) → м̇", caseSensitive: true },
+  { id: "enc_balaram2_n_underdot", incorrect: "\uF111", correct: "н̣", category: "encoding", description: "ṇ (Balaram F111) → н̣", caseSensitive: true },
+  { id: "enc_balaram2_r_vocalic", incorrect: "\uF115", correct: "р̣", category: "encoding", description: "ṛ (Balaram F115) → р̣", caseSensitive: true },
+  { id: "enc_balaram2_t_underdot", incorrect: "\uF119", correct: "т̣", category: "encoding", description: "ṭ (Balaram F119) → т̣", caseSensitive: true },
+  { id: "enc_balaram2_visarga", incorrect: "\uF11B", correct: "х̣", category: "encoding", description: "ḥ (Balaram F11B) → х̣", caseSensitive: true },
+  { id: "enc_balaram2_s_acute", incorrect: "\uF11D", correct: "ш́", category: "encoding", description: "ś (Balaram F11D) → ш́", caseSensitive: true },
+
   // --- ScaSeries шрифт (альтернативні коди) ---
   { id: "enc_sca_a_macron", incorrect: "\u0100", correct: "А̄", category: "encoding", description: "Ā (Latin) → А̄", caseSensitive: true },
   { id: "enc_sca_a_macron_lower", incorrect: "\u0101", correct: "а̄", category: "encoding", description: "ā (Latin) → а̄", caseSensitive: true },
