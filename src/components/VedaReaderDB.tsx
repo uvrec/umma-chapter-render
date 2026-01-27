@@ -351,7 +351,8 @@ export const VedaReaderDB = () => {
 
   // Jump to verse from URL if provided
   useEffect(() => {
-    if (!routeVerseNumber || !verses.length) return;
+    // Don't search for verse while data is still loading (prevents race condition with fallback)
+    if (!routeVerseNumber || !verses.length || isLoading) return;
     let idx = verses.findIndex(v => String(v.id) === String(routeVerseNumber));
     if (idx === -1) {
       idx = verses.findIndex(v => String(v.verse_number) === String(routeVerseNumber));
@@ -393,7 +394,7 @@ export const VedaReaderDB = () => {
         });
       }
     }
-  }, [routeVerseNumber, verses, t]);
+  }, [routeVerseNumber, verses, t, isLoading]);
 
   // ALL CHAPTERS (для навігації між главами)
   const {
