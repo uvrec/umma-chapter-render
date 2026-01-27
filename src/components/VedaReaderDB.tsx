@@ -360,6 +360,11 @@ export const VedaReaderDB = () => {
       const num = parseInt(routeVerseNumber as string);
       if (!isNaN(num)) {
         idx = verses.findIndex(v => {
+          // Check is_composite flag with start_verse/end_verse fields first
+          if (v.is_composite && v.start_verse != null && v.end_verse != null) {
+            return num >= v.start_verse && num <= v.end_verse;
+          }
+          // Fallback: check if verse_number contains hyphen (e.g., "46-47")
           const vn = String(v.verse_number);
           if (vn.includes('-')) {
             const [start, end] = vn.split('-').map(n => parseInt(n));
