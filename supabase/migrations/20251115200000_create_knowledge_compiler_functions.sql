@@ -10,6 +10,7 @@
 DROP FUNCTION IF EXISTS public.search_verses_fulltext(TEXT, TEXT, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, UUID[], INTEGER);
 DROP FUNCTION IF EXISTS public.find_related_verses(UUID, TEXT, REAL, INTEGER);
 DROP FUNCTION IF EXISTS public.get_topic_statistics(TEXT, TEXT);
+DROP FUNCTION IF EXISTS public.get_topic_statistics(TEXT, TEXT, UUID[]);
 
 -- Function 1: Search verses with full-text search
 -- =====================================================
@@ -304,10 +305,10 @@ END;
 $$;
 
 -- Grant access
-GRANT EXECUTE ON FUNCTION public.get_topic_statistics TO authenticated;
-GRANT EXECUTE ON FUNCTION public.get_topic_statistics TO anon;
+GRANT EXECUTE ON FUNCTION public.get_topic_statistics(TEXT, TEXT) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_topic_statistics(TEXT, TEXT) TO anon;
 
-COMMENT ON FUNCTION public.get_topic_statistics IS
+COMMENT ON FUNCTION public.get_topic_statistics(TEXT, TEXT) IS
 'Provides statistics on how many verses discuss a topic across different books. Useful for understanding topic distribution in the knowledge base.';
 
 
