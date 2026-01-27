@@ -1,5 +1,5 @@
 // EnhancedInlineEditor.tsx — Розширений inline редактор з повним набором функцій
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Mark, mergeAttributes } from "@tiptap/core";
@@ -222,6 +222,8 @@ export const EnhancedInlineEditor = ({
   // Store onScroll callback in ref to avoid stale closures
   const onScrollRef = useRef(onScroll);
   onScrollRef.current = onScroll;
+  // Track when editor view is fully initialized (prevents "view not available" errors)
+  const [isEditorReady, setIsEditorReady] = useState(false);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -277,6 +279,14 @@ export const EnhancedInlineEditor = ({
       ],
       content: initialContent,
       editable,
+      onCreate: () => {
+        // Editor view is now fully initialized and safe to access
+        setIsEditorReady(true);
+      },
+      onDestroy: () => {
+        // Editor is being destroyed, mark as not ready
+        setIsEditorReady(false);
+      },
       onUpdate: ({ editor }) => onChange(editor.getHTML()),
       editorProps: {
         attributes: {
@@ -330,8 +340,13 @@ export const EnhancedInlineEditor = ({
   // Scroll sync: attach scroll listener to both the container and the editor element
   useEffect(() => {
     const container = scrollContainerRef.current;
+
+    // Guard: Wait until editor view is fully initialized
+    // TipTap throws "The editor view is not available" if accessed too early
+    if (!isEditorReady || !editor?.view) return;
+
     // Get the ProseMirror DOM element directly from the editor
-    const editorElement = editor?.view?.dom as HTMLElement | null;
+    const editorElement = editor.view.dom as HTMLElement | null;
 
     if (!container) return;
 
@@ -360,12 +375,16 @@ export const EnhancedInlineEditor = ({
         editorElement.removeEventListener("scroll", handleScroll);
       }
     };
-  }, [editor]); // Re-attach when editor changes
+  }, [editor, isEditorReady]); // Re-attach when editor is ready
 
   // Scroll sync: apply scroll position from paired editor
   useEffect(() => {
     const container = scrollContainerRef.current;
-    const editorElement = editor?.view?.dom as HTMLElement | null;
+
+    // Guard: Wait until editor view is fully initialized
+    if (!isEditorReady || !editor?.view) return;
+
+    const editorElement = editor.view.dom as HTMLElement | null;
 
     if (syncScrollRatio === undefined || !container) return;
 
@@ -393,7 +412,7 @@ export const EnhancedInlineEditor = ({
     requestAnimationFrame(() => {
       isSyncingRef.current = false;
     });
-  }, [syncScrollRatio, scrollSyncId, editor]);
+  }, [syncScrollRatio, scrollSyncId, editor, isEditorReady]);
 
   // Handle editable state changes
   useEffect(() => {
