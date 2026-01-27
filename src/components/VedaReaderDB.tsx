@@ -188,7 +188,8 @@ export const VedaReaderDB = () => {
 
   // CANTO (лише в canto mode)
   const {
-    data: canto
+    data: canto,
+    isLoading: isLoadingCanto
   } = useQuery({
     queryKey: ["canto", book?.id, cantoNumber],
     staleTime: 60_000,
@@ -226,13 +227,14 @@ export const VedaReaderDB = () => {
   });
 
   // Fallback: legacy chapter without canto
-  // Only use fallback when NOT in canto mode, or when canto lookup failed
+  // Only use fallback when NOT in canto mode, or when canto lookup completed and found nothing
   const {
     data: fallbackChapter
   } = useQuery({
     queryKey: ["fallback-chapter", book?.id, effectiveChapterParam],
     staleTime: 60_000,
-    enabled: !!book?.id && !!effectiveChapterParam && (!isCantoMode || !canto?.id),
+    // For canto books: wait for canto query to complete before enabling fallback
+    enabled: !!book?.id && !!effectiveChapterParam && (!isCantoMode || (!isLoadingCanto && !canto?.id)),
     queryFn: async () => {
       if (!book?.id || !effectiveChapterParam) return null;
       const {
@@ -316,7 +318,7 @@ export const VedaReaderDB = () => {
   // ✅ FALLBACK: використовуємо fallbackChapter якщо chapter не знайдено
   // Це критично для SCC та інших книг де canto може не існувати в БД
   const effectiveChapter = chapter || fallbackChapter;
-  const isLoading = isLoadingChapter || isLoadingVersesMain || isLoadingVersesFallback;
+  const isLoading = isLoadingCanto || isLoadingChapter || isLoadingVersesMain || isLoadingVersesFallback;
 
   // Highlights hook - needs chapter.id
   const {
