@@ -370,7 +370,9 @@ export const VedaReaderDB = () => {
             const [start, end] = vn.split('-').map(n => parseInt(n));
             return !isNaN(start) && !isNaN(end) && num >= start && num <= end;
           }
-          return false;
+          // Check simple verse number as integer match
+          const verseNum = parseInt(vn);
+          return !isNaN(verseNum) && verseNum === num;
         });
       }
     }
