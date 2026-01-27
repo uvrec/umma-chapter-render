@@ -415,6 +415,27 @@ export default function AddEditVerse() {
       });
       return;
     }
+
+    // Validate required content fields (all except commentary)
+    const missingFields: string[] = [];
+    if (!sanskritUk?.trim()) missingFields.push("Санскрит (укр)");
+    if (!sanskritEn?.trim()) missingFields.push("Sanskrit (eng)");
+    if (!transliterationUk?.trim()) missingFields.push("Транслітерація (укр)");
+    if (!transliterationEn?.trim()) missingFields.push("Transliteration (eng)");
+    if (!synonymsUk?.trim()) missingFields.push("Синоніми (укр)");
+    if (!synonymsEn?.trim()) missingFields.push("Synonyms (eng)");
+    if (!translationUk?.trim()) missingFields.push("Переклад (укр)");
+    if (!translationEn?.trim()) missingFields.push("Translation (eng)");
+
+    if (missingFields.length > 0) {
+      toast({
+        title: "Заповніть обов'язкові поля",
+        description: missingFields.join(", "),
+        variant: "destructive",
+      });
+      return;
+    }
+
     mutation.mutate();
   };
 
@@ -852,7 +873,8 @@ export default function AddEditVerse() {
                   type="button"
                   variant="secondary"
                   disabled={mutation.isPending}
-                  onClick={() => {
+                  onClick={(e) => {
+                    // Trigger the same validation as handleSubmit
                     if (!chapterId || !verseNumber) {
                       toast({
                         title: "Помилка",
@@ -861,6 +883,27 @@ export default function AddEditVerse() {
                       });
                       return;
                     }
+
+                    // Validate required content fields (all except commentary)
+                    const missingFields: string[] = [];
+                    if (!sanskritUk?.trim()) missingFields.push("Санскрит (укр)");
+                    if (!sanskritEn?.trim()) missingFields.push("Sanskrit (eng)");
+                    if (!transliterationUk?.trim()) missingFields.push("Транслітерація (укр)");
+                    if (!transliterationEn?.trim()) missingFields.push("Transliteration (eng)");
+                    if (!synonymsUk?.trim()) missingFields.push("Синоніми (укр)");
+                    if (!synonymsEn?.trim()) missingFields.push("Synonyms (eng)");
+                    if (!translationUk?.trim()) missingFields.push("Переклад (укр)");
+                    if (!translationEn?.trim()) missingFields.push("Translation (eng)");
+
+                    if (missingFields.length > 0) {
+                      toast({
+                        title: "Заповніть обов'язкові поля",
+                        description: missingFields.join(", "),
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+
                     setAddAnother(true);
                     mutation.mutate();
                   }}
