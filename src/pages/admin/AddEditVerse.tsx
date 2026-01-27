@@ -326,6 +326,7 @@ export default function AddEditVerse() {
         explanation_en_audio_url: explanationEnAudioUrl || null, // EN explanation
 
         is_published: true,
+        deleted_at: null, // Auto-restore soft-deleted verses on save
       };
 
       if (id) {
