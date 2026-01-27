@@ -71,8 +71,8 @@ CREATE TRIGGER trg_verses_search_vector
     translation_uk, translation_en,
     commentary_uk, commentary_en,
     synonyms_uk, synonyms_en,
-    transliteration, transliteration_uk, transliteration_en,
-    sanskrit
+    transliteration_uk, transliteration_en,
+    sanskrit_uk, sanskrit_en
   ON public.verses
   FOR EACH ROW
   EXECUTE FUNCTION public.update_verse_search_vector();
