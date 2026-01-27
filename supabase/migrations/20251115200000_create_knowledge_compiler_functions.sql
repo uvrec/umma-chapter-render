@@ -358,7 +358,7 @@ CREATE TRIGGER verses_search_vector_update
     translation_uk, translation_en,
     commentary_uk, commentary_en,
     synonyms_uk, synonyms_en,
-    transliteration
+    transliteration, transliteration_uk, transliteration_en
   ON public.verses
   FOR EACH ROW
   EXECUTE FUNCTION public.update_verse_search_vector();
