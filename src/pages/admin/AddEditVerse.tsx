@@ -381,11 +381,25 @@ export default function AddEditVerse() {
       }
     },
     onError: (error) => {
-      toast({
-        title: "Помилка",
-        description: (error as any).message,
-        variant: "destructive",
-      });
+      const errorMessage = (error as any).message || "";
+
+      // Check for duplicate verse number constraint violation
+      if (errorMessage.includes("verses_unique_chapter_verse") ||
+          errorMessage.includes("duplicate key value")) {
+        toast({
+          title: "Вірш з таким номером вже існує",
+          description: `Вірш ${verseNumber} вже є в цьому розділі. Оберіть інший номер.`,
+          variant: "destructive",
+        });
+        // Refresh the verse list to get updated auto-number
+        queryClient.invalidateQueries({ queryKey: ["chapter-verses-for-auto-number", chapterId] });
+      } else {
+        toast({
+          title: "Помилка",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
       setAddAnother(false); // Reset flag on error
     },
   });
