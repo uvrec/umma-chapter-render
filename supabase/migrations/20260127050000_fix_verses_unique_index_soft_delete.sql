@@ -25,8 +25,13 @@ BEGIN
   RAISE NOTICE 'Pre-check passed: No duplicate verses found among active records.';
 END $$;
 
--- Drop the old index that doesn't account for soft deletes
+-- Drop old indexes/constraints that don't account for soft deletes
 DROP INDEX IF EXISTS verses_chapter_verse_unique;
+DROP INDEX IF EXISTS ux_verses_chapter_verse;
+
+-- Also try dropping as constraint (in case it was created as UNIQUE CONSTRAINT)
+ALTER TABLE public.verses DROP CONSTRAINT IF EXISTS ux_verses_chapter_verse;
+ALTER TABLE public.verses DROP CONSTRAINT IF EXISTS verses_chapter_verse_unique;
 
 -- Create new partial index that only enforces uniqueness for non-deleted verses
 CREATE UNIQUE INDEX verses_chapter_verse_unique
