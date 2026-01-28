@@ -790,14 +790,15 @@ export const ChapterVersesList = () => {
                   </p>;
           })}
             </div> : dualLanguageMode ? (
-              /* Poetry-style dual language layout - like vedabase.io */
-              <div className="grid gap-8 md:grid-cols-2">
-                {/* Ukrainian column */}
-                <div className="space-y-4" style={readerTextStyle}>
-                  {verses.map((verse: Verse) => {
-                    const translationUk = verse.translation_uk || "";
-                    return (
-                      <p key={verse.id} className="text-foreground text-justify leading-relaxed">
+              /* Poetry-style dual language layout - synchronized rows */
+              <div className="space-y-6" style={readerTextStyle}>
+                {verses.map((verse: Verse) => {
+                  const translationUk = verse.translation_uk || "";
+                  const translationEn = verse.translation_en || "";
+                  return (
+                    <div key={verse.id} className="grid gap-6 md:grid-cols-2">
+                      {/* Ukrainian */}
+                      <p className="text-foreground text-justify leading-relaxed">
                         {showNumbers && (
                           <>
                             <Link
@@ -844,16 +845,8 @@ export const ChapterVersesList = () => {
                           )
                         )}
                       </p>
-                    );
-                  })}
-                </div>
-
-                {/* English column */}
-                <div className="space-y-4 border-l border-border pl-6" style={readerTextStyle}>
-                  {verses.map((verse: Verse) => {
-                    const translationEn = verse.translation_en || "";
-                    return (
-                      <p key={verse.id} className="text-foreground text-justify leading-relaxed">
+                      {/* English */}
+                      <p className="text-foreground text-justify leading-relaxed border-l border-border pl-6">
                         {showNumbers && (
                           <>
                             <Link
@@ -868,9 +861,9 @@ export const ChapterVersesList = () => {
                           <span className="italic text-muted-foreground">No translation</span>
                         )}
                       </p>
-                    );
-                  })}
-                </div>
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               /* Single language poetry-style layout */
