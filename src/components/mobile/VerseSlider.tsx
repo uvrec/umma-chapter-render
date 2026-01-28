@@ -113,13 +113,13 @@ export function VerseSlider({
         onClick={onClose}
       />
 
-      {/* Слайдер справа - використовує кольори теми сайту */}
+      {/* Слайдер справа - вузький і елегантний */}
       <div
         ref={sliderRef}
         className={cn(
           "fixed right-0 top-0 bottom-0 z-50",
-          "w-12 py-8",
-          "bg-background/95 backdrop-blur-sm border-l border-border",
+          "w-6 py-6",
+          "bg-transparent",
           "flex flex-col items-center justify-between",
           "animate-in slide-in-from-right duration-200"
         )}
@@ -138,17 +138,17 @@ export function VerseSlider({
               key={verse.id}
               onClick={() => handleVerseClick(verse.verse_number)}
               className={cn(
-                "flex-1 w-full flex items-center justify-center min-h-[8px]",
+                "flex-1 w-full flex items-center justify-center min-h-[4px]",
                 "transition-colors duration-100"
               )}
             >
               {isVisible ? (
                 <span
                   className={cn(
-                    "text-[11px] font-medium italic",
+                    "text-[9px] font-medium",
                     isActive && "text-primary font-bold",
                     isHovered && "text-primary font-bold",
-                    !isActive && !isHovered && "text-muted-foreground"
+                    !isActive && !isHovered && "text-muted-foreground/70"
                   )}
                 >
                   {verse.verse_number}
@@ -156,10 +156,10 @@ export function VerseSlider({
               ) : (
                 <span
                   className={cn(
-                    "w-1 h-1 rounded-full",
+                    "w-0.5 h-0.5 rounded-full",
                     isActive && "bg-primary",
                     isHovered && "bg-primary",
-                    !isActive && !isHovered && "bg-muted-foreground/50"
+                    !isActive && !isHovered && "bg-muted-foreground/30"
                   )}
                 />
               )}
@@ -168,7 +168,7 @@ export function VerseSlider({
         })}
       </div>
 
-      {/* Індикатор при ковзанні - використовує brand колір */}
+      {/* Індикатор при ковзанні - компактний */}
       {isDragging && hoveredVerse && (
         <div
           className={cn(
@@ -176,30 +176,30 @@ export function VerseSlider({
             "animate-in fade-in zoom-in-75 duration-100"
           )}
           style={{
-            right: "60px",
-            top: magnifierY - 30,
+            right: "32px",
+            top: magnifierY - 24,
           }}
         >
           <div className="relative">
             <div
               className={cn(
                 "bg-primary text-primary-foreground",
-                "px-4 py-2 rounded-full",
-                "shadow-xl",
+                "px-3 py-1.5 rounded-full",
+                "shadow-lg",
                 "flex items-center justify-center"
               )}
             >
-              <span className="text-2xl font-bold italic">{hoveredVerse}</span>
+              <span className="text-xl font-bold">{hoveredVerse}</span>
             </div>
             {/* Стрілка вправо */}
             <div
-              className="absolute top-1/2 -translate-y-1/2 -right-2 border-l-primary"
+              className="absolute top-1/2 -translate-y-1/2 -right-1.5 border-l-primary"
               style={{
                 width: 0,
                 height: 0,
-                borderTop: "10px solid transparent",
-                borderBottom: "10px solid transparent",
-                borderLeftWidth: "10px",
+                borderTop: "8px solid transparent",
+                borderBottom: "8px solid transparent",
+                borderLeftWidth: "8px",
                 borderLeftStyle: "solid",
               }}
             />

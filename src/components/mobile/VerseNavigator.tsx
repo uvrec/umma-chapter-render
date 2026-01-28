@@ -105,8 +105,8 @@ export function VerseNavigator({
       <button
         onClick={showNavigator}
         className="fixed right-0 top-1/2 -translate-y-1/2 z-40
-          w-2 h-20 bg-gray-800/50 rounded-l-full
-          hover:w-3 transition-all duration-200"
+          w-1 h-16 bg-muted-foreground/30 rounded-l-full
+          hover:w-1.5 transition-all duration-200"
         aria-label="Show verse navigator"
       />
     );
@@ -117,8 +117,8 @@ export function VerseNavigator({
       ref={containerRef}
       className={cn(
         "verse-navigator fixed right-0 top-0 bottom-0 z-40",
-        "w-10 flex flex-col items-center justify-between py-4",
-        "bg-gray-900/95 backdrop-blur-sm",
+        "w-5 flex flex-col items-center justify-between py-4",
+        "bg-transparent",
         "transition-opacity duration-300",
         isVisible ? "opacity-100" : "opacity-0 pointer-events-none"
       )}
@@ -127,7 +127,7 @@ export function VerseNavigator({
       onTouchMove={handleTouchMove}
       aria-label="Verse navigator"
     >
-      <div className="flex flex-col items-center gap-0.5 flex-1 py-2 overflow-hidden">
+      <div className="flex flex-col items-center gap-0 flex-1 py-2 overflow-hidden">
         {verseMarkers.map(({ verse, isLabel }) => {
           const isCurrent = verse === currentVerse;
           const isNearCurrent = Math.abs(verse - currentVerse) <= 2;
@@ -138,25 +138,25 @@ export function VerseNavigator({
               onClick={() => handleVerseClick(verse)}
               className={cn(
                 "relative flex items-center justify-center transition-all duration-200",
-                isLabel ? "min-h-[24px]" : "min-h-[8px]",
+                isLabel ? "min-h-[16px]" : "min-h-[4px]",
                 isCurrent && "z-10"
               )}
               aria-label={`Go to verse ${verse}`}
               aria-current={isCurrent ? "true" : undefined}
             >
-              {/* Current verse indicator - yellow oval extending left */}
+              {/* Current verse indicator - oval extending left */}
               {isCurrent && (
                 <div
                   className="absolute right-0 flex items-center justify-center
-                    bg-yellow-500 text-gray-900 font-serif font-medium italic
-                    rounded-l-full px-4 py-1 -mr-1
-                    shadow-lg animate-in slide-in-from-right-2 duration-200"
+                    bg-primary text-primary-foreground font-medium
+                    rounded-l-full px-3 py-0.5 -mr-0.5
+                    shadow-md animate-in slide-in-from-right-2 duration-200"
                   style={{
-                    minWidth: "48px",
-                    transform: "translateX(-8px)",
+                    minWidth: "36px",
+                    transform: "translateX(-4px)",
                   }}
                 >
-                  {verse}
+                  <span className="text-sm">{verse}</span>
                 </div>
               )}
 
@@ -166,8 +166,8 @@ export function VerseNavigator({
                   {isLabel ? (
                     <span
                       className={cn(
-                        "text-xs font-serif italic transition-colors",
-                        isNearCurrent ? "text-gray-300" : "text-gray-500"
+                        "text-[9px] transition-colors",
+                        isNearCurrent ? "text-muted-foreground" : "text-muted-foreground/50"
                       )}
                     >
                       {verse}
@@ -175,8 +175,8 @@ export function VerseNavigator({
                   ) : (
                     <span
                       className={cn(
-                        "w-1 h-1 rounded-full transition-colors",
-                        isNearCurrent ? "bg-gray-400" : "bg-gray-600"
+                        "w-0.5 h-0.5 rounded-full transition-colors",
+                        isNearCurrent ? "bg-muted-foreground/50" : "bg-muted-foreground/20"
                       )}
                     />
                   )}
