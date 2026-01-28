@@ -91,6 +91,8 @@ import {
   Minus,
   RemoveFormatting,
   Zap,
+  Copy,
+  Check,
 } from "lucide-react";
 import {
   applyNormalizationRules,
@@ -224,6 +226,8 @@ export const EnhancedInlineEditor = ({
   onScrollRef.current = onScroll;
   // Track when editor view is fully initialized (prevents "view not available" errors)
   const [isEditorReady, setIsEditorReady] = useState(false);
+  // Track copy feedback state
+  const [copied, setCopied] = useState(false);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -627,6 +631,53 @@ export const EnhancedInlineEditor = ({
       toast({
         title: "Текст вже нормалізований",
         description: "Змін не потрібно",
+      });
+    }
+  }, [editor]);
+
+  // Copy entire content to clipboard
+  const copyContent = useCallback(async () => {
+    if (!editor) return;
+
+    const html = editor.getHTML();
+    // Get plain text version by stripping HTML tags
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    const plainText = temp.textContent || temp.innerText || '';
+
+    try {
+      // Try to copy both HTML and plain text formats
+      if (navigator.clipboard && navigator.clipboard.write) {
+        const htmlBlob = new Blob([html], { type: 'text/html' });
+        const textBlob = new Blob([plainText], { type: 'text/plain' });
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            'text/html': htmlBlob,
+            'text/plain': textBlob,
+          }),
+        ]);
+      } else {
+        // Fallback to plain text copy
+        await navigator.clipboard.writeText(plainText);
+      }
+
+      setCopied(true);
+      toast({
+        title: "Скопійовано",
+        description: "Вміст блоку скопійовано в буфер обміну",
+      });
+
+      // Reset copied state after 2 seconds
+      setTimeout(() => {
+        if (isMountedRef.current) {
+          setCopied(false);
+        }
+      }, 2000);
+    } catch (error) {
+      toast({
+        title: "Помилка копіювання",
+        description: "Не вдалося скопіювати вміст",
+        variant: "destructive",
       });
     }
   }, [editor]);
@@ -1073,6 +1124,17 @@ export const EnhancedInlineEditor = ({
                   <Zap className="h-3 w-3" />
                 </Button>
               )}
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className={`h-8 w-8 ${copied ? "text-green-600" : ""}`}
+                onClick={copyContent}
+                onMouseDown={(e) => e.preventDefault()}
+                title="Скопіювати весь блок"
+              >
+                {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+              </Button>
             </div>
           </div>
         </div>
