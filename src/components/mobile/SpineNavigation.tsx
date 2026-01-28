@@ -42,15 +42,11 @@ interface SpineNavigationProps {
   onVisibilityChange?: (isVisible: boolean) => void;
 }
 
-const AUTO_HIDE_DELAY = 3000; // 3 seconds
-
 export function SpineNavigation({
   bookId,
   onVisibilityChange,
 }: SpineNavigationProps) {
   const [activePanel, setActivePanel] = useState<SpinePanel>("none");
-  const [isHidden, setIsHidden] = useState(false);
-  const hideTimerRef = useRef<NodeJS.Timeout | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const { t, getLocalizedPath } = useLanguage();
@@ -79,44 +75,6 @@ export function SpineNavigation({
   const spineTheme = SPINE_THEME_MAP[spineThemeIndex];
   const isSettingsMode = activePanel === "settings";
 
-  // Auto-hide timer logic
-  const resetHideTimer = useCallback(() => {
-    if (hideTimerRef.current) {
-      clearTimeout(hideTimerRef.current);
-    }
-    // Don't auto-hide if panel is open or timeline is showing
-    if (activePanel !== "none" || showTimeline) return;
-
-    hideTimerRef.current = setTimeout(() => {
-      setIsHidden(true);
-      onVisibilityChange?.(false);
-    }, AUTO_HIDE_DELAY);
-  }, [activePanel, showTimeline, onVisibilityChange]);
-
-  // Show spine and reset timer
-  const showSpine = useCallback(() => {
-    setIsHidden(false);
-    onVisibilityChange?.(true);
-    resetHideTimer();
-  }, [onVisibilityChange, resetHideTimer]);
-
-  // Start auto-hide timer on mount and when panels close
-  useEffect(() => {
-    if (activePanel === "none" && !showTimeline) {
-      resetHideTimer();
-    } else {
-      // Clear timer when panel is open
-      if (hideTimerRef.current) {
-        clearTimeout(hideTimerRef.current);
-      }
-    }
-    return () => {
-      if (hideTimerRef.current) {
-        clearTimeout(hideTimerRef.current);
-      }
-    };
-  }, [activePanel, showTimeline, resetHideTimer]);
-
   // Change theme (both Spine and App)
   const changeTheme = useCallback((direction: "up" | "down") => {
     const newIndex = direction === "up"
@@ -128,11 +86,10 @@ export function SpineNavigation({
     localStorage.setItem(SPINE_THEME_STORAGE_KEY, String(newIndex));
   }, [spineThemeIndex, setTheme]);
 
-  // Handle touch start - also resets hide timer
+  // Handle touch start
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
-    resetHideTimer();
   };
 
   // Handle touch move - for horizontal drag
@@ -193,19 +150,16 @@ export function SpineNavigation({
 
   const togglePanel = useCallback((panel: SpinePanel) => {
     setActivePanel((current) => (current === panel ? "none" : panel));
-    // Show spine when opening a panel
-    setIsHidden(false);
-    onVisibilityChange?.(true);
-  }, [onVisibilityChange]);
+  }, []);
 
   const closePanel = useCallback(() => {
     setActivePanel("none");
   }, []);
 
-  // Notify parent about visibility changes
+  // Notify parent about visibility
   useEffect(() => {
-    onVisibilityChange?.(!isHidden);
-  }, [isHidden, onVisibilityChange]);
+    onVisibilityChange?.(true);
+  }, [onVisibilityChange]);
 
   // Spine buttons configuration - only 4 buttons
   const spineButtons = [
@@ -246,35 +200,14 @@ export function SpineNavigation({
     },
   ];
 
-  // Calculate spine position (includes hide animation)
+  // Calculate spine position
   const spineStyle: React.CSSProperties = {
-    transform: isHidden
-      ? "translateX(-100%)"
-      : dragX > 0
-        ? `translateX(${dragX}px)`
-        : undefined,
+    transform: dragX > 0 ? `translateX(${dragX}px)` : undefined,
     transition: isDragging ? "none" : "transform 300ms ease-out",
   };
 
   return (
     <>
-      {/* Show button when spine is hidden */}
-      {isHidden && (
-        <button
-          onClick={showSpine}
-          className={cn(
-            "fixed left-0 top-1/2 -translate-y-1/2 z-50",
-            "w-2 h-20 rounded-r-full",
-            "bg-gradient-to-b",
-            spineTheme.gradient,
-            "opacity-60 hover:opacity-100 hover:w-3",
-            "transition-all duration-200",
-            "shadow-md"
-          )}
-          aria-label={t("Показати навігацію", "Show navigation")}
-        />
-      )}
-
       {/* Timeline panel (behind Spine, revealed when dragging right) */}
       <div
         className={cn(
