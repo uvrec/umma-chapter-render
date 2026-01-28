@@ -19,6 +19,7 @@ import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { toast } from "@/hooks/use-toast";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useMobileReading } from "@/contexts/MobileReadingContext";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { stripParagraphTags, sanitizeForRender } from "@/utils/import/normalizers";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
@@ -113,6 +114,14 @@ export const ChapterVersesList = () => {
     setFullscreenMode
   } = useReaderSettings();
   const isMobile = useIsMobile();
+  const { enterFullscreen } = useMobileReading();
+
+  // Enter fullscreen mode on mobile for immersive reading
+  useEffect(() => {
+    if (isMobile) {
+      enterFullscreen();
+    }
+  }, [isMobile, enterFullscreen]);
 
   // Editing state
   const [isEditingContent, setIsEditingContent] = useState(false);
