@@ -569,17 +569,16 @@ export const VerseCard = ({
         {/* Послівний переклад з окремою кнопкою Volume2 */}
         {textDisplaySettings.showSynonyms && (isEditing || synonyms) && (
           <div className={`mb-6 synced-section transition-all duration-300 ${sectionHighlightClass}`} data-synced-section="synonyms">
-            {/* Mobile: тапабельний заголовок для collapse/expand */}
+            {/* Mobile: центрована стрілка для collapse/expand */}
             {isMobile && (
               <button
                 onClick={() => toggleSectionCollapse('synonyms')}
-                className="flex items-center justify-between w-full py-2 mb-2 text-muted-foreground active:bg-muted/30 rounded-lg transition-colors"
+                className="flex items-center justify-center w-full py-1 mb-1 text-muted-foreground active:bg-muted/30 rounded-lg transition-colors"
               >
-                <span className="text-sm font-medium">{labels.synonyms}</span>
                 {collapsedSections.synonyms ? (
-                  <ChevronDown className="h-4 w-4" />
+                  <ChevronDown className="h-5 w-5" />
                 ) : (
-                  <ChevronUp className="h-4 w-4" />
+                  <ChevronUp className="h-5 w-5" />
                 )}
               </button>
             )}
