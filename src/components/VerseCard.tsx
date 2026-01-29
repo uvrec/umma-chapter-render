@@ -6,7 +6,7 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Edit, Save, X, Volume2, GraduationCap, Play, Pause, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
+import { Edit, Save, X, Volume2, GraduationCap, Play, Pause, ChevronLeft, ChevronRight, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
@@ -178,6 +178,28 @@ export const VerseCard = ({
   };
   const labels = blockLabels[language] || blockLabels.uk;
   const { playVerseWithChapterContext, currentTrack, togglePlay, isPlaying } = useAudio();
+
+  // ✅ Collapsible sections state for mobile (persisted in localStorage)
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(() => {
+    if (typeof window === 'undefined') return {};
+    try {
+      const saved = localStorage.getItem('vv_collapsed_sections');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  // Toggle section collapse (mobile only)
+  const toggleSectionCollapse = useCallback((section: string) => {
+    setCollapsedSections(prev => {
+      const newState = { ...prev, [section]: !prev[section] };
+      try {
+        localStorage.setItem('vv_collapsed_sections', JSON.stringify(newState));
+      } catch {}
+      return newState;
+    });
+  }, []);
 
   // Check if this verse is currently playing
   const isNowPlaying = useMemo(() => {
@@ -529,7 +551,22 @@ export const VerseCard = ({
         {/* Послівний переклад з окремою кнопкою Volume2 */}
         {textDisplaySettings.showSynonyms && (isEditing || synonyms) && (
           <div className={`mb-6 synced-section transition-all duration-300 ${getSectionHighlightClass('synonyms')}`} data-synced-section="synonyms">
-            {/* Заголовок + кнопка Volume2 (hidden on mobile via CSS for clean reading) */}
+            {/* Mobile: тапабельний заголовок для collapse/expand */}
+            {isMobile && (
+              <button
+                onClick={() => toggleSectionCollapse('synonyms')}
+                className="flex items-center justify-between w-full py-2 mb-2 text-muted-foreground active:bg-muted/30 rounded-lg transition-colors"
+              >
+                <span className="text-sm font-medium">{labels.synonyms}</span>
+                {collapsedSections.synonyms ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronUp className="h-4 w-4" />
+                )}
+              </button>
+            )}
+
+            {/* Desktop: Заголовок + кнопка Volume2 */}
             <div className="section-header hidden md:flex items-center justify-center gap-4 mb-4">
               <h4 className="text-foreground">{labels.synonyms}</h4>
               <button
@@ -542,90 +579,95 @@ export const VerseCard = ({
               </button>
             </div>
 
-            {isEditing ? (
-              <Textarea
-                value={edited.synonyms}
-                onChange={(e) =>
-                  setEdited((p) => ({
-                    ...p,
-                    synonyms: e.target.value,
-                  }))
-                }
-                className="text-base min-h-[200px]"
-              />
-            ) : synonyms ? (
-              <p
-                style={{
-                  fontSize: `${fontSize}px`,
-                  lineHeight: 1.4,
-                }}
-                className="text-justify"
-              >
-                {synonymPairs.map((pair, i) => {
-                    const words = pair.term
-                      .split(/\s+/)
-                      .map((w) => w.trim())
-                      .filter(Boolean);
+            {/* Content - collapsible on mobile */}
+            {(!isMobile || !collapsedSections.synonyms) && (
+              <>
+                {isEditing ? (
+                  <Textarea
+                    value={edited.synonyms}
+                    onChange={(e) =>
+                      setEdited((p) => ({
+                        ...p,
+                        synonyms: e.target.value,
+                      }))
+                    }
+                    className="text-base min-h-[200px]"
+                  />
+                ) : synonyms ? (
+                  <p
+                    style={{
+                      fontSize: `${fontSize}px`,
+                      lineHeight: 1.4,
+                    }}
+                    className="text-justify"
+                  >
+                    {synonymPairs.map((pair, i) => {
+                        const words = pair.term
+                          .split(/\s+/)
+                          .map((w) => w.trim())
+                          .filter(Boolean);
 
-                    // Handler for adding word to learning
-                    const handleAddToLearning = (word: string, meaning: string) => {
-                      const added = addLearningWord({
-                        script: word,
-                        iast: word,
-                        ukrainian: meaning,
-                        meaning: meaning,
-                        book: bookName,
-                        verseReference: verseNumber,
-                      });
-                      if (added) {
-                        toast.success(`Додано до вивчення: ${word}`);
-                      } else {
-                        toast.info(`Слово вже в списку: ${word}`);
-                      }
-                    };
-                    return (
-                      <span key={i}>
-                        {words.map((w, wi) => (
-                          <span key={wi}>
-                            <span
-                              role="link"
-                              tabIndex={0}
-                              onClick={() => openGlossary(w)}
-                              onTouchEnd={(e) => {
-                                e.preventDefault();
-                                openGlossary(w);
+                        // Handler for adding word to learning
+                        const handleAddToLearning = (word: string, meaning: string) => {
+                          const added = addLearningWord({
+                            script: word,
+                            iast: word,
+                            ukrainian: meaning,
+                            meaning: meaning,
+                            book: bookName,
+                            verseReference: verseNumber,
+                          });
+                          if (added) {
+                            toast.success(`Додано до вивчення: ${word}`);
+                          } else {
+                            toast.info(`Слово вже в списку: ${word}`);
+                          }
+                        };
+                        return (
+                          <span key={i}>
+                            {words.map((w, wi) => (
+                              <span key={wi}>
+                                <span
+                                  role="link"
+                                  tabIndex={0}
+                                  onClick={() => openGlossary(w)}
+                                  onTouchEnd={(e) => {
+                                    e.preventDefault();
+                                    openGlossary(w);
+                                  }}
+                                  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
+                                  title="Відкрити у глосарії"
+                                  className="cursor-pointer italic"
+                                  style={{ color: "#BC731B", WebkitTapHighlightColor: 'rgba(188, 115, 27, 0.3)' }}
+                                >
+                                  {w}
+                                </span>
+                                {wi < words.length - 1 && " "}
+                              </span>
+                            ))}
+                            {pair.meaning && <span> — {pair.meaning}</span>}
+                            {/* Learning button - hidden on mobile via CSS for clean reading */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAddToLearning(pair.term, pair.meaning || "");
                               }}
-                              onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
-                              title="Відкрити у глосарії"
-                              className="cursor-pointer italic"
-                              style={{ color: "#BC731B", WebkitTapHighlightColor: 'rgba(188, 115, 27, 0.3)' }}
+                              title="Додати до вивчення"
+                              aria-label={`Додати "${pair.term}" до вивчення`}
+                              className="hidden md:inline-flex items-center justify-center ml-1 p-1 rounded-md hover:bg-primary/10 transition-colors group text-sm"
                             >
-                              {w}
-                            </span>
-                            {wi < words.length - 1 && " "}
+                              <GraduationCap
+                                className={`h-4 w-4 ${isWordInLearningList(pair.term) ? "text-green-600" : "text-muted-foreground group-hover:text-primary"}`}
+                              />
+                            </button>
+                            {i < synonymPairs.length - 1 && <span>; </span>}
                           </span>
-                        ))}
-                        {pair.meaning && <span> — {pair.meaning}</span>}
-                        {/* Learning button - hidden on mobile via CSS for clean reading */}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAddToLearning(pair.term, pair.meaning || "");
-                          }}
-                          title="Додати до вивчення"
-                          aria-label={`Додати "${pair.term}" до вивчення`}
-                          className="hidden md:inline-flex items-center justify-center ml-1 p-1 rounded-md hover:bg-primary/10 transition-colors group text-sm"
-                        >
-                          <GraduationCap
-                            className={`h-4 w-4 ${isWordInLearningList(pair.term) ? "text-green-600" : "text-muted-foreground group-hover:text-primary"}`}
-                          />
-                        </button>
-                        {i < synonymPairs.length - 1 && <span>; </span>}
-                      </span>
-                    );
-                  })}
-              </p>
-            ) : null}
+                        );
+                      })}
+                  </p>
+                ) : null}
+              </>
+            )}
           </div>
         )}
 
@@ -672,7 +714,22 @@ export const VerseCard = ({
         {/* Пояснення з окремою кнопкою Volume2 */}
         {textDisplaySettings.showCommentary && (isEditing || commentary) && (
           <div className={`synced-section transition-all duration-300 ${getSectionHighlightClass('commentary')}`} data-synced-section="commentary">
-            {/* Заголовок + кнопка Volume2 (hidden on mobile via CSS for clean reading) */}
+            {/* Mobile: тапабельний заголовок для collapse/expand */}
+            {isMobile && (
+              <button
+                onClick={() => toggleSectionCollapse('commentary')}
+                className="flex items-center justify-between w-full py-2 mb-2 text-muted-foreground active:bg-muted/30 rounded-lg transition-colors"
+              >
+                <span className="text-sm font-medium">{labels.commentary}</span>
+                {collapsedSections.commentary ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronUp className="h-4 w-4" />
+                )}
+              </button>
+            )}
+
+            {/* Desktop: Заголовок + кнопка Volume2 */}
             <div className="section-header hidden md:flex items-center justify-center gap-4 mb-4">
               <h4 className="text-foreground font-serif">{labels.commentary}</h4>
               <button
@@ -685,25 +742,30 @@ export const VerseCard = ({
               </button>
             </div>
 
-            {isEditing ? (
-              <EnhancedInlineEditor
-                content={edited.commentary}
-                onChange={(html) =>
-                  setEdited((p) => ({
-                    ...p,
-                    commentary: html,
-                  }))
-                }
-                label="Редагувати пояснення"
-                minHeight="200px"
-                compact={true}
-              />
-            ) : (
-              <div
-                className="text-foreground text-justify purport first"
-                style={{ fontSize: `${fontSize}px`, lineHeight }}
-                dangerouslySetInnerHTML={{ __html: applyDropCap(sanitizeForRender(commentary || "")) }}
-              />
+            {/* Content - collapsible on mobile */}
+            {(!isMobile || !collapsedSections.commentary) && (
+              <>
+                {isEditing ? (
+                  <EnhancedInlineEditor
+                    content={edited.commentary}
+                    onChange={(html) =>
+                      setEdited((p) => ({
+                        ...p,
+                        commentary: html,
+                      }))
+                    }
+                    label="Редагувати пояснення"
+                    minHeight="200px"
+                    compact={true}
+                  />
+                ) : (
+                  <div
+                    className="text-foreground text-justify purport first"
+                    style={{ fontSize: `${fontSize}px`, lineHeight }}
+                    dangerouslySetInnerHTML={{ __html: applyDropCap(sanitizeForRender(commentary || "")) }}
+                  />
+                )}
+              </>
             )}
           </div>
         )}
