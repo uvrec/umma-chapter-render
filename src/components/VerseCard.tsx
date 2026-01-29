@@ -573,7 +573,7 @@ export const VerseCard = ({
             {isMobile && (
               <button
                 onClick={() => toggleSectionCollapse('synonyms')}
-                className="flex items-center justify-center w-full py-1 mb-1 text-muted-foreground active:bg-muted/30 rounded-lg transition-colors"
+                className="flex items-center justify-center w-full py-1 text-muted-foreground active:bg-muted/30 rounded-lg transition-colors"
               >
                 {collapsedSections.synonyms ? (
                   <ChevronDown className="h-5 w-5" />

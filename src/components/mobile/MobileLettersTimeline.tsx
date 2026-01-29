@@ -1,31 +1,27 @@
-// src/components/mobile/MobileLecturesTimeline.tsx
-// Мобільний таймлайн лекцій у стилі Neu Bible
-// Рік → Місяць (свайп) → Локація (чіпси) → Лекції
+// src/components/mobile/MobileLettersTimeline.tsx
+// Мобільний таймлайн листів у стилі Neu Bible
+// Рік → Місяць (свайп) → Локація (чіпси) → Листи
 
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, MapPin, Calendar, Mic, BookOpen } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, Calendar, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 
-interface Lecture {
+interface Letter {
   id: string;
   slug: string;
-  title_en: string;
-  title_uk: string | null;
-  lecture_date: string;
+  recipient_en: string;
+  recipient_uk: string | null;
+  letter_date: string;
   location_en: string;
   location_uk: string | null;
-  lecture_type: string;
-  book_slug: string | null;
-  chapter_number: number | null;
-  verse_number: string | null;
+  reference: string | null;
+  content_en: string;
+  content_uk: string | null;
 }
-
-// Prabhupada's active years
-const YEARS = [1966, 1967, 1968, 1969, 1970, 1971, 1972, 1973, 1974, 1975, 1976, 1977];
 
 const MONTHS_UK = [
   "Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень",
@@ -37,10 +33,10 @@ const MONTHS_EN = [
   "July", "August", "September", "October", "November", "December"
 ];
 
-export function MobileLecturesTimeline() {
+export function MobileLettersTimeline() {
   const navigate = useNavigate();
   const { language, t, getLocalizedPath } = useLanguage();
-  const [selectedYear, setSelectedYear] = useState(1966);
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [selectedMonth, setSelectedMonth] = useState(1); // 1-12
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null); // null = all
   const yearScrollRef = useRef<HTMLDivElement>(null);
@@ -48,89 +44,111 @@ export function MobileLecturesTimeline() {
   // Touch handling for month swipe
   const touchStartX = useRef<number | null>(null);
 
-  // Fetch all lectures
-  const { data: lectures, isLoading } = useQuery({
-    queryKey: ["lectures-timeline"],
+  // Fetch all letters
+  const { data: letters, isLoading } = useQuery({
+    queryKey: ["letters-timeline"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("lectures")
-        .select("id, slug, title_en, title_uk, lecture_date, location_en, location_uk, lecture_type, book_slug, chapter_number, verse_number")
-        .order("lecture_date", { ascending: true });
+        .from("letters")
+        .select("id, slug, recipient_en, recipient_uk, letter_date, location_en, location_uk, reference, content_en, content_uk")
+        .order("letter_date", { ascending: true });
 
       if (error) throw error;
-      return data as Lecture[];
+      return data as Letter[];
     },
   });
 
+  // Get unique years from letters data
+  const years = useMemo(() => {
+    if (!letters || letters.length === 0) return [];
+    const uniqueYears = new Set<number>();
+    letters.forEach(l => {
+      const year = new Date(l.letter_date).getFullYear();
+      if (!isNaN(year)) uniqueYears.add(year);
+    });
+    return Array.from(uniqueYears).sort((a, b) => a - b);
+  }, [letters]);
+
+  // Set initial year when data loads
+  useEffect(() => {
+    if (years.length > 0 && selectedYear === null) {
+      setSelectedYear(years[0]);
+    }
+  }, [years, selectedYear]);
+
   // Get unique locations
   const locations = useMemo(() => {
-    if (!lectures) return [];
+    if (!letters) return [];
     const uniqueLocations = new Set<string>();
-    lectures.forEach(l => {
+    letters.forEach(l => {
       if (l.location_en) uniqueLocations.add(l.location_en);
     });
     return Array.from(uniqueLocations).sort();
-  }, [lectures]);
+  }, [letters]);
 
-  // Filter lectures by year, month, and location
-  const filteredLectures = useMemo(() => {
-    if (!lectures) return [];
+  // Filter letters by year, month, and location
+  const filteredLetters = useMemo(() => {
+    if (!letters || selectedYear === null) return [];
 
-    return lectures.filter(lecture => {
-      const date = new Date(lecture.lecture_date);
+    return letters.filter(letter => {
+      const date = new Date(letter.letter_date);
       const year = date.getFullYear();
       const month = date.getMonth() + 1; // 1-12
 
       if (year !== selectedYear) return false;
       if (month !== selectedMonth) return false;
-      if (selectedLocation && lecture.location_en !== selectedLocation) return false;
+      if (selectedLocation && letter.location_en !== selectedLocation) return false;
 
       return true;
     });
-  }, [lectures, selectedYear, selectedMonth, selectedLocation]);
+  }, [letters, selectedYear, selectedMonth, selectedLocation]);
 
-  // Get lecture count for current month
-  const monthLectureCount = useMemo(() => {
-    if (!lectures) return 0;
-    return lectures.filter(l => {
-      const date = new Date(l.lecture_date);
+  // Get letter count for current month
+  const monthLetterCount = useMemo(() => {
+    if (!letters || selectedYear === null) return 0;
+    return letters.filter(l => {
+      const date = new Date(l.letter_date);
       return date.getFullYear() === selectedYear && date.getMonth() + 1 === selectedMonth;
     }).length;
-  }, [lectures, selectedYear, selectedMonth]);
+  }, [letters, selectedYear, selectedMonth]);
 
   // Scroll to selected year
   useEffect(() => {
-    if (yearScrollRef.current) {
-      const yearIndex = YEARS.indexOf(selectedYear);
+    if (yearScrollRef.current && selectedYear !== null) {
+      const yearIndex = years.indexOf(selectedYear);
       const scrollPosition = yearIndex * 80 - (window.innerWidth / 2) + 40;
       yearScrollRef.current.scrollTo({ left: scrollPosition, behavior: "smooth" });
     }
-  }, [selectedYear]);
+  }, [selectedYear, years]);
 
   // Month navigation
   const goToPrevMonth = useCallback(() => {
+    if (selectedYear === null) return;
+
     if (selectedMonth === 1) {
-      const prevYear = YEARS[YEARS.indexOf(selectedYear) - 1];
-      if (prevYear) {
-        setSelectedYear(prevYear);
+      const prevYearIndex = years.indexOf(selectedYear) - 1;
+      if (prevYearIndex >= 0) {
+        setSelectedYear(years[prevYearIndex]);
         setSelectedMonth(12);
       }
     } else {
       setSelectedMonth(m => m - 1);
     }
-  }, [selectedMonth, selectedYear]);
+  }, [selectedMonth, selectedYear, years]);
 
   const goToNextMonth = useCallback(() => {
+    if (selectedYear === null) return;
+
     if (selectedMonth === 12) {
-      const nextYear = YEARS[YEARS.indexOf(selectedYear) + 1];
-      if (nextYear) {
-        setSelectedYear(nextYear);
+      const nextYearIndex = years.indexOf(selectedYear) + 1;
+      if (nextYearIndex < years.length) {
+        setSelectedYear(years[nextYearIndex]);
         setSelectedMonth(1);
       }
     } else {
       setSelectedMonth(m => m + 1);
     }
-  }, [selectedMonth, selectedYear]);
+  }, [selectedMonth, selectedYear, years]);
 
   // Touch handlers for month swipe
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -155,9 +173,9 @@ export function MobileLecturesTimeline() {
     touchStartX.current = null;
   };
 
-  // Navigate to lecture
-  const handleLectureClick = (lecture: Lecture) => {
-    navigate(getLocalizedPath(`/library/lectures/${lecture.slug}`));
+  // Navigate to letter
+  const handleLetterClick = (letter: Letter) => {
+    navigate(getLocalizedPath(`/library/letters/${letter.slug}`));
   };
 
   const monthNames = language === "uk" ? MONTHS_UK : MONTHS_EN;
@@ -169,14 +187,33 @@ export function MobileLecturesTimeline() {
   };
 
   // Get location display name
-  const getLocationDisplay = (lecture: Lecture) => {
-    return language === "uk" ? (lecture.location_uk || lecture.location_en) : lecture.location_en;
+  const getLocationDisplay = (letter: Letter) => {
+    return language === "uk" ? (letter.location_uk || letter.location_en) : letter.location_en;
   };
 
-  // Get title display
-  const getTitleDisplay = (lecture: Lecture) => {
-    return language === "uk" ? (lecture.title_uk || lecture.title_en) : lecture.title_en;
+  // Get recipient display
+  const getRecipientDisplay = (letter: Letter) => {
+    return language === "uk" ? (letter.recipient_uk || letter.recipient_en) : letter.recipient_en;
   };
+
+  // Get content preview
+  const getContentPreview = (letter: Letter) => {
+    const content = language === "uk" ? (letter.content_uk || letter.content_en) : letter.content_en;
+    // Strip HTML tags and truncate
+    const stripped = content.replace(/<[^>]*>/g, '');
+    return stripped.length > 100 ? stripped.substring(0, 100) + '...' : stripped;
+  };
+
+  if (selectedYear === null && !isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+        <Mail className="h-12 w-12 text-muted-foreground/30 mb-4" />
+        <p className="text-muted-foreground">
+          {t("Листів не знайдено", "No letters found")}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -186,7 +223,7 @@ export function MobileLecturesTimeline() {
         className="flex overflow-x-auto scrollbar-hide py-4 px-2 border-b border-border/50"
         style={{ scrollSnapType: "x mandatory" }}
       >
-        {YEARS.map((year) => (
+        {years.map((year) => (
           <button
             key={year}
             onClick={() => setSelectedYear(year)}
@@ -222,7 +259,7 @@ export function MobileLecturesTimeline() {
             {monthNames[selectedMonth - 1]} {selectedYear}
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {monthLectureCount} {t("лекцій", "lectures")}
+            {monthLetterCount} {t("листів", "letters")}
           </p>
         </div>
 
@@ -266,17 +303,17 @@ export function MobileLecturesTimeline() {
         </div>
       )}
 
-      {/* Lectures list */}
+      {/* Letters list */}
       <div className="flex-1 overflow-y-auto">
         {isLoading ? (
           <div className="flex items-center justify-center py-16">
             <div className="text-muted-foreground">{t("Завантаження...", "Loading...")}</div>
           </div>
-        ) : filteredLectures.length === 0 ? (
+        ) : filteredLetters.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
             <Calendar className="h-12 w-12 text-muted-foreground/30 mb-4" />
             <p className="text-muted-foreground">
-              {t("Лекцій за цей період не знайдено", "No lectures found for this period")}
+              {t("Листів за цей період не знайдено", "No letters found for this period")}
             </p>
             {selectedLocation && (
               <button
@@ -289,51 +326,46 @@ export function MobileLecturesTimeline() {
           </div>
         ) : (
           <div className="divide-y divide-border/50">
-            {filteredLectures.map((lecture) => (
+            {filteredLetters.map((letter) => (
               <button
-                key={lecture.id}
-                onClick={() => handleLectureClick(lecture)}
+                key={letter.id}
+                onClick={() => handleLetterClick(letter)}
                 className="w-full flex items-start gap-4 p-4 text-left hover:bg-muted/50 active:bg-muted transition-colors"
               >
                 {/* Date circle */}
                 <div className="flex-shrink-0 w-12 h-12 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
                   <span className="text-lg font-bold text-brand-600 dark:text-brand-400">
-                    {formatDate(lecture.lecture_date)}
+                    {formatDate(letter.letter_date)}
                   </span>
                 </div>
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   <h3 className="font-medium text-foreground truncate">
-                    {getTitleDisplay(lecture)}
+                    {getRecipientDisplay(letter)}
                   </h3>
 
                   <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <MapPin className="h-3.5 w-3.5" />
-                      {getLocationDisplay(lecture)}
+                      {getLocationDisplay(letter)}
                     </span>
 
-                    {lecture.book_slug && (
-                      <span className="flex items-center gap-1">
-                        <BookOpen className="h-3.5 w-3.5" />
-                        {lecture.book_slug.toUpperCase()}
-                        {lecture.chapter_number && ` ${lecture.chapter_number}`}
-                        {lecture.verse_number && `.${lecture.verse_number}`}
+                    {letter.reference && (
+                      <span className="text-xs text-muted-foreground/70">
+                        {letter.reference}
                       </span>
                     )}
                   </div>
 
-                  <div className="mt-1">
-                    <span className="inline-block px-2 py-0.5 text-xs bg-muted rounded-full text-muted-foreground">
-                      {lecture.lecture_type}
-                    </span>
-                  </div>
+                  <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                    {getContentPreview(letter)}
+                  </p>
                 </div>
 
-                {/* Audio indicator */}
+                {/* Mail icon */}
                 <div className="flex-shrink-0 text-muted-foreground/50">
-                  <Mic className="h-5 w-5" />
+                  <Mail className="h-5 w-5" />
                 </div>
               </button>
             ))}
@@ -344,4 +376,4 @@ export function MobileLecturesTimeline() {
   );
 }
 
-export default MobileLecturesTimeline;
+export default MobileLettersTimeline;
