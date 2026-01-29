@@ -157,7 +157,7 @@ export function MobileLecturesTimeline() {
 
   // Navigate to lecture
   const handleLectureClick = (lecture: Lecture) => {
-    navigate(getLocalizedPath(`/lectures/${lecture.slug}`));
+    navigate(getLocalizedPath(`/library/lectures/${lecture.slug}`));
   };
 
   const monthNames = language === "uk" ? MONTHS_UK : MONTHS_EN;
