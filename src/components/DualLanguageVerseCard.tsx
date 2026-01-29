@@ -1,7 +1,7 @@
 // DualLanguageVerseCard.tsx - Side-by-side view як на vedabase.io
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Edit, Save, X, Volume2, Star, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
+import { Edit, Save, X, Volume2, CirclePlay, Star, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAudio } from "@/contexts/ModernAudioContext";
@@ -408,10 +408,10 @@ export const DualLanguageVerseCard = ({
             <button
               onClick={() => playSection("Санскрит", audioSanskrit)}
               disabled={!audioSanskrit && !audioUrl}
-              className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="rounded-full p-1 hover:opacity-80 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
               aria-label="Слухати санскрит"
             >
-              <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
+              <CirclePlay className="h-8 w-8" style={{ color: "#5C4033" }} />
             </button>
             <Button variant="outline" onClick={onNextVerse} disabled={isNextDisabled}>
               {nextLabel}
