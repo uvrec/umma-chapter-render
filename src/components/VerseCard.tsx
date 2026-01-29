@@ -714,22 +714,7 @@ export const VerseCard = ({
         {/* Пояснення з окремою кнопкою Volume2 */}
         {textDisplaySettings.showCommentary && (isEditing || commentary) && (
           <div className={`synced-section transition-all duration-300 ${getSectionHighlightClass('commentary')}`} data-synced-section="commentary">
-            {/* Mobile: тапабельний заголовок для collapse/expand */}
-            {isMobile && (
-              <button
-                onClick={() => toggleSectionCollapse('commentary')}
-                className="flex items-center justify-between w-full py-2 mb-2 text-muted-foreground active:bg-muted/30 rounded-lg transition-colors"
-              >
-                <span className="text-sm font-medium">{labels.commentary}</span>
-                {collapsedSections.commentary ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
-                  <ChevronUp className="h-4 w-4" />
-                )}
-              </button>
-            )}
-
-            {/* Desktop: Заголовок + кнопка Volume2 */}
+            {/* Заголовок + кнопка Volume2 (hidden on mobile via CSS for clean reading) */}
             <div className="section-header hidden md:flex items-center justify-center gap-4 mb-4">
               <h4 className="text-foreground font-serif">{labels.commentary}</h4>
               <button
@@ -742,30 +727,25 @@ export const VerseCard = ({
               </button>
             </div>
 
-            {/* Content - collapsible on mobile */}
-            {(!isMobile || !collapsedSections.commentary) && (
-              <>
-                {isEditing ? (
-                  <EnhancedInlineEditor
-                    content={edited.commentary}
-                    onChange={(html) =>
-                      setEdited((p) => ({
-                        ...p,
-                        commentary: html,
-                      }))
-                    }
-                    label="Редагувати пояснення"
-                    minHeight="200px"
-                    compact={true}
-                  />
-                ) : (
-                  <div
-                    className="text-foreground text-justify purport first"
-                    style={{ fontSize: `${fontSize}px`, lineHeight }}
-                    dangerouslySetInnerHTML={{ __html: applyDropCap(sanitizeForRender(commentary || "")) }}
-                  />
-                )}
-              </>
+            {isEditing ? (
+              <EnhancedInlineEditor
+                content={edited.commentary}
+                onChange={(html) =>
+                  setEdited((p) => ({
+                    ...p,
+                    commentary: html,
+                  }))
+                }
+                label="Редагувати пояснення"
+                minHeight="200px"
+                compact={true}
+              />
+            ) : (
+              <div
+                className="text-foreground text-justify purport first"
+                style={{ fontSize: `${fontSize}px`, lineHeight }}
+                dangerouslySetInnerHTML={{ __html: applyDropCap(sanitizeForRender(commentary || "")) }}
+              />
             )}
           </div>
         )}
