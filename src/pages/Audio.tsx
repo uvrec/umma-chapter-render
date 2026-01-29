@@ -9,6 +9,7 @@ import { Header } from "@/components/Header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Headphones, Mic, Music, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MobileLecturesTimeline } from "@/components/mobile/MobileLecturesTimeline";
 
 // Types
 type AudioCategory = {
@@ -388,7 +389,10 @@ export const Audio = () => {
 
             {categories.map((category) => (
               <TabsContent key={category.id} value={category.slug}>
-                {isMobile ? (
+                {/* For lectures category on mobile, use the timeline view */}
+                {category.slug === "lectures" && isMobile ? (
+                  <MobileLecturesTimeline />
+                ) : isMobile ? (
                   <MobileAudioList
                     items={playlistsByCategory[category.slug] || []}
                     isLoading={isLoading}
