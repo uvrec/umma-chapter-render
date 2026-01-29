@@ -825,7 +825,9 @@ export const VedaReaderDB = () => {
     }
 
     // ✅ ПЕРЕВІРКА 3: Чи це не одне слово?
-    if (!selectedText.includes(' ')) {
+    // Використовуємо regex \s для перевірки будь-яких пробільних символів,
+    // включаючи нерозривні пробіли (U+00A0) з EPUB/HTML форматування
+    if (!/\s/.test(selectedText)) {
       return;
     }
 
