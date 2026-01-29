@@ -438,13 +438,22 @@ export const VerseCard = ({
           </div>
         )}
 
-        {/* НАВІГАЦІЯ МІЖ ВІРШАМИ - приховано на мобільних (є свайп) */}
+        {/* НАВІГАЦІЯ МІЖ ВІРШАМИ + АУДІО - приховано на мобільних (є свайп) */}
         {onPrevVerse && onNextVerse && !isMobile && (
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-4">
             <Button variant="outline" onClick={onPrevVerse} disabled={isPrevDisabled}>
               <ChevronLeft className="mr-2 h-4 w-4" />
               {prevLabel}
             </Button>
+            {/* Аудіо кнопка для санскриту - по центру */}
+            <button
+              onClick={() => playSection("Санскрит", audioSanskrit)}
+              disabled={!audioSanskrit && !audioUrl}
+              className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              aria-label="Слухати санскрит"
+            >
+              <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
+            </button>
             <Button variant="outline" onClick={onNextVerse} disabled={isNextDisabled}>
               {nextLabel}
               <ChevronRight className="ml-2 h-4 w-4" />
@@ -471,21 +480,9 @@ export const VerseCard = ({
           </div>
         )}
 
-        {/* Деванагарі з окремою кнопкою Volume2 */}
+        {/* Деванагарі */}
         {textDisplaySettings.showSanskrit && (isEditing || sanskritText) && (
-          <div className={`mb-6 synced-section transition-all duration-300 ${sectionHighlightClass}`} data-synced-section="sanskrit">
-            {/* Кнопка Volume2 для Санскриту - hidden on mobile (tap verse number to play) */}
-            <div className="mb-4 hidden md:flex justify-center">
-              <button
-                onClick={() => playSection("Санскрит", audioSanskrit)}
-                disabled={!audioSanskrit && !audioUrl}
-                className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                aria-label="Слухати санскрит"
-              >
-                <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
-              </button>
-            </div>
-
+          <div className={`mb-3 synced-section transition-all duration-300 ${sectionHighlightClass}`} data-synced-section="sanskrit">
             {isEditing ? (
               <Textarea
                 value={edited.sanskrit}
