@@ -268,6 +268,7 @@ export type Database = {
           file_size: number | null
           genre: string | null
           id: string
+          owner_id: string | null
           playlist_id: string
           sample_rate: number | null
           storage_path: string | null
@@ -292,6 +293,7 @@ export type Database = {
           file_size?: number | null
           genre?: string | null
           id?: string
+          owner_id?: string | null
           playlist_id: string
           sample_rate?: number | null
           storage_path?: string | null
@@ -316,6 +318,7 @@ export type Database = {
           file_size?: number | null
           genre?: string | null
           id?: string
+          owner_id?: string | null
           playlist_id?: string
           sample_rate?: number | null
           storage_path?: string | null
@@ -1248,13 +1251,6 @@ export type Database = {
           verse_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "content_tattvas_tattva_id_fkey"
-            columns: ["tattva_id"]
-            isOneToOne: false
-            referencedRelation: "tattva_stats"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "content_tattvas_tattva_id_fkey"
             columns: ["tattva_id"]
@@ -2892,13 +2888,6 @@ export type Database = {
             foreignKeyName: "tattvas_parent_id_fkey"
             columns: ["parent_id"]
             isOneToOne: false
-            referencedRelation: "tattva_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tattvas_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
             referencedRelation: "tattvas"
             referencedColumns: ["id"]
           },
@@ -4490,20 +4479,6 @@ export type Database = {
           },
         ]
       }
-      tattva_stats: {
-        Row: {
-          ai_tagged: number | null
-          avg_relevance: number | null
-          id: string | null
-          manual_tagged: number | null
-          name_en: string | null
-          name_uk: string | null
-          seed_tagged: number | null
-          slug: string | null
-          verses_count: number | null
-        }
-        Relationships: []
-      }
       verses_with_metadata: {
         Row: {
           audio_url: string | null
@@ -5638,7 +5613,6 @@ export type Database = {
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       slugify: { Args: { "": string }; Returns: string }
-      unaccent: { Args: { "": string }; Returns: string }
       unified_search:
         | {
             Args: {
