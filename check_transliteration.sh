@@ -35,14 +35,14 @@ echo ""
 
 total_verses=0
 total_missing_translit=0
-total_missing_translit_ua=0
+total_missing_translit_uk=0
 total_missing_translit_en=0
 
 for chapter_info in "${CHAPTERS[@]}"; do
     IFS=':' read -r chapter_id chapter_num chapter_title <<< "$chapter_info"
 
     # Get all verses for this chapter
-    response=$(curl -s "${API_URL}/verses?select=verse_number,transliteration,transliteration_ua,transliteration_en&chapter_id=eq.${chapter_id}&deleted_at=is.null&order=verse_number_sort" \
+    response=$(curl -s "${API_URL}/verses?select=verse_number,transliteration,transliteration_uk,transliteration_en&chapter_id=eq.${chapter_id}&deleted_at=is.null&order=verse_number_sort" \
         -H "apikey: ${API_KEY}" \
         -H "Authorization: Bearer ${API_KEY}")
 
@@ -52,13 +52,13 @@ for chapter_info in "${CHAPTERS[@]}"; do
     # Find verses without any transliteration
     missing_all=$(echo "$response" | jq '[.[] | select(
         (.transliteration == null or .transliteration == "") and
-        (.transliteration_ua == null or .transliteration_ua == "") and
+        (.transliteration_uk == null or .transliteration_uk == "") and
         (.transliteration_en == null or .transliteration_en == "")
     )] | length')
 
-    # Find verses without transliteration_ua
-    missing_ua=$(echo "$response" | jq '[.[] | select(
-        .transliteration_ua == null or .transliteration_ua == ""
+    # Find verses without transliteration_uk
+    missing_uk=$(echo "$response" | jq '[.[] | select(
+        .transliteration_uk == null or .transliteration_uk == ""
     )] | length')
 
     # Find verses without transliteration_en
@@ -69,14 +69,14 @@ for chapter_info in "${CHAPTERS[@]}"; do
     # Get list of verses missing all transliteration
     missing_verses=$(echo "$response" | jq -r '[.[] | select(
         (.transliteration == null or .transliteration == "") and
-        (.transliteration_ua == null or .transliteration_ua == "") and
+        (.transliteration_uk == null or .transliteration_uk == "") and
         (.transliteration_en == null or .transliteration_en == "")
     )] | map(.verse_number) | join(", ")')
 
     # Update totals
     total_verses=$((total_verses + verse_count))
     total_missing_translit=$((total_missing_translit + missing_all))
-    total_missing_translit_ua=$((total_missing_translit_ua + missing_ua))
+    total_missing_translit_uk=$((total_missing_translit_uk + missing_uk))
     total_missing_translit_en=$((total_missing_translit_en + missing_en))
 
     echo "Глава ${chapter_num}: ${chapter_title}"
@@ -89,8 +89,8 @@ for chapter_info in "${CHAPTERS[@]}"; do
         echo "  ✅ Всі вірші мають транслітерацію"
     fi
 
-    if [ "$missing_ua" -gt 0 ] && [ "$missing_ua" -ne "$missing_all" ]; then
-        echo "  ⚠️  Без UA транслітерації: ${missing_ua}"
+    if [ "$missing_uk" -gt 0 ] && [ "$missing_uk" -ne "$missing_all" ]; then
+        echo "  ⚠️  Без UK транслітерації: ${missing_uk}"
     fi
 
     if [ "$missing_en" -gt 0 ] && [ "$missing_en" -ne "$missing_all" ]; then
@@ -105,6 +105,6 @@ echo "ПІДСУМОК:"
 echo "========================================"
 echo "Всього віршів в Пісні 1: ${total_verses}"
 echo "Без жодної транслітерації: ${total_missing_translit}"
-echo "Без транслітерації UA: ${total_missing_translit_ua}"
+echo "Без транслітерації UK: ${total_missing_translit_uk}"
 echo "Без транслітерації EN: ${total_missing_translit_en}"
 echo "========================================"

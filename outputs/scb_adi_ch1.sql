@@ -6,7 +6,7 @@ DECLARE
     v_chapter_id UUID;
 BEGIN
     -- Insert chapter
-    INSERT INTO chapters (book_id, canto_id, chapter_number, title_en, title_ua, content_en, is_published)
+    INSERT INTO chapters (book_id, canto_id, chapter_number, title_en, title_uk, content_en, is_published)
     VALUES ('9d86c0da-d4b3-4fb6-bc39-bdb82e4098ec', '72f11deb-573b-4bc1-9974-2fa9ee669d07', 1, 'Chapter 1 - Summary of Lord Gaura’s Pastimes', '', '', true)
     ON CONFLICT (canto_id, chapter_number) DO UPDATE SET
         title_en = EXCLUDED.title_en,

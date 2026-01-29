@@ -34,7 +34,7 @@ def collect(parsed_path: str):
     # parsed_top may be either top-level parsed list or dict with 'parsed'
     verses = data.get('parsed') if isinstance(data, dict) and 'parsed' in data else data
     candidates = defaultdict(lambda: {'count':0, 'verses':[], 'field':'', 'example':''})
-    fields = ['transliteration','word_by_word','synonyms_ua','translation_ua','commentary_ua']
+    fields = ['transliteration','word_by_word','synonyms_uk','translation_uk','commentary_uk']
     for v in verses:
         verse_no = v.get('verse_number') or v.get('verse') or v.get('id')
         for fld in fields:

@@ -21,17 +21,17 @@ SELECT
     ac.chapter_number,
     v.verse_number,
     v.id,
-    LEFT(v.translation_ua, 100) as translation_preview
+    LEFT(v.translation_uk, 100) as translation_preview
 FROM verses v
 JOIN all_chapters ac ON ac.id = v.chapter_id
 WHERE v.chapter_id IN (SELECT id FROM all_chapters)
     AND v.deleted_at IS NULL
     AND (
         -- Шукаємо будь-які згадки gitabase в різних полях
-        v.transliteration_ua ILIKE '%gitabase%'
-        OR v.synonyms_ua ILIKE '%gitabase%'
-        OR v.translation_ua ILIKE '%gitabase%'
-        OR v.commentary_ua ILIKE '%gitabase%'
+        v.transliteration_uk ILIKE '%gitabase%'
+        OR v.synonyms_uk ILIKE '%gitabase%'
+        OR v.translation_uk ILIKE '%gitabase%'
+        OR v.commentary_uk ILIKE '%gitabase%'
     )
 ORDER BY ac.canto_number, ac.chapter_number, v.verse_number
 LIMIT 20;
@@ -47,7 +47,7 @@ JOIN all_chapters ac ON ac.id = v.chapter_id
 WHERE v.chapter_id IN (SELECT id FROM all_chapters)
     AND v.deleted_at IS NULL
     AND v.is_published = true
-    AND (v.translation_ua IS NULL OR v.translation_ua = '')
+    AND (v.translation_uk IS NULL OR v.translation_uk = '')
     AND (v.translation_en IS NULL OR v.translation_en = '')
 GROUP BY ac.canto_number, ac.chapter_number
 HAVING COUNT(*) > 0
@@ -59,9 +59,9 @@ SELECT
     ac.canto_number,
     ac.chapter_number,
     v.verse_number,
-    LENGTH(v.translation_ua) as ua_len,
+    LENGTH(v.translation_uk) as ua_len,
     LENGTH(v.translation_en) as en_len,
-    v.translation_ua,
+    v.translation_uk,
     v.translation_en
 FROM verses v
 JOIN all_chapters ac ON ac.id = v.chapter_id
@@ -69,7 +69,7 @@ WHERE v.chapter_id IN (SELECT id FROM all_chapters)
     AND v.deleted_at IS NULL
     AND v.is_published = true
     AND (
-        (v.translation_ua IS NOT NULL AND LENGTH(v.translation_ua) < 10)
+        (v.translation_uk IS NOT NULL AND LENGTH(v.translation_uk) < 10)
         OR (v.translation_en IS NOT NULL AND LENGTH(v.translation_en) < 10)
     )
 ORDER BY ac.canto_number, ac.chapter_number, v.verse_number
@@ -81,18 +81,18 @@ SELECT
     ac.canto_number,
     ac.chapter_number,
     v.verse_number,
-    LEFT(v.translation_ua, 100) as ua_preview,
+    LEFT(v.translation_uk, 100) as ua_preview,
     LEFT(v.translation_en, 100) as en_preview
 FROM verses v
 JOIN all_chapters ac ON ac.id = v.chapter_id
 WHERE v.chapter_id IN (SELECT id FROM all_chapters)
     AND v.deleted_at IS NULL
     AND (
-        v.translation_ua ~ '(.)\1{10,}' -- 10+ повторюваних символів
+        v.translation_uk ~ '(.)\1{10,}' -- 10+ повторюваних символів
         OR v.translation_en ~ '(.)\1{10,}'
-        OR v.translation_ua ILIKE '%undefined%'
-        OR v.translation_ua ILIKE '%null%'
-        OR v.translation_ua ILIKE '%[object%'
+        OR v.translation_uk ILIKE '%undefined%'
+        OR v.translation_uk ILIKE '%null%'
+        OR v.translation_uk ILIKE '%[object%'
     )
 ORDER BY ac.canto_number, ac.chapter_number, v.verse_number
 LIMIT 20;

@@ -34,9 +34,9 @@ SQL_OUTPUT_DIR = Path(__file__).parent.parent / "supabase" / "migrations"
 # Book configuration
 BOOK_SLUG = "td"
 BOOK_TITLE_EN = "Transcendental Diary"
-BOOK_TITLE_UA = "Трансцендентний щоденник"
+BOOK_TITLE_UK = "Трансцендентний щоденник"
 AUTHOR_EN = "Hari Sauri dasa"
-AUTHOR_UA = "Харі Шаурі дас"
+AUTHOR_UK = "Харі Шаурі дас"
 
 # Intro pages order (as they appear in the book)
 INTRO_PAGES = [
@@ -52,9 +52,9 @@ VOLUMES = [
     {
         "number": 1,
         "title_en": "Volume 1",
-        "title_ua": "Том 1",
+        "title_uk": "Том 1",
         "subtitle_en": "November 1975 – April 1976",
-        "subtitle_ua": "Листопад 1975 – Квітень 1976",
+        "subtitle_uk": "Листопад 1975 – Квітень 1976",
         "chapters": 12,
     },
 ]
@@ -223,8 +223,8 @@ def generate_sql_migration(parsed_data: dict) -> str:
 BEGIN;
 
 -- Ensure book exists
-INSERT INTO public.books (slug, title_en, title_ua, is_published, has_cantos)
-VALUES ('{BOOK_SLUG}', '{escape_sql(BOOK_TITLE_EN)}', '{escape_sql(BOOK_TITLE_UA)}', true, true)
+INSERT INTO public.books (slug, title_en, title_uk, is_published, has_cantos)
+VALUES ('{BOOK_SLUG}', '{escape_sql(BOOK_TITLE_EN)}', '{escape_sql(BOOK_TITLE_UK)}', true, true)
 ON CONFLICT (slug) DO NOTHING;
 
 DO $$
@@ -254,7 +254,7 @@ BEGIN
 
             sql_parts.append(f"""
   -- {title_en}
-  INSERT INTO public.intro_chapters (book_id, slug, title_en, title_ua, content_en, content_ua, display_order)
+  INSERT INTO public.intro_chapters (book_id, slug, title_en, title_uk, content_en, content_uk, display_order)
   VALUES (
     v_book_id,
     '{slug}',
@@ -275,7 +275,7 @@ BEGIN
     for volume in parsed_data.get('volumes', []):
         vol_num = volume['volume_number']
         vol_title_en = escape_sql(volume['title_en'])
-        vol_title_ua = escape_sql(volume['title_ua'])
+        vol_title_uk = escape_sql(volume['title_uk'])
         vol_subtitle_en = escape_sql(volume.get('subtitle_en', ''))
 
         sql_parts.append(f"""
@@ -283,11 +283,11 @@ BEGIN
   -- Volume {vol_num}: {vol_title_en}
   -- ============================================
 
-  INSERT INTO public.cantos (book_id, canto_number, title_en, title_ua, description_en, is_published)
-  VALUES (v_book_id, {vol_num}, E'{vol_title_en}', E'{vol_title_ua}', E'{vol_subtitle_en}', true)
+  INSERT INTO public.cantos (book_id, canto_number, title_en, title_uk, description_en, is_published)
+  VALUES (v_book_id, {vol_num}, E'{vol_title_en}', E'{vol_title_uk}', E'{vol_subtitle_en}', true)
   ON CONFLICT (book_id, canto_number) DO UPDATE SET
     title_en = EXCLUDED.title_en,
-    title_ua = EXCLUDED.title_ua,
+    title_uk = EXCLUDED.title_uk,
     description_en = EXCLUDED.description_en;
 
   SELECT id INTO v_canto_id FROM public.cantos
@@ -312,7 +312,7 @@ BEGIN
 
             sql_parts.append(f"""
   -- Chapter {ch_num}: {ch_title_en}
-  INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, content_en, content_ua, chapter_type, is_published)
+  INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_uk, content_en, content_uk, chapter_type, is_published)
   VALUES (
     v_canto_id,
     {ch_num},
@@ -347,9 +347,9 @@ def main():
     parsed_data = {
         "book_slug": BOOK_SLUG,
         "book_title_en": BOOK_TITLE_EN,
-        "book_title_ua": BOOK_TITLE_UA,
+        "book_title_uk": BOOK_TITLE_UK,
         "author_en": AUTHOR_EN,
-        "author_ua": AUTHOR_UA,
+        "author_uk": AUTHOR_UK,
         "intro_pages": [],
         "volumes": [],
     }
@@ -364,13 +364,13 @@ def main():
 
     # Parse intro pages
     print(f"\n📄 Parsing intro pages...")
-    for slug, title_en, title_ua, display_order in INTRO_PAGES:
+    for slug, title_en, title_uk, display_order in INTRO_PAGES:
         result = parse_intro_page(vol_dir, slug)
         if result:
             parsed_data['intro_pages'].append({
                 "slug": slug,
                 "title_en": result['title'] or title_en,
-                "title_ua": title_ua,
+                "title_uk": title_uk,
                 "content_en": result['content'],
                 "display_order": display_order,
             })
@@ -380,9 +380,9 @@ def main():
     volume_data = {
         "volume_number": vol_num,
         "title_en": vol_config['title_en'],
-        "title_ua": vol_config['title_ua'],
+        "title_uk": vol_config['title_uk'],
         "subtitle_en": vol_config['subtitle_en'],
-        "subtitle_ua": vol_config['subtitle_ua'],
+        "subtitle_uk": vol_config['subtitle_uk'],
         "chapters": [],
     }
 

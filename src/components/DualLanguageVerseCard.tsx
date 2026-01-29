@@ -397,13 +397,22 @@ export const DualLanguageVerseCard = ({
           </div>
         )}
 
-        {/* НАВІГАЦІЯ МІЖ ВІРШАМИ - приховано на мобільних (є свайп) */}
+        {/* НАВІГАЦІЯ МІЖ ВІРШАМИ + АУДІО - приховано на мобільних (є свайп) */}
         {onPrevVerse && onNextVerse && !isMobile && (
           <div className="flex items-center justify-between mb-4">
             <Button variant="outline" onClick={onPrevVerse} disabled={isPrevDisabled}>
               <ChevronLeft className="mr-2 h-4 w-4" />
               {prevLabel}
             </Button>
+            {/* Аудіо кнопка для санскриту - по центру */}
+            <button
+              onClick={() => playSection("Санскрит", audioSanskrit)}
+              disabled={!audioSanskrit && !audioUrl}
+              className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              aria-label="Слухати санскрит"
+            >
+              <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
+            </button>
             <Button variant="outline" onClick={onNextVerse} disabled={isNextDisabled}>
               {nextLabel}
               <ChevronRight className="ml-2 h-4 w-4" />
@@ -432,19 +441,7 @@ export const DualLanguageVerseCard = ({
 
         {/* САНСКРИТ */}
         {textDisplaySettings.showSanskrit && (isEditing || sanskritTextUk || sanskritTextEn) && (
-          <div className="mb-6">
-            {/* Аудіо кнопка для санскриту */}
-            <div className="mb-4 flex justify-center">
-              <button
-                onClick={() => playSection("Санскрит", audioSanskrit)}
-                disabled={!audioSanskrit && !audioUrl}
-                className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                aria-label="Слухати санскрит"
-              >
-                <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
-              </button>
-            </div>
-
+          <div className="mb-3">
             {isEditing ? (
               <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8">
                 <Textarea
@@ -489,7 +486,7 @@ export const DualLanguageVerseCard = ({
 
         {/* ТРАНСЛІТЕРАЦІЯ */}
         {textDisplaySettings.showTransliteration && (isEditing || transliterationUk || transliterationEn) && (
-          <div className="p-8">
+          <div className="pt-4 px-8 pb-8">
             {isEditing ? (
               <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8">
                 <Textarea

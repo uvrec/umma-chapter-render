@@ -188,7 +188,8 @@ export const VedaReaderDB = () => {
 
   // CANTO (лише в canto mode)
   const {
-    data: canto
+    data: canto,
+    isLoading: isLoadingCanto
   } = useQuery({
     queryKey: ["canto", book?.id, cantoNumber],
     staleTime: 60_000,
@@ -226,12 +227,14 @@ export const VedaReaderDB = () => {
   });
 
   // Fallback: legacy chapter without canto
+  // Only use fallback when NOT in canto mode, or when canto lookup completed and found nothing
   const {
     data: fallbackChapter
   } = useQuery({
     queryKey: ["fallback-chapter", book?.id, effectiveChapterParam],
     staleTime: 60_000,
-    enabled: !!book?.id && !!effectiveChapterParam,
+    // For canto books: wait for canto query to complete before enabling fallback
+    enabled: !!book?.id && !!effectiveChapterParam && (!isCantoMode || (!isLoadingCanto && !canto?.id)),
     queryFn: async () => {
       if (!book?.id || !effectiveChapterParam) return null;
       const {
@@ -243,7 +246,7 @@ export const VedaReaderDB = () => {
     }
   });
 
-  // VERSES (main)
+  // VERSES (main) - включає verse_lyrics для синхронізації аудіо
   const {
     data: versesMain = [],
     isLoading: isLoadingVersesMain
@@ -261,7 +264,14 @@ export const VedaReaderDB = () => {
           start_verse,
           end_verse,
           verse_count,
-          sort_key
+          sort_key,
+          verse_lyrics (
+            lrc_content,
+            timestamps,
+            language,
+            sync_type,
+            audio_type
+          )
         `).eq("chapter_id", chapter.id).is("deleted_at", null).order("sort_key", {
         ascending: true
       });
@@ -270,7 +280,7 @@ export const VedaReaderDB = () => {
     }
   });
 
-  // VERSES (fallback)
+  // VERSES (fallback) - включає verse_lyrics для синхронізації аудіо
   const {
     data: versesFallback = [],
     isLoading: isLoadingVersesFallback
@@ -288,7 +298,14 @@ export const VedaReaderDB = () => {
           start_verse,
           end_verse,
           verse_count,
-          sort_key
+          sort_key,
+          verse_lyrics (
+            lrc_content,
+            timestamps,
+            language,
+            sync_type,
+            audio_type
+          )
         `).eq("chapter_id", fallbackChapter.id).is("deleted_at", null).order("sort_key", {
         ascending: true
       });
@@ -301,7 +318,7 @@ export const VedaReaderDB = () => {
   // ✅ FALLBACK: використовуємо fallbackChapter якщо chapter не знайдено
   // Це критично для SCC та інших книг де canto може не існувати в БД
   const effectiveChapter = chapter || fallbackChapter;
-  const isLoading = isLoadingChapter || isLoadingVersesMain || isLoadingVersesFallback;
+  const isLoading = isLoadingCanto || isLoadingChapter || isLoadingVersesMain || isLoadingVersesFallback;
 
   // Highlights hook - needs chapter.id
   const {
@@ -336,7 +353,8 @@ export const VedaReaderDB = () => {
 
   // Jump to verse from URL if provided
   useEffect(() => {
-    if (!routeVerseNumber || !verses.length) return;
+    // Don't search for verse while data is still loading (prevents race condition with fallback)
+    if (!routeVerseNumber || !verses.length || isLoading) return;
     let idx = verses.findIndex(v => String(v.id) === String(routeVerseNumber));
     if (idx === -1) {
       idx = verses.findIndex(v => String(v.verse_number) === String(routeVerseNumber));
@@ -345,12 +363,19 @@ export const VedaReaderDB = () => {
       const num = parseInt(routeVerseNumber as string);
       if (!isNaN(num)) {
         idx = verses.findIndex(v => {
+          // Check is_composite flag with start_verse/end_verse fields first
+          if (v.is_composite && v.start_verse != null && v.end_verse != null) {
+            return num >= v.start_verse && num <= v.end_verse;
+          }
+          // Fallback: check if verse_number contains hyphen (e.g., "46-47")
           const vn = String(v.verse_number);
           if (vn.includes('-')) {
             const [start, end] = vn.split('-').map(n => parseInt(n));
             return !isNaN(start) && !isNaN(end) && num >= start && num <= end;
           }
-          return false;
+          // Check simple verse number as integer match
+          const verseNum = parseInt(vn);
+          return !isNaN(verseNum) && verseNum === num;
         });
       }
     }
@@ -371,7 +396,7 @@ export const VedaReaderDB = () => {
         });
       }
     }
-  }, [routeVerseNumber, verses, t]);
+  }, [routeVerseNumber, verses, t, isLoading]);
 
   // ALL CHAPTERS (для навігації між главами)
   const {
@@ -1479,6 +1504,7 @@ export const VedaReaderDB = () => {
                   audioSanskrit={(verse as any).recitation_audio_url || ""}
                   audioTranslation={language === "uk" ? (verse as any).explanation_uk_audio_url || "" : (verse as any).explanation_en_audio_url || ""}
                   audioCommentary={language === "uk" ? (verse as any).explanation_uk_audio_url || "" : (verse as any).explanation_en_audio_url || ""}
+                  lrcContent={(verse as any).verse_lyrics?.[0]?.lrc_content || null}
                   is_composite={(verse as any).is_composite}
                   start_verse={(verse as any).start_verse}
                   end_verse={(verse as any).end_verse}
@@ -1568,6 +1594,7 @@ export const VedaReaderDB = () => {
                 audioSanskrit={(currentVerse as any).recitation_audio_url || ""}
                 audioTranslation={language === "uk" ? (currentVerse as any).explanation_uk_audio_url || "" : (currentVerse as any).explanation_en_audio_url || ""}
                 audioCommentary={language === "uk" ? (currentVerse as any).explanation_uk_audio_url || "" : (currentVerse as any).explanation_en_audio_url || ""}
+                lrcContent={(currentVerse as any).verse_lyrics?.[0]?.lrc_content || null}
                 is_composite={(currentVerse as any).is_composite}
                 start_verse={(currentVerse as any).start_verse}
                 end_verse={(currentVerse as any).end_verse}

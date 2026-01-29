@@ -1,6 +1,6 @@
 /**
  * ✅ РЕАЛЬНИЙ ПАРСЕР Gitabase Chaitanya-charitamrita
- * Основано на аналізі https://gitabase.com/ua/CC/1/1/1
+ * Основано на аналізі https://gitabase.com/uk/CC/1/1/1
  * 
  * КРИТИЧНО: ВСІ ТЕКСТИ з Gitabase потребують нормалізації:
  * - convertIASTtoUkrainian() для транслітерації
@@ -23,7 +23,7 @@ interface GitabaseVerseData {
 /**
  * Парсить сторінку Gitabase CC verse
  * @param html - HTML контент сторінки
- * @param url - URL сторінки (напр: https://gitabase.com/ua/CC/1/1/1)
+ * @param url - URL сторінки (напр: https://gitabase.com/uk/CC/1/1/1)
  * @returns Структуровані дані вірша
  */
 export function parseGitabaseCC(html: string, url: string): GitabaseVerseData | null {
@@ -33,8 +33,8 @@ export function parseGitabaseCC(html: string, url: string): GitabaseVerseData | 
     const doc = parser.parseFromString(html, 'text/html');
 
     // Витягуємо lila, chapter, verse з URL
-    // URL формат: https://gitabase.com/ua/CC/1/1/1
-    // або https://gitabase.com/ua/CC/1/1/263-264 для складених віршів
+    // URL формат: https://gitabase.com/uk/CC/1/1/1
+    // або https://gitabase.com/uk/CC/1/1/263-264 для складених віршів
     const urlParts = url.split('/');
     const lilaNum = urlParts[urlParts.length - 3]; // '1', '2', '3'
     const chapter = parseInt(urlParts[urlParts.length - 2]);
@@ -227,7 +227,7 @@ export function generateGitabaseURL(lila: string | number, chapter: number, vers
   };
   
   const lilaNum = lilaMap[lila.toString().toLowerCase()] || '1';
-  return `https://gitabase.com/ua/CC/${lilaNum}/${chapter}/${verse}`;
+  return `https://gitabase.com/uk/CC/${lilaNum}/${chapter}/${verse}`;
 }
 
 /**

@@ -326,6 +326,7 @@ export default function AddEditVerse() {
         explanation_en_audio_url: explanationEnAudioUrl || null, // EN explanation
 
         is_published: true,
+        deleted_at: null, // Auto-restore soft-deleted verses on save
       };
 
       if (id) {
@@ -381,11 +382,25 @@ export default function AddEditVerse() {
       }
     },
     onError: (error) => {
-      toast({
-        title: "Помилка",
-        description: (error as any).message,
-        variant: "destructive",
-      });
+      const errorMessage = (error as any).message || "";
+
+      // Check for duplicate verse number constraint violation
+      if (errorMessage.includes("verses_unique_chapter_verse") ||
+          errorMessage.includes("duplicate key value")) {
+        toast({
+          title: "Вірш з таким номером вже існує",
+          description: `Вірш ${verseNumber} вже є в цьому розділі. Оберіть інший номер.`,
+          variant: "destructive",
+        });
+        // Refresh the verse list to get updated auto-number
+        queryClient.invalidateQueries({ queryKey: ["chapter-verses-for-auto-number", chapterId] });
+      } else {
+        toast({
+          title: "Помилка",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
       setAddAnother(false); // Reset flag on error
     },
   });
@@ -400,6 +415,27 @@ export default function AddEditVerse() {
       });
       return;
     }
+
+    // Validate required content fields (all except commentary)
+    const missingFields: string[] = [];
+    if (!sanskritUk?.trim()) missingFields.push("Санскрит (укр)");
+    if (!sanskritEn?.trim()) missingFields.push("Sanskrit (eng)");
+    if (!transliterationUk?.trim()) missingFields.push("Транслітерація (укр)");
+    if (!transliterationEn?.trim()) missingFields.push("Transliteration (eng)");
+    if (!synonymsUk?.trim()) missingFields.push("Синоніми (укр)");
+    if (!synonymsEn?.trim()) missingFields.push("Synonyms (eng)");
+    if (!translationUk?.trim()) missingFields.push("Переклад (укр)");
+    if (!translationEn?.trim()) missingFields.push("Translation (eng)");
+
+    if (missingFields.length > 0) {
+      toast({
+        title: "Заповніть обов'язкові поля",
+        description: missingFields.join(", "),
+        variant: "destructive",
+      });
+      return;
+    }
+
     mutation.mutate();
   };
 
@@ -837,7 +873,8 @@ export default function AddEditVerse() {
                   type="button"
                   variant="secondary"
                   disabled={mutation.isPending}
-                  onClick={() => {
+                  onClick={(e) => {
+                    // Trigger the same validation as handleSubmit
                     if (!chapterId || !verseNumber) {
                       toast({
                         title: "Помилка",
@@ -846,6 +883,27 @@ export default function AddEditVerse() {
                       });
                       return;
                     }
+
+                    // Validate required content fields (all except commentary)
+                    const missingFields: string[] = [];
+                    if (!sanskritUk?.trim()) missingFields.push("Санскрит (укр)");
+                    if (!sanskritEn?.trim()) missingFields.push("Sanskrit (eng)");
+                    if (!transliterationUk?.trim()) missingFields.push("Транслітерація (укр)");
+                    if (!transliterationEn?.trim()) missingFields.push("Transliteration (eng)");
+                    if (!synonymsUk?.trim()) missingFields.push("Синоніми (укр)");
+                    if (!synonymsEn?.trim()) missingFields.push("Synonyms (eng)");
+                    if (!translationUk?.trim()) missingFields.push("Переклад (укр)");
+                    if (!translationEn?.trim()) missingFields.push("Translation (eng)");
+
+                    if (missingFields.length > 0) {
+                      toast({
+                        title: "Заповніть обов'язкові поля",
+                        description: missingFields.join(", "),
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+
                     setAddAnother(true);
                     mutation.mutate();
                   }}

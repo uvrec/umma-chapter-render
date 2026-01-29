@@ -26,7 +26,7 @@ books: {
   Row: {
     id: string
     slug: string
-    title_ua: string
+    title_uk: string
     title_en: string
     is_published: boolean       // НЕ nullable!
     display_order: number | null // Може бути NULL
@@ -47,7 +47,7 @@ const { data: books = [], isLoading } = useQuery({
   queryFn: async () => {
     const { data, error } = await supabase
       .from('books')
-      .select('id, slug, title_ua, title_en, cover_image_url, has_cantos')
+      .select('id, slug, title_uk, title_en, cover_image_url, has_cantos')
       .eq('is_published', true)
       .order('display_order');
     if (error) throw error;
@@ -63,7 +63,7 @@ const { data: books = [], isLoading } = useQuery({
   queryFn: async () => {
     const { data, error } = await supabase
       .from("books")
-      .select("id, slug, title_ua, title_en, cover_image_url")
+      .select("id, slug, title_uk, title_en, cover_image_url")
       .eq("is_published", true)
       .order("display_order")
       .limit(4);
@@ -106,7 +106,7 @@ const {
   queryFn: async () => {
     const { data, error } = await supabase
       .from("books")
-      .select("id, slug, title_ua, title_en, cover_image_url")
+      .select("id, slug, title_uk, title_en, cover_image_url")
       .eq("is_published", true)
       .order("display_order", { ascending: true, nullsFirst: false })
       .limit(4);
@@ -147,7 +147,7 @@ console.error("Failed to fetch featured books:", error);
 ### 4. Перевірити дані в БД
 Виконати SQL запит:
 ```sql
-SELECT id, slug, title_ua, is_published, display_order
+SELECT id, slug, title_uk, is_published, display_order
 FROM books
 WHERE is_published = true
 ORDER BY display_order NULLS LAST

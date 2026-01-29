@@ -26,8 +26,8 @@
 ### 2️⃣ Одинарні поля замість подвійних ❌
 
 **Проблема**: В БД існують застарілі одинарні поля:
-- `transliteration` (замість `transliteration_ua` + `transliteration_en`)
-- `synonyms` (замість `synonyms_ua` + `synonyms_en`)
+- `transliteration` (замість `transliteration_uk` + `transliteration_en`)
+- `synonyms` (замість `synonyms_uk` + `synonyms_en`)
 - `sanskrit` (це ОК - Devanagari однаковий для обох мов ✅)
 
 **Знайдено використання в коді** (15+ файлів):
@@ -51,7 +51,7 @@ src/pages/KnowledgeCompiler.tsx
 
 ### `find_atga_problem.sql`
 Знаходить вірші з неправильною транслітерацією "атга":
-- Перевіряє `transliteration_ua` та `transliteration`
+- Перевіряє `transliteration_uk` та `transliteration`
 - Шукає всі варіанти "тг" перед голосними
 - Показує статистику по книгах
 
@@ -75,9 +75,9 @@ src/pages/KnowledgeCompiler.tsx
 1. Створити backup БД
 2. Скопіювати дані з одинарних → подвійні поля
 3. Для `transliteration`:
-   - Якщо є українська → `transliteration_ua`
+   - Якщо є українська → `transliteration_uk`
    - Якщо є IAST → `transliteration_en`
-   - Якщо тільки IAST → конвертувати в `transliteration_ua`
+   - Якщо тільки IAST → конвертувати в `transliteration_uk`
 4. Для `synonyms`:
    - Розділити на UA/EN частини
    - Або залишити як `synonyms_en` якщо тільки англійська

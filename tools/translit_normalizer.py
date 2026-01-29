@@ -424,7 +424,7 @@ def process_parsed_file(input_path: str, output_path: str, apply_ukr: bool = Fal
     total = 0
     for v in parsed:
         total += 1
-        for key in ['transliteration', 'word_by_word', 'synonyms_ua', 'translation_ua', 'commentary_ua']:
+        for key in ['transliteration', 'word_by_word', 'synonyms_uk', 'translation_uk', 'commentary_uk']:
             if key in v and v.get(key):
                 before = v[key]
                 after = clean_string(before, apply_ukr=apply_ukr)
@@ -462,7 +462,7 @@ def main():
             data = json.load(f)
         parsed = data.get('parsed') if isinstance(data, dict) and 'parsed' in data else data
         for v in parsed:
-            for key in ['transliteration', 'word_by_word', 'synonyms_ua', 'translation_ua', 'commentary_ua']:
+            for key in ['transliteration', 'word_by_word', 'synonyms_uk', 'translation_uk', 'commentary_uk']:
                 if key in v and v.get(key):
                     s = v[key]
                     for a, b in mappings.items():

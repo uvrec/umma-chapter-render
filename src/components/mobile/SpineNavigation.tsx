@@ -3,7 +3,7 @@
 // Мінімалістична бокова панель: 4 іконки, drag для Timeline, свайп для тем
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   List,
   Type,
@@ -12,10 +12,12 @@ import {
   ChevronUp,
   ChevronDown,
   X,
+  Headphones,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/components/ThemeProvider";
+import { useMobileReading } from "@/contexts/MobileReadingContext";
 import { SpineTypographyPanel } from "./SpineTypographyPanel";
 import { SpineSearchOverlay } from "./SpineSearchOverlay";
 import { SpineSettingsPanel } from "./SpineSettingsPanel";
@@ -46,9 +48,11 @@ export function SpineNavigation({
   onVisibilityChange,
 }: SpineNavigationProps) {
   const [activePanel, setActivePanel] = useState<SpinePanel>("none");
+  const location = useLocation();
   const navigate = useNavigate();
   const { t, getLocalizedPath } = useLanguage();
   const { theme, setTheme } = useTheme();
+  const { isFullscreen, exitFullscreen } = useMobileReading();
 
   // Find current theme index based on app theme
   const getCurrentThemeIndex = useCallback(() => {
@@ -154,10 +158,16 @@ export function SpineNavigation({
     setActivePanel("none");
   }, []);
 
-  // Notify parent about visibility
+  // Notify parent about visibility (hidden when fullscreen)
   useEffect(() => {
-    onVisibilityChange?.(true);
-  }, [onVisibilityChange]);
+    onVisibilityChange?.(!isFullscreen);
+  }, [isFullscreen, onVisibilityChange]);
+
+  // When exiting fullscreen, open TOC panel automatically
+  const handleExitFullscreen = useCallback(() => {
+    exitFullscreen();
+    setActivePanel("toc");
+  }, [exitFullscreen]);
 
   // Spine buttons configuration - only 4 buttons
   const spineButtons = [
@@ -183,6 +193,13 @@ export function SpineNavigation({
       active: activePanel === "search",
     },
     {
+      id: "audio",
+      icon: Headphones,
+      label: t("Аудіо", "Audio"),
+      onClick: () => navigate(getLocalizedPath("/audio")),
+      active: location.pathname.includes("/audio"),
+    },
+    {
       id: "settings",
       icon: Settings,
       label: t("Налаштування", "Settings"),
@@ -191,11 +208,33 @@ export function SpineNavigation({
     },
   ];
 
-  // Calculate spine position
+  // Calculate spine position (hidden when fullscreen)
   const spineStyle: React.CSSProperties = {
-    transform: dragX > 0 ? `translateX(${dragX}px)` : undefined,
+    transform: isFullscreen
+      ? "translateX(-100%)"
+      : dragX > 0
+        ? `translateX(${dragX}px)`
+        : undefined,
     transition: isDragging ? "none" : "transform 300ms ease-out",
   };
+
+  // Don't render panels when in fullscreen mode
+  if (isFullscreen) {
+    return (
+      <nav
+        className={cn(
+          "spine-navigation fixed left-0 top-0 bottom-0 z-50",
+          "w-14 flex flex-col items-center justify-center",
+          "bg-gradient-to-b",
+          spineTheme.gradient,
+          "shadow-lg safe-left"
+        )}
+        style={spineStyle}
+        aria-label={t("Бокова навігація", "Spine navigation")}
+        aria-hidden="true"
+      />
+    );
+  }
 
   return (
     <>

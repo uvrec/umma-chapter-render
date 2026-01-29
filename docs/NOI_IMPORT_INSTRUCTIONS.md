@@ -78,13 +78,13 @@ Book: noi (Нектар настанов)
 ### Дані кожного вірша
 - ✅ **sanskrit** - Bengali/Sanskrit текст
 - ✅ **transliteration_en** - IAST (з Vedabase)
-- ✅ **transliteration_ua** - Українська кирилиця з діакритиками (конвертовано з IAST)
+- ✅ **transliteration_uk** - Українська кирилиця з діакритиками (конвертовано з IAST)
 - ✅ **synonyms_en** - Англійський послівний переклад
-- ✅ **synonyms_ua** - Український послівний переклад (з Gitabase)
+- ✅ **synonyms_uk** - Український послівний переклад (з Gitabase)
 - ✅ **translation_en** - Англійський переклад
-- ✅ **translation_ua** - Український переклад (з Gitabase)
+- ✅ **translation_uk** - Український переклад (з Gitabase)
 - ✅ **commentary_en** - Англійський коментар
-- ✅ **commentary_ua** - Український коментар (з Gitabase)
+- ✅ **commentary_uk** - Український коментар (з Gitabase)
 
 ---
 

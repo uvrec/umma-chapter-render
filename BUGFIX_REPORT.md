@@ -104,7 +104,7 @@ Test with verses that have different label formats:
    ```
 
 2. **Verify Translation Extraction**
-   - Check that `translation_ua` field is populated correctly
+   - Check that `translation_uk` field is populated correctly
    - Verify different label formats are handled
 
 3. **Monitor for Edge Cases**

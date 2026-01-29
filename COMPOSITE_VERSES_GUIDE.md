@@ -41,7 +41,7 @@ verse_number_sort BIGINT         -- 263000000 (для точного сорту�
 **Приклад:**
 ```sql
 -- ✅ ПРАВИЛЬНО - тільки verse_number
-INSERT INTO verses (chapter_id, verse_number, sanskrit, translation_ua)
+INSERT INTO verses (chapter_id, verse_number, sanskrit, translation_uk)
 VALUES ('uuid', '263-264', 'текст санскриту', 'переклад');
 -- Тригер автоматично встановить: is_composite=true, start_verse=263, end_verse=264, etc.
 
@@ -208,10 +208,10 @@ const { data } = await supabase
 
 **Fallback на іншу мову:**
 ```typescript
-// Якщо translation_ua відсутній, автоматично показує translation_en
+// Якщо translation_uk відсутній, автоматично показує translation_en
 const getTranslationWithFallback = (verse, field) => {
-  const primaryField = language === 'ua' ? `${field}_ua` : `${field}_en`;
-  const fallbackField = language === 'ua' ? `${field}_en` : `${field}_ua`;
+  const primaryField = language === 'ua' ? `${field}_uk` : `${field}_en`;
+  const fallbackField = language === 'ua' ? `${field}_en` : `${field}_uk`;
 
   return verse[primaryField] || verse[fallbackField] || '';
 };
@@ -238,7 +238,7 @@ const getTranslationWithFallback = (verse, field) => {
 ```typescript
 {
   slug: 'sb',
-  name_ua: 'Шрімад Бхаґаватам',
+  name_uk: 'Шрімад Бхаґаватам',
   name_en: 'Srimad Bhagavatam',
   hasGitabaseUA: false,  // чи є український переклад на Gitabase
   isMultiVolume: true,   // чи має томи (Cantos)
@@ -311,7 +311,7 @@ verse_number | is_composite | start_verse | end_verse | verse_count | sort_key
 **Рішення:** ✅ Виправлено в `UniversalImportFixed.tsx`
 
 ### Проблема 3: Порожній контент для складених віршів
-**Причина:** Відсутній `translation_ua`, не було fallback на `translation_en`
+**Причина:** Відсутній `translation_uk`, не було fallback на `translation_en`
 **Рішення:** ✅ Додано `getTranslationWithFallback()` в `VedaReaderDB.tsx`
 
 ### Проблема 4: Неправильне сортування

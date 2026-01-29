@@ -77,7 +77,7 @@ BEGIN
         display_order = intro['display_order']
 
         sql_parts.append(f"""
-  INSERT INTO public.intro_chapters (book_id, slug, title_en, title_ua, content_en, content_ua, display_order)
+  INSERT INTO public.intro_chapters (book_id, slug, title_en, title_uk, content_en, content_uk, display_order)
   VALUES (v_book_id, '{slug}', E'{title_en}', '', E'{content_en}', '', {display_order})
   ON CONFLICT (book_id, slug) DO UPDATE SET
     title_en = EXCLUDED.title_en,
@@ -111,7 +111,7 @@ BEGIN
   SELECT id INTO v_book_id FROM public.books WHERE slug = '{BOOK_SLUG}';
   SELECT id INTO v_canto_id FROM public.cantos WHERE book_id = v_book_id AND canto_number = {vol_num};
 
-  INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
+  INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_uk, chapter_type, is_published)
   VALUES (v_canto_id, {ch_num}, E'{escape_sql(full_title)}', '', 'verses', true)
   ON CONFLICT (canto_id, chapter_number) DO UPDATE SET
     title_en = EXCLUDED.title_en,
@@ -149,9 +149,9 @@ BEGIN
   -- {verse_num}
   INSERT INTO public.verses (
     chapter_id, verse_number,
-    sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
-    synonyms_en, synonyms_ua, translation_en, translation_ua,
-    commentary_en, commentary_ua, event_date, is_published
+    sanskrit_en, sanskrit_uk, transliteration_en, transliteration_uk,
+    synonyms_en, synonyms_uk, translation_en, translation_uk,
+    commentary_en, commentary_uk, event_date, is_published
   ) VALUES (
     v_chapter_id, E'{verse_num}',
     '', '', '', '',

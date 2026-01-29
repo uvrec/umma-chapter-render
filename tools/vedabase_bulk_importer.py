@@ -33,12 +33,12 @@ Requirements:
 
 МАППІНГ ПОЛІВ (для джерел EN + Sanskrit/Bengali):
 =================================================
-- sanskrit_en / sanskrit_ua — Bengali/Sanskrit (Devanagari script), однаковий вміст
+- sanskrit_en / sanskrit_uk — Bengali/Sanskrit (Devanagari script), однаковий вміст
 - transliteration_en — IAST транслітерація (латинка з діакритикою)
-- transliteration_ua — українська кирилична транслітерація з діакритикою
+- transliteration_uk — українська кирилична транслітерація з діакритикою
   (конвертується з IAST за допомогою tools/translit_normalizer.py)
 - translation_en / purport_en — англійський переклад та пояснення
-- translation_ua / purport_ua — український переклад та пояснення
+- translation_uk / purport_uk — український переклад та пояснення
 """
 
 import os
@@ -463,14 +463,14 @@ class VedabaseBulkImporter:
 
         # Тип лекції
         lecture_type = metadata.get("lecture_type", "Lecture")
-        result["lecture_type_ua"] = LECTURE_TYPE_TRANSLATIONS.get(lecture_type, lecture_type)
+        result["lecture_type_uk"] = LECTURE_TYPE_TRANSLATIONS.get(lecture_type, lecture_type)
 
         # Локація
         location = metadata.get("location_en", "")
-        result["location_ua"] = LOCATION_TRANSLATIONS.get(location, location)
+        result["location_uk"] = LOCATION_TRANSLATIONS.get(location, location)
 
         # Заголовок - базова транслітерація
-        result["title_ua"] = self._transliterate_title(metadata.get("title_en", ""))
+        result["title_uk"] = self._transliterate_title(metadata.get("title_en", ""))
 
         return result
 
@@ -482,10 +482,10 @@ class VedabaseBulkImporter:
 
         # Локація
         location = metadata.get("location_en", "")
-        result["location_ua"] = LOCATION_TRANSLATIONS.get(location, location)
+        result["location_uk"] = LOCATION_TRANSLATIONS.get(location, location)
 
         # Отримувач - базова транслітерація
-        result["recipient_ua"] = metadata.get("recipient_en", "")
+        result["recipient_uk"] = metadata.get("recipient_en", "")
 
         return result
 

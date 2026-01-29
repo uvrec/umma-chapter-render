@@ -1,13 +1,16 @@
 // src/components/mobile/MobileLayout.tsx
 // Wrapper layout для мобільних пристроїв з Neu Bible-style spine navigation
 
-import { ReactNode, useState, useCallback } from "react";
+import { ReactNode, useState, useCallback, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { SpineNavigation } from "./SpineNavigation";
 import { TranslationTooltip } from "./TranslationTooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileReadingProvider, useMobileReading } from "@/contexts/MobileReadingContext";
 import { TimelineProvider } from "@/contexts/TimelineContext";
+
+const EDGE_SWIPE_THRESHOLD = 30; // px from left edge to trigger swipe
+const SWIPE_MIN_DISTANCE = 50; // min px to complete swipe
 
 interface MobileLayoutProps {
   children: ReactNode;
@@ -24,14 +27,18 @@ function MobileLayoutInner({
   bookId,
 }: MobileLayoutProps) {
   const location = useLocation();
-  const { isFullscreen } = useMobileReading();
+  const { isFullscreen, exitFullscreen } = useMobileReading();
 
   // Track spine visibility to move content with it
-  // Read initial state from localStorage
   const [isSpineVisible, setIsSpineVisible] = useState(() => {
     if (typeof window === "undefined") return true;
     return localStorage.getItem("vv_spine_hidden") !== "true";
   });
+
+  // Edge swipe state
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const [swipeDelta, setSwipeDelta] = useState(0);
+  const [isEdgeSwiping, setIsEdgeSwiping] = useState(false);
 
   const handleSpineVisibilityChange = useCallback((visible: boolean) => {
     setIsSpineVisible(visible);
@@ -40,13 +47,59 @@ function MobileLayoutInner({
   // Extract bookId from URL if not provided
   const detectedBookId = bookId || extractBookIdFromPath(location.pathname);
 
+  // Handle edge swipe to exit fullscreen
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    // Only track if starting from left edge and in fullscreen
+    if (isFullscreen && touch.clientX < EDGE_SWIPE_THRESHOLD) {
+      touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+      setIsEdgeSwiping(true);
+    }
+  }, [isFullscreen]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!touchStartRef.current || !isEdgeSwiping) return;
+
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - touchStartRef.current.x;
+
+    // Only allow right swipe
+    if (deltaX > 0) {
+      setSwipeDelta(Math.min(deltaX, window.innerWidth * 0.8));
+    }
+  }, [isEdgeSwiping]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!touchStartRef.current || !isEdgeSwiping) return;
+
+    // If swiped enough, exit fullscreen
+    if (swipeDelta > SWIPE_MIN_DISTANCE) {
+      exitFullscreen();
+    }
+
+    // Reset state
+    touchStartRef.current = null;
+    setSwipeDelta(0);
+    setIsEdgeSwiping(false);
+  }, [swipeDelta, exitFullscreen, isEdgeSwiping]);
+
   // When fullscreen or spine hidden, remove left padding smoothly
   const shouldShowPadding = !hideSpine && isSpineVisible && !isFullscreen;
 
+  // Calculate content transform during swipe
+  const contentStyle: React.CSSProperties = {
+    paddingLeft: shouldShowPadding ? '56px' : '0px',
+    transform: isEdgeSwiping && swipeDelta > 0 ? `translateX(${swipeDelta}px)` : undefined,
+    transition: isEdgeSwiping ? 'none' : 'padding 300ms ease-out, transform 300ms ease-out',
+  };
+
   return (
     <div
-      className="mobile-layout min-h-screen overflow-x-hidden transition-[padding] duration-300"
-      style={{ paddingLeft: shouldShowPadding ? '56px' : '0px' }}
+      className="mobile-layout min-h-screen overflow-x-hidden"
+      style={contentStyle}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
       {!hideSpine && (
         <SpineNavigation

@@ -21,12 +21,12 @@ Usage:
 
 МАППІНГ ПОЛІВ (для джерел EN + Sanskrit/Bengali):
 =================================================
-- sanskrit_en / sanskrit_ua — Bengali/Sanskrit (Devanagari script), однаковий вміст
+- sanskrit_en / sanskrit_uk — Bengali/Sanskrit (Devanagari script), однаковий вміст
 - transliteration_en — IAST транслітерація (латинка з діакритикою)
-- transliteration_ua — українська кирилична транслітерація з діакритикою
+- transliteration_uk — українська кирилична транслітерація з діакритикою
   (конвертується з IAST за допомогою tools/translit_normalizer.py)
 - translation_en / purport_en — англійський переклад та пояснення
-- translation_ua / purport_ua — український переклад та пояснення
+- translation_uk / purport_uk — український переклад та пояснення
 """
 
 import requests
@@ -305,20 +305,20 @@ class LettersImporter:
 
         return None
 
-    def translate_metadata_to_ua(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
+    def translate_metadata_to_uk(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
         """Перекласти метадані на українську"""
         ua_metadata = metadata.copy()
 
         # Перекласти локацію
         location_en = metadata.get("location_en", "")
-        ua_metadata["location_ua"] = LOCATION_TRANSLATIONS.get(
+        ua_metadata["location_uk"] = LOCATION_TRANSLATIONS.get(
             location_en, location_en
         )
 
         # Отримувач - транслітерація імен
         # (потім буде виконано через letter_translator.py)
         recipient_en = metadata.get("recipient_en", "")
-        ua_metadata["recipient_ua"] = self._transliterate_name(recipient_en)
+        ua_metadata["recipient_uk"] = self._transliterate_name(recipient_en)
 
         return ua_metadata
 
@@ -366,17 +366,17 @@ class LettersImporter:
             print(f"[WARNING] Не знайдено тексту для {slug}")
 
         # Переклад метаданих на українську
-        ua_metadata = self.translate_metadata_to_ua(metadata)
+        ua_metadata = self.translate_metadata_to_uk(metadata)
 
         # Формування результату
         result = {
             "metadata": {
                 "slug": slug,
                 "recipient_en": metadata["recipient_en"],
-                "recipient_ua": ua_metadata["recipient_ua"],
+                "recipient_uk": ua_metadata["recipient_uk"],
                 "letter_date": metadata["letter_date"],
                 "location_en": metadata["location_en"],
-                "location_ua": ua_metadata["location_ua"],
+                "location_uk": ua_metadata["location_uk"],
                 "reference": metadata["reference"],
                 "address_block": metadata["address_block"],
             },

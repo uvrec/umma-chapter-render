@@ -6,8 +6,8 @@
 ## Виправлення в `playwright_parser.py`
 
 ### 1. Перейменовано поля для ясності
-- `word_by_word` → `synonyms_ua` (послівний переклад українською)
-- `transliteration` → `transliteration_ua` (українська транслітерація)
+- `word_by_word` → `synonyms_uk` (послівний переклад українською)
+- `transliteration` → `transliteration_uk` (українська транслітерація)
 - Додано підтримку `transliteration_en` (англійська IAST)
 
 ### 2. Виправлено логіку парсингу в `parse_gitabase_verse()`
@@ -17,9 +17,9 @@
 - Блоки схожі на транслітерацію просто викидалися
 
 **Тепер:**
-- Зберігаємо блоки з латиницею у `transliteration_ua`
+- Зберігаємо блоки з латиницею у `transliteration_uk`
 - Зберігаємо українську транслітерацію для подальшої нормалізації
-- Послівний переклад зберігається у `synonyms_ua`
+- Послівний переклад зберігається у `synonyms_uk`
 
 ### 3. Додано пріоритет джерел транслітерації
 
@@ -28,7 +28,7 @@
 
 ### 4. Оновлено нормалізатор `pre_import_normalizer.py`
 
-- Додано підтримку нових полів `transliteration_ua` та `transliteration_en`
+- Додано підтримку нових полів `transliteration_uk` та `transliteration_en`
 - Зберігається зворотна сумісність зі старим полем `transliteration`
 
 ## Виправлення в `pre_import_normalizer.py`
@@ -123,6 +123,6 @@ POST http://127.0.0.1:5003/admin/parse-web-chapter
 ```
 
 Очікуваний результат:
-- `transliteration_ua` заповнена українською транслітерацією з Gitabase
-- `synonyms_ua` заповнена послівним перекладом
+- `transliteration_uk` заповнена українською транслітерацією з Gitabase
+- `synonyms_uk` заповнена послівним перекладом
 - Всі правила нормалізації застосовані (н' → нь, джг → джх, тощо)

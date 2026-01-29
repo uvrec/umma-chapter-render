@@ -45,7 +45,7 @@ export function BlogPoetryContent({
   language,
 }: BlogPoetryContentProps) {
   const labels = {
-    ua: {
+    uk: {
       synonyms: "Послівний переклад",
       translation: "Літературний переклад",
       commentary: "Пояснення",

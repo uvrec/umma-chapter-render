@@ -1,5 +1,5 @@
 // EnhancedInlineEditor.tsx — Розширений inline редактор з повним набором функцій
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Mark, mergeAttributes } from "@tiptap/core";
@@ -90,7 +90,15 @@ import {
   Code,
   Minus,
   RemoveFormatting,
+  Zap,
+  Copy,
+  Check,
 } from "lucide-react";
+import {
+  applyNormalizationRules,
+  defaultRules,
+  ruleCategories,
+} from "@/utils/text/textNormalizationRules";
 
 /**
  * Custom Span mark to preserve <span> elements with class, style, id and data-* attributes
@@ -187,6 +195,7 @@ interface EnhancedInlineEditorProps {
   editable?: boolean;
   minHeight?: string;
   compact?: boolean; // Компактний режим для меншого toolbar
+  showNormalizeButton?: boolean; // Show text normalization button in toolbar
   // Scroll sync props
   onScroll?: (scrollRatio: number) => void; // Reports scroll position as ratio (0-1)
   syncScrollRatio?: number; // Receives scroll ratio from paired editor
@@ -201,6 +210,7 @@ export const EnhancedInlineEditor = ({
   editable = true,
   minHeight = "200px",
   compact = false,
+  showNormalizeButton = false,
   onScroll,
   syncScrollRatio,
   scrollSyncId,
@@ -214,6 +224,10 @@ export const EnhancedInlineEditor = ({
   // Store onScroll callback in ref to avoid stale closures
   const onScrollRef = useRef(onScroll);
   onScrollRef.current = onScroll;
+  // Track when editor view is fully initialized (prevents "view not available" errors)
+  const [isEditorReady, setIsEditorReady] = useState(false);
+  // Track copy feedback state
+  const [copied, setCopied] = useState(false);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -269,6 +283,14 @@ export const EnhancedInlineEditor = ({
       ],
       content: initialContent,
       editable,
+      onCreate: () => {
+        // Editor view is now fully initialized and safe to access
+        setIsEditorReady(true);
+      },
+      onDestroy: () => {
+        // Editor is being destroyed, mark as not ready
+        setIsEditorReady(false);
+      },
       onUpdate: ({ editor }) => onChange(editor.getHTML()),
       editorProps: {
         attributes: {
@@ -322,8 +344,13 @@ export const EnhancedInlineEditor = ({
   // Scroll sync: attach scroll listener to both the container and the editor element
   useEffect(() => {
     const container = scrollContainerRef.current;
+
+    // Guard: Wait until editor view is fully initialized
+    // TipTap throws "The editor view is not available" if accessed too early
+    if (!isEditorReady || !editor?.view) return;
+
     // Get the ProseMirror DOM element directly from the editor
-    const editorElement = editor?.view?.dom as HTMLElement | null;
+    const editorElement = editor.view.dom as HTMLElement | null;
 
     if (!container) return;
 
@@ -352,12 +379,16 @@ export const EnhancedInlineEditor = ({
         editorElement.removeEventListener("scroll", handleScroll);
       }
     };
-  }, [editor]); // Re-attach when editor changes
+  }, [editor, isEditorReady]); // Re-attach when editor is ready
 
   // Scroll sync: apply scroll position from paired editor
   useEffect(() => {
     const container = scrollContainerRef.current;
-    const editorElement = editor?.view?.dom as HTMLElement | null;
+
+    // Guard: Wait until editor view is fully initialized
+    if (!isEditorReady || !editor?.view) return;
+
+    const editorElement = editor.view.dom as HTMLElement | null;
 
     if (syncScrollRatio === undefined || !container) return;
 
@@ -385,7 +416,7 @@ export const EnhancedInlineEditor = ({
     requestAnimationFrame(() => {
       isSyncingRef.current = false;
     });
-  }, [syncScrollRatio, scrollSyncId, editor]);
+  }, [syncScrollRatio, scrollSyncId, editor, isEditorReady]);
 
   // Handle editable state changes
   useEffect(() => {
@@ -551,6 +582,104 @@ export const EnhancedInlineEditor = ({
 
   const clearFormatting = useCallback(() => {
     editor?.chain().focus().clearNodes().unsetAllMarks().run();
+  }, [editor]);
+
+  // Normalize text using normalization rules (preserves HTML structure)
+  const normalizeText = useCallback(() => {
+    if (!editor) return;
+
+    const html = editor.getHTML();
+
+    // Create a temporary div to parse HTML
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+
+    // Walk through all text nodes and apply normalization
+    const walker = document.createTreeWalker(temp, NodeFilter.SHOW_TEXT, null);
+    const textNodes: Text[] = [];
+
+    let node;
+    while ((node = walker.nextNode())) {
+      textNodes.push(node as Text);
+    }
+
+    // Enable all categories for normalization
+    const enabledCategories = new Set(ruleCategories.map(c => c.id));
+    let totalChanges = 0;
+
+    // Apply normalization to each text node
+    for (const textNode of textNodes) {
+      const originalText = textNode.textContent || '';
+      if (!originalText.trim()) continue;
+
+      const { result, changes } = applyNormalizationRules(originalText, defaultRules, enabledCategories);
+
+      if (result !== originalText) {
+        textNode.textContent = result;
+        totalChanges += changes.length;
+      }
+    }
+
+    if (totalChanges > 0) {
+      // Update editor content
+      editor.commands.setContent(temp.innerHTML);
+      toast({
+        title: "Нормалізовано",
+        description: `Застосовано ${totalChanges} змін`,
+      });
+    } else {
+      toast({
+        title: "Текст вже нормалізований",
+        description: "Змін не потрібно",
+      });
+    }
+  }, [editor]);
+
+  // Copy entire content to clipboard
+  const copyContent = useCallback(async () => {
+    if (!editor) return;
+
+    const html = editor.getHTML();
+    // Get plain text version by stripping HTML tags
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    const plainText = temp.textContent || temp.innerText || '';
+
+    try {
+      // Try to copy both HTML and plain text formats
+      if (navigator.clipboard && navigator.clipboard.write) {
+        const htmlBlob = new Blob([html], { type: 'text/html' });
+        const textBlob = new Blob([plainText], { type: 'text/plain' });
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            'text/html': htmlBlob,
+            'text/plain': textBlob,
+          }),
+        ]);
+      } else {
+        // Fallback to plain text copy
+        await navigator.clipboard.writeText(plainText);
+      }
+
+      setCopied(true);
+      toast({
+        title: "Скопійовано",
+        description: "Вміст блоку скопійовано в буфер обміну",
+      });
+
+      // Reset copied state after 2 seconds
+      setTimeout(() => {
+        if (isMountedRef.current) {
+          setCopied(false);
+        }
+      }, 2000);
+    } catch (error) {
+      toast({
+        title: "Помилка копіювання",
+        description: "Не вдалося скопіювати вміст",
+        variant: "destructive",
+      });
+    }
   }, [editor]);
 
   if (!editor) {
@@ -981,6 +1110,30 @@ export const EnhancedInlineEditor = ({
                 title="Очистити форматування"
               >
                 <RemoveFormatting className="h-3 w-3" />
+              </Button>
+              {showNormalizeButton && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={normalizeText}
+                  onMouseDown={(e) => e.preventDefault()}
+                  title="Нормалізувати текст (виправити транслітерацію)"
+                >
+                  <Zap className="h-3 w-3" />
+                </Button>
+              )}
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className={`h-8 w-8 ${copied ? "text-green-600" : ""}`}
+                onClick={copyContent}
+                onMouseDown={(e) => e.preventDefault()}
+                title="Скопіювати весь блок"
+              >
+                {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
               </Button>
             </div>
           </div>

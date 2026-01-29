@@ -227,6 +227,8 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
         recitation_audio_url: recitationAudioUrl || null,
         explanation_uk_audio_url: explanationUkAudioUrl || null,
         explanation_en_audio_url: explanationEnAudioUrl || null,
+        // Auto-restore soft-deleted verses on save
+        deleted_at: null,
       };
 
       if (isCreateMode) {

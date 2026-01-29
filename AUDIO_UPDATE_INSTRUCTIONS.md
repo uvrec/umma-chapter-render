@@ -7,7 +7,7 @@
 - **Added 4 new audio columns** (instead of 8) to `verses` table:
   - `full_verse_audio_url` - **PRIMARY**: Complete verse recording (95% use case)
   - `recitation_audio_url` - Sanskrit/Bengali + Transliteration recitation
-  - `explanation_ua_audio_url` - Ukrainian explanation (synonyms + translation + commentary)
+  - `explanation_uk_audio_url` - Ukrainian explanation (synonyms + translation + commentary)
   - `explanation_en_audio_url` - English explanation (synonyms + translation + commentary)
   - `audio_metadata` - JSONB for duration, file size, format, timestamps
 - **Correctly migrated** existing `audio_url` → `full_verse_audio_url` (not commentary!)
@@ -33,7 +33,7 @@
     - Large uploader with primary styling
   - **ADVANCED AUDIO** (collapsible, closed by default):
     - "Читання санскриту/бенгалі" - `recitation_audio_url`
-    - "Пояснення (українською)" - `explanation_ua_audio_url`
+    - "Пояснення (українською)" - `explanation_uk_audio_url`
     - "Explanation (English)" - `explanation_en_audio_url`
     - Compact uploaders in collapsible section
     - Badge showing count of uploaded files
@@ -88,7 +88,7 @@ SELECT * FROM storage.buckets WHERE name = 'verse-audio';
 -- New columns added to verses table (4 fields instead of 8):
 full_verse_audio_url        TEXT  -- PRIMARY: Complete lecture/recording (95% use case)
 recitation_audio_url        TEXT  -- Sanskrit/Bengali + Transliteration only
-explanation_ua_audio_url    TEXT  -- UA: Synonyms + Translation + Commentary combined
+explanation_uk_audio_url    TEXT  -- UA: Synonyms + Translation + Commentary combined
 explanation_en_audio_url    TEXT  -- EN: Synonyms + Translation + Commentary combined
 audio_metadata              JSONB -- Duration, file size, format, timestamps, etc.
 

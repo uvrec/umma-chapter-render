@@ -20,7 +20,7 @@ import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
 import { parseSynonymPairs } from "@/utils/glossaryParser";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { applyDropCap } from "@/utils/text/dropCap";
-import { useAudioSyncSimple } from "@/hooks/useAudioSync";
+import { SyncedText } from "@/components/SyncedText";
 
 /* =========================
    Типи пропсів
@@ -39,6 +39,9 @@ interface VerseCardProps {
   audioSynonyms?: string; // окреме аудіо для послівного
   audioTranslation?: string; // окреме аудіо для перекладу
   audioCommentary?: string; // окреме аудіо для пояснення
+
+  // ✅ НОВЕ: LRC синхронізація для точного підсвічування рядків
+  lrcContent?: string | null; // LRC формат з таймкодами
 
   // ✅ НОВЕ: Підтримка складених віршів
   is_composite?: boolean;
@@ -114,6 +117,7 @@ export const VerseCard = ({
   audioSynonyms,
   audioTranslation,
   audioCommentary,
+  lrcContent,
   is_composite = false,
   start_verse,
   end_verse,
@@ -212,14 +216,9 @@ export const VerseCard = ({
     return currentTrack.id?.startsWith(`${verseNumber}-`) || false;
   }, [currentTrack, verseId, verseNumber, isPlaying]);
 
-  // Audio-text synchronization - визначає яка секція зараз активна
-  const { activeSection } = useAudioSyncSimple(verseId);
-
-  // Helper для класів підсвітки секції
-  const getSectionHighlightClass = (section: 'sanskrit' | 'transliteration' | 'synonyms' | 'translation' | 'commentary') => {
-    if (!isNowPlaying || activeSection !== section) return '';
-    return 'synced-section-active';
-  };
+  // Простий клас для підсвітки всіх секцій коли вірш грає
+  // Детальна синхронізація рядків працює через SyncedText + lrcContent
+  const sectionHighlightClass = isNowPlaying ? 'synced-section-active' : '';
 
   const verseRef = useRef<HTMLDivElement>(null);
 
@@ -269,15 +268,22 @@ export const VerseCard = ({
   // Функція для відтворення конкретної секції
   const playSection = (section: string, audioSrc?: string) => {
     const src = audioSrc || audioUrl;
-    if (!src) return;
+    console.log("[VerseCard] playSection called:", { section, audioSrc, audioUrl, src, verseId });
+
+    if (!src || !src.trim()) {
+      console.warn("[VerseCard] playSection: No audio source available!");
+      return;
+    }
     const trackId = `${verseNumber}-${section}`;
 
     // Якщо вже грає цей трек — тумблер
     if (currentTrack?.id === trackId || currentTrack?.verseId === verseId) {
+      console.log("[VerseCard] Track already playing, toggling");
       togglePlay();
       return;
     }
     // Use playVerseWithChapterContext to load all chapter verses with audio
+    console.log("[VerseCard] Calling playVerseWithChapterContext with src:", src.substring(0, 80));
     playVerseWithChapterContext({
       id: trackId,
       title: `${verseNumber} — ${section}`,
@@ -454,13 +460,22 @@ export const VerseCard = ({
           </div>
         )}
 
-        {/* НАВІГАЦІЯ МІЖ ВІРШАМИ - приховано на мобільних (є свайп) */}
+        {/* НАВІГАЦІЯ МІЖ ВІРШАМИ + АУДІО - приховано на мобільних (є свайп) */}
         {onPrevVerse && onNextVerse && !isMobile && (
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-4">
             <Button variant="outline" onClick={onPrevVerse} disabled={isPrevDisabled}>
               <ChevronLeft className="mr-2 h-4 w-4" />
               {prevLabel}
             </Button>
+            {/* Аудіо кнопка для санскриту - по центру */}
+            <button
+              onClick={() => playSection("Санскрит", audioSanskrit)}
+              disabled={!audioSanskrit && !audioUrl}
+              className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              aria-label="Слухати санскрит"
+            >
+              <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
+            </button>
             <Button variant="outline" onClick={onNextVerse} disabled={isNextDisabled}>
               {nextLabel}
               <ChevronRight className="ml-2 h-4 w-4" />
@@ -487,21 +502,9 @@ export const VerseCard = ({
           </div>
         )}
 
-        {/* Деванагарі з окремою кнопкою Volume2 */}
+        {/* Деванагарі */}
         {textDisplaySettings.showSanskrit && (isEditing || sanskritText) && (
-          <div className={`mb-6 synced-section transition-all duration-300 ${getSectionHighlightClass('sanskrit')}`} data-synced-section="sanskrit">
-            {/* Кнопка Volume2 для Санскриту - hidden on mobile (tap verse number to play) */}
-            <div className="mb-4 hidden md:flex justify-center">
-              <button
-                onClick={() => playSection("Санскрит", audioSanskrit)}
-                disabled={!audioSanskrit && !audioUrl}
-                className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                aria-label="Слухати санскрит"
-              >
-                <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
-              </button>
-            </div>
-
+          <div className={`mb-3 synced-section transition-all duration-300 ${sectionHighlightClass}`} data-synced-section="sanskrit">
             {isEditing ? (
               <Textarea
                 value={edited.sanskrit}
@@ -513,7 +516,22 @@ export const VerseCard = ({
                 }
                 className="min-h-[100px] text-center sanskrit-text"
               />
+            ) : lrcContent ? (
+              // Точна синхронізація з LRC - кожен рядок/слово підсвічується
+              <SyncedText
+                text={processedSanskrit}
+                verseId={verseId}
+                section="sanskrit"
+                lrcContent={lrcContent}
+                className="text-center sanskrit-text"
+                lineClassName="whitespace-pre-line"
+                activeLineClassName="text-primary font-semibold bg-primary/10 rounded px-1"
+                showProgress={true}
+                autoScroll={true}
+                clickToSeek={true}
+              />
             ) : (
+              // Без LRC - просто текст
               <p className="whitespace-pre-line text-center sanskrit-text" style={{ fontSize: `${fontSize}px`, lineHeight }}>{processedSanskrit}</p>
             )}
           </div>
@@ -521,7 +539,7 @@ export const VerseCard = ({
 
         {/* Транслітерація */}
         {textDisplaySettings.showTransliteration && (isEditing || transliteration) && (
-          <div className={`mb-4 synced-section transition-all duration-300 ${getSectionHighlightClass('transliteration')}`} data-synced-section="transliteration">
+          <div className={`mb-4 synced-section transition-all duration-300 ${sectionHighlightClass}`} data-synced-section="transliteration">
             {isEditing ? (
               <Textarea
                 value={edited.transliteration}
@@ -550,7 +568,7 @@ export const VerseCard = ({
 
         {/* Послівний переклад з окремою кнопкою Volume2 */}
         {textDisplaySettings.showSynonyms && (isEditing || synonyms) && (
-          <div className={`mb-6 synced-section transition-all duration-300 ${getSectionHighlightClass('synonyms')}`} data-synced-section="synonyms">
+          <div className={`mb-6 synced-section transition-all duration-300 ${sectionHighlightClass}`} data-synced-section="synonyms">
             {/* Mobile: тапабельний заголовок для collapse/expand */}
             {isMobile && (
               <button
@@ -673,7 +691,7 @@ export const VerseCard = ({
 
         {/* Літературний переклад з окремою кнопкою Volume2 */}
         {textDisplaySettings.showTranslation && (isEditing || translation) && (
-          <div className={`mb-6 synced-section transition-all duration-300 ${getSectionHighlightClass('translation')}`} data-synced-section="translation">
+          <div className={`mb-6 synced-section transition-all duration-300 ${sectionHighlightClass}`} data-synced-section="translation">
             {/* Заголовок + кнопка Volume2 (hidden on mobile via CSS for clean reading) */}
             <div className="section-header hidden md:flex items-center justify-center gap-4 mb-4">
               <h4 className="text-foreground font-serif">{labels.translation}</h4>
@@ -713,7 +731,7 @@ export const VerseCard = ({
 
         {/* Пояснення з окремою кнопкою Volume2 */}
         {textDisplaySettings.showCommentary && (isEditing || commentary) && (
-          <div className={`synced-section transition-all duration-300 ${getSectionHighlightClass('commentary')}`} data-synced-section="commentary">
+          <div className={`synced-section transition-all duration-300 ${sectionHighlightClass}`} data-synced-section="commentary">
             {/* Заголовок + кнопка Volume2 (hidden on mobile via CSS for clean reading) */}
             <div className="section-header hidden md:flex items-center justify-center gap-4 mb-4">
               <h4 className="text-foreground font-serif">{labels.commentary}</h4>

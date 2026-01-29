@@ -100,6 +100,7 @@ export default function TextNormalization() {
   const [useRichText, setUseRichText] = useState(false);
   const [inputHtml, setInputHtml] = useState("");
   const [outputHtml, setOutputHtml] = useState("");
+  const [showAllChanges, setShowAllChanges] = useState(false);
 
 
   // Combine rules
@@ -815,9 +816,9 @@ export default function TextNormalization() {
                   {t("Список змін", "Change list")} ({changes.length})
                 </CollapsibleTrigger>
                 <CollapsibleContent className="mt-3">
-                  <div className="max-h-48 overflow-y-auto rounded-lg border bg-muted/20 p-3">
+                  <div className={`${showAllChanges ? 'max-h-96' : 'max-h-48'} overflow-y-auto rounded-lg border bg-muted/20 p-3`}>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                      {changes.slice(0, 50).map((change, idx) => (
+                      {(showAllChanges ? changes : changes.slice(0, 50)).map((change, idx) => (
                         <div
                           key={idx}
                           className="text-xs p-2 rounded bg-background flex items-center gap-2"
@@ -829,9 +830,18 @@ export default function TextNormalization() {
                       ))}
                     </div>
                     {changes.length > 50 && (
-                      <p className="text-xs text-muted-foreground mt-2 text-center">
-                        {t(`...та ще ${changes.length - 50} змін`, `...and ${changes.length - 50} more changes`)}
-                      </p>
+                      <div className="mt-3 text-center">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowAllChanges(!showAllChanges)}
+                          className="text-xs"
+                        >
+                          {showAllChanges
+                            ? t("Згорнути", "Collapse")
+                            : t(`...та ще ${changes.length - 50} змін (показати всі)`, `...and ${changes.length - 50} more (show all)`)}
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </CollapsibleContent>
