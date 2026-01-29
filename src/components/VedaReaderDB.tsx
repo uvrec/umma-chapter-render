@@ -813,14 +813,23 @@ export const VedaReaderDB = () => {
     // ✅ ПЕРЕВІРКА 1: Чи не в режимі редагування?
     const editableElement = document.activeElement as HTMLElement;
     if (editableElement?.tagName === 'TEXTAREA' || editableElement?.tagName === 'INPUT' || editableElement?.contentEditable === 'true' || editableElement?.closest('[contenteditable="true"]')) {
+      console.log('[DEBUG] Selection blocked: in editable element', editableElement?.tagName);
       return;
     }
 
     const selection = window.getSelection();
     const selectedText = selection?.toString().trim();
 
+    console.log('[DEBUG] Selection detected:', {
+      text: selectedText?.substring(0, 50),
+      length: selectedText?.length,
+      hasWhitespace: selectedText ? /\s/.test(selectedText) : false,
+      rangeCount: selection?.rangeCount
+    });
+
     // ✅ ПЕРЕВІРКА 2: Чи достатньо тексту? (мінімум 10 символів)
     if (!selectedText || selectedText.length < 10) {
+      console.log('[DEBUG] Selection blocked: too short', selectedText?.length);
       return;
     }
 
@@ -828,8 +837,11 @@ export const VedaReaderDB = () => {
     // Використовуємо regex \s для перевірки будь-яких пробільних символів,
     // включаючи нерозривні пробіли (U+00A0) з EPUB/HTML форматування
     if (!/\s/.test(selectedText)) {
+      console.log('[DEBUG] Selection blocked: single word (no whitespace)');
       return;
     }
+
+    console.log('[DEBUG] Selection passed all checks, proceeding...');
 
     // Get selection position for tooltip
     const range = selection?.getRangeAt(0);
@@ -877,15 +889,25 @@ export const VedaReaderDB = () => {
       console.warn('Could not extract selection context:', e);
     }
 
+    console.log('[DEBUG] Setting timeout, position:', { x: tooltipX, y: tooltipY });
+
     // ✅ Довша затримка (700ms) - дає час для копіювання без перешкод
     selectionTimeoutRef.current = setTimeout(() => {
       const currentSelection = window.getSelection()?.toString().trim();
+      console.log('[DEBUG] Timeout fired, comparing selections:', {
+        original: selectedText?.substring(0, 30),
+        current: currentSelection?.substring(0, 30),
+        match: currentSelection === selectedText
+      });
       // Only show tooltip if selection is still the same
       if (currentSelection === selectedText) {
+        console.log('[DEBUG] Showing tooltip!');
         setSelectedTextForHighlight(selectedText);
         setSelectionContext({ before, after });
         setSelectionTooltipPosition({ x: tooltipX, y: tooltipY });
         setSelectionTooltipVisible(true);
+      } else {
+        console.log('[DEBUG] Selection changed, not showing tooltip');
       }
     }, 700);
   }, []);
