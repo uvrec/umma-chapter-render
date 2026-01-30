@@ -93,10 +93,15 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
         // Inline style для динамічного розміру шрифту
         const textStyle = fontSize ? { fontSize: `${fontSize}px`, lineHeight } : undefined;
 
+        // Determine purport class: first paragraph gets "purport first", others get "purport"
+        const purportClass = enableDropCap
+          ? (isFirstParagraph ? 'purport first' : 'purport')
+          : '';
+
         return (
           <div key={idx} className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8 items-start">
             <div
-              className={`text-justify ${isFirstParagraph && enableDropCap ? 'purport first' : ''} ${bold ? 'font-bold' : ''}`}
+              className={`text-justify ${purportClass} ${bold ? 'font-bold' : ''}`}
               style={textStyle}
               dangerouslySetInnerHTML={{
                 __html: sanitizeForRender(
@@ -107,7 +112,7 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
               }}
             />
             <div
-              className={`text-justify ${isFirstParagraph && enableDropCap ? 'purport first' : ''} ${bold ? 'font-bold' : ''}`}
+              className={`text-justify ${purportClass} ${bold ? 'font-bold' : ''}`}
               style={textStyle}
               dangerouslySetInnerHTML={{
                 __html: sanitizeForRender(
