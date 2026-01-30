@@ -38,7 +38,7 @@ function DesktopHeader() {
   const {
     pathname
   } = useLocation();
-  const navBtn = "hover:bg-foreground/5 hover:border hover:border-foreground/20 transition-colors";
+  const navBtn = "font-semibold hover:bg-foreground/5 hover:border hover:border-foreground/20 transition-colors";
 
   // ✅ показувати блок дій лише на сторінці керування постами І якщо користувач — адмін
   const showBlogAdminActions = isAdmin && pathname.startsWith("/admin/blog-posts");
