@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Plus, Eye, EyeOff, Trash2, ExternalLink } from "lucide-react";
+import { ArrowLeft, Plus, Eye, EyeOff, Trash2, ExternalLink, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -154,6 +154,12 @@ const Books = () => {
                           <Link to={`/admin/chapters/${book.id}`}>Глави</Link>
                         </Button>
                       )}
+                      <Button size="sm" asChild variant="outline">
+                        <Link to={`/admin/intro-chapters/${book.id}`}>
+                          <BookOpen className="w-4 h-4 mr-2" />
+                          Вступи
+                        </Link>
+                      </Button>
                       <Button
                         size="sm"
                         variant="outline"
