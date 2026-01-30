@@ -27,6 +27,8 @@ import { ChapterSchema, BreadcrumbSchema } from "@/components/StructuredData";
 import { getChapterOgImage } from "@/utils/og-image";
 import { Helmet } from "react-helmet-async";
 import { SITE_CONFIG } from "@/lib/constants";
+import { SelectionTooltip } from "@/components/SelectionTooltip";
+import { copyVerseWithLink, shareVerse, type VerseParams } from "@/utils/verse-sharing";
 
 /**
  * Safety check: detect if chapter content looks like incorrectly imported verse text
@@ -136,6 +138,13 @@ export const ChapterVersesList = () => {
   const verseRefs = useRef<Map<string, HTMLElement>>(new Map());
   const swipeStartX = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Text selection states for SelectionTooltip
+  const [selectionTooltipVisible, setSelectionTooltipVisible] = useState(false);
+  const [selectionTooltipPosition, setSelectionTooltipPosition] = useState({ x: 0, y: 0 });
+  const [selectedTextForHighlight, setSelectedTextForHighlight] = useState<string>("");
+  const selectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const isCantoMode = !!cantoNumber;
   const effectiveChapterParam = chapterNumber;
   const {
@@ -382,6 +391,123 @@ export const ChapterVersesList = () => {
       navigate(getLocalizedPath(`/lib/${bookId}/${chapterNum}`));
     }
   };
+
+  // Text selection handler - shows tooltip for copy/share/highlight
+  const handleTextSelection = useCallback(() => {
+    // Clear any pending timeout
+    if (selectionTimeoutRef.current) {
+      clearTimeout(selectionTimeoutRef.current);
+      selectionTimeoutRef.current = null;
+    }
+
+    // Check if in editable element
+    const editableElement = document.activeElement as HTMLElement;
+    if (editableElement?.tagName === 'TEXTAREA' || editableElement?.tagName === 'INPUT' || editableElement?.contentEditable === 'true' || editableElement?.closest('[contenteditable="true"]')) {
+      return;
+    }
+
+    const selection = window.getSelection();
+    const selectedText = selection?.toString().trim();
+
+    // Need at least 10 characters and contain whitespace (not single word)
+    if (!selectedText || selectedText.length < 10) {
+      return;
+    }
+    if (!/\s/.test(selectedText)) {
+      return;
+    }
+
+    // Get selection position for tooltip
+    const range = selection?.getRangeAt(0);
+    if (!range) return;
+
+    const rects = range.getClientRects();
+    let tooltipX: number;
+    let tooltipY: number;
+
+    if (rects.length > 0) {
+      const firstRect = rects[0];
+      tooltipX = firstRect.left + firstRect.width / 2;
+      tooltipY = firstRect.top + window.scrollY;
+    } else {
+      const rect = range.getBoundingClientRect();
+      tooltipX = rect.left + rect.width / 2;
+      tooltipY = rect.top + window.scrollY;
+    }
+
+    // Delay before showing tooltip (allows for copy action without interference)
+    selectionTimeoutRef.current = setTimeout(() => {
+      const currentSelection = window.getSelection()?.toString().trim();
+      if (currentSelection === selectedText) {
+        setSelectedTextForHighlight(selectedText);
+        setSelectionTooltipPosition({ x: tooltipX, y: tooltipY });
+        setSelectionTooltipVisible(true);
+      }
+    }, 700);
+  }, []);
+
+  // Hide tooltip when selection is cleared
+  const handleSelectionChange = useCallback(() => {
+    const selection = window.getSelection();
+    const selectedText = selection?.toString().trim();
+    if (!selectedText || selectedText.length < 10) {
+      setSelectionTooltipVisible(false);
+    }
+  }, []);
+
+  // Copy selected text with verse reference
+  const handleCopySelectedText = useCallback(async () => {
+    if (!selectedTextForHighlight) return;
+
+    const verseParams: VerseParams = {
+      bookSlug: bookId || "",
+      bookTitle: bookTitle || "",
+      cantoNumber: cantoNumber ? parseInt(cantoNumber) : undefined,
+      chapterNumber: parseInt(effectiveChapterParam || "1"),
+      verseNumber: "—",
+      verseText: selectedTextForHighlight,
+    };
+
+    await copyVerseWithLink(verseParams, {
+      lang: language as "uk" | "en",
+      onSuccess: () => {
+        toast({ title: language === "uk" ? "Скопійовано з посиланням" : "Copied with link" });
+      },
+    });
+    setSelectionTooltipVisible(false);
+  }, [selectedTextForHighlight, bookId, bookTitle, cantoNumber, effectiveChapterParam, language]);
+
+  // Share selected text
+  const handleShareSelectedText = useCallback(async () => {
+    if (!selectedTextForHighlight) return;
+
+    const verseParams: VerseParams = {
+      bookSlug: bookId || "",
+      bookTitle: bookTitle || "",
+      cantoNumber: cantoNumber ? parseInt(cantoNumber) : undefined,
+      chapterNumber: parseInt(effectiveChapterParam || "1"),
+      verseNumber: "—",
+      verseText: selectedTextForHighlight,
+    };
+
+    await shareVerse(verseParams, {
+      lang: language as "uk" | "en",
+      onFallbackCopy: () => {
+        toast({ title: language === "uk" ? "Скопійовано з посиланням" : "Copied with link" });
+      },
+    });
+    setSelectionTooltipVisible(false);
+  }, [selectedTextForHighlight, bookId, bookTitle, cantoNumber, effectiveChapterParam, language]);
+
+  // Mouseup and selectionchange listeners for highlights
+  useEffect(() => {
+    document.addEventListener('mouseup', handleTextSelection);
+    document.addEventListener('selectionchange', handleSelectionChange);
+    return () => {
+      document.removeEventListener('mouseup', handleTextSelection);
+      document.removeEventListener('selectionchange', handleSelectionChange);
+    };
+  }, [handleTextSelection, handleSelectionChange]);
 
   // Keyboard navigation functions
   const handlePrevChapter = useCallback(() => {
@@ -982,5 +1108,15 @@ export const ChapterVersesList = () => {
           onClose={() => setVerseSliderOpen(false)}
         />
       )}
+
+      {/* Text Selection Tooltip for copy/share */}
+      <SelectionTooltip
+        isVisible={selectionTooltipVisible}
+        position={selectionTooltipPosition}
+        selectedText={selectedTextForHighlight}
+        onClose={() => setSelectionTooltipVisible(false)}
+        onCopy={handleCopySelectedText}
+        onShare={handleShareSelectedText}
+      />
     </div>;
 };
