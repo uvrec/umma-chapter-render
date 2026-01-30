@@ -28,7 +28,7 @@ import { getChapterOgImage } from "@/utils/og-image";
 import { Helmet } from "react-helmet-async";
 import { SITE_CONFIG } from "@/lib/constants";
 import { SelectionTooltip } from "@/components/SelectionTooltip";
-import { copyVerseWithLink, shareVerse, type VerseParams } from "@/utils/verse-sharing";
+import { copyVerseWithLink, shareVerse, type VerseParams } from "@/utils/verseShare";
 
 /**
  * Safety check: detect if chapter content looks like incorrectly imported verse text
