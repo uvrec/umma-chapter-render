@@ -19,7 +19,7 @@ import { stripParagraphTags, sanitizeForRender } from "@/utils/import/normalizer
 import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
 import { parseSynonymPairs } from "@/utils/glossaryParser";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { applyDropCap } from "@/utils/text/dropCap";
+import { formatExplanationParagraphs } from "@/utils/text/dropCap";
 import { SyncedText } from "@/components/SyncedText";
 
 /* =========================
@@ -759,9 +759,9 @@ export const VerseCard = ({
               />
             ) : (
               <div
-                className="text-foreground text-justify purport first"
+                className="text-foreground text-justify"
                 style={{ fontSize: `${fontSize}px`, lineHeight }}
-                dangerouslySetInnerHTML={{ __html: applyDropCap(sanitizeForRender(commentary || "")) }}
+                dangerouslySetInnerHTML={{ __html: formatExplanationParagraphs(sanitizeForRender(commentary || "")) }}
               />
             )}
           </div>

@@ -566,8 +566,15 @@ export const BookOverview = () => {
               {introChapters.length > 0 && <div className="mb-6">
                   <ul className="space-y-2">
                     {introChapters.map(intro => <li key={intro.id}>
-                        <Link to={getLocalizedPath(`/lib/${bookSlug}/intro/${intro.slug}`)} className="text-primary hover:underline">
-                          {language === "uk" ? intro.title_uk : intro.title_en}
+                        <Link to={getLocalizedPath(`/lib/${bookSlug}/intro/${intro.slug}`)} className="text-primary hover:underline block py-1">
+                          {dualLanguageMode ? (
+                            <div className="grid gap-8 md:grid-cols-2">
+                              <span>{intro.title_uk}</span>
+                              <span>{intro.title_en}</span>
+                            </div>
+                          ) : (
+                            language === "uk" ? intro.title_uk : intro.title_en
+                          )}
                         </Link>
                       </li>)}
                   </ul>
