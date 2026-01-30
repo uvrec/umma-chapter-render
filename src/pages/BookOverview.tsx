@@ -575,13 +575,13 @@ export const BookOverview = () => {
               return dualLanguageMode ? (
                 <Link key={intro.id} to={getLocalizedPath(`/lib/${bookSlug}/intro/${intro.slug}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                   <div className="grid gap-8 md:grid-cols-2">
-                    <div className="text-lg text-primary">{introTitleUk}</div>
-                    <div className="text-lg text-primary">{introTitleEn}</div>
+                    <div className="text-lg text-primary font-semibold">{introTitleUk}</div>
+                    <div className="text-lg text-primary font-semibold">{introTitleEn}</div>
                   </div>
                 </Link>
               ) : (
                 <Link key={intro.id} to={getLocalizedPath(`/lib/${bookSlug}/intro/${intro.slug}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
-                  <div className="text-lg text-primary">
+                  <div className="text-lg text-primary font-semibold">
                     {language === "uk" ? introTitleUk : introTitleEn}
                   </div>
                 </Link>
@@ -598,13 +598,13 @@ export const BookOverview = () => {
             // Side-by-side для cantos
             <Link key={canto.id} to={getLocalizedPath(`/lib/${bookSlug}/${canto.canto_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                       <div className="grid gap-8 md:grid-cols-2">
-                        <div className="text-lg text-primary">{cantoTitleUk}</div>
-                        <div className="text-lg text-primary">{cantoTitleEn}</div>
+                        <div className="text-lg text-primary font-semibold">{cantoTitleUk}</div>
+                        <div className="text-lg text-primary font-semibold">{cantoTitleEn}</div>
                       </div>
                     </Link> :
             // Одна мова для cantos
             <Link key={canto.id} to={getLocalizedPath(`/lib/${bookSlug}/${canto.canto_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
-                      <div className="text-lg text-primary">
+                      <div className="text-lg text-primary font-semibold">
                         {language === "uk" ? cantoTitleUk : cantoTitleEn}
                       </div>
                     </Link>;
@@ -615,11 +615,11 @@ export const BookOverview = () => {
             const titleEn = verse.translation_en || `Text ${verse.verse_number}`;
             return dualLanguageMode ? <Link key={verse.id} to={getLocalizedPath(`/lib/noi/${verse.verse_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                         <div className="grid gap-8 md:grid-cols-2">
-                          <div className="text-lg text-primary">{titleUk}</div>
-                          <div className="text-lg text-primary">{titleEn}</div>
+                          <div className="text-lg text-primary font-semibold">{titleUk}</div>
+                          <div className="text-lg text-primary font-semibold">{titleEn}</div>
                         </div>
                       </Link> : <Link key={verse.id} to={getLocalizedPath(`/lib/noi/${verse.verse_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
-                        <div className="text-lg text-primary">
+                        <div className="text-lg text-primary font-semibold">
                           {language === "uk" ? titleUk : titleEn}
                         </div>
                       </Link>;
@@ -632,13 +632,13 @@ export const BookOverview = () => {
             // Side-by-side для chapters
             <Link key={chapter.id} to={getLocalizedPath(`/lib/${bookSlug}/${chapter.chapter_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                       <div className="grid gap-8 md:grid-cols-2">
-                        <div className="text-lg text-primary">{chapterTitleUk}</div>
-                        <div className="text-lg text-primary">{chapterTitleEn}</div>
+                        <div className="text-lg text-primary font-semibold">{chapterTitleUk}</div>
+                        <div className="text-lg text-primary font-semibold">{chapterTitleEn}</div>
                       </div>
                     </Link> :
             // Одна мова для chapters
             <Link key={chapter.id} to={getLocalizedPath(`/lib/${bookSlug}/${chapter.chapter_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
-                      <div className="text-lg text-primary">
+                      <div className="text-lg text-primary font-semibold">
                         {language === "uk" ? chapterTitleUk : chapterTitleEn}
                       </div>
                     </Link>;
