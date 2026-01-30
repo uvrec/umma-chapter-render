@@ -554,20 +554,14 @@ export const BookOverview = () => {
       }]} />
 
         <div className="mt-6 mb-8">
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Book info */}
-            <div className="flex-1">
-              <h1 style={{
-              fontFamily: "var(--font-primary)"
-            }} className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent text-center">{bookTitle}</h1>
-              {bookDescription && <p className="text-lg text-muted-foreground mb-6 text-center">{bookDescription}</p>}
-            </div>
-          </div>
+          <h1 style={{
+            fontFamily: "var(--font-primary)"
+          }} className="text-4xl md:text-5xl font-bold mb-8 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent text-center">{bookTitle}</h1>
         </div>
 
         {/* Intro chapters + Cantos/Chapters list */}
         <div className="mb-8">
-          <div className="space-y-1">
+          <div className="space-y-2">
             {/* Intro chapters - same style as chapters */}
             {introChapters.map(intro => {
               const introTitleUk = intro.title_uk;
@@ -575,13 +569,13 @@ export const BookOverview = () => {
               return dualLanguageMode ? (
                 <Link key={intro.id} to={getLocalizedPath(`/lib/${bookSlug}/intro/${intro.slug}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                   <div className="grid gap-8 md:grid-cols-2">
-                    <div className="text-lg text-primary font-semibold">{introTitleUk}</div>
-                    <div className="text-lg text-primary font-semibold">{introTitleEn}</div>
+                    <div className="text-xl md:text-2xl text-primary font-semibold">{introTitleUk}</div>
+                    <div className="text-xl md:text-2xl text-primary font-semibold">{introTitleEn}</div>
                   </div>
                 </Link>
               ) : (
                 <Link key={intro.id} to={getLocalizedPath(`/lib/${bookSlug}/intro/${intro.slug}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
-                  <div className="text-lg text-primary font-semibold">
+                  <div className="text-xl md:text-2xl text-primary font-semibold">
                     {language === "uk" ? introTitleUk : introTitleEn}
                   </div>
                 </Link>
@@ -598,13 +592,13 @@ export const BookOverview = () => {
             // Side-by-side для cantos
             <Link key={canto.id} to={getLocalizedPath(`/lib/${bookSlug}/${canto.canto_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                       <div className="grid gap-8 md:grid-cols-2">
-                        <div className="text-lg text-primary font-semibold">{cantoTitleUk}</div>
-                        <div className="text-lg text-primary font-semibold">{cantoTitleEn}</div>
+                        <div className="text-xl md:text-2xl text-primary font-semibold">{cantoTitleUk}</div>
+                        <div className="text-xl md:text-2xl text-primary font-semibold">{cantoTitleEn}</div>
                       </div>
                     </Link> :
             // Одна мова для cantos
             <Link key={canto.id} to={getLocalizedPath(`/lib/${bookSlug}/${canto.canto_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
-                      <div className="text-lg text-primary font-semibold">
+                      <div className="text-xl md:text-2xl text-primary font-semibold">
                         {language === "uk" ? cantoTitleUk : cantoTitleEn}
                       </div>
                     </Link>;
@@ -615,11 +609,11 @@ export const BookOverview = () => {
             const titleEn = verse.translation_en || `Text ${verse.verse_number}`;
             return dualLanguageMode ? <Link key={verse.id} to={getLocalizedPath(`/lib/noi/${verse.verse_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                         <div className="grid gap-8 md:grid-cols-2">
-                          <div className="text-lg text-primary font-semibold">{titleUk}</div>
-                          <div className="text-lg text-primary font-semibold">{titleEn}</div>
+                          <div className="text-xl md:text-2xl text-primary font-semibold">{titleUk}</div>
+                          <div className="text-xl md:text-2xl text-primary font-semibold">{titleEn}</div>
                         </div>
                       </Link> : <Link key={verse.id} to={getLocalizedPath(`/lib/noi/${verse.verse_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
-                        <div className="text-lg text-primary font-semibold">
+                        <div className="text-xl md:text-2xl text-primary font-semibold">
                           {language === "uk" ? titleUk : titleEn}
                         </div>
                       </Link>;
@@ -632,13 +626,13 @@ export const BookOverview = () => {
             // Side-by-side для chapters
             <Link key={chapter.id} to={getLocalizedPath(`/lib/${bookSlug}/${chapter.chapter_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                       <div className="grid gap-8 md:grid-cols-2">
-                        <div className="text-lg text-primary font-semibold">{chapterTitleUk}</div>
-                        <div className="text-lg text-primary font-semibold">{chapterTitleEn}</div>
+                        <div className="text-xl md:text-2xl text-primary font-semibold">{chapterTitleUk}</div>
+                        <div className="text-xl md:text-2xl text-primary font-semibold">{chapterTitleEn}</div>
                       </div>
                     </Link> :
             // Одна мова для chapters
             <Link key={chapter.id} to={getLocalizedPath(`/lib/${bookSlug}/${chapter.chapter_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
-                      <div className="text-lg text-primary font-semibold">
+                      <div className="text-xl md:text-2xl text-primary font-semibold">
                         {language === "uk" ? chapterTitleUk : chapterTitleEn}
                       </div>
                     </Link>;
