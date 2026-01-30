@@ -428,11 +428,12 @@ export const ChapterVersesList = () => {
     if (rects.length > 0) {
       const firstRect = rects[0];
       tooltipX = firstRect.left + firstRect.width / 2;
-      tooltipY = firstRect.top + window.scrollY;
+      // Tooltip uses position: fixed (viewport-relative), so no window.scrollY needed
+      tooltipY = firstRect.top;
     } else {
       const rect = range.getBoundingClientRect();
       tooltipX = rect.left + rect.width / 2;
-      tooltipY = rect.top + window.scrollY;
+      tooltipY = rect.top;
     }
 
     // Delay before showing tooltip (allows for copy action without interference)
