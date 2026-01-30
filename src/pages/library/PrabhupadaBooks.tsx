@@ -63,7 +63,7 @@ const prabhupadaBooks: Book[] = [
   {
     id: "krishna",
     title: "Крішна. Верховний Бог - Особа",
-    description: "Біографія Крішни. Книга є скороженим переказом 10 Пісні \"Шрімад-Бхагаватам\".",
+    description: "Біографія Крішни. Книга є скороченим переказом 10 Пісні «Шрімад-Бгаґаватам».",
     price: "94 грн",
     hasVerse: false,
     coverImage: krishnaSupremePersonCover,

@@ -46,8 +46,8 @@ function DesktopHeader() {
       <div className="container mx-auto px-4 py-4">
         {/* Top Bar */}
         <div className="flex items-center justify-between">
-          {/* Desktop Navigation */}
-          <nav className="hidden items-center space-x-1 md:flex">
+          {/* Desktop Navigation - visible from lg (1024px+) */}
+          <nav className="hidden items-center space-x-1 lg:flex">
             <Button variant="ghost" size="sm" asChild className={navBtn}>
               <Link to={getLocalizedPath("/")} aria-label="Головна">
                 <Home className="mr-2 h-4 w-4" />
@@ -113,8 +113,8 @@ function DesktopHeader() {
             </Button>
           </nav>
 
-          {/* Desktop Controls */}
-          <div className="hidden items-center gap-2 md:flex">
+          {/* Desktop Controls - visible from lg (1024px+) */}
+          <div className="hidden items-center gap-2 lg:flex">
             <ThemeToggle />
             {!user && <Button variant="outline" size="sm" asChild className={navBtn}>
                 <Link to="/auth" aria-label="Вхід">
@@ -133,7 +133,7 @@ function DesktopHeader() {
           {/* Mobile Navigation */}
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" size="sm" className="md:hidden" aria-label="Меню">
+              <Button variant="outline" size="sm" className="lg:hidden" aria-label="Меню">
                 <Menu className="h-4 w-4" />
                 <span className="ml-2">Меню</span>
               </Button>

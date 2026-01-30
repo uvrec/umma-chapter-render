@@ -7,7 +7,7 @@ interface SelectionTooltipProps {
   isVisible: boolean;
   position: { x: number; y: number };
   selectedText?: string;
-  onSave: () => void;
+  onSave?: () => void;
   onClose: () => void;
   onCopy?: () => Promise<void>;
   onShare?: () => Promise<void>;
@@ -97,7 +97,7 @@ export const SelectionTooltip = ({
   const handleHighlight = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    onSave();
+    if (onSave) onSave();
   };
 
   return (
@@ -141,20 +141,22 @@ export const SelectionTooltip = ({
           </Button>
         )}
 
-        {/* Divider */}
-        <div className="w-px h-5 bg-border mx-0.5" />
-
-        {/* Highlight/Note button */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleHighlight}
-          className="rounded-full px-2 py-1.5 h-auto gap-1 text-primary hover:text-primary"
-          title={t("Виділити", "Highlight")}
-        >
-          <Highlighter className="h-4 w-4" />
-          <span className="text-xs hidden sm:inline">{t("Виділити", "Highlight")}</span>
-        </Button>
+        {/* Divider and Highlight button - only show if onSave is provided */}
+        {onSave && (
+          <>
+            <div className="w-px h-5 bg-border mx-0.5" />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleHighlight}
+              className="rounded-full px-2 py-1.5 h-auto gap-1 text-primary hover:text-primary"
+              title={t("Виділити", "Highlight")}
+            >
+              <Highlighter className="h-4 w-4" />
+              <span className="text-xs hidden sm:inline">{t("Виділити", "Highlight")}</span>
+            </Button>
+          </>
+        )}
       </div>
     </div>
   );
