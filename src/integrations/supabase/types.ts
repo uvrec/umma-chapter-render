@@ -3956,7 +3956,6 @@ export type Database = {
           created_at: string
           deleted_at: string | null
           display_blocks: Json | null
-          embedding: string | null
           end_verse: number | null
           event_date: string | null
           explanation_en_audio_url: string | null
@@ -3996,7 +3995,6 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           display_blocks?: Json | null
-          embedding?: string | null
           end_verse?: number | null
           event_date?: string | null
           explanation_en_audio_url?: string | null
@@ -4036,7 +4034,6 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           display_blocks?: Json | null
-          embedding?: string | null
           end_verse?: number | null
           event_date?: string | null
           explanation_en_audio_url?: string | null
@@ -5157,24 +5154,6 @@ export type Database = {
         }
         Returns: boolean
       }
-      hybrid_search_verses: {
-        Args: {
-          language_code?: string
-          match_count?: number
-          query_embedding?: string
-          query_text: string
-          semantic_weight?: number
-        }
-        Returns: {
-          book_slug: string
-          chapter_id: string
-          combined_score: number
-          commentary: string
-          id: string
-          translation: string
-          verse_number: string
-        }[]
-      }
       increment_blog_post_views: {
         Args: { post_id: string }
         Returns: undefined
@@ -5592,26 +5571,6 @@ export type Database = {
               verse_text: string
             }[]
           }
-      semantic_search_verses: {
-        Args: {
-          match_count?: number
-          match_threshold?: number
-          query_embedding: string
-        }
-        Returns: {
-          book_slug: string
-          chapter_id: string
-          commentary_en: string
-          commentary_ua: string
-          id: string
-          similarity: number
-          translation_en: string
-          translation_ua: string
-          verse_number: string
-        }[]
-      }
-      show_limit: { Args: never; Returns: number }
-      show_trgm: { Args: { "": string }; Returns: string[] }
       slugify: { Args: { "": string }; Returns: string }
       unified_search:
         | {
