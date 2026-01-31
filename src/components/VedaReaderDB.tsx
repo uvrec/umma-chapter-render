@@ -37,6 +37,7 @@ import { useScrollDirection } from "@/hooks/useScrollDirection";
 import { useReadingSession } from "@/hooks/useReadingSession";
 import { useBooks } from "@/contexts/BooksContext";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsTouchDevice } from "@/hooks/useIsTouchDevice";
 
 export const VedaReaderDB = () => {
   // Support both /veda-reader/ and /lib/ URL patterns
@@ -77,6 +78,7 @@ export const VedaReaderDB = () => {
   } = useAuth();
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
+  const isTouchDevice = useIsTouchDevice();
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -1448,8 +1450,8 @@ export const VedaReaderDB = () => {
             <div className="prose prose-lg max-w-none dark:prose-invert">
               <TiptapRenderer content={language === "uk" ? effectiveChapter.content_uk || "" : effectiveChapter.content_en || effectiveChapter.content_uk || ""} />
             </div>
-            {/* Навігація знизу - ховаємо на мобільних (є свайп) */}
-            {!isMobile && (
+            {/* Навігація знизу - ховаємо на тач-пристроях (є свайп та клавіатурні стрілки) */}
+            {!isTouchDevice && (
               <div className="mt-8 flex items-center justify-between pt-6">
                 <Button variant="outline" onClick={handlePrevChapter} disabled={currentChapterIndex === 0}>
                   <ChevronLeft className="mr-2 h-4 w-4" />
@@ -1477,7 +1479,7 @@ export const VedaReaderDB = () => {
                 showCommentary: continuousReadingSettings.showCommentary
               };
 
-              return dualLanguageMode ? (
+              return dualLanguageMode && !isMobile ? (
                 <DualLanguageVerseCard
                   key={verse.id}
                   verseId={verse.id}
@@ -1555,7 +1557,7 @@ export const VedaReaderDB = () => {
           </div>
         ) : currentVerse ? (
           <div className="space-y-6">
-            {dualLanguageMode ? (
+            {dualLanguageMode && !isMobile ? (
               <DualLanguageVerseCard
                 key={currentVerse.id}
                 verseId={currentVerse.id}
@@ -1593,8 +1595,8 @@ export const VedaReaderDB = () => {
                   verseNumber: currentVerse.verse_number
                 })}
                 onVerseDelete={(verseId) => deleteVerseMutation.mutate(verseId)}
-                onPrevVerse={handlePrevVerse}
-                onNextVerse={handleNextVerse}
+                onPrevVerse={isTouchDevice ? undefined : handlePrevVerse}
+                onNextVerse={isTouchDevice ? undefined : handleNextVerse}
                 isPrevDisabled={currentVerseIndex === 0 && currentChapterIndex === 0}
                 isNextDisabled={currentVerseIndex === verses.length - 1 && currentChapterIndex === allChapters.length - 1}
                 prevLabel={currentVerseIndex === 0 ? t("Попередня глава", "Previous Chapter") : t("Попередній вірш", "Previous Verse")}
@@ -1641,8 +1643,8 @@ export const VedaReaderDB = () => {
                 onVerseNumberUpdate={() => {
                   queryClient.invalidateQueries({ queryKey: ["verses"] });
                 }}
-                onPrevVerse={handlePrevVerse}
-                onNextVerse={handleNextVerse}
+                onPrevVerse={isTouchDevice ? undefined : handlePrevVerse}
+                onNextVerse={isTouchDevice ? undefined : handleNextVerse}
                 isPrevDisabled={currentVerseIndex === 0 && currentChapterIndex === 0}
                 isNextDisabled={currentVerseIndex === verses.length - 1 && currentChapterIndex === allChapters.length - 1}
                 prevLabel={currentVerseIndex === 0 ? t("Попередня глава", "Previous Chapter") : t("Попередній вірш", "Previous Verse")}
@@ -1664,8 +1666,8 @@ export const VedaReaderDB = () => {
               />
             )}
 
-            {/* Навігація знизу - ховаємо на мобільних (є свайп) */}
-            {!isMobile && (
+            {/* Навігація знизу - ховаємо на тач-пристроях (є свайп та клавіатурні стрілки) */}
+            {!isTouchDevice && (
               <div className="flex items-center justify-between pt-6">
                 <Button variant="outline" onClick={handlePrevVerse} disabled={currentVerseIndex === 0 && currentChapterIndex === 0}>
                   <ChevronLeft className="mr-2 h-4 w-4" />

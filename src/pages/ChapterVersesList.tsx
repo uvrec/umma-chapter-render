@@ -803,7 +803,7 @@ export const ChapterVersesList = () => {
                     </Button>
                   </div>
                 </div>
-              ) : dualLanguageMode && effectiveChapterObj.content_uk && effectiveChapterObj.content_en ? (
+              ) : dualLanguageMode && !isMobile && effectiveChapterObj.content_uk && effectiveChapterObj.content_en ? (
                 (() => {
             const splitHtmlIntoParagraphs = (html: string): string[] => {
               const sanitized = DOMPurify.sanitize(html);
