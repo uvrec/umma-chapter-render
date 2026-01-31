@@ -39,12 +39,14 @@ import {
 } from "@/hooks/useEkadashiFasting";
 import type { VaishnavEventType, FastingLevel } from "@/services/ekadashiCalculator";
 import { CalendarMonthView } from "@/components/calendar/CalendarMonthView";
+import { CalendarMobileView } from "@/components/calendar/CalendarMobileView";
 import { CalendarEventCard } from "@/components/calendar/CalendarEventCard";
 import { TodayEventsCard } from "@/components/calendar/TodayEventsCard";
 import { EkadashiFastingTimes } from "@/components/calendar/EkadashiFastingTimes";
 import { DailyRoutines } from "@/components/calendar/DailyRoutines";
 import { DayView } from "@/components/calendar/DayView";
 import { DailyNotes } from "@/components/calendar/DailyNotes";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   ChevronLeft,
   ChevronRight,
@@ -73,6 +75,7 @@ export default function VaishnavCalendar() {
   const { toast } = useToast();
   const { settings, saveLocalSettings } = useCalendarSettings();
   const { formattedLocations, locations } = useCalendarLocations();
+  const isMobile = useIsMobile();
 
   // Стан локації
   const [selectedLocationId, setSelectedLocationId] = useState<string | undefined>(
@@ -285,8 +288,8 @@ export default function VaishnavCalendar() {
         </div>
       </div>
 
-      {/* Верхня панель з сьогоднішніми подіями */}
-      <div className="grid md:grid-cols-3 gap-4">
+      {/* Верхня панель з сьогоднішніми подіями - приховано на мобільних */}
+      <div className="hidden md:grid md:grid-cols-3 gap-4">
         {/* Сьогодні */}
         <TodayEventsCard
           events={todayEvents}
@@ -391,118 +394,138 @@ export default function VaishnavCalendar() {
       </div>
 
       {/* Основний календар */}
-      <Card>
-        <CardHeader className="pb-2">
-          {/* Навігація та перемикач виглядів */}
-          <div className="flex items-center justify-between">
-            {viewMode === 'month' ? (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={goToPreviousMonth}
-                aria-label={language === "uk" ? "Попередній місяць" : "Previous month"}
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </Button>
-            ) : (
-              <div className="w-10" /> // Spacer for day view
-            )}
-
-            <div className="flex items-center gap-3">
-              <h2 className="text-xl font-semibold capitalize">
-                {monthName} {year}
-              </h2>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={goToToday}
-                className="hidden md:flex"
-              >
-                <CalendarDays className="h-4 w-4 mr-1" />
-                {language === "uk" ? "Сьогодні" : "Today"}
-              </Button>
-
-              {/* View toggle buttons */}
-              <div className="flex items-center gap-1 ml-2">
+      {isMobile ? (
+        // Mobile View - Readdle-style
+        monthData && (
+          <CalendarMobileView
+            monthData={monthData}
+            selectedDate={selectedDate}
+            onSelectDate={selectDate}
+            language={language}
+            weekDays={weekDays}
+            onPreviousMonth={goToPreviousMonth}
+            onNextMonth={goToNextMonth}
+            onGoToToday={goToToday}
+            monthName={monthName}
+            year={year}
+            selectedDateEvents={selectedDateEvents}
+          />
+        )
+      ) : (
+        // Desktop View
+        <Card>
+          <CardHeader className="pb-2">
+            {/* Навігація та перемикач виглядів */}
+            <div className="flex items-center justify-between">
+              {viewMode === 'month' ? (
                 <Button
-                  variant={viewMode === 'month' ? 'secondary' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('month')}
-                  className="h-8 w-8 p-0"
-                  title={language === "uk" ? "Місяць" : "Month"}
+                  variant="ghost"
+                  size="icon"
+                  onClick={goToPreviousMonth}
+                  aria-label={language === "uk" ? "Попередній місяць" : "Previous month"}
                 >
-                  <LayoutGrid className="h-4 w-4" />
+                  <ChevronLeft className="h-5 w-5" />
                 </Button>
+              ) : (
+                <div className="w-10" /> // Spacer for day view
+              )}
+
+              <div className="flex items-center gap-3">
+                <h2 className="text-xl font-semibold capitalize">
+                  {monthName} {year}
+                </h2>
                 <Button
-                  variant={viewMode === 'day' ? 'secondary' : 'ghost'}
+                  variant="outline"
                   size="sm"
-                  onClick={() => setViewMode('day')}
-                  className="h-8 w-8 p-0"
-                  title={language === "uk" ? "День" : "Day"}
+                  onClick={goToToday}
+                  className="hidden md:flex"
                 >
-                  <List className="h-4 w-4" />
+                  <CalendarDays className="h-4 w-4 mr-1" />
+                  {language === "uk" ? "Сьогодні" : "Today"}
                 </Button>
+
+                {/* View toggle buttons */}
+                <div className="flex items-center gap-1 ml-2">
+                  <Button
+                    variant={viewMode === 'month' ? 'secondary' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('month')}
+                    className="h-8 w-8 p-0"
+                    title={language === "uk" ? "Місяць" : "Month"}
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === 'day' ? 'secondary' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('day')}
+                    className="h-8 w-8 p-0"
+                    title={language === "uk" ? "День" : "Day"}
+                  >
+                    <List className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
+
+              {viewMode === 'month' ? (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={goToNextMonth}
+                  aria-label={language === "uk" ? "Наступний місяць" : "Next month"}
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </Button>
+              ) : (
+                <div className="w-10" /> // Spacer for day view
+              )}
             </div>
+          </CardHeader>
 
+          <CardContent>
             {viewMode === 'month' ? (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={goToNextMonth}
-                aria-label={language === "uk" ? "Наступний місяць" : "Next month"}
-              >
-                <ChevronRight className="h-5 w-5" />
-              </Button>
+              // Month View
+              isLoadingMonth ? (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-7 gap-1">
+                    {weekDays.map((day) => (
+                      <div
+                        key={day}
+                        className="text-center text-sm font-medium text-muted-foreground py-2"
+                      >
+                        {day}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-7 gap-1">
+                    {Array.from({ length: 35 }).map((_, i) => (
+                      <Skeleton key={i} className="h-24 rounded-lg" />
+                    ))}
+                  </div>
+                </div>
+              ) : monthData ? (
+                <CalendarMonthView
+                  monthData={monthData}
+                  selectedDate={selectedDate}
+                  onSelectDate={selectDate}
+                  language={language}
+                  weekDays={weekDays}
+                />
+              ) : null
             ) : (
-              <div className="w-10" /> // Spacer for day view
-            )}
-          </div>
-        </CardHeader>
-
-        <CardContent>
-          {viewMode === 'month' ? (
-            // Month View
-            isLoadingMonth ? (
-              <div className="space-y-4">
-                <div className="grid grid-cols-7 gap-1">
-                  {weekDays.map((day) => (
-                    <div
-                      key={day}
-                      className="text-center text-sm font-medium text-muted-foreground py-2"
-                    >
-                      {day}
-                    </div>
-                  ))}
-                </div>
-                <div className="grid grid-cols-7 gap-1">
-                  {Array.from({ length: 35 }).map((_, i) => (
-                    <Skeleton key={i} className="h-24 rounded-lg" />
-                  ))}
-                </div>
-              </div>
-            ) : monthData ? (
-              <CalendarMonthView
-                monthData={monthData}
-                selectedDate={selectedDate}
-                onSelectDate={selectDate}
-                language={language}
-                weekDays={weekDays}
+              // Day View
+              <DayView
+                initialDate={selectedDate}
+                events={selectedDateEvents}
+                onDateChange={selectDate}
               />
-            ) : null
-          ) : (
-            // Day View
-            <DayView
-              initialDate={selectedDate}
-              events={selectedDateEvents}
-              onDateChange={selectDate}
-            />
-          )}
-        </CardContent>
-      </Card>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
-      {/* Routines, Notes & Selected Date Events */}
-      <div className="grid lg:grid-cols-3 gap-4">
+      {/* Routines, Notes & Selected Date Events - приховано на мобільних */}
+      <div className="hidden md:grid lg:grid-cols-3 gap-4">
         {/* Daily Routines Panel */}
         <DailyRoutines selectedDate={selectedDate} />
 
