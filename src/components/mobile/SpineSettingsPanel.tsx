@@ -611,10 +611,10 @@ function BooksCarouselModal({
         ))}
       </div>
 
-      {/* Close button */}
+      {/* Close button - above dot indicators */}
       <button
         onClick={onClose}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/60 hover:text-white"
+        className="absolute bottom-20 left-1/2 -translate-x-1/2 text-white/60 hover:text-white"
       >
         <X className="w-8 h-8" />
       </button>
