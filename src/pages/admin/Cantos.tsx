@@ -182,15 +182,13 @@ const Cantos = () => {
                         </>
                       )}
                     </Button>
-                    {/* Preview share for unpublished */}
-                    {!canto.is_published && (
-                      <PreviewShareButton
-                        resourceType="canto"
-                        resourceId={canto.id}
-                        variant="outline"
-                        size="sm"
-                      />
-                    )}
+                    {/* Preview share - always visible */}
+                    <PreviewShareButton
+                      resourceType="canto"
+                      resourceId={canto.id}
+                      variant="outline"
+                      size="sm"
+                    />
                     <Button size="sm" asChild variant="outline">
                       <Link to={`/admin/cantos/${bookId}/${canto.id}/edit`}>Редагувати</Link>
                     </Button>

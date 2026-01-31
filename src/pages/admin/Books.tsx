@@ -168,15 +168,13 @@ const Books = () => {
                           </>
                         )}
                       </Button>
-                      {/* Preview share for unpublished */}
-                      {!book.is_published && (
-                        <PreviewShareButton
-                          resourceType="book"
-                          resourceId={book.id}
-                          variant="outline"
-                          size="sm"
-                        />
-                      )}
+                      {/* Preview share - always visible */}
+                      <PreviewShareButton
+                        resourceType="book"
+                        resourceId={book.id}
+                        variant="outline"
+                        size="sm"
+                      />
                       <Button size="sm" asChild variant="outline">
                         <Link to={`/admin/books/${book.id}/edit`}>Редагувати</Link>
                       </Button>
