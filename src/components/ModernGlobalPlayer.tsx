@@ -516,14 +516,70 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
           </div>
         )}
 
-        {/* Mobile Expanded View - Clean Vertical Layout */}
+        {/* Mobile Expanded View - Clean Minimal Design */}
         {isExpanded && isMobile && (
-          <div className="absolute inset-0 bg-background flex flex-col">
-            {/* Header with close button */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 safe-top">
-              <div className="flex items-center gap-3 flex-1 min-w-0">
-                {/* Mini cover in header */}
-                <div className="w-10 h-10 rounded-lg overflow-hidden shadow-sm flex-shrink-0">
+          <div className="absolute inset-0 bg-background flex flex-col safe-top safe-bottom">
+            {/* Header - minimal with close button */}
+            <div className="flex items-center justify-center px-4 py-3 relative">
+              <button
+                onClick={() => setIsExpanded(false)}
+                className="absolute left-4 p-2 rounded-full hover:bg-muted transition"
+              >
+                <ChevronDown className="w-6 h-6 text-muted-foreground" />
+              </button>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-foreground">
+                  {language === 'uk' ? 'Зараз грає' : 'Now Playing'}
+                </span>
+              </div>
+              <div className="relative absolute right-4" ref={settingsMenuRef}>
+                <button
+                  onClick={() => setShowSettingsMenu(!showSettingsMenu)}
+                  className="p-2 rounded-full hover:bg-muted transition text-muted-foreground"
+                >
+                  <MoreVertical className="w-5 h-5" />
+                </button>
+                {showSettingsMenu && (
+                  <div className="absolute top-full right-0 mt-2 w-52 bg-card rounded-xl shadow-xl border border-border overflow-hidden z-50">
+                    <button
+                      onClick={() => { setShowSleepTimer(true); setShowSettingsMenu(false); }}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition text-left"
+                    >
+                      <Timer className="w-5 h-5 text-muted-foreground" />
+                      <span className="text-sm">{language === 'uk' ? 'Таймер сну' : 'Sleep Timer'}</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        const nextIdx = (speedOptions.indexOf(playbackRate) + 1) % speedOptions.length;
+                        setPlaybackRate(speedOptions[nextIdx]);
+                      }}
+                      className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Gauge className="w-5 h-5 text-muted-foreground" />
+                        <span className="text-sm">{language === 'uk' ? 'Швидкість' : 'Speed'}</span>
+                      </div>
+                      <span className="text-primary font-medium text-sm">{playbackRate}x</span>
+                    </button>
+                    {(currentTrack?.verseId || (currentTrack?.bookSlug && currentTrack?.chapterNumber)) && (
+                      <button
+                        onClick={() => { goToVersePage(); setShowSettingsMenu(false); }}
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition text-left"
+                      >
+                        <ExternalLink className="w-5 h-5 text-muted-foreground" />
+                        <span className="text-sm">{language === 'uk' ? 'Перейти до вірша' : 'Go to verse'}</span>
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Main Content */}
+            <div className="flex-1 flex flex-col px-6 pb-6 overflow-hidden">
+              {/* Cover Art - Large, almost full width */}
+              <div className="flex-shrink-0 flex justify-center py-4">
+                <div className="w-full max-w-[280px] aspect-square rounded-2xl overflow-hidden shadow-2xl">
                   {currentTrack.coverImage ? (
                     <img
                       src={currentTrack.coverImage}
@@ -531,221 +587,89 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full bg-primary/20 flex items-center justify-center">
-                      <Music className="w-5 h-5 text-primary" />
+                    <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
+                      <Music className="w-20 h-20 text-muted-foreground/30" />
                     </div>
                   )}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-foreground text-sm line-clamp-1">
-                    {currentTrack.title_uk || currentTrack.title}
-                  </h3>
-                  <p className="text-xs text-muted-foreground line-clamp-1">
-                    {currentTrack.artist || currentTrack.subtitle || 'VedaVoice'}
-                  </p>
-                </div>
               </div>
-              <button
-                onClick={() => setIsExpanded(false)}
-                className="p-2 rounded-full hover:bg-muted transition flex-shrink-0"
-              >
-                <ChevronDown className="w-6 h-6 text-foreground" />
-              </button>
-            </div>
 
-            {/* Main Content Area - Scrollable */}
-            <div className="flex-1 overflow-y-auto">
-              <div className="px-6 py-8">
-                {/* Cover Art + Track Info */}
-                <div className="flex flex-col items-center mb-8">
-                  {/* Cover Art */}
-                  <div className="w-40 h-40 rounded-2xl overflow-hidden shadow-xl mb-5">
-                    {currentTrack.coverImage ? (
-                      <img
-                        src={currentTrack.coverImage}
-                        alt={currentTrack.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center">
-                        <Music className="w-16 h-16 text-primary/50" />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Track Title & Metadata */}
-                  <h2 className="text-2xl font-bold text-foreground text-center mb-1 line-clamp-2">
-                    {currentTrack.title_uk || currentTrack.title}
-                  </h2>
-                  {currentTrack.artist && (
-                    <p className="text-lg text-muted-foreground text-center">
-                      {currentTrack.artist}
-                    </p>
-                  )}
-                  {(currentTrack.subtitle || currentTrack.title_en) && (
-                    <p className="text-sm text-muted-foreground/70 text-center">
-                      {currentTrack.subtitle || currentTrack.title_en}
-                    </p>
-                  )}
-                </div>
-
-                {/* Divider */}
-                <div className="w-20 h-px bg-border mx-auto mb-8" />
-
-                {/* Verse Text Content - Large Readable Font */}
-                {isLoadingVerse && (
-                  <div className="flex justify-center py-8">
-                    <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-                  </div>
-                )}
-
-                {verseData && !isLoadingVerse && (
-                  <div className="space-y-6">
-                    {/* Sanskrit */}
-                    {verseData.sanskrit && (
-                      <div className="text-center">
-                        <p
-                          className="text-xl text-foreground leading-relaxed"
-                          style={{ fontFamily: '"Noto Sans Devanagari", "Siddhanta", serif' }}
-                        >
-                          {verseData.sanskrit}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Transliteration */}
-                    {verseData.transliteration && (
-                      <div className="text-center">
-                        <p className="text-base text-muted-foreground italic leading-relaxed">
-                          {verseData.transliteration}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Divider between original and translation */}
-                    <div className="w-16 h-px bg-border/60 mx-auto" />
-
-                    {/* Translation - Large readable text */}
-                    {(verseData.translation_uk || verseData.translation_en) && (
-                      <div className="text-center">
-                        <p className="text-lg text-foreground/90 leading-relaxed">
-                          {stripParagraphTags(language === 'uk' ? verseData.translation_uk || '' : verseData.translation_en || '')}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* No verse data - show placeholder */}
-                {!verseData && !isLoadingVerse && (
-                  <div className="text-center py-8">
-                    <Music className="w-16 h-16 text-muted-foreground/30 mx-auto mb-3" />
-                    <p className="text-sm text-muted-foreground">
-                      {language === 'uk' ? 'Текст недоступний' : 'Text not available'}
-                    </p>
-                  </div>
-                )}
-
-                {/* Bottom spacing for player */}
-                <div className="h-4" />
+              {/* Track Info */}
+              <div className="text-center mt-4 mb-6">
+                <h2 className="text-xl font-bold text-foreground line-clamp-2 mb-1">
+                  {currentTrack.title_uk || currentTrack.title}
+                </h2>
+                <p className="text-muted-foreground">
+                  {currentTrack.artist || currentTrack.subtitle || 'VedaVoice'}
+                </p>
               </div>
-            </div>
 
-            {/* Fixed Bottom Player Controls */}
-            <div className="border-t border-border bg-card/95 backdrop-blur-sm px-4 py-4 safe-bottom">
-              {/* Waveform Progress */}
-              <div className="mb-4">
-                <WaveformProgressBar
-                  audioUrl={currentTrack.src}
-                  currentTime={currentTime}
-                  duration={duration}
-                  onSeek={seek}
-                  variant="expanded"
-                  height={40}
-                  barCount={60}
+              {/* Progress Bar - Simple slider */}
+              <div className="mb-6">
+                <input
+                  type="range"
+                  min="0"
+                  max={duration || 100}
+                  value={currentTime}
+                  onChange={(e) => seek(Number(e.target.value))}
+                  className="w-full h-1 bg-muted rounded-full appearance-none cursor-pointer accent-foreground [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-foreground [&::-webkit-slider-thumb]:appearance-none"
                 />
-                <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                <div className="flex justify-between text-xs text-muted-foreground mt-2">
                   <span>{formatTime(currentTime)}</span>
-                  <span>{formatTime(duration)}</span>
+                  <span className="text-foreground/60">
+                    {currentTrack.subtitle || currentTrack.title_en || ''}
+                  </span>
+                  <span>-{formatTime(Math.max(0, duration - currentTime))}</span>
                 </div>
               </div>
 
-              {/* Main Controls */}
-              <div className="flex items-center justify-center gap-5 mb-3">
-                <button
-                  onClick={toggleShuffle}
-                  className={`p-2 rounded-full transition ${
-                    isShuffled
-                      ? 'text-primary bg-primary/20'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  <Shuffle className="w-5 h-5" />
-                </button>
-
+              {/* Main Controls - Large */}
+              <div className="flex items-center justify-center gap-8 mb-6">
                 <button
                   onClick={prevTrack}
-                  className="p-2 rounded-full hover:bg-foreground/10 transition text-foreground"
+                  className="p-3 text-foreground active:scale-95 transition"
                 >
-                  <SkipBack className="w-6 h-6" />
+                  <SkipBack className="w-8 h-8" fill="currentColor" />
                 </button>
 
                 <button
                   onClick={togglePlay}
-                  className="p-4 rounded-full bg-primary text-primary-foreground hover:scale-105 transition shadow-lg"
+                  className="p-5 rounded-full bg-foreground text-background active:scale-95 transition shadow-lg"
                 >
                   {isPlaying ? (
-                    <Pause className="w-7 h-7" />
+                    <Pause className="w-8 h-8" fill="currentColor" />
                   ) : (
-                    <Play className="w-7 h-7 ml-0.5" />
+                    <Play className="w-8 h-8 ml-1" fill="currentColor" />
                   )}
                 </button>
 
                 <button
                   onClick={nextTrack}
-                  className="p-2 rounded-full hover:bg-foreground/10 transition text-foreground"
+                  className="p-3 text-foreground active:scale-95 transition"
                 >
-                  <SkipForward className="w-6 h-6" />
-                </button>
-
-                <button
-                  onClick={toggleRepeat}
-                  className={`p-2 rounded-full transition ${
-                    repeatMode !== 'off'
-                      ? 'text-primary bg-primary/20'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {repeatMode === 'one' ?
-                    <Repeat1 className="w-5 h-5" /> :
-                    <Repeat className="w-5 h-5" />
-                  }
+                  <SkipForward className="w-8 h-8" fill="currentColor" />
                 </button>
               </div>
 
-              {/* Secondary Controls */}
-              <div className="flex items-center justify-between">
-                {/* Favorite Button */}
+              {/* Secondary Controls Row */}
+              <div className="flex items-center justify-center gap-4 mb-4">
                 <button
                   onClick={toggleFavorite}
-                  className={`p-2 rounded-full transition ${
-                    isCurrentFavorite
-                      ? 'text-red-500 bg-red-500/20'
-                      : 'text-muted-foreground hover:text-foreground'
+                  className={`p-2.5 rounded-full transition ${
+                    isCurrentFavorite ? 'text-red-500' : 'text-muted-foreground'
                   }`}
                 >
-                  <Heart className={`w-5 h-5 ${isCurrentFavorite ? 'fill-current' : ''}`} />
+                  <Heart className={`w-6 h-6 ${isCurrentFavorite ? 'fill-current' : ''}`} />
                 </button>
 
-                {/* Volume */}
                 <div className="flex items-center gap-2">
                   <button
                     onClick={toggleMute}
-                    className="text-muted-foreground hover:text-foreground transition"
+                    className="p-2.5 text-muted-foreground"
                   >
                     {isMuted || volume === 0 ?
-                      <VolumeX className="w-5 h-5" /> :
-                      <Volume2 className="w-5 h-5" />
+                      <VolumeX className="w-6 h-6" /> :
+                      <Volume2 className="w-6 h-6" />
                     }
                   </button>
                   <input
@@ -754,78 +678,42 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                     max="100"
                     value={volume}
                     onChange={(e) => setVolume(Number(e.target.value))}
-                    className="w-20 h-1 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                    className="w-24 h-1 bg-muted rounded-full appearance-none cursor-pointer accent-foreground"
                   />
                 </div>
 
-                {/* Settings Menu (Mobile) */}
-                <div className="relative" ref={settingsMenuRef}>
-                  <button
-                    onClick={() => setShowSettingsMenu(!showSettingsMenu)}
-                    className={`p-2 rounded-full transition ${
-                      showSettingsMenu
-                        ? 'text-primary bg-primary/20'
-                        : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    <MoreVertical className="w-5 h-5" />
-                  </button>
+                <button
+                  onClick={toggleRepeat}
+                  className={`p-2.5 rounded-full transition ${
+                    repeatMode !== 'off' ? 'text-primary' : 'text-muted-foreground'
+                  }`}
+                >
+                  {repeatMode === 'one' ? <Repeat1 className="w-6 h-6" /> : <Repeat className="w-6 h-6" />}
+                </button>
+              </div>
 
-                  {/* Settings Dropdown (Mobile) */}
-                  {showSettingsMenu && (
-                    <div className="absolute bottom-full right-0 mb-2 w-52 bg-card rounded-lg shadow-xl border border-border overflow-hidden z-50">
-                      {/* Sleep Timer */}
-                      <button
-                        onClick={() => {
-                          setShowSleepTimer(true);
-                          setShowSettingsMenu(false);
-                        }}
-                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition text-left"
-                      >
-                        <Timer className="w-5 h-5 text-muted-foreground" />
-                        <span className="text-sm">{language === 'uk' ? 'Таймер сну' : 'Sleep Timer'}</span>
-                      </button>
-
-                      {/* Playback Speed */}
-                      <button
-                        onClick={() => {
-                          const currentIdx = speedOptions.indexOf(playbackRate);
-                          const nextIdx = (currentIdx + 1) % speedOptions.length;
-                          setPlaybackRate(speedOptions[nextIdx]);
-                        }}
-                        className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition"
-                      >
-                        <div className="flex items-center gap-3">
-                          <Gauge className="w-5 h-5 text-muted-foreground" />
-                          <span className="text-sm">{language === 'uk' ? 'Швидкість' : 'Speed'}</span>
-                        </div>
-                        <span className="text-primary font-medium text-sm">{playbackRate}x</span>
-                      </button>
-
-                      {/* Go to Verse (if verse data available) */}
-                      {(currentTrack?.verseId || (currentTrack?.bookSlug && currentTrack?.chapterNumber)) && (
-                        <button
-                          onClick={() => {
-                            goToVersePage();
-                            setShowSettingsMenu(false);
-                          }}
-                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition text-left"
-                        >
-                          <ExternalLink className="w-5 h-5 text-muted-foreground" />
-                          <span className="text-sm">{language === 'uk' ? 'Перейти до вірша' : 'Go to verse'}</span>
-                        </button>
-                      )}
-                    </div>
+              {/* Tags/Badges (optional) */}
+              {(currentTrack.bookSlug || currentTrack.chapterNumber) && (
+                <div className="flex items-center justify-center gap-2 flex-wrap">
+                  {currentTrack.bookSlug && (
+                    <span className="px-3 py-1.5 bg-muted rounded-full text-xs font-medium text-muted-foreground">
+                      {currentTrack.bookSlug.toUpperCase()}
+                    </span>
+                  )}
+                  {currentTrack.chapterNumber && (
+                    <span className="px-3 py-1.5 bg-muted rounded-full text-xs font-medium text-muted-foreground">
+                      {language === 'uk' ? 'Глава' : 'Chapter'} {currentTrack.chapterNumber}
+                    </span>
                   )}
                 </div>
-              </div>
+              )}
             </div>
           </div>
         )}
 
         {/* Mini Player (Compact) */}
         {!isExpanded && (
-          <div className="bg-card/95 backdrop-blur border-t border-border px-4 py-3 safe-bottom">
+          <div className="mx-3 mb-3 px-4 py-3 rounded-full bg-background/60 backdrop-blur-xl border border-white/10 shadow-lg safe-bottom">
             <div className="max-w-6xl mx-auto">
               {/* Progress bar (thin waveform) */}
               <WaveformProgressBar
