@@ -194,57 +194,87 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
       }
     }
 
-    // ✅ 3. Optimized verse content search with canto support
+    // ✅ 3. Optimized verse content search with canto support - search ALL published books
     if (searchQuery.length >= 3) {
       try {
-        const { data: verseData } = await supabase
+        // Search in translation_uk
+        const { data: verseDataUk } = await supabase
           .from("verses")
           .select(`
             id,
             verse_number,
             translation_uk,
+            chapter:chapters!inner(
+              chapter_number,
+              book_id,
+              canto_id,
+              canto:cantos(canto_number, book_id),
+              book:books(slug, title_uk, title_en, has_cantos, is_published)
+            )
+          `)
+          .ilike("translation_uk", `%${searchQuery}%`)
+          .limit(15);
+
+        // Search in translation_en
+        const { data: verseDataEn } = await supabase
+          .from("verses")
+          .select(`
+            id,
+            verse_number,
             translation_en,
             chapter:chapters!inner(
               chapter_number,
-              canto:cantos(canto_number),
-              book:books!inner(slug, title_uk, title_en, has_cantos)
+              book_id,
+              canto_id,
+              canto:cantos(canto_number, book_id),
+              book:books(slug, title_uk, title_en, has_cantos, is_published)
             )
           `)
-          .or(`translation_uk.ilike.%${searchQuery}%,translation_en.ilike.%${searchQuery}%`)
-          .limit(20);
+          .ilike("translation_en", `%${searchQuery}%`)
+          .limit(15);
 
-        if (verseData && verseData.length > 0) {
-          for (const verse of verseData) {
-            const chapter = verse.chapter as any;
-            if (!chapter?.book) continue;
+        // Combine and deduplicate results
+        const allVerses = [...(verseDataUk || []), ...(verseDataEn || [])];
+        const seenIds = new Set<string>();
 
-            const translation = language === "uk" ? verse.translation_uk : verse.translation_en;
-            const preview = translation?.substring(0, 80) + (translation && translation.length > 80 ? "..." : "");
-            const bookTitle = language === "uk" ? chapter.book.title_uk : chapter.book.title_en;
+        for (const verse of allVerses) {
+          if (seenIds.has(verse.id)) continue;
+          seenIds.add(verse.id);
 
-            // Handle canto-based books (SB, CC)
-            const cantoNumber = chapter.canto?.canto_number;
-            const hasCantos = chapter.book.has_cantos;
+          const chapter = verse.chapter as any;
+          if (!chapter?.book) continue;
 
-            let versePath: string;
-            let verseRef: string;
+          // Only include published books
+          if (chapter.book.is_published === false) continue;
 
-            if (hasCantos && cantoNumber) {
-              versePath = `/lib/${chapter.book.slug}/${cantoNumber}/${chapter.chapter_number}/${verse.verse_number}`;
-              verseRef = `${cantoNumber}.${chapter.chapter_number}.${verse.verse_number}`;
-            } else {
-              versePath = `/lib/${chapter.book.slug}/${chapter.chapter_number}/${verse.verse_number}`;
-              verseRef = `${chapter.chapter_number}.${verse.verse_number}`;
-            }
+          const translation = language === "uk"
+            ? (verse as any).translation_uk
+            : (verse as any).translation_en;
+          const preview = translation?.substring(0, 80) + (translation && translation.length > 80 ? "..." : "");
+          const bookTitle = language === "uk" ? chapter.book.title_uk : chapter.book.title_en;
 
-            newResults.push({
-              type: "keyword",
-              id: verse.id,
-              title: `${bookTitle || chapter.book.slug.toUpperCase()} ${verseRef}`,
-              subtitle: preview,
-              path: getLocalizedPath(versePath),
-            });
+          // Handle canto-based books (SB, CC)
+          const cantoNumber = chapter.canto?.canto_number;
+          const hasCantos = chapter.book.has_cantos;
+
+          let versePath: string;
+          let verseRef: string;
+
+          if (hasCantos && cantoNumber) {
+            versePath = `/lib/${chapter.book.slug}/${cantoNumber}/${chapter.chapter_number}/${verse.verse_number}`;
+            verseRef = `${cantoNumber}.${chapter.chapter_number}.${verse.verse_number}`;
+          } else {
+            versePath = `/lib/${chapter.book.slug}/${chapter.chapter_number}/${verse.verse_number}`;
+            verseRef = `${chapter.chapter_number}.${verse.verse_number}`;
           }
+
+          newResults.push({
+            type: "keyword",
+            id: verse.id,
+            title: `${bookTitle || chapter.book.slug.toUpperCase()} ${verseRef}`,
+            subtitle: preview,
+            path: getLocalizedPath(versePath),
+          });
         }
       } catch (error) {
         console.error("Search error:", error);
