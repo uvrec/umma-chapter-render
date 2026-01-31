@@ -1,5 +1,5 @@
 // Audio.tsx - Player-centric audio hub
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +8,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useAudio } from "@/contexts/ModernAudioContext";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import {
   Headphones,
   Mic,
@@ -19,9 +20,15 @@ import {
   ListMusic,
   Heart,
   ChevronRight,
+  ChevronDown,
   X,
   Trash2,
-  Volume2
+  Volume2,
+  Repeat,
+  Repeat1,
+  Shuffle,
+  Clock,
+  Library
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -482,8 +489,377 @@ function EmptyState() {
   );
 }
 
+// Format time helper
+function formatTime(seconds: number): string {
+  if (!seconds || isNaN(seconds)) return "0:00";
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
+// Mobile Fullscreen Player
+function MobileFullscreenPlayer() {
+  const { t, language, getLocalizedPath } = useLanguage();
+  const navigate = useNavigate();
+  const [showQueue, setShowQueue] = useState(true);
+  const [showBrowse, setShowBrowse] = useState(false);
+
+  const {
+    currentTrack,
+    isPlaying,
+    playlist,
+    currentIndex,
+    currentTime,
+    duration,
+    repeatMode,
+    isShuffled,
+    togglePlay,
+    nextTrack,
+    prevTrack,
+    seek,
+    toggleRepeat,
+    toggleShuffle,
+    removeFromPlaylist,
+    jumpToTrack,
+    clearPlaylist,
+    playPlaylist,
+    favorites,
+    isFavorite,
+    addFavorite,
+    removeFavorite,
+  } = useAudio();
+
+  // Fetch playlists for browse mode
+  const { data: playlists = [] } = useQuery({
+    queryKey: ["audio-playlists-mobile"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("audio_playlists")
+        .select(`
+          id,
+          slug,
+          title_uk,
+          title_en,
+          cover_image_url,
+          author,
+          tracks:audio_tracks(id, title_uk, title_en, audio_url, duration, track_number, is_published)
+        `)
+        .eq("is_published", true)
+        .order("display_order", { ascending: true, nullsFirst: false });
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const handlePlaylistClick = (pl: any) => {
+    const tracks = (pl.tracks || [])
+      .filter((t: any) => t.audio_url && (t.is_published ?? true))
+      .sort((a: any, b: any) => (a.track_number || 0) - (b.track_number || 0))
+      .map((t: any) => ({
+        id: t.id,
+        title: t.title_uk || t.title_en || "Без назви",
+        title_uk: t.title_uk,
+        title_en: t.title_en,
+        src: t.audio_url,
+        coverImage: pl.cover_image_url,
+        artist: pl.author,
+        album: pl.title_uk || pl.title_en,
+        duration: t.duration,
+      }));
+
+    if (tracks.length > 0) {
+      playPlaylist(tracks, 0);
+      setShowBrowse(false);
+    }
+  };
+
+  const handleFavoriteToggle = () => {
+    if (!currentTrack) return;
+    if (isFavorite(currentTrack.id)) {
+      removeFavorite(currentTrack.id);
+    } else {
+      addFavorite(currentTrack);
+    }
+  };
+
+  // No track and empty playlist - show browse view
+  const isEmpty = !currentTrack && playlist.length === 0;
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b">
+        <h1 className="text-lg font-semibold">{t("Аудіо", "Audio")}</h1>
+        <div className="flex gap-2">
+          <Button
+            variant={showBrowse ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setShowBrowse(!showBrowse)}
+          >
+            <Library className="w-4 h-4 mr-1" />
+            {t("Огляд", "Browse")}
+          </Button>
+        </div>
+      </div>
+
+      {showBrowse ? (
+        // Browse Playlists View
+        <div className="flex-1 overflow-y-auto p-4">
+          <h2 className="text-base font-semibold mb-3">{t("Аудіокниги та плейлисти", "Audiobooks & Playlists")}</h2>
+          <div className="grid grid-cols-2 gap-3">
+            {playlists.map((pl: any) => {
+              const title = language === "uk" ? (pl.title_uk || pl.title_en) : (pl.title_en || pl.title_uk);
+              const trackCount = (pl.tracks || []).filter((t: any) => t.audio_url).length;
+
+              return (
+                <div
+                  key={pl.id}
+                  onClick={() => handlePlaylistClick(pl)}
+                  className="cursor-pointer active:opacity-70"
+                >
+                  <div className="aspect-square rounded-xl overflow-hidden bg-muted mb-2">
+                    {pl.cover_image_url ? (
+                      <img
+                        src={pl.cover_image_url}
+                        alt={title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Headphones className="w-10 h-10 text-muted-foreground" />
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-sm font-medium line-clamp-2">{title}</p>
+                  <p className="text-xs text-muted-foreground">{trackCount} {t("треків", "tracks")}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          {playlists.length === 0 && (
+            <div className="text-center py-12 text-muted-foreground">
+              {t("Немає доступних плейлистів", "No playlists available")}
+            </div>
+          )}
+        </div>
+      ) : isEmpty ? (
+        // Empty State
+        <div className="flex-1 flex flex-col items-center justify-center p-8">
+          <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+            <Headphones className="w-12 h-12 text-primary/40" />
+          </div>
+          <h2 className="text-xl font-semibold mb-2">{t("Нічого не відтворюється", "Nothing playing")}</h2>
+          <p className="text-muted-foreground text-center mb-6">
+            {t("Натисніть 'Огляд' щоб обрати аудіокнигу", "Tap 'Browse' to choose an audiobook")}
+          </p>
+          <Button onClick={() => setShowBrowse(true)}>
+            <Library className="w-4 h-4 mr-2" />
+            {t("Переглянути бібліотеку", "Browse Library")}
+          </Button>
+        </div>
+      ) : (
+        // Player View
+        <>
+          {/* Main Player */}
+          <div className="flex-shrink-0 px-6 pt-4 pb-2">
+            {/* Album Art */}
+            <div className="aspect-square max-w-[280px] mx-auto rounded-2xl overflow-hidden shadow-2xl mb-6">
+              {currentTrack?.coverImage ? (
+                <img
+                  src={currentTrack.coverImage}
+                  alt={currentTrack.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-primary/30 to-primary/60 flex items-center justify-center">
+                  <Music className="w-20 h-20 text-primary/40" />
+                </div>
+              )}
+            </div>
+
+            {/* Track Info */}
+            <div className="text-center mb-4">
+              <h2 className="text-lg font-bold truncate">
+                {currentTrack?.title_uk || currentTrack?.title || t("Немає треку", "No track")}
+              </h2>
+              {currentTrack?.artist && (
+                <p className="text-sm text-muted-foreground truncate">{currentTrack.artist}</p>
+              )}
+              {currentTrack?.album && (
+                <p className="text-xs text-muted-foreground truncate">{currentTrack.album}</p>
+              )}
+            </div>
+
+            {/* Progress Bar */}
+            <div className="mb-4">
+              <Slider
+                value={[currentTime]}
+                max={duration || 100}
+                step={1}
+                onValueChange={([val]) => seek(val)}
+                className="w-full"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                <span>{formatTime(currentTime)}</span>
+                <span>{formatTime(duration)}</span>
+              </div>
+            </div>
+
+            {/* Controls */}
+            <div className="flex items-center justify-center gap-2 mb-4">
+              {/* Shuffle */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn("h-10 w-10", isShuffled && "text-primary")}
+                onClick={toggleShuffle}
+              >
+                <Shuffle className="w-5 h-5" />
+              </Button>
+
+              {/* Previous */}
+              <Button variant="ghost" size="icon" className="h-12 w-12" onClick={prevTrack}>
+                <SkipBack className="w-6 h-6" />
+              </Button>
+
+              {/* Play/Pause */}
+              <Button
+                variant="default"
+                size="icon"
+                className="h-16 w-16 rounded-full"
+                onClick={togglePlay}
+              >
+                {isPlaying ? (
+                  <Pause className="w-7 h-7" />
+                ) : (
+                  <Play className="w-7 h-7 ml-1" />
+                )}
+              </Button>
+
+              {/* Next */}
+              <Button variant="ghost" size="icon" className="h-12 w-12" onClick={nextTrack}>
+                <SkipForward className="w-6 h-6" />
+              </Button>
+
+              {/* Repeat */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn("h-10 w-10", repeatMode !== "off" && "text-primary")}
+                onClick={toggleRepeat}
+              >
+                {repeatMode === "one" ? (
+                  <Repeat1 className="w-5 h-5" />
+                ) : (
+                  <Repeat className="w-5 h-5" />
+                )}
+              </Button>
+            </div>
+
+            {/* Extra Controls */}
+            <div className="flex items-center justify-center gap-4">
+              {/* Favorite */}
+              {currentTrack && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-10"
+                  onClick={handleFavoriteToggle}
+                >
+                  <Heart
+                    className={cn(
+                      "w-5 h-5",
+                      isFavorite(currentTrack.id) && "fill-red-500 text-red-500"
+                    )}
+                  />
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Queue Section */}
+          <div className="flex-1 overflow-hidden flex flex-col border-t mt-2">
+            {/* Queue Header */}
+            <button
+              onClick={() => setShowQueue(!showQueue)}
+              className="flex items-center justify-between px-4 py-3 bg-muted/30"
+            >
+              <div className="flex items-center gap-2">
+                <ListMusic className="w-5 h-5 text-muted-foreground" />
+                <span className="font-medium">{t("Черга", "Queue")}</span>
+                <span className="text-sm text-muted-foreground">({playlist.length})</span>
+              </div>
+              <ChevronDown className={cn(
+                "w-5 h-5 text-muted-foreground transition-transform",
+                !showQueue && "rotate-180"
+              )} />
+            </button>
+
+            {/* Queue List */}
+            {showQueue && (
+              <div className="flex-1 overflow-y-auto">
+                {playlist.map((track, index) => {
+                  const isCurrent = index === currentIndex;
+                  return (
+                    <div
+                      key={`${track.id}-${index}`}
+                      onClick={() => jumpToTrack(index)}
+                      className={cn(
+                        "flex items-center gap-3 px-4 py-3 active:bg-muted/50",
+                        isCurrent && "bg-primary/10"
+                      )}
+                    >
+                      {/* Number or Playing Indicator */}
+                      <div className="w-6 text-center flex-shrink-0">
+                        {isCurrent && isPlaying ? (
+                          <div className="flex items-center justify-center gap-0.5">
+                            <span className="w-0.5 h-3 bg-primary rounded-full animate-pulse" />
+                            <span className="w-0.5 h-4 bg-primary rounded-full animate-pulse" style={{ animationDelay: "75ms" }} />
+                            <span className="w-0.5 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: "150ms" }} />
+                          </div>
+                        ) : (
+                          <span className="text-sm text-muted-foreground">{index + 1}</span>
+                        )}
+                      </div>
+
+                      {/* Track Info */}
+                      <div className="flex-1 min-w-0">
+                        <p className={cn(
+                          "text-sm truncate",
+                          isCurrent ? "font-medium text-primary" : ""
+                        )}>
+                          {track.title_uk || track.title}
+                        </p>
+                      </div>
+
+                      {/* Duration */}
+                      {track.duration && (
+                        <span className="text-xs text-muted-foreground">
+                          {formatTime(track.duration)}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {playlist.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground text-sm">
+                    {t("Черга порожня", "Queue is empty")}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export const Audio = () => {
   const { t, language } = useLanguage();
+  const isMobile = useIsMobile();
   const { currentTrack, playlist } = useAudio();
 
   // Fetch audio categories
@@ -529,6 +905,11 @@ export const Audio = () => {
 
   const isLoading = categoriesLoading || playlistsLoading;
   const hasContent = !currentTrack && playlist.length === 0 && playlists.length === 0;
+
+  // Mobile: show fullscreen player
+  if (isMobile) {
+    return <MobileFullscreenPlayer />;
+  }
 
   return (
     <div className="min-h-screen bg-background">
