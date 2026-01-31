@@ -8,9 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Plus, Edit, Trash2, FileText, BookOpen } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, FileText, BookOpen, Eye, EyeOff } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
+import { PreviewShareButton } from "@/components/PreviewShareButton";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -251,6 +253,31 @@ export default function Chapters() {
     },
   });
 
+  // Toggle publish status mutation
+  const togglePublishMutation = useMutation({
+    mutationFn: async ({ chapterId, isPublished }: { chapterId: string; isPublished: boolean }) => {
+      const { error } = await supabase
+        .from("chapters")
+        .update({ is_published: isPublished })
+        .eq("id", chapterId);
+      if (error) throw error;
+    },
+    onSuccess: (_, { isPublished }) => {
+      queryClient.invalidateQueries({ queryKey: ["chapters", parentId] });
+      toast({
+        title: isPublished ? "Главу опубліковано" : "Главу приховано",
+        description: "Зміни успішно збережено"
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Помилка",
+        description: error?.message ?? "Не вдалося змінити статус глави",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.chapter_number || !form.title_uk) {
@@ -485,11 +512,11 @@ export default function Chapters() {
         ) : chapters && chapters.length > 0 ? (
           <div className="grid gap-4">
             {chapters.map((chapter) => (
-              <Card key={chapter.id}>
+              <Card key={chapter.id} className={!chapter.is_published ? "opacity-60 border-dashed" : ""}>
                 <CardContent className="pt-6">
                   <div className="flex items-start justify-between">
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-semibold text-lg">
                           Глава {chapter.chapter_number}: {chapter.title_uk}
                         </h3>
@@ -504,10 +531,52 @@ export default function Chapters() {
                             З віршами
                           </span>
                         )}
+                        {chapter.is_published ? (
+                          <Badge variant="default" className="bg-green-500">
+                            <Eye className="w-3 h-3 mr-1" />
+                            Опубліковано
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary">
+                            <EyeOff className="w-3 h-3 mr-1" />
+                            Приховано
+                          </Badge>
+                        )}
                       </div>
                       {chapter.title_en && <p className="text-sm text-muted-foreground mt-1">{chapter.title_en}</p>}
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap">
+                      {/* Publish/Unpublish toggle */}
+                      <Button
+                        size="sm"
+                        variant={chapter.is_published ? "outline" : "default"}
+                        onClick={() => togglePublishMutation.mutate({
+                          chapterId: chapter.id,
+                          isPublished: !chapter.is_published
+                        })}
+                        disabled={togglePublishMutation.isPending}
+                      >
+                        {chapter.is_published ? (
+                          <>
+                            <EyeOff className="w-4 h-4 mr-1" />
+                            Приховати
+                          </>
+                        ) : (
+                          <>
+                            <Eye className="w-4 h-4 mr-1" />
+                            Опублікувати
+                          </>
+                        )}
+                      </Button>
+                      {/* Preview share for unpublished */}
+                      {!chapter.is_published && (
+                        <PreviewShareButton
+                          resourceType="chapter"
+                          resourceId={chapter.id}
+                          variant="outline"
+                          size="sm"
+                        />
+                      )}
                       <Button size="sm" variant="outline" onClick={() => startEditing(chapter)}>
                         <Edit className="w-4 h-4 mr-2" />
                         Редагувати
