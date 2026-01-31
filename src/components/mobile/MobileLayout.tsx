@@ -8,6 +8,7 @@ import { TranslationTooltip } from "./TranslationTooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileReadingProvider, useMobileReading } from "@/contexts/MobileReadingContext";
 import { TimelineProvider } from "@/contexts/TimelineContext";
+import { useAudio } from "@/contexts/ModernAudioContext";
 
 const EDGE_SWIPE_THRESHOLD = 30; // px from left edge to trigger swipe
 const SWIPE_MIN_DISTANCE = 50; // min px to complete swipe
@@ -28,6 +29,10 @@ function MobileLayoutInner({
 }: MobileLayoutProps) {
   const location = useLocation();
   const { isFullscreen, exitFullscreen } = useMobileReading();
+  const { currentTrack } = useAudio();
+
+  // Hide spine when audio player is active (has a track loaded)
+  const isPlayerActive = !!currentTrack;
 
   // Track spine visibility to move content with it
   const [isSpineVisible, setIsSpineVisible] = useState(() => {
@@ -83,8 +88,8 @@ function MobileLayoutInner({
     setIsEdgeSwiping(false);
   }, [swipeDelta, exitFullscreen, isEdgeSwiping]);
 
-  // When fullscreen or spine hidden, remove left padding smoothly
-  const shouldShowPadding = !hideSpine && isSpineVisible && !isFullscreen;
+  // When fullscreen, spine hidden, or player is active - remove left padding smoothly
+  const shouldShowPadding = !hideSpine && isSpineVisible && !isFullscreen && !isPlayerActive;
 
   // Calculate content transform during swipe
   const contentStyle: React.CSSProperties = {
@@ -101,7 +106,7 @@ function MobileLayoutInner({
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {!hideSpine && (
+      {!hideSpine && !isPlayerActive && (
         <SpineNavigation
           bookId={detectedBookId}
           onVisibilityChange={handleSpineVisibilityChange}
