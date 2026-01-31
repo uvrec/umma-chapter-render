@@ -293,19 +293,33 @@ export const BookOverview = () => {
   // Get preview token from URL
   const previewToken = searchParams.get('preview');
 
-  // Fetch book
+  // Fetch book - use RPC function to support preview tokens for unpublished books
   const {
     data: book,
     isLoading: bookLoading
   } = useQuery({
-    queryKey: ["book", bookSlug],
+    queryKey: ["book", bookSlug, previewToken],
     queryFn: async () => {
-      const {
-        data,
-        error
-      } = await supabase.from("books").select("*").eq("slug", bookSlug).single();
-      if (error) throw error;
-      return data;
+      // Use RPC function that handles preview tokens
+      const { data, error } = await supabase.rpc('get_book_with_preview', {
+        p_book_slug: bookSlug,
+        p_token: previewToken
+      });
+
+      if (error) {
+        console.error('Error fetching book:', error);
+        // Fallback to direct query (will respect RLS)
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from("books")
+          .select("*")
+          .eq("slug", bookSlug)
+          .single();
+        if (fallbackError) throw fallbackError;
+        return fallbackData;
+      }
+
+      // RPC returns array, get first item
+      return data?.[0] || null;
     },
     enabled: !!bookSlug
   });
