@@ -1593,6 +1593,12 @@ export const VedaReaderDB = () => {
                   verseNumber: currentVerse.verse_number
                 })}
                 onVerseDelete={(verseId) => deleteVerseMutation.mutate(verseId)}
+                onPrevVerse={isMobile ? undefined : handlePrevVerse}
+                onNextVerse={isMobile ? undefined : handleNextVerse}
+                isPrevDisabled={currentVerseIndex === 0 && currentChapterIndex === 0}
+                isNextDisabled={currentVerseIndex === verses.length - 1 && currentChapterIndex === allChapters.length - 1}
+                prevLabel={currentVerseIndex === 0 ? t("Попередня глава", "Previous Chapter") : t("Попередній вірш", "Previous Verse")}
+                nextLabel={currentVerseIndex === verses.length - 1 ? t("Наступна глава", "Next Chapter") : t("Наступний вірш", "Next Verse")}
               />
             ) : (
               <VerseCard
@@ -1635,6 +1641,12 @@ export const VedaReaderDB = () => {
                 onVerseNumberUpdate={() => {
                   queryClient.invalidateQueries({ queryKey: ["verses"] });
                 }}
+                onPrevVerse={isMobile ? undefined : handlePrevVerse}
+                onNextVerse={isMobile ? undefined : handleNextVerse}
+                isPrevDisabled={currentVerseIndex === 0 && currentChapterIndex === 0}
+                isNextDisabled={currentVerseIndex === verses.length - 1 && currentChapterIndex === allChapters.length - 1}
+                prevLabel={currentVerseIndex === 0 ? t("Попередня глава", "Previous Chapter") : t("Попередній вірш", "Previous Verse")}
+                nextLabel={currentVerseIndex === verses.length - 1 ? t("Наступна глава", "Next Chapter") : t("Наступний вірш", "Next Verse")}
               />
             )}
 
@@ -1650,6 +1662,20 @@ export const VedaReaderDB = () => {
                 defaultExpanded={false}
                 limit={5}
               />
+            )}
+
+            {/* Навігація знизу - тільки на десктопі */}
+            {!isMobile && (
+              <div className="flex items-center justify-between pt-6">
+                <Button variant="outline" onClick={handlePrevVerse} disabled={currentVerseIndex === 0 && currentChapterIndex === 0}>
+                  <ChevronLeft className="mr-2 h-4 w-4" />
+                  {currentVerseIndex === 0 ? t("Попередня глава", "Previous Chapter") : t("Попередній вірш", "Previous Verse")}
+                </Button>
+                <Button variant="outline" onClick={handleNextVerse} disabled={currentVerseIndex === verses.length - 1 && currentChapterIndex === allChapters.length - 1}>
+                  {currentVerseIndex === verses.length - 1 ? t("Наступна глава", "Next Chapter") : t("Наступний вірш", "Next Verse")}
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
             )}
           </div>
         ) : null}
