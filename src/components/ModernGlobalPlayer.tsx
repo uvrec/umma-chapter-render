@@ -558,8 +558,8 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
               <div className="px-6 py-8">
                 {/* Cover Art + Track Info */}
                 <div className="flex flex-col items-center mb-8">
-                  {/* Cover Art */}
-                  <div className="w-40 h-40 rounded-2xl overflow-hidden shadow-xl mb-5">
+                  {/* Cover Art - Large for mobile */}
+                  <div className="w-72 h-72 rounded-2xl overflow-hidden shadow-xl mb-5">
                     {currentTrack.coverImage ? (
                       <img
                         src={currentTrack.coverImage}
@@ -568,7 +568,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                       />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center">
-                        <Music className="w-16 h-16 text-primary/50" />
+                        <Music className="w-24 h-24 text-primary/50" />
                       </div>
                     )}
                   </div>
