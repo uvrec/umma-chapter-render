@@ -568,15 +568,13 @@ export default function Chapters() {
                           </>
                         )}
                       </Button>
-                      {/* Preview share for unpublished */}
-                      {!chapter.is_published && (
-                        <PreviewShareButton
-                          resourceType="chapter"
-                          resourceId={chapter.id}
-                          variant="outline"
-                          size="sm"
-                        />
-                      )}
+                      {/* Preview share - always visible */}
+                      <PreviewShareButton
+                        resourceType="chapter"
+                        resourceId={chapter.id}
+                        variant="outline"
+                        size="sm"
+                      />
                       <Button size="sm" variant="outline" onClick={() => startEditing(chapter)}>
                         <Edit className="w-4 h-4 mr-2" />
                         Редагувати
