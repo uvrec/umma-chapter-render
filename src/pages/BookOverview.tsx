@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useRef, useCallback } from "react";
 import { ChevronLeft } from "lucide-react";
@@ -7,12 +7,14 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
+import { useAuth } from "@/contexts/AuthContext";
 import { BookSchema, BreadcrumbSchema } from "@/components/StructuredData";
 import { getBookOgImage } from "@/utils/og-image";
 import { Helmet } from "react-helmet-async";
 import { SITE_CONFIG } from "@/lib/constants";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import { PreviewShareButton } from "@/components/PreviewShareButton";
 
 // Swipeable row for cantos with chapter numbers
 function SwipeableCantoRow({
@@ -275,6 +277,7 @@ export const BookOverview = () => {
     bookId,
     slug
   } = useParams();
+  const [searchParams] = useSearchParams();
   const bookSlug = slug || bookId;
   const {
     language,
@@ -286,6 +289,10 @@ export const BookOverview = () => {
     dualLanguageMode
   } = useReaderSettings();
   const isMobile = useIsMobile();
+  const { isAdmin } = useAuth();
+
+  // Get preview token from URL
+  const previewToken = searchParams.get('preview');
 
   // Fetch book
   const {
@@ -305,22 +312,36 @@ export const BookOverview = () => {
   });
 
   // Fetch cantos if book has them (with chapter counts)
+  // Uses RPC function to support preview tokens for unpublished content
   const {
     data: cantos = [],
     isLoading: cantosLoading
   } = useQuery({
-    queryKey: ["cantos-with-counts", book?.id],
+    queryKey: ["cantos-with-counts", book?.id, previewToken],
     queryFn: async () => {
       if (!book?.id) return [];
-      const {
-        data,
-        error
-      } = await supabase.from("cantos").select("*").eq("book_id", book.id).order("canto_number");
-      if (error) throw error;
+
+      // Use RPC function that handles preview tokens
+      const { data, error } = await supabase.rpc('get_cantos_by_book_with_preview', {
+        p_book_id: book.id,
+        p_token: previewToken
+      });
+
+      if (error) {
+        console.error('Error fetching cantos:', error);
+        // Fallback to direct query (will respect RLS)
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from("cantos")
+          .select("*")
+          .eq("book_id", book.id)
+          .order("canto_number");
+        if (fallbackError) throw fallbackError;
+        return fallbackData || [];
+      }
 
       // Fetch chapter counts for each canto
       const cantosWithCounts = await Promise.all(
-        (data || []).map(async (canto) => {
+        (data || []).map(async (canto: any) => {
           const { count } = await supabase
             .from("chapters")
             .select("*", { count: "exact", head: true })
@@ -435,10 +456,16 @@ export const BookOverview = () => {
       </Helmet>
 
       {/* Book Title */}
-      <div className="px-4 pt-6 pb-4 text-center">
+      <div className="px-4 pt-6 pb-4 text-center relative">
         <h1 className="text-2xl font-semibold text-primary">
           {bookTitle}
         </h1>
+        {/* Preview share button for admins */}
+        {isAdmin && book?.id && (
+          <div className="absolute right-4 top-6">
+            <PreviewShareButton resourceType="book" resourceId={book.id} />
+          </div>
+        )}
       </div>
 
       {/* Cantos/Chapters - swipeable rows like library */}
@@ -553,10 +580,16 @@ export const BookOverview = () => {
         label: bookTitle || ""
       }]} />
 
-        <div className="mt-6 mb-8">
+        <div className="mt-6 mb-8 relative">
           <h1 style={{
             fontFamily: "var(--font-primary)"
           }} className="text-4xl md:text-5xl font-bold mb-8 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent text-center">{bookTitle}</h1>
+          {/* Preview share button for admins */}
+          {isAdmin && book?.id && (
+            <div className="absolute right-0 top-0">
+              <PreviewShareButton resourceType="book" resourceId={book.id} size="default" variant="outline" />
+            </div>
+          )}
         </div>
 
         {/* Intro chapters + Cantos/Chapters list */}
