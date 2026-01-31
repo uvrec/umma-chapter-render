@@ -1477,7 +1477,7 @@ export const VedaReaderDB = () => {
                 showCommentary: continuousReadingSettings.showCommentary
               };
 
-              return dualLanguageMode ? (
+              return dualLanguageMode && !isMobile ? (
                 <DualLanguageVerseCard
                   key={verse.id}
                   verseId={verse.id}
@@ -1555,7 +1555,7 @@ export const VedaReaderDB = () => {
           </div>
         ) : currentVerse ? (
           <div className="space-y-6">
-            {dualLanguageMode ? (
+            {dualLanguageMode && !isMobile ? (
               <DualLanguageVerseCard
                 key={currentVerse.id}
                 verseId={currentVerse.id}
