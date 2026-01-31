@@ -1577,6 +1577,77 @@ export type Database = {
           },
         ]
       }
+      famous_verses: {
+        Row: {
+          book_slug: string
+          canto_number: number | null
+          chapter_number: number
+          created_at: string
+          description_en: string | null
+          description_uk: string | null
+          display_order: number
+          id: string
+          updated_at: string
+          verse_id: string
+          verse_number: string
+        }
+        Insert: {
+          book_slug: string
+          canto_number?: number | null
+          chapter_number: number
+          created_at?: string
+          description_en?: string | null
+          description_uk?: string | null
+          display_order?: number
+          id?: string
+          updated_at?: string
+          verse_id: string
+          verse_number: string
+        }
+        Update: {
+          book_slug?: string
+          canto_number?: number | null
+          chapter_number?: number
+          created_at?: string
+          description_en?: string | null
+          description_uk?: string | null
+          display_order?: number
+          id?: string
+          updated_at?: string
+          verse_id?: string
+          verse_number?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "famous_verses_verse_id_fkey"
+            columns: ["verse_id"]
+            isOneToOne: true
+            referencedRelation: "verses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "famous_verses_verse_id_fkey"
+            columns: ["verse_id"]
+            isOneToOne: true
+            referencedRelation: "verses_with_metadata"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "famous_verses_verse_id_fkey"
+            columns: ["verse_id"]
+            isOneToOne: true
+            referencedRelation: "verses_with_structure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "famous_verses_verse_id_fkey"
+            columns: ["verse_id"]
+            isOneToOne: true
+            referencedRelation: "verses_with_synonyms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       festival_categories: {
         Row: {
           color: string
@@ -4476,6 +4547,20 @@ export type Database = {
           },
         ]
       }
+      user_sadhana_public_stats: {
+        Row: {
+          avatar_url: string | null
+          avg_japa_rounds: number | null
+          avg_reading_minutes: number | null
+          display_name: string | null
+          last_entry_date: string | null
+          total_entries: number | null
+          total_japa_rounds: number | null
+          total_reading_minutes: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
       verses_with_metadata: {
         Row: {
           audio_url: string | null
@@ -4746,6 +4831,19 @@ export type Database = {
           table_name: string
         }[]
       }
+      get_adjacent_famous_verses: {
+        Args: { p_book_slug: string; p_verse_id: string }
+        Returns: {
+          next_canto: number
+          next_chapter: number
+          next_verse_id: string
+          next_verse_number: string
+          prev_canto: number
+          prev_chapter: number
+          prev_verse_id: string
+          prev_verse_number: string
+        }[]
+      }
       get_bengali_word: {
         Args: { word_id: number }
         Returns: {
@@ -4833,6 +4931,24 @@ export type Database = {
           translation_ua: string
           transliteration: string
           verse_count: number
+          verse_number: string
+        }[]
+      }
+      get_famous_verses_for_book: {
+        Args: { p_book_slug: string }
+        Returns: {
+          book_slug: string
+          canto_number: number
+          chapter_number: number
+          description_en: string
+          description_uk: string
+          display_order: number
+          id: string
+          sanskrit: string
+          translation_en: string
+          translation_uk: string
+          transliteration: string
+          verse_id: string
           verse_number: string
         }[]
       }
@@ -5159,6 +5275,7 @@ export type Database = {
         Returns: undefined
       }
       is_chapter_readable: { Args: { chapter_uuid: string }; Returns: boolean }
+      is_verse_famous: { Args: { p_verse_id: string }; Returns: boolean }
       jsonb_no_ua_keys: { Args: { j: Json }; Returns: boolean }
       link_verse_to_tattva: {
         Args: {
