@@ -6,7 +6,7 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Edit, Save, X, Volume2, GraduationCap, Play, Pause, ChevronLeft, ChevronRight, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { Edit, Save, X, Volume2, GraduationCap, Play, Pause, ChevronLeft, ChevronRight, Trash2, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
@@ -82,6 +82,7 @@ interface VerseCardProps {
   prevLabel?: string;
   nextLabel?: string;
   bookSlug?: string; // для визначення префіксу (ШБ, БҐ, etc.)
+  isFamous?: boolean; // чи є цей вірш знаменитою шлокою
 }
 
 /* =========================
@@ -145,6 +146,7 @@ export const VerseCard = ({
   isNextDisabled,
   prevLabel,
   nextLabel,
+  isFamous = false,
 }: VerseCardProps) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -339,10 +341,15 @@ export const VerseCard = ({
       ? 'ring-1 ring-primary/30 ring-offset-1 ring-offset-background verse-contour'
       : '';
 
+  // Додаткові класи для знаменитих шлок
+  const famousVerseClasses = isFamous
+    ? 'border-l-4 border-primary/60 pl-4 bg-primary/5'
+    : '';
+
   return (
     <div
       ref={verseRef}
-      className={`verse-surface w-full animate-fade-in ${contourClasses}`}
+      className={`verse-surface w-full animate-fade-in ${contourClasses} ${famousVerseClasses}`}
     >
       <div
         className="pt-2 pb-6"
@@ -361,13 +368,15 @@ export const VerseCard = ({
                 {/* Mobile: book prefix + verse number (ШБ 4.20.1) - tap to play audio */}
                 <button
                   onClick={() => (audioUrl || audioSanskrit || audioTranslation || audioCommentary) && playSection("Вірш", audioUrl || audioSanskrit || audioTranslation || audioCommentary)}
-                  className={`verse-number-clean md:hidden font-bold text-2xl whitespace-nowrap transition-colors ${isNowPlaying ? 'text-primary' : 'text-foreground'}`}
+                  className={`verse-number-clean md:hidden font-bold text-2xl whitespace-nowrap transition-colors flex items-center gap-1.5 ${isNowPlaying ? 'text-primary' : 'text-foreground'}`}
                   disabled={!audioUrl && !audioSanskrit && !audioTranslation && !audioCommentary}
                 >
+                  {isFamous && <Sparkles className="h-4 w-4 text-primary" />}
                   {getBookPrefix(bookSlug)} {verseNumber}
                 </button>
                 {/* Desktop: book prefix + verse number (ШБ 4.20.1) */}
-                <span className="hidden md:inline font-semibold text-5xl whitespace-nowrap" style={{ color: "rgb(188, 115, 26)" }}>
+                <span className="hidden md:inline-flex items-center gap-2 font-semibold text-5xl whitespace-nowrap" style={{ color: "rgb(188, 115, 26)" }}>
+                  {isFamous && <Sparkles className="h-8 w-8 text-primary" />}
                   {getBookPrefix(bookSlug)} {verseNumber}
                 </span>
               </>
