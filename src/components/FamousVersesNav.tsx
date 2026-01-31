@@ -5,7 +5,7 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Sparkles, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useFamousVersesForBook, useAdjacentFamousVerses } from '@/hooks/useFamousVerses';
@@ -93,13 +93,10 @@ export function FamousVersesNav({
         className
       )}
     >
-      {/* Icon and label */}
-      <div className="flex items-center gap-1.5 text-primary">
-        <Sparkles className="h-4 w-4" />
-        <span className="text-xs font-medium hidden sm:inline">
-          {t('Знамениті шлоки', 'Famous Verses')}
-        </span>
-      </div>
+      {/* Label */}
+      <span className="text-xs font-medium text-primary">
+        {t('Шлоки', 'Verses')}
+      </span>
 
       {/* Counter */}
       {isCurrentFamous && (
