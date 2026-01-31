@@ -5,7 +5,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Plus, Trash2, BookOpen } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, BookOpen, Eye, EyeOff, Link2, Check } from "lucide-react";
+import { PreviewShareButton } from "@/components/PreviewShareButton";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -73,6 +75,24 @@ const Cantos = () => {
     },
   });
 
+  // Toggle publish status mutation
+  const togglePublishMutation = useMutation({
+    mutationFn: async ({ cantoId, isPublished }: { cantoId: string; isPublished: boolean }) => {
+      const { error } = await supabase
+        .from("cantos")
+        .update({ is_published: isPublished })
+        .eq("id", cantoId);
+      if (error) throw error;
+    },
+    onSuccess: (_, { isPublished }) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-cantos", bookId] });
+      toast.success(isPublished ? "Пісню опубліковано" : "Пісню приховано");
+    },
+    onError: (error: Error) => {
+      toast.error(`Помилка: ${error.message}`);
+    },
+  });
+
   const handleDeleteClick = (canto: any) => {
     setCantoToDelete({ id: canto.id, title: `Пісня ${canto.canto_number}: ${canto.title_uk}` });
   };
@@ -115,14 +135,62 @@ const Cantos = () => {
         ) : cantos && cantos.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {cantos.map((canto) => (
-              <Card key={canto.id}>
+              <Card key={canto.id} className={!canto.is_published ? "opacity-60 border-dashed" : ""}>
                 <CardHeader>
-                  <CardTitle>Пісня {canto.canto_number}</CardTitle>
-                  <CardDescription>{canto.title_uk}</CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        Пісня {canto.canto_number}
+                        {canto.is_published ? (
+                          <Badge variant="default" className="bg-green-500">
+                            <Eye className="w-3 h-3 mr-1" />
+                            Опубліковано
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary">
+                            <EyeOff className="w-3 h-3 mr-1" />
+                            Приховано
+                          </Badge>
+                        )}
+                      </CardTitle>
+                      <CardDescription>{canto.title_uk}</CardDescription>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">{canto.title_en}</p>
                   <div className="flex flex-wrap gap-2">
+                    {/* Publish/Unpublish toggle */}
+                    <Button
+                      size="sm"
+                      variant={canto.is_published ? "outline" : "default"}
+                      onClick={() => togglePublishMutation.mutate({
+                        cantoId: canto.id,
+                        isPublished: !canto.is_published
+                      })}
+                      disabled={togglePublishMutation.isPending}
+                    >
+                      {canto.is_published ? (
+                        <>
+                          <EyeOff className="w-4 h-4 mr-1" />
+                          Приховати
+                        </>
+                      ) : (
+                        <>
+                          <Eye className="w-4 h-4 mr-1" />
+                          Опублікувати
+                        </>
+                      )}
+                    </Button>
+                    {/* Preview share for unpublished */}
+                    {!canto.is_published && (
+                      <PreviewShareButton
+                        resourceType="canto"
+                        resourceId={canto.id}
+                        variant="outline"
+                        size="sm"
+                      />
+                    )}
                     <Button size="sm" asChild variant="outline">
                       <Link to={`/admin/cantos/${bookId}/${canto.id}/edit`}>Редагувати</Link>
                     </Button>

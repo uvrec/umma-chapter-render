@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useRef, useCallback } from "react";
 import { ChevronLeft } from "lucide-react";
@@ -7,6 +7,7 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
+import { useAuth } from "@/contexts/AuthContext";
 import { BookSchema, BreadcrumbSchema } from "@/components/StructuredData";
 import { getBookOgImage } from "@/utils/og-image";
 import { Helmet } from "react-helmet-async";
@@ -275,6 +276,7 @@ export const BookOverview = () => {
     bookId,
     slug
   } = useParams();
+  const [searchParams] = useSearchParams();
   const bookSlug = slug || bookId;
   const {
     language,
@@ -286,6 +288,10 @@ export const BookOverview = () => {
     dualLanguageMode
   } = useReaderSettings();
   const isMobile = useIsMobile();
+  const { isAdmin } = useAuth();
+
+  // Get preview token from URL
+  const previewToken = searchParams.get('preview');
 
   // Fetch book
   const {
@@ -305,22 +311,36 @@ export const BookOverview = () => {
   });
 
   // Fetch cantos if book has them (with chapter counts)
+  // Uses RPC function to support preview tokens for unpublished content
   const {
     data: cantos = [],
     isLoading: cantosLoading
   } = useQuery({
-    queryKey: ["cantos-with-counts", book?.id],
+    queryKey: ["cantos-with-counts", book?.id, previewToken],
     queryFn: async () => {
       if (!book?.id) return [];
-      const {
-        data,
-        error
-      } = await supabase.from("cantos").select("*").eq("book_id", book.id).order("canto_number");
-      if (error) throw error;
+
+      // Use RPC function that handles preview tokens
+      const { data, error } = await supabase.rpc('get_cantos_by_book_with_preview', {
+        p_book_id: book.id,
+        p_token: previewToken
+      });
+
+      if (error) {
+        console.error('Error fetching cantos:', error);
+        // Fallback to direct query (will respect RLS)
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from("cantos")
+          .select("*")
+          .eq("book_id", book.id)
+          .order("canto_number");
+        if (fallbackError) throw fallbackError;
+        return fallbackData || [];
+      }
 
       // Fetch chapter counts for each canto
       const cantosWithCounts = await Promise.all(
-        (data || []).map(async (canto) => {
+        (data || []).map(async (canto: any) => {
           const { count } = await supabase
             .from("chapters")
             .select("*", { count: "exact", head: true })
