@@ -14,7 +14,6 @@ import { Helmet } from "react-helmet-async";
 import { SITE_CONFIG } from "@/lib/constants";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import { PreviewShareButton } from "@/components/PreviewShareButton";
 
 // Swipeable row for cantos with chapter numbers
 function SwipeableCantoRow({
@@ -456,16 +455,10 @@ export const BookOverview = () => {
       </Helmet>
 
       {/* Book Title */}
-      <div className="px-4 pt-6 pb-4 text-center relative">
+      <div className="px-4 pt-6 pb-4 text-center">
         <h1 className="text-2xl font-semibold text-primary">
           {bookTitle}
         </h1>
-        {/* Preview share button for admins */}
-        {isAdmin && book?.id && (
-          <div className="absolute right-4 top-6">
-            <PreviewShareButton resourceType="book" resourceId={book.id} />
-          </div>
-        )}
       </div>
 
       {/* Cantos/Chapters - swipeable rows like library */}
@@ -580,16 +573,10 @@ export const BookOverview = () => {
         label: bookTitle || ""
       }]} />
 
-        <div className="mt-6 mb-8 relative">
+        <div className="mt-6 mb-8">
           <h1 style={{
             fontFamily: "var(--font-primary)"
           }} className="text-4xl md:text-5xl font-bold mb-8 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent text-center">{bookTitle}</h1>
-          {/* Preview share button for admins */}
-          {isAdmin && book?.id && (
-            <div className="absolute right-0 top-0">
-              <PreviewShareButton resourceType="book" resourceId={book.id} size="default" variant="outline" />
-            </div>
-          )}
         </div>
 
         {/* Intro chapters + Cantos/Chapters list */}

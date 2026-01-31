@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Plus, Eye, EyeOff, Trash2, ExternalLink, BookOpen } from "lucide-react";
 import { toast } from "sonner";
+import { PreviewShareButton } from "@/components/PreviewShareButton";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -117,9 +119,9 @@ const Books = () => {
         ) : books && books.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {books.map((book) => (
-              <Card key={book.id}>
+              <Card key={book.id} className={!book.is_published ? "opacity-70 border-dashed" : ""}>
                 <CardHeader>
-                  <CardTitle>
+                  <CardTitle className="flex items-center gap-2">
                     <Link
                       to={getLocalizedPath(`/lib/${book.slug}`)}
                       className="hover:text-primary hover:underline inline-flex items-center gap-2 transition-colors"
@@ -127,6 +129,17 @@ const Books = () => {
                       {book.title_uk}
                       <ExternalLink className="w-4 h-4 opacity-50" />
                     </Link>
+                    {book.is_published ? (
+                      <Badge variant="default" className="bg-green-500">
+                        <Eye className="w-3 h-3 mr-1" />
+                        Опубліковано
+                      </Badge>
+                    ) : (
+                      <Badge variant="secondary">
+                        <EyeOff className="w-3 h-3 mr-1" />
+                        Приховано
+                      </Badge>
+                    )}
                   </CardTitle>
                   <CardDescription>{book.title_en}</CardDescription>
                 </CardHeader>
@@ -134,14 +147,36 @@ const Books = () => {
                   <div className="space-y-4">
                     <div>
                       <p className="text-sm text-muted-foreground">Slug: {book.slug}</p>
-                      <p className="text-sm">
-                        Статус:{" "}
-                        <span className={book.is_published ? "text-green-600" : "text-orange-600"}>
-                          {book.is_published ? "Опубліковано" : "Приховано"}
-                        </span>
-                      </p>
                     </div>
                     <div className="flex gap-2 flex-wrap">
+                      {/* Publish/Unpublish toggle */}
+                      <Button
+                        size="sm"
+                        variant={book.is_published ? "outline" : "default"}
+                        onClick={() => togglePublishMutation.mutate({ id: book.id, isPublished: book.is_published })}
+                        disabled={togglePublishMutation.isPending}
+                      >
+                        {book.is_published ? (
+                          <>
+                            <EyeOff className="w-4 h-4 mr-1" />
+                            Приховати
+                          </>
+                        ) : (
+                          <>
+                            <Eye className="w-4 h-4 mr-1" />
+                            Опублікувати
+                          </>
+                        )}
+                      </Button>
+                      {/* Preview share for unpublished */}
+                      {!book.is_published && (
+                        <PreviewShareButton
+                          resourceType="book"
+                          resourceId={book.id}
+                          variant="outline"
+                          size="sm"
+                        />
+                      )}
                       <Button size="sm" asChild variant="outline">
                         <Link to={`/admin/books/${book.id}/edit`}>Редагувати</Link>
                       </Button>
@@ -159,24 +194,6 @@ const Books = () => {
                           <BookOpen className="w-4 h-4 mr-2" />
                           Вступи
                         </Link>
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => togglePublishMutation.mutate({ id: book.id, isPublished: book.is_published })}
-                        disabled={togglePublishMutation.isPending}
-                      >
-                        {book.is_published ? (
-                          <>
-                            <EyeOff className="w-4 h-4 mr-2" />
-                            Приховати
-                          </>
-                        ) : (
-                          <>
-                            <Eye className="w-4 h-4 mr-2" />
-                            Показати
-                          </>
-                        )}
                       </Button>
                       <Button
                         size="sm"
