@@ -44,8 +44,7 @@ export function useFamousVersesForBook(bookSlug: string | undefined) {
     queryFn: async () => {
       if (!bookSlug) return [];
 
-      const { data, error } = await supabase
-        .rpc('get_famous_verses_for_book', { p_book_slug: bookSlug });
+      const { data, error } = await (supabase.rpc as any)('get_famous_verses_for_book', { p_book_slug: bookSlug });
 
       if (error) {
         console.error('Error fetching famous verses:', error);
@@ -68,8 +67,7 @@ export function useIsVerseFamous(verseId: string | undefined) {
     queryFn: async () => {
       if (!verseId) return false;
 
-      const { data, error } = await supabase
-        .rpc('is_verse_famous', { p_verse_id: verseId });
+      const { data, error } = await (supabase.rpc as any)('is_verse_famous', { p_verse_id: verseId });
 
       if (error) {
         console.error('Error checking if verse is famous:', error);
@@ -95,11 +93,10 @@ export function useAdjacentFamousVerses(
     queryFn: async () => {
       if (!verseId || !bookSlug) return null;
 
-      const { data, error } = await supabase
-        .rpc('get_adjacent_famous_verses', {
-          p_verse_id: verseId,
-          p_book_slug: bookSlug,
-        });
+      const { data, error } = await (supabase.rpc as any)('get_adjacent_famous_verses', {
+        p_verse_id: verseId,
+        p_book_slug: bookSlug,
+      });
 
       if (error) {
         console.error('Error fetching adjacent famous verses:', error);
