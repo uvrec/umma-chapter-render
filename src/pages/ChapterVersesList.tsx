@@ -165,12 +165,22 @@ export const ChapterVersesList = () => {
   } = useQuery({
     queryKey: ["book", bookId, previewToken],
     queryFn: async () => {
-      // Use RPC function that supports preview tokens
+      // Try RPC function that supports preview tokens
       const { data, error } = await (supabase.rpc as any)("get_book_with_preview", {
         p_book_slug: bookId,
         p_token: previewToken
       });
-      if (error) throw error;
+      if (error) {
+        console.error('RPC get_book_with_preview error:', error);
+        // Fallback to direct query (respects RLS, works for published books)
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from("books")
+          .select("*")
+          .eq("slug", bookId)
+          .single();
+        if (fallbackError) throw fallbackError;
+        return fallbackData;
+      }
       // RPC returns array, get first element
       return data && data.length > 0 ? data[0] : null;
     },
@@ -182,13 +192,24 @@ export const ChapterVersesList = () => {
     queryKey: ["canto", book?.id, cantoNumber, previewToken],
     queryFn: async () => {
       if (!book?.id || !cantoNumber) return null;
-      // Use RPC function that supports preview tokens
+      // Try RPC function that supports preview tokens
       const { data, error } = await (supabase.rpc as any)("get_canto_by_number_with_preview", {
         p_book_id: book.id,
         p_canto_number: parseInt(cantoNumber),
         p_token: previewToken
       });
-      if (error) throw error;
+      if (error) {
+        console.error('RPC get_canto_by_number_with_preview error:', error);
+        // Fallback to direct query (respects RLS, works for published cantos)
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from("cantos")
+          .select("*")
+          .eq("book_id", book.id)
+          .eq("canto_number", parseInt(cantoNumber))
+          .single();
+        if (fallbackError) throw fallbackError;
+        return fallbackData;
+      }
       // RPC returns array, get first element
       return data && data.length > 0 ? data[0] : null;
     },
@@ -201,14 +222,30 @@ export const ChapterVersesList = () => {
     queryKey: ["chapter", book?.id, canto?.id, effectiveChapterParam, isCantoMode, previewToken],
     queryFn: async () => {
       if (!book?.id || !effectiveChapterParam) return null;
-      // Use RPC function that supports preview tokens
+      // Try RPC function that supports preview tokens
       const { data, error } = await (supabase.rpc as any)("get_chapter_by_number_with_preview", {
         p_book_id: book.id,
         p_canto_id: isCantoMode && canto?.id ? canto.id : null,
         p_chapter_number: parseInt(effectiveChapterParam as string),
         p_token: previewToken
       });
-      if (error) throw error;
+      if (error) {
+        console.error('RPC get_chapter_by_number_with_preview error:', error);
+        // Fallback to direct query (respects RLS, works for published chapters)
+        const query = supabase
+          .from("chapters")
+          .select("*")
+          .eq("book_id", book.id)
+          .eq("chapter_number", parseInt(effectiveChapterParam as string));
+
+        if (isCantoMode && canto?.id) {
+          query.eq("canto_id", canto.id);
+        }
+
+        const { data: fallbackData, error: fallbackError } = await query.single();
+        if (fallbackError) throw fallbackError;
+        return fallbackData;
+      }
       // RPC returns array, get first element
       return data && data.length > 0 ? data[0] : null;
     },
@@ -220,14 +257,26 @@ export const ChapterVersesList = () => {
     queryKey: ["fallback-chapter", book?.id, effectiveChapterParam, previewToken],
     queryFn: async () => {
       if (!book?.id || !effectiveChapterParam) return null;
-      // Use RPC function that supports preview tokens (with null canto_id for fallback)
+      // Try RPC function that supports preview tokens (with null canto_id for fallback)
       const { data, error } = await (supabase.rpc as any)("get_chapter_by_number_with_preview", {
         p_book_id: book.id,
         p_canto_id: null,
         p_chapter_number: parseInt(effectiveChapterParam as string),
         p_token: previewToken
       });
-      if (error) throw error;
+      if (error) {
+        console.error('RPC get_chapter_by_number_with_preview fallback error:', error);
+        // Fallback to direct query
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from("chapters")
+          .select("*")
+          .eq("book_id", book.id)
+          .eq("chapter_number", parseInt(effectiveChapterParam as string))
+          .is("canto_id", null)
+          .single();
+        if (fallbackError) throw fallbackError;
+        return fallbackData;
+      }
       // RPC returns array, get first element
       return data && data.length > 0 ? data[0] : null;
     },
@@ -241,13 +290,24 @@ export const ChapterVersesList = () => {
     queryFn: async () => {
       if (!chapter?.id) return [] as Verse[];
 
-      // Use RPC function that supports preview tokens
+      // Try RPC function that supports preview tokens
       const { data, error } = await (supabase.rpc as any)("get_verses_by_chapter_with_preview", {
         p_chapter_id: chapter.id,
         p_token: previewToken
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('RPC get_verses_by_chapter_with_preview error:', error);
+        // Fallback to direct query (respects RLS, works for published verses)
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from("verses")
+          .select("*")
+          .eq("chapter_id", chapter.id)
+          .is("deleted_at", null)
+          .order("sort_key", { ascending: true });
+        if (fallbackError) throw fallbackError;
+        return (fallbackData || []) as Verse[];
+      }
       return (data || []) as Verse[];
     },
     enabled: !!chapter?.id && "id" in chapter
@@ -260,13 +320,24 @@ export const ChapterVersesList = () => {
     queryFn: async () => {
       if (!fallbackChapter?.id) return [] as Verse[];
 
-      // Use RPC function that supports preview tokens
+      // Try RPC function that supports preview tokens
       const { data, error } = await (supabase.rpc as any)("get_verses_by_chapter_with_preview", {
         p_chapter_id: fallbackChapter.id,
         p_token: previewToken
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('RPC get_verses_by_chapter_with_preview fallback error:', error);
+        // Fallback to direct query
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from("verses")
+          .select("*")
+          .eq("chapter_id", fallbackChapter.id)
+          .is("deleted_at", null)
+          .order("sort_key", { ascending: true });
+        if (fallbackError) throw fallbackError;
+        return (fallbackData || []) as Verse[];
+      }
       return (data || []) as Verse[];
     },
     enabled: !!fallbackChapter?.id
