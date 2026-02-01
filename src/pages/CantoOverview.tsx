@@ -168,6 +168,16 @@ export const CantoOverview = () => {
   // Initialize preview token from URL
   usePreviewToken();
 
+  // Helper to add preview token to navigation paths
+  const getPathWithPreview = (path: string) => {
+    const localizedPath = getLocalizedPath(path);
+    const token = getPreviewToken();
+    if (token) {
+      return `${localizedPath}?preview=${token}`;
+    }
+    return localizedPath;
+  };
+
   // Fetch book with preview token support
   const {
     data: book
@@ -275,8 +285,8 @@ export const CantoOverview = () => {
               chapterNum={chapterNum}
               title={chapterTitle || ""}
               verseCount={(chapter as any).verse_count || 0}
-              onRowClick={() => navigate(getLocalizedPath(`/lib/${bookId}/${cantoNumber}/${chapterNum}`))}
-              onVerseClick={(verse) => navigate(getLocalizedPath(`/lib/${bookId}/${cantoNumber}/${chapterNum}/${verse}`))}
+              onRowClick={() => navigate(getPathWithPreview(`/lib/${bookId}/${cantoNumber}/${chapterNum}`))}
+              onVerseClick={(verse) => navigate(getPathWithPreview(`/lib/${bookId}/${cantoNumber}/${chapterNum}/${verse}`))}
             />
           );
         }) : <p className="text-center py-8 text-muted-foreground">{t("Ще немає глав", "No chapters yet")}</p>}
@@ -314,7 +324,7 @@ export const CantoOverview = () => {
 
           return dualLanguageMode ?
           // Side-by-side для chapters
-          <Link key={chapter.id} to={getLocalizedPath(`/lib/${bookId}/${cantoNumber}/${chapterNum}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
+          <Link key={chapter.id} to={getPathWithPreview(`/lib/${bookId}/${cantoNumber}/${chapterNum}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                   <div className="grid gap-8 md:grid-cols-2">
                     <div className="flex items-start gap-3">
                       <span className="text-lg font-bold text-primary whitespace-nowrap">Глава {chapterNum}</span>
@@ -327,7 +337,7 @@ export const CantoOverview = () => {
                   </div>
                 </Link> :
           // Одна мова для chapters
-          <Link key={chapter.id} to={getLocalizedPath(`/lib/${bookId}/${cantoNumber}/${chapterNum}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
+          <Link key={chapter.id} to={getPathWithPreview(`/lib/${bookId}/${cantoNumber}/${chapterNum}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                   <div className="flex items-center gap-3">
                     <span className="text-lg font-bold text-primary">
                       {t("Глава", "Chapter")} {chapterNum}

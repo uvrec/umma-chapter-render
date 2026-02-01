@@ -122,6 +122,16 @@ export const ChapterVersesList = () => {
   // Initialize preview token from URL (for viewing unpublished content)
   usePreviewToken();
 
+  // Helper to add preview token to navigation paths
+  const getPathWithPreview = (path: string) => {
+    const localizedPath = getLocalizedPath(path);
+    const token = getPreviewToken();
+    if (token) {
+      return `${localizedPath}?preview=${token}`;
+    }
+    return localizedPath;
+  };
+
   // Enter fullscreen mode on mobile for immersive reading
   useEffect(() => {
     if (isMobile) {
@@ -314,9 +324,9 @@ export const ChapterVersesList = () => {
   };
   const handleBack = () => {
     if (isCantoMode) {
-      navigate(getLocalizedPath(`/lib/${bookId}/${cantoNumber}`));
+      navigate(getPathWithPreview(`/lib/${bookId}/${cantoNumber}`));
     } else {
-      navigate(getLocalizedPath(`/lib/${bookId}`));
+      navigate(getPathWithPreview(`/lib/${bookId}`));
     }
   };
   const bookTitle = language === "uk" ? book?.title_uk : book?.title_en;
@@ -410,9 +420,9 @@ export const ChapterVersesList = () => {
   }, [effectiveChapterObj]);
   const handleNavigate = (chapterNum: number) => {
     if (isCantoMode) {
-      navigate(getLocalizedPath(`/lib/${bookId}/${cantoNumber}/${chapterNum}`));
+      navigate(getPathWithPreview(`/lib/${bookId}/${cantoNumber}/${chapterNum}`));
     } else {
-      navigate(getLocalizedPath(`/lib/${bookId}/${chapterNum}`));
+      navigate(getPathWithPreview(`/lib/${bookId}/${chapterNum}`));
     }
   };
 
@@ -539,9 +549,9 @@ export const ChapterVersesList = () => {
     if (adjacentChapters?.prev) {
       const chapterNum = adjacentChapters.prev.chapter_number;
       if (isCantoMode) {
-        navigate(getLocalizedPath(`/lib/${bookId}/${cantoNumber}/${chapterNum}`));
+        navigate(getPathWithPreview(`/lib/${bookId}/${cantoNumber}/${chapterNum}`));
       } else {
-        navigate(getLocalizedPath(`/lib/${bookId}/${chapterNum}`));
+        navigate(getPathWithPreview(`/lib/${bookId}/${chapterNum}`));
       }
     }
   }, [adjacentChapters?.prev, isCantoMode, navigate, getLocalizedPath, bookId, cantoNumber]);
@@ -550,9 +560,9 @@ export const ChapterVersesList = () => {
     if (adjacentChapters?.next) {
       const chapterNum = adjacentChapters.next.chapter_number;
       if (isCantoMode) {
-        navigate(getLocalizedPath(`/lib/${bookId}/${cantoNumber}/${chapterNum}`));
+        navigate(getPathWithPreview(`/lib/${bookId}/${cantoNumber}/${chapterNum}`));
       } else {
-        navigate(getLocalizedPath(`/lib/${bookId}/${chapterNum}`));
+        navigate(getPathWithPreview(`/lib/${bookId}/${chapterNum}`));
       }
     }
   }, [adjacentChapters?.next, isCantoMode, navigate, getLocalizedPath, bookId, cantoNumber]);

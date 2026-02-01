@@ -293,6 +293,15 @@ export const BookOverview = () => {
   // Get preview token from URL
   const previewToken = searchParams.get('preview');
 
+  // Helper to add preview token to navigation paths
+  const getPathWithPreview = (path: string) => {
+    const localizedPath = getLocalizedPath(path);
+    if (previewToken) {
+      return `${localizedPath}?preview=${previewToken}`;
+    }
+    return localizedPath;
+  };
+
   // Fetch book - use RPC function to support preview tokens for unpublished books
   const {
     data: book,
@@ -483,15 +492,15 @@ export const BookOverview = () => {
               key={canto.id}
               label={language === "uk" ? canto.title_uk : canto.title_en}
               chapterCount={(canto as any).chapter_count || 0}
-              onRowClick={() => navigate(getLocalizedPath(`/lib/${bookSlug}/${canto.canto_number}`))}
-              onChapterClick={(chapter) => navigate(getLocalizedPath(`/lib/${bookSlug}/${canto.canto_number}/${chapter}`))}
+              onRowClick={() => navigate(getPathWithPreview(`/lib/${bookSlug}/${canto.canto_number}`))}
+              onChapterClick={(chapter) => navigate(getPathWithPreview(`/lib/${bookSlug}/${canto.canto_number}/${chapter}`))}
             />
           )) :
           bookSlug === 'noi' && noiVerses.length > 0 ?
             noiVerses.map(verse => (
               <Link
                 key={verse.id}
-                to={getLocalizedPath(`/lib/noi/${verse.verse_number}`)}
+                to={getPathWithPreview(`/lib/noi/${verse.verse_number}`)}
                 className="block px-4 py-4 active:bg-muted/50"
               >
                 <div className="font-medium text-foreground">
@@ -507,8 +516,8 @@ export const BookOverview = () => {
                 chapterNum={chapter.chapter_number}
                 title={language === "uk" ? chapter.title_uk : chapter.title_en}
                 verseCount={(chapter as any).verse_count || 0}
-                onRowClick={() => navigate(getLocalizedPath(`/lib/${bookSlug}/${chapter.chapter_number}`))}
-                onVerseClick={(verse) => navigate(getLocalizedPath(`/lib/${bookSlug}/${chapter.chapter_number}/${verse}`))}
+                onRowClick={() => navigate(getPathWithPreview(`/lib/${bookSlug}/${chapter.chapter_number}`))}
+                onVerseClick={(verse) => navigate(getPathWithPreview(`/lib/${bookSlug}/${chapter.chapter_number}/${verse}`))}
               />
             ))
         }
@@ -520,7 +529,7 @@ export const BookOverview = () => {
           {introChapters.map(intro => (
             <Link
               key={intro.id}
-              to={getLocalizedPath(`/lib/${bookSlug}/intro/${intro.slug}`)}
+              to={getPathWithPreview(`/lib/${bookSlug}/intro/${intro.slug}`)}
               className="block px-4 py-4 active:bg-muted/50"
             >
               <div className="font-medium text-muted-foreground">
@@ -601,14 +610,14 @@ export const BookOverview = () => {
               const introTitleUk = intro.title_uk;
               const introTitleEn = intro.title_en;
               return dualLanguageMode ? (
-                <Link key={intro.id} to={getLocalizedPath(`/lib/${bookSlug}/intro/${intro.slug}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
+                <Link key={intro.id} to={getPathWithPreview(`/lib/${bookSlug}/intro/${intro.slug}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                   <div className="grid gap-8 md:grid-cols-2">
                     <div className="text-xl md:text-2xl text-primary font-semibold">{introTitleUk}</div>
                     <div className="text-xl md:text-2xl text-primary font-semibold">{introTitleEn}</div>
                   </div>
                 </Link>
               ) : (
-                <Link key={intro.id} to={getLocalizedPath(`/lib/${bookSlug}/intro/${intro.slug}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
+                <Link key={intro.id} to={getPathWithPreview(`/lib/${bookSlug}/intro/${intro.slug}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                   <div className="text-xl md:text-2xl text-primary font-semibold">
                     {language === "uk" ? introTitleUk : introTitleEn}
                   </div>
@@ -624,14 +633,14 @@ export const BookOverview = () => {
             const cantoTitleEn = canto.title_en;
             return dualLanguageMode ?
             // Side-by-side для cantos
-            <Link key={canto.id} to={getLocalizedPath(`/lib/${bookSlug}/${canto.canto_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
+            <Link key={canto.id} to={getPathWithPreview(`/lib/${bookSlug}/${canto.canto_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                       <div className="grid gap-8 md:grid-cols-2">
                         <div className="text-xl md:text-2xl text-primary font-semibold">{cantoTitleUk}</div>
                         <div className="text-xl md:text-2xl text-primary font-semibold">{cantoTitleEn}</div>
                       </div>
                     </Link> :
             // Одна мова для cantos
-            <Link key={canto.id} to={getLocalizedPath(`/lib/${bookSlug}/${canto.canto_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
+            <Link key={canto.id} to={getPathWithPreview(`/lib/${bookSlug}/${canto.canto_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                       <div className="text-xl md:text-2xl text-primary font-semibold">
                         {language === "uk" ? cantoTitleUk : cantoTitleEn}
                       </div>
@@ -641,12 +650,12 @@ export const BookOverview = () => {
           bookSlug === 'noi' && noiVerses.length > 0 ? noiVerses.map(verse => {
             const titleUk = verse.translation_uk || `Текст ${verse.verse_number}`;
             const titleEn = verse.translation_en || `Text ${verse.verse_number}`;
-            return dualLanguageMode ? <Link key={verse.id} to={getLocalizedPath(`/lib/noi/${verse.verse_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
+            return dualLanguageMode ? <Link key={verse.id} to={getPathWithPreview(`/lib/noi/${verse.verse_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                         <div className="grid gap-8 md:grid-cols-2">
                           <div className="text-xl md:text-2xl text-primary font-semibold">{titleUk}</div>
                           <div className="text-xl md:text-2xl text-primary font-semibold">{titleEn}</div>
                         </div>
-                      </Link> : <Link key={verse.id} to={getLocalizedPath(`/lib/noi/${verse.verse_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
+                      </Link> : <Link key={verse.id} to={getPathWithPreview(`/lib/noi/${verse.verse_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                         <div className="text-xl md:text-2xl text-primary font-semibold">
                           {language === "uk" ? titleUk : titleEn}
                         </div>
@@ -658,14 +667,14 @@ export const BookOverview = () => {
             const chapterTitleEn = chapter.title_en;
             return dualLanguageMode ?
             // Side-by-side для chapters
-            <Link key={chapter.id} to={getLocalizedPath(`/lib/${bookSlug}/${chapter.chapter_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
+            <Link key={chapter.id} to={getPathWithPreview(`/lib/${bookSlug}/${chapter.chapter_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                       <div className="grid gap-8 md:grid-cols-2">
                         <div className="text-xl md:text-2xl text-primary font-semibold">{chapterTitleUk}</div>
                         <div className="text-xl md:text-2xl text-primary font-semibold">{chapterTitleEn}</div>
                       </div>
                     </Link> :
             // Одна мова для chapters
-            <Link key={chapter.id} to={getLocalizedPath(`/lib/${bookSlug}/${chapter.chapter_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
+            <Link key={chapter.id} to={getPathWithPreview(`/lib/${bookSlug}/${chapter.chapter_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                       <div className="text-xl md:text-2xl text-primary font-semibold">
                         {language === "uk" ? chapterTitleUk : chapterTitleEn}
                       </div>
