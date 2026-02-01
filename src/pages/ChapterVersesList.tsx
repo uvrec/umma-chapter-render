@@ -165,7 +165,6 @@ export const ChapterVersesList = () => {
   } = useQuery({
     queryKey: ["book", bookId, previewToken],
     queryFn: async () => {
-      const previewToken = previewToken;
       // Use RPC function that supports preview tokens
       const { data, error } = await (supabase.rpc as any)("get_book_with_preview", {
         p_book_slug: bookId,
@@ -183,7 +182,6 @@ export const ChapterVersesList = () => {
     queryKey: ["canto", book?.id, cantoNumber, previewToken],
     queryFn: async () => {
       if (!book?.id || !cantoNumber) return null;
-      const previewToken = previewToken;
       // Use RPC function that supports preview tokens
       const { data, error } = await (supabase.rpc as any)("get_canto_by_number_with_preview", {
         p_book_id: book.id,
@@ -203,7 +201,6 @@ export const ChapterVersesList = () => {
     queryKey: ["chapter", book?.id, canto?.id, effectiveChapterParam, isCantoMode, previewToken],
     queryFn: async () => {
       if (!book?.id || !effectiveChapterParam) return null;
-      const previewToken = previewToken;
       // Use RPC function that supports preview tokens
       const { data, error } = await (supabase.rpc as any)("get_chapter_by_number_with_preview", {
         p_book_id: book.id,
@@ -223,7 +220,6 @@ export const ChapterVersesList = () => {
     queryKey: ["fallback-chapter", book?.id, effectiveChapterParam, previewToken],
     queryFn: async () => {
       if (!book?.id || !effectiveChapterParam) return null;
-      const previewToken = previewToken;
       // Use RPC function that supports preview tokens (with null canto_id for fallback)
       const { data, error } = await (supabase.rpc as any)("get_chapter_by_number_with_preview", {
         p_book_id: book.id,
@@ -244,7 +240,6 @@ export const ChapterVersesList = () => {
     queryKey: ["chapter-verses-list", chapter?.id, previewToken],
     queryFn: async () => {
       if (!chapter?.id) return [] as Verse[];
-      const previewToken = previewToken;
 
       // Use RPC function that supports preview tokens
       const { data, error } = await (supabase.rpc as any)("get_verses_by_chapter_with_preview", {
@@ -264,7 +259,6 @@ export const ChapterVersesList = () => {
     queryKey: ["chapter-verses-fallback", fallbackChapter?.id, previewToken],
     queryFn: async () => {
       if (!fallbackChapter?.id) return [] as Verse[];
-      const previewToken = previewToken;
 
       // Use RPC function that supports preview tokens
       const { data, error } = await (supabase.rpc as any)("get_verses_by_chapter_with_preview", {
