@@ -4589,6 +4589,69 @@ export type Database = {
           },
         ]
       }
+      user_sadhana_config_public: {
+        Row: {
+          avatar_url: string | null
+          bed_time_target: string | null
+          created_at: string | null
+          display_name: string | null
+          id: string | null
+          is_public: boolean | null
+          japa_before_730_target: number | null
+          japa_rounds_target: number | null
+          language: string | null
+          reading_minutes_target: number | null
+          timezone: string | null
+          track_kirtan: boolean | null
+          track_lections: boolean | null
+          track_service: boolean | null
+          track_yoga: boolean | null
+          updated_at: string | null
+          user_id: string | null
+          wake_up_target: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bed_time_target?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string | null
+          is_public?: boolean | null
+          japa_before_730_target?: number | null
+          japa_rounds_target?: number | null
+          language?: string | null
+          reading_minutes_target?: number | null
+          timezone?: string | null
+          track_kirtan?: boolean | null
+          track_lections?: boolean | null
+          track_service?: boolean | null
+          track_yoga?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+          wake_up_target?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bed_time_target?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string | null
+          is_public?: boolean | null
+          japa_before_730_target?: number | null
+          japa_rounds_target?: number | null
+          language?: string | null
+          reading_minutes_target?: number | null
+          timezone?: string | null
+          track_kirtan?: boolean | null
+          track_lections?: boolean | null
+          track_service?: boolean | null
+          track_yoga?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+          wake_up_target?: string | null
+        }
+        Relationships: []
+      }
       user_sadhana_public_stats: {
         Row: {
           avatar_url: string | null
