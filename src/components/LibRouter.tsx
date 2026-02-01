@@ -17,7 +17,7 @@
  * Тепер /lib/ є основним форматом URL (рендерить компоненти напряму).
  */
 
-import { useParams, Navigate } from "react-router-dom";
+import { useParams, Navigate, useSearchParams } from "react-router-dom";
 import { useBooks } from "@/contexts/BooksContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { VedaReaderDB } from "@/components/VedaReaderDB";
@@ -33,6 +33,8 @@ import { BookDisciplicSuccessionPage } from "@/pages/book/BookDisciplicSuccessio
 import { BookSettingsRoutePage } from "@/pages/book/BookSettingsRoutePage";
 import { BookUserContentPage } from "@/pages/book/BookUserContentPage";
 import { BookGalleriesPage } from "@/pages/book/BookGalleriesPage";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 // Auxiliary page routes that should not be treated as chapter/canto numbers
 const AUXILIARY_PAGES = [
@@ -49,6 +51,40 @@ const AUXILIARY_PAGES = [
 ] as const;
 
 /**
+ * Для неопублікованих книг (особливо для анонімів) BooksContext може не мати метаданих.
+ * Якщо в URL є `?preview=...`, уточнюємо `has_cantos` через RPC `get_book_with_preview`.
+ */
+function useHasCantosForRouting(bookSlug: string | undefined) {
+  const { hasCantoStructure } = useBooks();
+  const [searchParams] = useSearchParams();
+  const previewToken = searchParams.get("preview");
+
+  const contextHasCantos = bookSlug ? hasCantoStructure(bookSlug) : false;
+
+  const { data: rpcHasCantos, isLoading } = useQuery({
+    queryKey: ["router-book-has-cantos", bookSlug, previewToken],
+    enabled: !!bookSlug && !!previewToken,
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data, error } = await (supabase.rpc as any)("get_book_with_preview", {
+        p_book_slug: bookSlug,
+        p_token: previewToken,
+      });
+
+      if (error) return null;
+      const book = data?.[0];
+      return typeof book?.has_cantos === "boolean" ? book.has_cantos : null;
+    },
+  });
+
+  return {
+    // RPC має пріоритет, бо контекст для неопублікованих книг може бути пустим
+    hasCantos: (rpcHasCantos ?? contextHasCantos) === true,
+    isResolving: !!previewToken && isLoading,
+  };
+}
+
+/**
  * Роутер для /lib/:bookId/:p1
  * - Для допоміжних сторінок: p1 = author/glossary/etc → відповідна сторінка
  * - Для книг з канто: p1 = canto → CantoOverview
@@ -56,12 +92,15 @@ const AUXILIARY_PAGES = [
  */
 export function LibOneParamRouter() {
   const { bookId, p1 } = useParams<{ bookId: string; p1: string }>();
-  const { hasCantoStructure } = useBooks();
   const { getLocalizedPath } = useLanguage();
+
+  const { hasCantos, isResolving } = useHasCantosForRouting(bookId);
 
   if (!bookId || !p1) {
     return <Navigate to={getLocalizedPath("/library")} replace />;
   }
+
+  if (isResolving) return null;
 
   // Handle auxiliary pages: /lib/bg/author, /lib/bg/glossary, etc.
   switch (p1) {
@@ -85,7 +124,7 @@ export function LibOneParamRouter() {
       return <BookGalleriesPage />;
   }
 
-  if (hasCantoStructure(bookId)) {
+  if (hasCantos) {
     // SB/CC/etc: /lib/sb/1 → CantoOverview
     return <CantoOverview />;
   }
@@ -103,12 +142,15 @@ export function LibOneParamRouter() {
  */
 export function LibTwoParamRouter() {
   const { bookId, p1, p2 } = useParams<{ bookId: string; p1: string; p2: string }>();
-  const { hasCantoStructure } = useBooks();
   const { getLocalizedPath } = useLanguage();
+
+  const { hasCantos, isResolving } = useHasCantosForRouting(bookId);
 
   if (!bookId || !p1 || !p2) {
     return <Navigate to={getLocalizedPath("/library")} replace />;
   }
+
+  if (isResolving) return null;
 
   // Handle intro chapters: /lib/sb/intro/preface → IntroChapter
   if (p1 === "intro") {
@@ -116,7 +158,7 @@ export function LibTwoParamRouter() {
   }
 
   // Handle canto-level auxiliary pages: /lib/sb/1/author, /lib/sb/1/glossary, etc.
-  if (hasCantoStructure(bookId)) {
+  if (hasCantos) {
     switch (p2) {
       case "author":
         return <BookAuthorPage />;
@@ -156,14 +198,17 @@ export function LibTwoParamRouter() {
  */
 export function LibThreeParamRouter() {
   const { bookId, p1, p2, p3 } = useParams<{ bookId: string; p1: string; p2: string; p3: string }>();
-  const { hasCantoStructure } = useBooks();
   const { getLocalizedPath } = useLanguage();
+
+  const { hasCantos, isResolving } = useHasCantosForRouting(bookId);
 
   if (!bookId || !p1 || !p2 || !p3) {
     return <Navigate to={getLocalizedPath("/library")} replace />;
   }
 
-  if (hasCantoStructure(bookId)) {
+  if (isResolving) return null;
+
+  if (hasCantos) {
     // SB/CC/etc: /lib/sb/1/3/19 → VedaReaderDB
     return (
       <RouteErrorBoundary routeName="VedaReader">
