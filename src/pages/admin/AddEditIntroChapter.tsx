@@ -87,6 +87,31 @@ export default function AddEditIntroChapter() {
     staleTime: 60_000,
   });
 
+  // ——— get max display_order for new chapters
+  const { data: maxOrder } = useQuery({
+    queryKey: ["admin:intro-chapters-max-order", bookId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("intro_chapters")
+        .select("display_order")
+        .eq("book_id", bookId)
+        .order("display_order", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return data?.display_order ?? -1;
+    },
+    enabled: canQueryBook && !isEdit,
+    staleTime: 0,
+  });
+
+  // Set default display_order for new chapters
+  useEffect(() => {
+    if (!isEdit && maxOrder !== undefined && form.display_order === 0) {
+      setForm((f) => ({ ...f, display_order: maxOrder + 1 }));
+    }
+  }, [isEdit, maxOrder, form.display_order]);
+
   // ——— intro chapter (edit)
   const {
     data: intro,
