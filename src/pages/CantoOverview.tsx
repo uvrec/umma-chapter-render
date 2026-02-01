@@ -11,7 +11,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import { getPreviewToken, usePreviewToken } from "@/hooks/usePreviewToken";
 
 // Swipeable chapter row with verse numbers
 function SwipeableChapterRow({
@@ -164,16 +163,16 @@ export const CantoOverview = () => {
     dualLanguageMode
   } = useReaderSettings();
   const isMobile = useIsMobile();
+  const [searchParams] = useSearchParams();
 
-  // Initialize preview token from URL
-  usePreviewToken();
+  // Get preview token directly from URL (not from global state which may not be set yet)
+  const previewToken = searchParams.get('preview');
 
   // Helper to add preview token to navigation paths
   const getPathWithPreview = (path: string) => {
     const localizedPath = getLocalizedPath(path);
-    const token = getPreviewToken();
-    if (token) {
-      return `${localizedPath}?preview=${token}`;
+    if (previewToken) {
+      return `${localizedPath}?preview=${previewToken}`;
     }
     return localizedPath;
   };
@@ -182,9 +181,9 @@ export const CantoOverview = () => {
   const {
     data: book
   } = useQuery({
-    queryKey: ["book", bookId, getPreviewToken()],
+    queryKey: ["book", bookId, previewToken],
     queryFn: async () => {
-      const previewToken = getPreviewToken();
+      const previewToken = previewToken;
       const { data, error } = await (supabase.rpc as any)("get_book_with_preview", {
         p_book_slug: bookId,
         p_token: previewToken
@@ -200,10 +199,10 @@ export const CantoOverview = () => {
     data: canto,
     isLoading: cantoLoading
   } = useQuery({
-    queryKey: ["canto", book?.id, cantoNumber, getPreviewToken()],
+    queryKey: ["canto", book?.id, cantoNumber, previewToken],
     queryFn: async () => {
       if (!book?.id || !cantoNumber) return null;
-      const previewToken = getPreviewToken();
+      const previewToken = previewToken;
       const { data, error } = await (supabase.rpc as any)("get_canto_by_number_with_preview", {
         p_book_id: book.id,
         p_canto_number: parseInt(cantoNumber),
@@ -220,10 +219,10 @@ export const CantoOverview = () => {
     data: chapters = [],
     isLoading: chaptersLoading
   } = useQuery({
-    queryKey: ["chapters-with-verse-counts", canto?.id, getPreviewToken()],
+    queryKey: ["chapters-with-verse-counts", canto?.id, previewToken],
     queryFn: async () => {
       if (!canto?.id) return [];
-      const previewToken = getPreviewToken();
+      const previewToken = previewToken;
       const { data, error } = await (supabase.rpc as any)("get_chapters_by_canto_with_preview", {
         p_canto_id: canto.id,
         p_token: previewToken

@@ -1,6 +1,6 @@
 // ChapterVersesList.tsx — Список віршів з підтримкою dualLanguageMode
 
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -23,7 +23,6 @@ import { useMobileReading } from "@/contexts/MobileReadingContext";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { stripParagraphTags, sanitizeForRender } from "@/utils/import/normalizers";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
-import { getPreviewToken, usePreviewToken } from "@/hooks/usePreviewToken";
 import { ChapterSchema, BreadcrumbSchema } from "@/components/StructuredData";
 import { getChapterOgImage } from "@/utils/og-image";
 import { Helmet } from "react-helmet-async";
@@ -118,16 +117,16 @@ export const ChapterVersesList = () => {
   } = useReaderSettings();
   const isMobile = useIsMobile();
   const { enterFullscreen } = useMobileReading();
+  const [searchParams] = useSearchParams();
 
-  // Initialize preview token from URL (for viewing unpublished content)
-  usePreviewToken();
+  // Get preview token directly from URL (not from global state which may not be set yet)
+  const previewToken = searchParams.get('preview');
 
   // Helper to add preview token to navigation paths
   const getPathWithPreview = (path: string) => {
     const localizedPath = getLocalizedPath(path);
-    const token = getPreviewToken();
-    if (token) {
-      return `${localizedPath}?preview=${token}`;
+    if (previewToken) {
+      return `${localizedPath}?preview=${previewToken}`;
     }
     return localizedPath;
   };
@@ -164,9 +163,9 @@ export const ChapterVersesList = () => {
   const {
     data: book
   } = useQuery({
-    queryKey: ["book", bookId, getPreviewToken()],
+    queryKey: ["book", bookId, previewToken],
     queryFn: async () => {
-      const previewToken = getPreviewToken();
+      const previewToken = previewToken;
       // Use RPC function that supports preview tokens
       const { data, error } = await (supabase.rpc as any)("get_book_with_preview", {
         p_book_slug: bookId,
@@ -181,10 +180,10 @@ export const ChapterVersesList = () => {
   const {
     data: canto
   } = useQuery({
-    queryKey: ["canto", book?.id, cantoNumber, getPreviewToken()],
+    queryKey: ["canto", book?.id, cantoNumber, previewToken],
     queryFn: async () => {
       if (!book?.id || !cantoNumber) return null;
-      const previewToken = getPreviewToken();
+      const previewToken = previewToken;
       // Use RPC function that supports preview tokens
       const { data, error } = await (supabase.rpc as any)("get_canto_by_number_with_preview", {
         p_book_id: book.id,
@@ -201,10 +200,10 @@ export const ChapterVersesList = () => {
     data: chapter,
     isLoading: isLoadingChapter
   } = useQuery({
-    queryKey: ["chapter", book?.id, canto?.id, effectiveChapterParam, isCantoMode, getPreviewToken()],
+    queryKey: ["chapter", book?.id, canto?.id, effectiveChapterParam, isCantoMode, previewToken],
     queryFn: async () => {
       if (!book?.id || !effectiveChapterParam) return null;
-      const previewToken = getPreviewToken();
+      const previewToken = previewToken;
       // Use RPC function that supports preview tokens
       const { data, error } = await (supabase.rpc as any)("get_chapter_by_number_with_preview", {
         p_book_id: book.id,
@@ -221,10 +220,10 @@ export const ChapterVersesList = () => {
   const {
     data: fallbackChapter
   } = useQuery({
-    queryKey: ["fallback-chapter", book?.id, effectiveChapterParam, getPreviewToken()],
+    queryKey: ["fallback-chapter", book?.id, effectiveChapterParam, previewToken],
     queryFn: async () => {
       if (!book?.id || !effectiveChapterParam) return null;
-      const previewToken = getPreviewToken();
+      const previewToken = previewToken;
       // Use RPC function that supports preview tokens (with null canto_id for fallback)
       const { data, error } = await (supabase.rpc as any)("get_chapter_by_number_with_preview", {
         p_book_id: book.id,
@@ -242,10 +241,10 @@ export const ChapterVersesList = () => {
     data: versesMain = [],
     isLoading: isLoadingVersesMain
   } = useQuery({
-    queryKey: ["chapter-verses-list", chapter?.id, getPreviewToken()],
+    queryKey: ["chapter-verses-list", chapter?.id, previewToken],
     queryFn: async () => {
       if (!chapter?.id) return [] as Verse[];
-      const previewToken = getPreviewToken();
+      const previewToken = previewToken;
 
       // Use RPC function that supports preview tokens
       const { data, error } = await (supabase.rpc as any)("get_verses_by_chapter_with_preview", {
@@ -262,10 +261,10 @@ export const ChapterVersesList = () => {
     data: versesFallback = [],
     isLoading: isLoadingVersesFallback
   } = useQuery({
-    queryKey: ["chapter-verses-fallback", fallbackChapter?.id, getPreviewToken()],
+    queryKey: ["chapter-verses-fallback", fallbackChapter?.id, previewToken],
     queryFn: async () => {
       if (!fallbackChapter?.id) return [] as Verse[];
-      const previewToken = getPreviewToken();
+      const previewToken = previewToken;
 
       // Use RPC function that supports preview tokens
       const { data, error } = await (supabase.rpc as any)("get_verses_by_chapter_with_preview", {
