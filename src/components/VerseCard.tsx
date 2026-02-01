@@ -590,17 +590,9 @@ export const VerseCard = ({
               </button>
             )}
 
-            {/* Desktop: Заголовок + кнопка Volume2 */}
-            <div className="section-header hidden md:flex items-center justify-center gap-4 mb-4">
+            {/* Desktop: Заголовок (без кнопки аудіо - для послівного перекладу не потрібна) */}
+            <div className="section-header hidden md:flex items-center justify-center mb-4">
               <h4 className="text-foreground">{labels.synonyms}</h4>
-              <button
-                onClick={() => playSection("Послівний переклад", audioSynonyms)}
-                disabled={!audioSynonyms && !audioUrl}
-                className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                aria-label="Слухати послівний переклад"
-              >
-                <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
-              </button>
             </div>
 
             {/* Content - collapsible on mobile */}
