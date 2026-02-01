@@ -154,28 +154,36 @@ export const ChapterVersesList = () => {
   const {
     data: book
   } = useQuery({
-    queryKey: ["book", bookId],
+    queryKey: ["book", bookId, getPreviewToken()],
     queryFn: async () => {
-      const {
-        data,
-        error
-      } = await supabase.from("books").select("id, slug, title_uk, title_en").eq("slug", bookId).maybeSingle();
+      const previewToken = getPreviewToken();
+      // Use RPC function that supports preview tokens
+      const { data, error } = await supabase.rpc("get_book_by_slug_with_preview", {
+        p_slug: bookId,
+        p_token: previewToken
+      });
       if (error) throw error;
-      return data;
-    }
+      // RPC returns array, get first element
+      return data && data.length > 0 ? data[0] : null;
+    },
+    enabled: !!bookId
   });
   const {
     data: canto
   } = useQuery({
-    queryKey: ["canto", book?.id, cantoNumber],
+    queryKey: ["canto", book?.id, cantoNumber, getPreviewToken()],
     queryFn: async () => {
       if (!book?.id || !cantoNumber) return null;
-      const {
-        data,
-        error
-      } = await supabase.from("cantos").select("id, canto_number, title_uk, title_en").eq("book_id", book.id).eq("canto_number", parseInt(cantoNumber)).maybeSingle();
+      const previewToken = getPreviewToken();
+      // Use RPC function that supports preview tokens
+      const { data, error } = await supabase.rpc("get_canto_by_number_with_preview", {
+        p_book_id: book.id,
+        p_canto_number: parseInt(cantoNumber),
+        p_token: previewToken
+      });
       if (error) throw error;
-      return data;
+      // RPC returns array, get first element
+      return data && data.length > 0 ? data[0] : null;
     },
     enabled: isCantoMode && !!book?.id && !!cantoNumber
   });
@@ -183,32 +191,40 @@ export const ChapterVersesList = () => {
     data: chapter,
     isLoading: isLoadingChapter
   } = useQuery({
-    queryKey: ["chapter", book?.id, canto?.id, effectiveChapterParam, isCantoMode],
+    queryKey: ["chapter", book?.id, canto?.id, effectiveChapterParam, isCantoMode, getPreviewToken()],
     queryFn: async () => {
       if (!book?.id || !effectiveChapterParam) return null;
-      const base = supabase.from("chapters").select("id, chapter_number, title_uk, title_en, content_uk, content_en").eq("chapter_number", parseInt(effectiveChapterParam as string));
-      const query = isCantoMode && canto?.id ? base.eq("canto_id", canto.id) : base.eq("book_id", book.id);
-      const {
-        data,
-        error
-      } = await query.maybeSingle();
+      const previewToken = getPreviewToken();
+      // Use RPC function that supports preview tokens
+      const { data, error } = await supabase.rpc("get_chapter_by_number_with_preview", {
+        p_book_id: book.id,
+        p_canto_id: isCantoMode && canto?.id ? canto.id : null,
+        p_chapter_number: parseInt(effectiveChapterParam as string),
+        p_token: previewToken
+      });
       if (error) throw error;
-      return data;
+      // RPC returns array, get first element
+      return data && data.length > 0 ? data[0] : null;
     },
     enabled: !!effectiveChapterParam && (isCantoMode ? !!canto?.id : !!book?.id)
   });
   const {
     data: fallbackChapter
   } = useQuery({
-    queryKey: ["fallback-chapter", book?.id, effectiveChapterParam],
+    queryKey: ["fallback-chapter", book?.id, effectiveChapterParam, getPreviewToken()],
     queryFn: async () => {
       if (!book?.id || !effectiveChapterParam) return null;
-      const {
-        data,
-        error
-      } = await supabase.from("chapters").select("id, chapter_number, title_uk, title_en, content_uk, content_en").eq("book_id", book.id).eq("chapter_number", parseInt(effectiveChapterParam as string)).is("canto_id", null).maybeSingle();
+      const previewToken = getPreviewToken();
+      // Use RPC function that supports preview tokens (with null canto_id for fallback)
+      const { data, error } = await supabase.rpc("get_chapter_by_number_with_preview", {
+        p_book_id: book.id,
+        p_canto_id: null,
+        p_chapter_number: parseInt(effectiveChapterParam as string),
+        p_token: previewToken
+      });
       if (error) throw error;
-      return data;
+      // RPC returns array, get first element
+      return data && data.length > 0 ? data[0] : null;
     },
     enabled: !!book?.id && !!effectiveChapterParam
   });
