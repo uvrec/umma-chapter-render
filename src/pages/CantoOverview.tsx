@@ -183,11 +183,22 @@ export const CantoOverview = () => {
   } = useQuery({
     queryKey: ["book", bookId, previewToken],
     queryFn: async () => {
+      // Try RPC first for preview token support
       const { data, error } = await (supabase.rpc as any)("get_book_with_preview", {
         p_book_slug: bookId,
         p_token: previewToken
       });
-      if (error) throw error;
+      if (error) {
+        console.error('RPC get_book_with_preview error:', error);
+        // Fallback to direct query (respects RLS, works for published books)
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from("books")
+          .select("*")
+          .eq("slug", bookId)
+          .single();
+        if (fallbackError) throw fallbackError;
+        return fallbackData;
+      }
       return data && data.length > 0 ? data[0] : null;
     },
     enabled: !!bookId
@@ -201,12 +212,24 @@ export const CantoOverview = () => {
     queryKey: ["canto", book?.id, cantoNumber, previewToken],
     queryFn: async () => {
       if (!book?.id || !cantoNumber) return null;
+      // Try RPC first for preview token support
       const { data, error } = await (supabase.rpc as any)("get_canto_by_number_with_preview", {
         p_book_id: book.id,
         p_canto_number: parseInt(cantoNumber),
         p_token: previewToken
       });
-      if (error) throw error;
+      if (error) {
+        console.error('RPC get_canto_by_number_with_preview error:', error);
+        // Fallback to direct query (respects RLS, works for published cantos)
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from("cantos")
+          .select("*")
+          .eq("book_id", book.id)
+          .eq("canto_number", parseInt(cantoNumber))
+          .single();
+        if (fallbackError) throw fallbackError;
+        return fallbackData;
+      }
       return data && data.length > 0 ? data[0] : null;
     },
     enabled: !!book?.id && !!cantoNumber
@@ -220,15 +243,28 @@ export const CantoOverview = () => {
     queryKey: ["chapters-with-verse-counts", canto?.id, previewToken],
     queryFn: async () => {
       if (!canto?.id) return [];
+      // Try RPC first for preview token support
       const { data, error } = await (supabase.rpc as any)("get_chapters_by_canto_with_preview", {
         p_canto_id: canto.id,
         p_token: previewToken
       });
-      if (error) throw error;
+
+      let chaptersData = data;
+      if (error) {
+        console.error('RPC get_chapters_by_canto_with_preview error:', error);
+        // Fallback to direct query (respects RLS, works for published chapters)
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from("chapters")
+          .select("*")
+          .eq("canto_id", canto.id)
+          .order("chapter_number");
+        if (fallbackError) throw fallbackError;
+        chaptersData = fallbackData;
+      }
 
       // Fetch verse counts for each chapter
       const chaptersWithCounts = await Promise.all(
-        (data || []).map(async (chapter: any) => {
+        (chaptersData || []).map(async (chapter: any) => {
           const { count } = await supabase
             .from("verses")
             .select("*", { count: "exact", head: true })
