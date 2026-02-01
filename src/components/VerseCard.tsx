@@ -361,23 +361,23 @@ export const VerseCard = ({
         {/* НОМЕР ВІРША - відцентрований */}
         {showNumbers && (
           <div className="flex flex-col items-center justify-center gap-2 mb-4 verse-number-block">
+            {/* Mobile: завжди показуємо кнопку для tap-to-play (навіть для адмінів) */}
+            <button
+              onClick={() => (audioUrl || audioSanskrit || audioTranslation || audioCommentary) && playSection("Вірш", audioUrl || audioSanskrit || audioTranslation || audioCommentary)}
+              className={`verse-number-clean md:hidden font-bold text-2xl whitespace-nowrap transition-colors ${isNowPlaying ? 'text-primary' : 'text-foreground'}`}
+              disabled={!audioUrl && !audioSanskrit && !audioTranslation && !audioCommentary}
+            >
+              {getBookPrefix(bookSlug)} {verseNumber}
+            </button>
+            {/* Desktop: VerseNumberEditor для адмінів, звичайний span для інших */}
             {isAdmin && verseId ? (
-              <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} bookSlug={bookSlug} />
+              <div className="hidden md:block">
+                <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} bookSlug={bookSlug} />
+              </div>
             ) : (
-              <>
-                {/* Mobile: book prefix + verse number (ШБ 4.20.1) - tap to play audio */}
-                <button
-                  onClick={() => (audioUrl || audioSanskrit || audioTranslation || audioCommentary) && playSection("Вірш", audioUrl || audioSanskrit || audioTranslation || audioCommentary)}
-                  className={`verse-number-clean md:hidden font-bold text-2xl whitespace-nowrap transition-colors ${isNowPlaying ? 'text-primary' : 'text-foreground'}`}
-                  disabled={!audioUrl && !audioSanskrit && !audioTranslation && !audioCommentary}
-                >
-                  {getBookPrefix(bookSlug)} {verseNumber}
-                </button>
-                {/* Desktop: book prefix + verse number (ШБ 4.20.1) */}
-                <span className="hidden md:inline font-semibold text-5xl whitespace-nowrap" style={{ color: "rgb(188, 115, 26)" }}>
-                  {getBookPrefix(bookSlug)} {verseNumber}
-                </span>
-              </>
+              <span className="hidden md:inline font-semibold text-5xl whitespace-nowrap" style={{ color: "rgb(188, 115, 26)" }}>
+                {getBookPrefix(bookSlug)} {verseNumber}
+              </span>
             )}
             {/* Назва глави - відцентрована під номером вірша (hidden on mobile) */}
             {bookName && (
