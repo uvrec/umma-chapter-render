@@ -32,6 +32,70 @@ export function setPreviewToken(token: string | null) {
   currentPreviewToken = token;
 }
 
+// Build public path based on resource type and ID
+async function buildPublicPath(resourceType: ResourceType, resourceId: string): Promise<string | null> {
+  try {
+    switch (resourceType) {
+      case 'book': {
+        const { data: book } = await supabase
+          .from('books')
+          .select('slug')
+          .eq('id', resourceId)
+          .single();
+        if (book) return `/lib/${book.slug}`;
+        break;
+      }
+      case 'canto': {
+        const { data: canto } = await supabase
+          .from('cantos')
+          .select('canto_number, book:books(slug)')
+          .eq('id', resourceId)
+          .single();
+        if (canto && canto.book) {
+          return `/lib/${(canto.book as any).slug}/${canto.canto_number}`;
+        }
+        break;
+      }
+      case 'chapter': {
+        const { data: chapter } = await supabase
+          .from('chapters')
+          .select('chapter_number, canto:cantos(canto_number), book:books(slug, has_cantos)')
+          .eq('id', resourceId)
+          .single();
+        if (chapter && chapter.book) {
+          const book = chapter.book as any;
+          if (book.has_cantos && chapter.canto) {
+            return `/lib/${book.slug}/${(chapter.canto as any).canto_number}/${chapter.chapter_number}`;
+          } else {
+            return `/lib/${book.slug}/${chapter.chapter_number}`;
+          }
+        }
+        break;
+      }
+      case 'verse': {
+        const { data: verse } = await supabase
+          .from('verses')
+          .select('verse_number, chapter:chapters(chapter_number, canto:cantos(canto_number), book:books(slug, has_cantos))')
+          .eq('id', resourceId)
+          .single();
+        if (verse && verse.chapter) {
+          const chapter = verse.chapter as any;
+          const book = chapter.book;
+          if (book.has_cantos && chapter.canto) {
+            return `/lib/${book.slug}/${chapter.canto.canto_number}/${chapter.chapter_number}/${verse.verse_number}`;
+          } else {
+            return `/lib/${book.slug}/${chapter.chapter_number}/${verse.verse_number}`;
+          }
+        }
+        break;
+      }
+    }
+  } catch (err) {
+    console.error('Error building public path:', err);
+  }
+  return null;
+}
+
 export function usePreviewToken() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { isAdmin } = useAuth();
@@ -83,7 +147,19 @@ export function usePreviewToken() {
       }
 
       const token = data as string;
-      const url = new URL(window.location.href);
+
+      // Build proper public URL based on resource type
+      const publicPath = await buildPublicPath(resourceType, resourceId);
+      if (!publicPath) {
+        toast.error('Не вдалося визначити публічний URL');
+        return null;
+      }
+
+      const baseUrl = typeof window !== 'undefined'
+        ? window.location.origin
+        : 'https://vedavoice.org';
+
+      const url = new URL(`/uk${publicPath}`, baseUrl);
       url.searchParams.set('preview', token);
 
       return url.toString();
