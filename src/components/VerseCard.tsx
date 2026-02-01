@@ -361,7 +361,7 @@ export const VerseCard = ({
         {/* НОМЕР ВІРША - відцентрований */}
         {showNumbers && (
           <div className="flex flex-col items-center justify-center gap-2 mb-4 verse-number-block">
-            {/* Mobile: завжди показуємо кнопку для tap-to-play (навіть для адмінів) */}
+            {/* Mobile: кнопка tap-to-play для всіх користувачів */}
             <button
               onClick={() => (audioUrl || audioSanskrit || audioTranslation || audioCommentary) && playSection("Вірш", audioUrl || audioSanskrit || audioTranslation || audioCommentary)}
               className={`verse-number-clean md:hidden font-bold text-2xl whitespace-nowrap transition-colors ${isNowPlaying ? 'text-primary' : 'text-foreground'}`}
