@@ -361,23 +361,23 @@ export const VerseCard = ({
         {/* НОМЕР ВІРША - відцентрований */}
         {showNumbers && (
           <div className="flex flex-col items-center justify-center gap-2 mb-4 verse-number-block">
+            {/* Mobile: кнопка tap-to-play для всіх користувачів */}
+            <button
+              onClick={() => (audioUrl || audioSanskrit || audioTranslation || audioCommentary) && playSection("Вірш", audioUrl || audioSanskrit || audioTranslation || audioCommentary)}
+              className={`verse-number-clean md:hidden font-bold text-2xl whitespace-nowrap transition-colors ${isNowPlaying ? 'text-primary' : 'text-foreground'}`}
+              disabled={!audioUrl && !audioSanskrit && !audioTranslation && !audioCommentary}
+            >
+              {getBookPrefix(bookSlug)} {verseNumber}
+            </button>
+            {/* Desktop: VerseNumberEditor для адмінів, звичайний span для інших */}
             {isAdmin && verseId ? (
-              <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} bookSlug={bookSlug} />
+              <div className="hidden md:block">
+                <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} bookSlug={bookSlug} />
+              </div>
             ) : (
-              <>
-                {/* Mobile: book prefix + verse number (ШБ 4.20.1) - tap to play audio */}
-                <button
-                  onClick={() => (audioUrl || audioSanskrit || audioTranslation || audioCommentary) && playSection("Вірш", audioUrl || audioSanskrit || audioTranslation || audioCommentary)}
-                  className={`verse-number-clean md:hidden font-bold text-2xl whitespace-nowrap transition-colors ${isNowPlaying ? 'text-primary' : 'text-foreground'}`}
-                  disabled={!audioUrl && !audioSanskrit && !audioTranslation && !audioCommentary}
-                >
-                  {getBookPrefix(bookSlug)} {verseNumber}
-                </button>
-                {/* Desktop: book prefix + verse number (ШБ 4.20.1) */}
-                <span className="hidden md:inline font-semibold text-5xl whitespace-nowrap" style={{ color: "rgb(188, 115, 26)" }}>
-                  {getBookPrefix(bookSlug)} {verseNumber}
-                </span>
-              </>
+              <span className="hidden md:inline font-semibold text-5xl whitespace-nowrap" style={{ color: "rgb(188, 115, 26)" }}>
+                {getBookPrefix(bookSlug)} {verseNumber}
+              </span>
             )}
             {/* Назва глави - відцентрована під номером вірша (hidden on mobile) */}
             {bookName && (
@@ -590,17 +590,9 @@ export const VerseCard = ({
               </button>
             )}
 
-            {/* Desktop: Заголовок + кнопка Volume2 */}
-            <div className="section-header hidden md:flex items-center justify-center gap-4 mb-4">
+            {/* Desktop: Заголовок (без кнопки аудіо - для послівного перекладу не потрібна) */}
+            <div className="section-header hidden md:flex items-center justify-center mb-4">
               <h4 className="text-foreground">{labels.synonyms}</h4>
-              <button
-                onClick={() => playSection("Послівний переклад", audioSynonyms)}
-                disabled={!audioSynonyms && !audioUrl}
-                className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                aria-label="Слухати послівний переклад"
-              >
-                <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
-              </button>
             </div>
 
             {/* Content - collapsible on mobile */}
