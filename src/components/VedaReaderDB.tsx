@@ -1299,7 +1299,9 @@ export const VedaReaderDB = () => {
         </div>
       </div>;
   }
-  const isTextChapter = effectiveChapter.chapter_type === "text" || verses.length === 0;
+  // Determine text chapter by actual verse count, not by chapter_type field
+  // This prevents display issues when chapter_type is incorrectly set
+  const isTextChapter = verses.length === 0;
 
   // ✅ fontSize керується через useReaderSettings → оновлює CSS змінну --vv-reader-font-size
   // Не потрібно встановлювати inline font-size на контейнер
