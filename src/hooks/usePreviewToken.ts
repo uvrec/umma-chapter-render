@@ -57,16 +57,24 @@ async function buildPublicPath(resourceType: ResourceType, resourceId: string): 
         break;
       }
       case 'chapter': {
+        // First try to get chapter with its canto and book info
         const { data: chapter } = await supabase
           .from('chapters')
-          .select('chapter_number, canto:cantos(canto_number), book:books(slug, has_cantos)')
+          .select('chapter_number, book_id, canto_id, canto:cantos(canto_number, book:books(slug, has_cantos)), book:books(slug, has_cantos)')
           .eq('id', resourceId)
           .single();
-        if (chapter && chapter.book) {
-          const book = chapter.book as any;
-          if (book.has_cantos && chapter.canto) {
-            return `/lib/${book.slug}/${(chapter.canto as any).canto_number}/${chapter.chapter_number}`;
-          } else {
+
+        if (chapter) {
+          // If chapter has canto, get book through canto
+          if (chapter.canto) {
+            const canto = chapter.canto as any;
+            if (canto.book) {
+              return `/lib/${canto.book.slug}/${canto.canto_number}/${chapter.chapter_number}`;
+            }
+          }
+          // Otherwise get book directly
+          if (chapter.book) {
+            const book = chapter.book as any;
             return `/lib/${book.slug}/${chapter.chapter_number}`;
           }
         }
