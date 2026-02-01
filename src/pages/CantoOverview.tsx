@@ -1,6 +1,6 @@
 // CantoOverview.tsx - список глав канту з підтримкою dualLanguageMode
 
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useRef, useCallback } from "react";
 import { ChevronLeft } from "lucide-react";
@@ -11,6 +11,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import { getPreviewToken, usePreviewToken } from "@/hooks/usePreviewToken";
 
 // Swipeable chapter row with verse numbers
 function SwipeableChapterRow({
@@ -163,52 +164,65 @@ export const CantoOverview = () => {
     dualLanguageMode
   } = useReaderSettings();
   const isMobile = useIsMobile();
+
+  // Initialize preview token from URL
+  usePreviewToken();
+
+  // Fetch book with preview token support
   const {
     data: book
   } = useQuery({
-    queryKey: ["book", bookId],
+    queryKey: ["book", bookId, getPreviewToken()],
     queryFn: async () => {
-      const {
-        data,
-        error
-      } = await supabase.from("books").select("*").eq("slug", bookId).single();
+      const previewToken = getPreviewToken();
+      const { data, error } = await supabase.rpc("get_book_with_preview", {
+        p_book_slug: bookId,
+        p_token: previewToken
+      });
       if (error) throw error;
-      return data;
+      return data && data.length > 0 ? data[0] : null;
     },
     enabled: !!bookId
   });
+
+  // Fetch canto with preview token support
   const {
     data: canto,
     isLoading: cantoLoading
   } = useQuery({
-    queryKey: ["canto", book?.id, cantoNumber],
+    queryKey: ["canto", book?.id, cantoNumber, getPreviewToken()],
     queryFn: async () => {
       if (!book?.id || !cantoNumber) return null;
-      const {
-        data,
-        error
-      } = await supabase.from("cantos").select("*").eq("book_id", book.id).eq("canto_number", parseInt(cantoNumber)).maybeSingle();
+      const previewToken = getPreviewToken();
+      const { data, error } = await supabase.rpc("get_canto_by_number_with_preview", {
+        p_book_id: book.id,
+        p_canto_number: parseInt(cantoNumber),
+        p_token: previewToken
+      });
       if (error) throw error;
-      return data;
+      return data && data.length > 0 ? data[0] : null;
     },
     enabled: !!book?.id && !!cantoNumber
   });
+
+  // Fetch chapters with preview token support
   const {
     data: chapters = [],
     isLoading: chaptersLoading
   } = useQuery({
-    queryKey: ["chapters-with-verse-counts", canto?.id],
+    queryKey: ["chapters-with-verse-counts", canto?.id, getPreviewToken()],
     queryFn: async () => {
       if (!canto?.id) return [];
-      const {
-        data,
-        error
-      } = await supabase.from("chapters").select("*").eq("canto_id", canto.id).order("chapter_number");
+      const previewToken = getPreviewToken();
+      const { data, error } = await supabase.rpc("get_chapters_by_canto_with_preview", {
+        p_canto_id: canto.id,
+        p_token: previewToken
+      });
       if (error) throw error;
 
       // Fetch verse counts for each chapter
       const chaptersWithCounts = await Promise.all(
-        (data || []).map(async (chapter) => {
+        (data || []).map(async (chapter: any) => {
           const { count } = await supabase
             .from("verses")
             .select("*", { count: "exact", head: true })

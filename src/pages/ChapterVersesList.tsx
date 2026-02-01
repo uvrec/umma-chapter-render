@@ -158,8 +158,8 @@ export const ChapterVersesList = () => {
     queryFn: async () => {
       const previewToken = getPreviewToken();
       // Use RPC function that supports preview tokens
-      const { data, error } = await supabase.rpc("get_book_by_slug_with_preview", {
-        p_slug: bookId,
+      const { data, error } = await supabase.rpc("get_book_with_preview", {
+        p_book_slug: bookId,
         p_token: previewToken
       });
       if (error) throw error;
