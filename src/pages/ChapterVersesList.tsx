@@ -23,6 +23,7 @@ import { useMobileReading } from "@/contexts/MobileReadingContext";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { stripParagraphTags, sanitizeForRender } from "@/utils/import/normalizers";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
+import { getPreviewToken, usePreviewToken } from "@/hooks/usePreviewToken";
 import { ChapterSchema, BreadcrumbSchema } from "@/components/StructuredData";
 import { getChapterOgImage } from "@/utils/og-image";
 import { Helmet } from "react-helmet-async";
@@ -118,6 +119,9 @@ export const ChapterVersesList = () => {
   const isMobile = useIsMobile();
   const { enterFullscreen } = useMobileReading();
 
+  // Initialize preview token from URL (for viewing unpublished content)
+  usePreviewToken();
+
   // Enter fullscreen mode on mobile for immersive reading
   useEffect(() => {
     if (isMobile) {
@@ -212,15 +216,17 @@ export const ChapterVersesList = () => {
     data: versesMain = [],
     isLoading: isLoadingVersesMain
   } = useQuery({
-    queryKey: ["chapter-verses-list", chapter?.id],
+    queryKey: ["chapter-verses-list", chapter?.id, getPreviewToken()],
     queryFn: async () => {
       if (!chapter?.id) return [] as Verse[];
-      const {
-        data,
-        error
-      } = await supabase.from("verses").select("id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_uk, translation_uk, translation_en, is_published, deleted_at").eq("chapter_id", chapter.id).is("deleted_at", null).eq("is_published", true).order("sort_key", {
-        ascending: true
+      const previewToken = getPreviewToken();
+
+      // Use RPC function that supports preview tokens
+      const { data, error } = await supabase.rpc("get_verses_by_chapter_with_preview", {
+        p_chapter_id: chapter.id,
+        p_token: previewToken
       });
+
       if (error) throw error;
       return (data || []) as Verse[];
     },
@@ -230,15 +236,17 @@ export const ChapterVersesList = () => {
     data: versesFallback = [],
     isLoading: isLoadingVersesFallback
   } = useQuery({
-    queryKey: ["chapter-verses-fallback", fallbackChapter?.id],
+    queryKey: ["chapter-verses-fallback", fallbackChapter?.id, getPreviewToken()],
     queryFn: async () => {
       if (!fallbackChapter?.id) return [] as Verse[];
-      const {
-        data,
-        error
-      } = await supabase.from("verses").select("id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_uk, translation_uk, translation_en, is_published, deleted_at").eq("chapter_id", fallbackChapter.id).is("deleted_at", null).eq("is_published", true).order("sort_key", {
-        ascending: true
+      const previewToken = getPreviewToken();
+
+      // Use RPC function that supports preview tokens
+      const { data, error } = await supabase.rpc("get_verses_by_chapter_with_preview", {
+        p_chapter_id: fallbackChapter.id,
+        p_token: previewToken
       });
+
       if (error) throw error;
       return (data || []) as Verse[];
     },
