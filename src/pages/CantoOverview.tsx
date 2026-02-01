@@ -183,7 +183,6 @@ export const CantoOverview = () => {
   } = useQuery({
     queryKey: ["book", bookId, previewToken],
     queryFn: async () => {
-      const previewToken = previewToken;
       const { data, error } = await (supabase.rpc as any)("get_book_with_preview", {
         p_book_slug: bookId,
         p_token: previewToken
@@ -202,7 +201,6 @@ export const CantoOverview = () => {
     queryKey: ["canto", book?.id, cantoNumber, previewToken],
     queryFn: async () => {
       if (!book?.id || !cantoNumber) return null;
-      const previewToken = previewToken;
       const { data, error } = await (supabase.rpc as any)("get_canto_by_number_with_preview", {
         p_book_id: book.id,
         p_canto_number: parseInt(cantoNumber),
@@ -222,7 +220,6 @@ export const CantoOverview = () => {
     queryKey: ["chapters-with-verse-counts", canto?.id, previewToken],
     queryFn: async () => {
       if (!canto?.id) return [];
-      const previewToken = previewToken;
       const { data, error } = await (supabase.rpc as any)("get_chapters_by_canto_with_preview", {
         p_canto_id: canto.id,
         p_token: previewToken
