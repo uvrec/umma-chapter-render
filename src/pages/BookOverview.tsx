@@ -301,7 +301,7 @@ export const BookOverview = () => {
     queryKey: ["book", bookSlug, previewToken],
     queryFn: async () => {
       // Use RPC function that handles preview tokens
-      const { data, error } = await supabase.rpc('get_book_with_preview', {
+      const { data, error } = await (supabase.rpc as any)('get_book_with_preview', {
         p_book_slug: bookSlug,
         p_token: previewToken
       });
@@ -335,7 +335,7 @@ export const BookOverview = () => {
       if (!book?.id) return [];
 
       // Use RPC function that handles preview tokens
-      const { data, error } = await supabase.rpc('get_cantos_by_book_with_preview', {
+      const { data, error } = await (supabase.rpc as any)('get_cantos_by_book_with_preview', {
         p_book_id: book.id,
         p_token: previewToken
       });

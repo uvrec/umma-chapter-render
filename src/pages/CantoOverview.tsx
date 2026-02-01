@@ -175,7 +175,7 @@ export const CantoOverview = () => {
     queryKey: ["book", bookId, getPreviewToken()],
     queryFn: async () => {
       const previewToken = getPreviewToken();
-      const { data, error } = await supabase.rpc("get_book_with_preview", {
+      const { data, error } = await (supabase.rpc as any)("get_book_with_preview", {
         p_book_slug: bookId,
         p_token: previewToken
       });
@@ -194,7 +194,7 @@ export const CantoOverview = () => {
     queryFn: async () => {
       if (!book?.id || !cantoNumber) return null;
       const previewToken = getPreviewToken();
-      const { data, error } = await supabase.rpc("get_canto_by_number_with_preview", {
+      const { data, error } = await (supabase.rpc as any)("get_canto_by_number_with_preview", {
         p_book_id: book.id,
         p_canto_number: parseInt(cantoNumber),
         p_token: previewToken
@@ -214,7 +214,7 @@ export const CantoOverview = () => {
     queryFn: async () => {
       if (!canto?.id) return [];
       const previewToken = getPreviewToken();
-      const { data, error } = await supabase.rpc("get_chapters_by_canto_with_preview", {
+      const { data, error } = await (supabase.rpc as any)("get_chapters_by_canto_with_preview", {
         p_canto_id: canto.id,
         p_token: previewToken
       });

@@ -141,7 +141,7 @@ export function usePreviewToken() {
 
     setIsGenerating(true);
     try {
-      const { data, error } = await supabase.rpc('generate_preview_token', {
+      const { data, error } = await (supabase.rpc as any)('generate_preview_token', {
         p_resource_type: resourceType,
         p_resource_id: resourceId,
         p_expires_in_days: options?.expiresInDays ?? null,
@@ -207,8 +207,7 @@ export function usePreviewToken() {
   ): Promise<PreviewToken[]> => {
     if (!isAdmin) return [];
 
-    const { data, error } = await supabase
-      .from('preview_tokens')
+    const { data, error } = await (supabase.from as any)('preview_tokens')
       .select('*')
       .eq('resource_type', resourceType)
       .eq('resource_id', resourceId)
@@ -219,15 +218,14 @@ export function usePreviewToken() {
       return [];
     }
 
-    return data as PreviewToken[];
+    return (data ?? []) as unknown as PreviewToken[];
   }, [isAdmin]);
 
   // Deactivate a preview token
   const deactivateToken = useCallback(async (tokenId: string): Promise<boolean> => {
     if (!isAdmin) return false;
 
-    const { error } = await supabase
-      .from('preview_tokens')
+    const { error } = await (supabase.from as any)('preview_tokens')
       .update({ is_active: false })
       .eq('id', tokenId);
 

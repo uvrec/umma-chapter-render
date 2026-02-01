@@ -158,7 +158,7 @@ export const ChapterVersesList = () => {
     queryFn: async () => {
       const previewToken = getPreviewToken();
       // Use RPC function that supports preview tokens
-      const { data, error } = await supabase.rpc("get_book_with_preview", {
+      const { data, error } = await (supabase.rpc as any)("get_book_with_preview", {
         p_book_slug: bookId,
         p_token: previewToken
       });
@@ -176,7 +176,7 @@ export const ChapterVersesList = () => {
       if (!book?.id || !cantoNumber) return null;
       const previewToken = getPreviewToken();
       // Use RPC function that supports preview tokens
-      const { data, error } = await supabase.rpc("get_canto_by_number_with_preview", {
+      const { data, error } = await (supabase.rpc as any)("get_canto_by_number_with_preview", {
         p_book_id: book.id,
         p_canto_number: parseInt(cantoNumber),
         p_token: previewToken
@@ -196,7 +196,7 @@ export const ChapterVersesList = () => {
       if (!book?.id || !effectiveChapterParam) return null;
       const previewToken = getPreviewToken();
       // Use RPC function that supports preview tokens
-      const { data, error } = await supabase.rpc("get_chapter_by_number_with_preview", {
+      const { data, error } = await (supabase.rpc as any)("get_chapter_by_number_with_preview", {
         p_book_id: book.id,
         p_canto_id: isCantoMode && canto?.id ? canto.id : null,
         p_chapter_number: parseInt(effectiveChapterParam as string),
@@ -216,7 +216,7 @@ export const ChapterVersesList = () => {
       if (!book?.id || !effectiveChapterParam) return null;
       const previewToken = getPreviewToken();
       // Use RPC function that supports preview tokens (with null canto_id for fallback)
-      const { data, error } = await supabase.rpc("get_chapter_by_number_with_preview", {
+      const { data, error } = await (supabase.rpc as any)("get_chapter_by_number_with_preview", {
         p_book_id: book.id,
         p_canto_id: null,
         p_chapter_number: parseInt(effectiveChapterParam as string),
@@ -238,7 +238,7 @@ export const ChapterVersesList = () => {
       const previewToken = getPreviewToken();
 
       // Use RPC function that supports preview tokens
-      const { data, error } = await supabase.rpc("get_verses_by_chapter_with_preview", {
+      const { data, error } = await (supabase.rpc as any)("get_verses_by_chapter_with_preview", {
         p_chapter_id: chapter.id,
         p_token: previewToken
       });
@@ -258,7 +258,7 @@ export const ChapterVersesList = () => {
       const previewToken = getPreviewToken();
 
       // Use RPC function that supports preview tokens
-      const { data, error } = await supabase.rpc("get_verses_by_chapter_with_preview", {
+      const { data, error } = await (supabase.rpc as any)("get_verses_by_chapter_with_preview", {
         p_chapter_id: fallbackChapter.id,
         p_token: previewToken
       });

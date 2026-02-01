@@ -528,8 +528,7 @@ function MobileFullscreenPlayer() {
   const { data: allTracks = [], isLoading } = useQuery({
     queryKey: ["all-audio-tracks-mobile"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("audio_tracks")
+      const { data, error } = await (supabase.from as any)("audio_tracks")
         .select(`
           id,
           title_uk,
