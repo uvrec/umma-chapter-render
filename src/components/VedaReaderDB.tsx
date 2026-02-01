@@ -2,7 +2,7 @@
 // Додано: Sticky Header, Bookmark, Share, Download, Keyboard Navigation
 
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle, GraduationCap, X, Maximize, Leaf, Copy, Link, Presentation } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -77,6 +77,8 @@ export const VedaReaderDB = () => {
   } = useAuth();
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
+  const [searchParams] = useSearchParams();
+  const previewToken = searchParams.get('preview');
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -169,147 +171,206 @@ export const VedaReaderDB = () => {
     effectiveChapterParam = '1'; // Всі NoI тексти завжди в главі 1
   }
 
-  // BOOK
+  // BOOK - with preview token support
   const {
     data: book
   } = useQuery({
-    queryKey: ["book", bookId],
+    queryKey: ["book", bookId, previewToken],
     staleTime: 60_000,
     enabled: !!bookId,
     queryFn: async () => {
-      const {
-        data,
-        error
-      } = await supabase.from("books").select("id, slug, title_uk, title_en, has_cantos").eq("slug", bookId).maybeSingle();
-      if (error) throw error;
-      return data;
+      const { data, error } = await (supabase.rpc as any)("get_book_with_preview", {
+        p_book_slug: bookId,
+        p_token: previewToken
+      });
+      if (error) {
+        console.error('RPC get_book_with_preview error:', error);
+        // Fallback for published books
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from("books")
+          .select("id, slug, title_uk, title_en, has_cantos")
+          .eq("slug", bookId)
+          .maybeSingle();
+        if (fallbackError) throw fallbackError;
+        return fallbackData;
+      }
+      return data && data.length > 0 ? data[0] : null;
     }
   });
 
-  // CANTO (лише в canto mode)
+  // CANTO (лише в canto mode) - with preview token support
   const {
     data: canto,
     isLoading: isLoadingCanto
   } = useQuery({
-    queryKey: ["canto", book?.id, cantoNumber],
+    queryKey: ["canto", book?.id, cantoNumber, previewToken],
     staleTime: 60_000,
     enabled: isCantoMode && !!book?.id && !!cantoNumber,
     queryFn: async () => {
       if (!book?.id || !cantoNumber) return null;
-      const {
-        data,
-        error
-      } = await supabase.from("cantos").select("id, canto_number, title_uk, title_en").eq("book_id", book.id).eq("canto_number", parseInt(cantoNumber)).maybeSingle();
-      if (error) throw error;
-      return data;
+      const { data, error } = await (supabase.rpc as any)("get_canto_by_number_with_preview", {
+        p_book_id: book.id,
+        p_canto_number: parseInt(cantoNumber),
+        p_token: previewToken
+      });
+      if (error) {
+        console.error('RPC get_canto_by_number_with_preview error:', error);
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from("cantos")
+          .select("id, canto_number, title_uk, title_en")
+          .eq("book_id", book.id)
+          .eq("canto_number", parseInt(cantoNumber))
+          .maybeSingle();
+        if (fallbackError) throw fallbackError;
+        return fallbackData;
+      }
+      return data && data.length > 0 ? data[0] : null;
     }
   });
 
-  // CHAPTER
+  // CHAPTER - with preview token support
   const {
     data: chapter,
     isLoading: isLoadingChapter
   } = useQuery({
-    queryKey: ["chapter", book?.id, canto?.id, effectiveChapterParam, isCantoMode],
+    queryKey: ["chapter", book?.id, canto?.id, effectiveChapterParam, isCantoMode, previewToken],
     staleTime: 60_000,
     enabled: !!effectiveChapterParam && (isCantoMode ? !!canto?.id : !!book?.id),
     queryFn: async () => {
       if (!book?.id || !effectiveChapterParam) return null;
-      const base = supabase.from("chapters").select("*").eq("chapter_number", parseInt(effectiveChapterParam));
-      const query = isCantoMode && canto?.id ? base.eq("canto_id", canto.id) : base.eq("book_id", book.id);
-      const {
-        data,
-        error
-      } = await query.maybeSingle();
-      if (error) throw error;
-      return data;
+      const { data, error } = await (supabase.rpc as any)("get_chapter_by_number_with_preview", {
+        p_book_id: book.id,
+        p_canto_id: isCantoMode && canto?.id ? canto.id : null,
+        p_chapter_number: parseInt(effectiveChapterParam),
+        p_token: previewToken
+      });
+      if (error) {
+        console.error('RPC get_chapter_by_number_with_preview error:', error);
+        const base = supabase.from("chapters").select("*").eq("chapter_number", parseInt(effectiveChapterParam));
+        const query = isCantoMode && canto?.id ? base.eq("canto_id", canto.id) : base.eq("book_id", book.id);
+        const { data: fallbackData, error: fallbackError } = await query.maybeSingle();
+        if (fallbackError) throw fallbackError;
+        return fallbackData;
+      }
+      return data && data.length > 0 ? data[0] : null;
     }
   });
 
-  // Fallback: legacy chapter without canto
+  // Fallback: legacy chapter without canto - with preview token support
   // Only use fallback when NOT in canto mode, or when canto lookup completed and found nothing
   const {
     data: fallbackChapter
   } = useQuery({
-    queryKey: ["fallback-chapter", book?.id, effectiveChapterParam],
+    queryKey: ["fallback-chapter", book?.id, effectiveChapterParam, previewToken],
     staleTime: 60_000,
     // For canto books: wait for canto query to complete before enabling fallback
     enabled: !!book?.id && !!effectiveChapterParam && (!isCantoMode || (!isLoadingCanto && !canto?.id)),
     queryFn: async () => {
       if (!book?.id || !effectiveChapterParam) return null;
-      const {
-        data,
-        error
-      } = await supabase.from("chapters").select("*").eq("book_id", book.id).eq("chapter_number", parseInt(effectiveChapterParam)).is("canto_id", null).maybeSingle();
-      if (error) throw error;
-      return data;
+      const { data, error } = await (supabase.rpc as any)("get_chapter_by_number_with_preview", {
+        p_book_id: book.id,
+        p_canto_id: null,
+        p_chapter_number: parseInt(effectiveChapterParam),
+        p_token: previewToken
+      });
+      if (error) {
+        console.error('RPC get_chapter_by_number_with_preview fallback error:', error);
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from("chapters")
+          .select("*")
+          .eq("book_id", book.id)
+          .eq("chapter_number", parseInt(effectiveChapterParam))
+          .is("canto_id", null)
+          .maybeSingle();
+        if (fallbackError) throw fallbackError;
+        return fallbackData;
+      }
+      return data && data.length > 0 ? data[0] : null;
     }
   });
 
-  // VERSES (main) - включає verse_lyrics для синхронізації аудіо
+  // VERSES (main) - включає verse_lyrics для синхронізації аудіо, with preview token support
   const {
     data: versesMain = [],
     isLoading: isLoadingVersesMain
   } = useQuery({
-    queryKey: ["verses", chapter?.id],
+    queryKey: ["verses", chapter?.id, previewToken],
     enabled: !!chapter?.id,
     queryFn: async () => {
       if (!chapter?.id) return [] as any[];
-      const {
-        data,
-        error
-      } = await supabase.from("verses").select(`
-          *,
-          is_composite,
-          start_verse,
-          end_verse,
-          verse_count,
-          sort_key,
-          verse_lyrics (
-            lrc_content,
-            timestamps,
-            language,
-            sync_type,
-            audio_type
-          )
-        `).eq("chapter_id", chapter.id).is("deleted_at", null).order("sort_key", {
-        ascending: true
+      const { data, error } = await (supabase.rpc as any)("get_verses_by_chapter_with_preview", {
+        p_chapter_id: chapter.id,
+        p_token: previewToken
       });
-      if (error) throw error;
+      if (error) {
+        console.error('RPC get_verses_by_chapter_with_preview error:', error);
+        // Fallback for published verses with verse_lyrics
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from("verses")
+          .select(`
+            *,
+            is_composite,
+            start_verse,
+            end_verse,
+            verse_count,
+            sort_key,
+            verse_lyrics (
+              lrc_content,
+              timestamps,
+              language,
+              sync_type,
+              audio_type
+            )
+          `)
+          .eq("chapter_id", chapter.id)
+          .is("deleted_at", null)
+          .order("sort_key", { ascending: true });
+        if (fallbackError) throw fallbackError;
+        return (fallbackData || []) as any[];
+      }
       return (data || []) as any[];
     }
   });
 
-  // VERSES (fallback) - включає verse_lyrics для синхронізації аудіо
+  // VERSES (fallback) - включає verse_lyrics для синхронізації аудіо, with preview token support
   const {
     data: versesFallback = [],
     isLoading: isLoadingVersesFallback
   } = useQuery({
-    queryKey: ["verses-fallback", fallbackChapter?.id],
+    queryKey: ["verses-fallback", fallbackChapter?.id, previewToken],
     enabled: !!fallbackChapter?.id,
     queryFn: async () => {
       if (!fallbackChapter?.id) return [] as any[];
-      const {
-        data,
-        error
-      } = await supabase.from("verses").select(`
-          *,
-          is_composite,
-          start_verse,
-          end_verse,
-          verse_count,
-          sort_key,
-          verse_lyrics (
-            lrc_content,
-            timestamps,
-            language,
-            sync_type,
-            audio_type
-          )
-        `).eq("chapter_id", fallbackChapter.id).is("deleted_at", null).order("sort_key", {
-        ascending: true
+      const { data, error } = await (supabase.rpc as any)("get_verses_by_chapter_with_preview", {
+        p_chapter_id: fallbackChapter.id,
+        p_token: previewToken
       });
-      if (error) throw error;
+      if (error) {
+        console.error('RPC get_verses_by_chapter_with_preview fallback error:', error);
+        // Fallback for published verses with verse_lyrics
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from("verses")
+          .select(`
+            *,
+            is_composite,
+            start_verse,
+            end_verse,
+            verse_count,
+            sort_key,
+            verse_lyrics (
+              lrc_content,
+              timestamps,
+              language,
+              sync_type,
+              audio_type
+            )
+          `)
+          .eq("chapter_id", fallbackChapter.id)
+          .is("deleted_at", null)
+          .order("sort_key", { ascending: true });
+        if (fallbackError) throw fallbackError;
+        return (fallbackData || []) as any[];
+      }
       return (data || []) as any[];
     }
   });
@@ -398,22 +459,42 @@ export const VedaReaderDB = () => {
     }
   }, [routeVerseNumber, verses, t, isLoading]);
 
-  // ALL CHAPTERS (для навігації між главами)
+  // ALL CHAPTERS (для навігації між главами) - with preview token support
   const {
     data: allChapters = []
   } = useQuery({
-    queryKey: isCantoMode ? ["all-chapters-canto", canto?.id] : ["all-chapters-book", book?.id],
+    queryKey: isCantoMode 
+      ? ["all-chapters-canto", canto?.id, previewToken] 
+      : ["all-chapters-book", book?.id, previewToken],
     staleTime: 60_000,
     enabled: isCantoMode ? !!canto?.id : !!book?.id,
     queryFn: async () => {
-      const base = supabase.from("chapters").select("id, chapter_number, title_uk, title_en").order("chapter_number");
-      const query = isCantoMode && canto?.id ? base.eq("canto_id", canto.id) : base.eq("book_id", book!.id);
-      const {
-        data,
-        error
-      } = await query;
-      if (error) throw error;
-      return data || [];
+      if (isCantoMode && canto?.id) {
+        const { data, error } = await (supabase.rpc as any)("get_chapters_by_canto_with_preview", {
+          p_canto_id: canto.id,
+          p_token: previewToken
+        });
+        if (error) {
+          console.error('RPC get_chapters_by_canto_with_preview error:', error);
+          const { data: fallbackData } = await supabase
+            .from("chapters")
+            .select("id, chapter_number, title_uk, title_en")
+            .eq("canto_id", canto.id)
+            .order("chapter_number");
+          return fallbackData || [];
+        }
+        return data || [];
+      } else if (book?.id) {
+        // For books without canto — use direct query (books without cantos are simpler)
+        const { data, error } = await supabase
+          .from("chapters")
+          .select("id, chapter_number, title_uk, title_en")
+          .eq("book_id", book.id)
+          .order("chapter_number");
+        if (error) throw error;
+        return data || [];
+      }
+      return [];
     }
   });
 
