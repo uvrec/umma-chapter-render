@@ -2395,6 +2395,48 @@ export type Database = {
         }
         Relationships: []
       }
+      preview_tokens: {
+        Row: {
+          access_count: number
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          last_accessed_at: string | null
+          note: string | null
+          resource_id: string
+          resource_type: string
+          token: string
+        }
+        Insert: {
+          access_count?: number
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          last_accessed_at?: string | null
+          note?: string | null
+          resource_id: string
+          resource_type: string
+          token: string
+        }
+        Update: {
+          access_count?: number
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          last_accessed_at?: string | null
+          note?: string | null
+          resource_id?: string
+          resource_type?: string
+          token?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -4831,6 +4873,15 @@ export type Database = {
           table_name: string
         }[]
       }
+      generate_preview_token: {
+        Args: {
+          p_expires_in_days?: number
+          p_note?: string
+          p_resource_id: string
+          p_resource_type: string
+        }
+        Returns: string
+      }
       get_adjacent_famous_verses: {
         Args: { p_book_slug: string; p_verse_id: string }
         Returns: {
@@ -4851,6 +4902,36 @@ export type Database = {
           word_bn: string
           word_en: string
         }[]
+      }
+      get_book_by_slug_with_preview: {
+        Args: { p_slug: string; p_token?: string }
+        Returns: {
+          cover_image_path: string | null
+          cover_image_url: string | null
+          created_at: string
+          default_structure: string | null
+          deleted_at: string | null
+          description_en: string | null
+          description_uk: string | null
+          display_category: string | null
+          display_order: number | null
+          gitabase_slug: string | null
+          has_cantos: boolean | null
+          id: string
+          is_featured: boolean | null
+          is_published: boolean
+          purchase_url: string | null
+          slug: string
+          title_en: string
+          title_uk: string
+          vedabase_slug: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "books"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       get_book_by_vedabase_slug: {
         Args: { v_slug: string }
@@ -4891,6 +4972,36 @@ export type Database = {
               title: string
             }[]
           }
+      get_book_with_preview: {
+        Args: { p_book_slug: string; p_token?: string }
+        Returns: {
+          cover_image_path: string | null
+          cover_image_url: string | null
+          created_at: string
+          default_structure: string | null
+          deleted_at: string | null
+          description_en: string | null
+          description_uk: string | null
+          display_category: string | null
+          display_order: number | null
+          gitabase_slug: string | null
+          has_cantos: boolean | null
+          id: string
+          is_featured: boolean | null
+          is_published: boolean
+          purchase_url: string | null
+          slug: string
+          title_en: string
+          title_uk: string
+          vedabase_slug: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "books"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_calendar_events: {
         Args: {
           p_end_date: string
@@ -4914,6 +5025,100 @@ export type Database = {
           sunset_time: string
         }[]
       }
+      get_canto_by_number_with_preview: {
+        Args: { p_book_id: string; p_canto_number: number; p_token?: string }
+        Returns: {
+          book_id: string
+          canto_number: number
+          cover_image_url: string | null
+          created_at: string | null
+          description_en: string | null
+          description_uk: string | null
+          id: string
+          is_published: boolean | null
+          title_en: string
+          title_uk: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "cantos"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      get_canto_with_preview: {
+        Args: { p_canto_id: string; p_token: string }
+        Returns: {
+          book_id: string
+          canto_number: number
+          cover_image_url: string | null
+          created_at: string | null
+          description_en: string | null
+          description_uk: string | null
+          id: string
+          is_published: boolean | null
+          title_en: string
+          title_uk: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "cantos"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      get_cantos_by_book_with_preview: {
+        Args: { p_book_id: string; p_token?: string }
+        Returns: {
+          book_id: string
+          canto_number: number
+          cover_image_url: string | null
+          created_at: string | null
+          description_en: string | null
+          description_uk: string | null
+          id: string
+          is_published: boolean | null
+          title_en: string
+          title_uk: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "cantos"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      get_chapter_by_number_with_preview: {
+        Args: {
+          p_book_id: string
+          p_canto_id: string
+          p_chapter_number: number
+          p_token?: string
+        }
+        Returns: {
+          book_id: string | null
+          canto_id: string | null
+          chapter_number: number
+          chapter_type: Database["public"]["Enums"]["chapter_type"] | null
+          content_en: string | null
+          content_format: string | null
+          content_structure: string | null
+          content_uk: string | null
+          created_at: string
+          id: string
+          is_published: boolean | null
+          summary_en: string | null
+          summary_uk: string | null
+          title_en: string
+          title_uk: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "chapters"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_chapter_verses: {
         Args: { p_chapter_id: string }
         Returns: {
@@ -4933,6 +5138,58 @@ export type Database = {
           verse_count: number
           verse_number: string
         }[]
+      }
+      get_chapter_with_preview: {
+        Args: { p_chapter_id: string; p_token?: string }
+        Returns: {
+          book_id: string | null
+          canto_id: string | null
+          chapter_number: number
+          chapter_type: Database["public"]["Enums"]["chapter_type"] | null
+          content_en: string | null
+          content_format: string | null
+          content_structure: string | null
+          content_uk: string | null
+          created_at: string
+          id: string
+          is_published: boolean | null
+          summary_en: string | null
+          summary_uk: string | null
+          title_en: string
+          title_uk: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "chapters"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      get_chapters_by_canto_with_preview: {
+        Args: { p_canto_id: string; p_token?: string }
+        Returns: {
+          book_id: string | null
+          canto_id: string | null
+          chapter_number: number
+          chapter_type: Database["public"]["Enums"]["chapter_type"] | null
+          content_en: string | null
+          content_format: string | null
+          content_structure: string | null
+          content_uk: string | null
+          created_at: string
+          id: string
+          is_published: boolean | null
+          summary_en: string | null
+          summary_uk: string | null
+          title_en: string
+          title_uk: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "chapters"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       get_famous_verses_for_book: {
         Args: { p_book_slug: string }
@@ -5262,6 +5519,54 @@ export type Database = {
           relevance_score: number
           slug: string
         }[]
+      }
+      get_verses_by_chapter_with_preview: {
+        Args: { p_chapter_id: string; p_token?: string }
+        Returns: {
+          audio_url: string | null
+          chapter_id: string
+          commentary_en: string | null
+          commentary_uk: string | null
+          created_at: string
+          deleted_at: string | null
+          display_blocks: Json | null
+          end_verse: number | null
+          event_date: string | null
+          explanation_en_audio_url: string | null
+          explanation_uk_audio_url: string | null
+          full_verse_audio_url: string | null
+          id: string
+          is_composite: boolean | null
+          is_published: boolean | null
+          recitation_audio_url: string | null
+          sanskrit: string | null
+          sanskrit_en: string | null
+          sanskrit_uk: string | null
+          search_vector: unknown
+          search_vector_en: unknown
+          search_vector_uk: unknown
+          sort_key: number | null
+          start_verse: number | null
+          synonyms_en: string | null
+          synonyms_uk: string | null
+          translation_en: string | null
+          translation_uk: string | null
+          transliteration: string | null
+          transliteration_en: string | null
+          transliteration_uk: string | null
+          verse_count: number | null
+          verse_end: number | null
+          verse_number: string
+          verse_number_sort: number | null
+          verse_start: number | null
+          verse_suffix: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "verses"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       has_role: {
         Args: {
@@ -5786,6 +6091,14 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      validate_preview_token: {
+        Args: {
+          p_resource_id: string
+          p_resource_type: string
+          p_token: string
+        }
+        Returns: boolean
       }
     }
     Enums: {
