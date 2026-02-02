@@ -10,12 +10,14 @@
    ========================================== */
 
 /* -------- Блок для трансліту (використовується в читалці віршів) -------- */
+/* Charis SIL - найкращий шрифт для української транслітерації з діакритичними знаками
+   Має smart font routines для автоматичного позиціонування діакритики над кирилицею */
 .translit,
 .prose-reader .translit,
 .result-text,
 [data-result] {
-  /* Шрифтова сім'я - Spectral для кращої підтримки діакритики (!important для пріоритету) */
-  font-family: "Spectral", "Noto Serif", serif !important;
+  /* Шрифтова сім'я - Charis SIL для кращої підтримки комбінуючих діакритичних знаків (!important для пріоритету) */
+  font-family: "Charis SIL", "Gentium Plus", "Noto Serif", serif !important;
   font-style: italic;
   font-weight: 400 !important;
 
@@ -23,8 +25,8 @@
   font-size: var(--vv-reader-font-size) !important;
   line-height: var(--vv-reader-line-height) !important;
 
-  /* OpenType features для правильного рендерингу діакритики */
-  font-feature-settings: "kern" 1, "liga" 1;
+  /* OpenType features для правильного рендерингу діакритики (mark positioning) */
+  font-feature-settings: "kern" 1, "liga" 1, "mark" 1, "mkmk" 1;
   font-variant-position: normal;
   font-variant-ligatures: common-ligatures;
   letter-spacing: 0.01em;

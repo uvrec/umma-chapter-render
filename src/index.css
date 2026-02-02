@@ -46,11 +46,12 @@
   /* Основний текст (кирилиця + латиниця) - Noto Serif variable 100-900 */
   --font-primary: "Noto Serif", Georgia, serif;
 
-  /* Транслітерація (verse text) - Spectral для ідеальної підтримки діакритики */
-  --font-translit: "Spectral", "Noto Serif", serif;
+  /* Транслітерація (verse text) - Charis SIL для ідеальної підтримки комбінуючих діакритичних знаків
+     Charis SIL має smart font routines для автоматичного позиціонування діакритики */
+  --font-translit: "Charis SIL", "Gentium Plus", "Noto Serif", serif;
 
-  /* Транслітерація в блозі - Spectral як у Substack */
-  --font-blog-translit: "Spectral", serif;
+  /* Транслітерація в блозі - Charis SIL для української транслітерації з діакритикою */
+  --font-blog-translit: "Charis SIL", "Gentium Plus", "Spectral", serif;
 
   /* Деванагарі (देवनागरी) - Noto Sans з Devanagari підтримкою */
   --font-devanagari: "Noto Sans Devanagari", sans-serif;
@@ -58,8 +59,8 @@
   /* Бенгалі (বাংলা) - Noto Serif для транслітерації */
   --font-bengali: "Noto Serif", serif;
 
-  /* Послівний переклад (synonyms) - Spectral для діакритичних знаків */
-  --font-synonyms: "Spectral", "Noto Serif", serif;
+  /* Послівний переклад (synonyms) - Charis SIL для діакритичних знаків */
+  --font-synonyms: "Charis SIL", "Gentium Plus", "Noto Serif", serif;
 
   /* UI (інтерфейс) */
   --font-ui: sans-serif;
@@ -1619,6 +1620,7 @@ body.keyboard-open {
 }
 
 /* Транслітерація в блозі - ключовий елемент */
+/* Charis SIL має smart font routines для правильного позиціонування діакритики */
 .blog-translit,
 .blog-prose .translit,
 .blog-transliteration {
@@ -1633,7 +1635,8 @@ body.keyboard-open {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-feature-settings: "kern" 1, "liga" 1;
+  /* mark та mkmk - OpenType features для позиціонування комбінуючих діакритичних знаків */
+  font-feature-settings: "kern" 1, "liga" 1, "mark" 1, "mkmk" 1;
   font-variant-ligatures: common-ligatures;
 
   /* Запобігає "розповзанню" анусвари та інших знаків */
