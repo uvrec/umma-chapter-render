@@ -1574,19 +1574,31 @@ body.keyboard-open {
   }
 }
 
-/* Основний текст блогу - Spectral як у Substack */
-.blog-prose {
+/* Основний текст блогу - ВИРІВНЯНО з читальцею */
+/* Base font size 18px як у читальці */
+.blog-prose,
+.blog-body {
   font-family: var(--font-blog-body);
-  font-size: 1.125rem; /* 18px */
-  line-height: 1.75;
+  font-size: 18px; /* Вирівняно з читальцею (--vv-reader-font-size) */
+  line-height: 1.6; /* Вирівняно з читальцею */
   color: hsl(var(--foreground));
   letter-spacing: -0.003em;
 }
 
+/* Скасовуємо prose-lg щоб не перевизначав наші розміри */
+.blog-body.prose-lg {
+  font-size: 18px !important;
+}
+
 @media (min-width: 768px) {
-  .blog-prose {
-    font-size: 1.25rem; /* 20px на десктопі */
-    line-height: 1.8;
+  .blog-prose,
+  .blog-body {
+    font-size: 20px; /* Десктоп: вирівняно з читальцею */
+    line-height: 1.6;
+  }
+
+  .blog-body.prose-lg {
+    font-size: 20px !important;
   }
 }
 
@@ -1621,14 +1633,15 @@ body.keyboard-open {
 
 /* Транслітерація в блозі - ключовий елемент */
 /* Charis SIL має smart font routines для правильного позиціонування діакритики */
+/* ВИРІВНЯНО з читальцею: base font-size 18px */
 .blog-translit,
 .blog-prose .translit,
 .blog-transliteration {
   font-family: var(--font-blog-translit) !important;
   font-style: italic;
   font-weight: 400;
-  font-size: 1.15em;
-  line-height: 1.7;
+  font-size: 18px; /* Вирівняно з читальцею (--vv-reader-font-size) */
+  line-height: 1.6; /* Вирівняно з читальцею */
   letter-spacing: 0.01em;
 
   /* Критичні налаштування для діакритичних знаків */
@@ -1645,21 +1658,70 @@ body.keyboard-open {
   word-break: break-word;
 }
 
-/* Санскрит в блозі */
+/* Санскрит в блозі - ВИРІВНЯНО з читальцею */
 .blog-sanskrit {
   font-family: var(--font-devanagari) !important;
-  font-size: 1.4em;
-  line-height: 1.6;
+  font-size: 18px; /* Вирівняно з читальцею (--vv-reader-font-size) */
+  line-height: 1.6; /* Вирівняно з читальцею */
   font-weight: 400;
   text-rendering: optimizeLegibility;
 }
 
-/* Синоніми/послівний переклад в блозі */
+/* Синоніми/послівний переклад в блозі - ВИРІВНЯНО з читальцею */
 .blog-synonyms {
   font-family: var(--font-blog-translit) !important;
-  font-size: 1rem;
-  line-height: 1.65;
+  font-size: 18px; /* Вирівняно з читальцею (--vv-reader-font-size) */
+  line-height: 1.4; /* Вирівняно з читальцею */
   letter-spacing: 0;
+}
+
+/* Responsive розміри для desktop - як у читальці */
+@media (min-width: 768px) {
+  .blog-translit,
+  .blog-prose .translit,
+  .blog-transliteration {
+    font-size: 20px;
+  }
+
+  .blog-sanskrit {
+    font-size: 20px;
+  }
+
+  .blog-synonyms {
+    font-size: 20px;
+  }
+}
+
+/* Літературний переклад у блозі - жирний текст як у читальці */
+.blog-translation,
+.blog-body .prose-reader.font-bold {
+  font-size: 18px;
+  line-height: 1.6;
+  font-weight: 700;
+}
+
+@media (min-width: 768px) {
+  .blog-translation,
+  .blog-body .prose-reader.font-bold {
+    font-size: 20px;
+  }
+}
+
+/* Коментар/пояснення у блозі - як у читальці */
+.blog-commentary {
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.blog-commentary p {
+  margin-bottom: 1em;
+  text-align: justify;
+}
+
+@media (min-width: 768px) {
+  .blog-commentary {
+    font-size: 20px;
+  }
 }
 
 /* =========================

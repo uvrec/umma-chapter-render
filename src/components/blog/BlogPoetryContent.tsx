@@ -182,7 +182,7 @@ export function BlogPoetryContent({
               </Button>
             )}
           </div>
-          <div className="prose-reader font-bold whitespace-pre-wrap">{poetryTranslation}</div>
+          <div className="blog-translation whitespace-pre-wrap">{poetryTranslation}</div>
         </div>
       )}
 
@@ -206,8 +206,8 @@ export function BlogPoetryContent({
               </Button>
             )}
           </div>
-          <div className="prose prose-lg prose-slate dark:prose-invert max-w-none">
-            <TiptapRenderer content={commentary} displayBlocks={{}} className="!max-w-none commentary-text" />
+          <div className="blog-commentary">
+            <TiptapRenderer content={commentary} displayBlocks={{}} className="!max-w-none" />
           </div>
         </div>
       )}
