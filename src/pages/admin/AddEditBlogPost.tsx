@@ -126,7 +126,7 @@ export default function AddEditBlogPost() {
       setSubstackUrl(post.substack_embed_url || "");
       setMetaDescUk(post.meta_description_uk || "");
       setMetaDescEn(post.meta_description_en || "");
-      setAuthorName(post.author_name || "Аніруддга дас");
+      setAuthorName(post.author_display_name || "Аніруддга дас");
 
       // Poetry mode fields
       setSanskrit(post.sanskrit || "");
@@ -180,7 +180,6 @@ export default function AddEditBlogPost() {
         meta_description_uk: metaDescUk,
         meta_description_en: metaDescEn,
         read_time: readTime,
-        author_name: authorName || "Аніруддга дас",
         author_display_name: authorName || "Аніруддга дас",
         // Poetry fields
         sanskrit,
@@ -362,7 +361,6 @@ export default function AddEditBlogPost() {
       meta_description_uk: metaDescUk,
       meta_description_en: metaDescEn,
       read_time: readTime,
-      author_name: authorName || "Аніруддга дас",
       author_display_name: authorName || "Аніруддга дас",
       // Poetry fields
       sanskrit,

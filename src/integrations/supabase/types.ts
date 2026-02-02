@@ -452,7 +452,6 @@ export type Database = {
           audio_url: string | null
           author_display_name: string | null
           author_id: string
-          author_name: string
           category_id: string
           content_en: string
           content_mode: string | null
@@ -504,7 +503,6 @@ export type Database = {
           audio_url?: string | null
           author_display_name?: string | null
           author_id: string
-          author_name?: string
           category_id: string
           content_en: string
           content_mode?: string | null
@@ -556,7 +554,6 @@ export type Database = {
           audio_url?: string | null
           author_display_name?: string | null
           author_id?: string
-          author_name?: string
           category_id?: string
           content_en?: string
           content_mode?: string | null
@@ -4827,7 +4824,6 @@ export type Database = {
           audio_url: string | null
           author_display_name: string | null
           author_id: string
-          author_name: string
           category_id: string
           content_en: string
           content_mode: string | null
