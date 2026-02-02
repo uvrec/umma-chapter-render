@@ -14,22 +14,22 @@
 .prose-reader .translit,
 .result-text,
 [data-result] {
-  /* Шрифтова сім'я (!important для пріоритету) */
-  font-family: "Noto Serif", serif !important;
-  font-style: normal;
+  /* Шрифтова сім'я - Spectral для кращої підтримки діакритики (!important для пріоритету) */
+  font-family: "Spectral", "Noto Serif", serif !important;
+  font-style: italic;
   font-weight: 400 !important;
 
   /* Розмір шрифту - базовий */
   font-size: var(--vv-reader-font-size) !important;
   line-height: var(--vv-reader-line-height) !important;
 
-  /* OpenType features */
-  font-feature-settings: normal;
+  /* OpenType features для правильного рендерингу діакритики */
+  font-feature-settings: "kern" 1, "liga" 1;
   font-variant-position: normal;
-  font-variant-ligatures: none;
-  letter-spacing: 0;
+  font-variant-ligatures: common-ligatures;
+  letter-spacing: 0.01em;
 
-  /* Рендеринг шрифтів */
+  /* Рендеринг шрифтів - критично для діакритики */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;

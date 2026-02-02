@@ -432,7 +432,7 @@ export default function AddEditBlogPost() {
                   onChange={(e) => setSanskrit(e.target.value)}
                   rows={3}
                   placeholder="मधुर प्रेम..."
-                  className="font-sanskrit text-2xl"
+                  className="blog-sanskrit-input"
                 />
               </div>
 
@@ -444,7 +444,7 @@ export default function AddEditBlogPost() {
                   onChange={(e) => setTransliteration(e.target.value)}
                   rows={3}
                   placeholder="madhura prema..."
-                  className="font-sanskrit-italic text-xl"
+                  className="blog-translit-input"
                 />
               </div>
 

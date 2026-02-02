@@ -46,8 +46,11 @@
   /* Основний текст (кирилиця + латиниця) - Noto Serif variable 100-900 */
   --font-primary: "Noto Serif", Georgia, serif;
 
-  /* Транслітерація (verse text) */
-  --font-translit: "Noto Serif", serif;
+  /* Транслітерація (verse text) - Spectral для ідеальної підтримки діакритики */
+  --font-translit: "Spectral", "Noto Serif", serif;
+
+  /* Транслітерація в блозі - Spectral як у Substack */
+  --font-blog-translit: "Spectral", serif;
 
   /* Деванагарі (देवनागरी) - Noto Sans з Devanagari підтримкою */
   --font-devanagari: "Noto Sans Devanagari", sans-serif;
@@ -55,11 +58,15 @@
   /* Бенгалі (বাংলা) - Noto Serif для транслітерації */
   --font-bengali: "Noto Serif", serif;
 
-  /* Послівний переклад (synonyms) - Noto Serif з підтримкою діакритики */
-  --font-synonyms: "Noto Serif", serif;
+  /* Послівний переклад (synonyms) - Spectral для діакритичних знаків */
+  --font-synonyms: "Spectral", "Noto Serif", serif;
 
   /* UI (інтерфейс) */
   --font-ui: sans-serif;
+
+  /* Blog typography (Substack-style) */
+  --font-blog-body: "Spectral", Georgia, serif;
+  --font-blog-heading: "Spectral", Georgia, serif;
 }
 
 /* =========================
@@ -1546,6 +1553,349 @@ body.keyboard-open {
 
 .dark .synced-section-active {
   background: hsl(var(--primary) / 0.12);
+}
+
+/* =========================
+   BLOG TYPOGRAPHY (Substack-style)
+   Мінімалістична типографіка для блогу
+   ========================= */
+
+/* Контейнер блогу - центрований з обмеженою шириною */
+.blog-container {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .blog-container {
+    padding: 0 2rem;
+  }
+}
+
+/* Основний текст блогу - Spectral як у Substack */
+.blog-prose {
+  font-family: var(--font-blog-body);
+  font-size: 1.125rem; /* 18px */
+  line-height: 1.75;
+  color: hsl(var(--foreground));
+  letter-spacing: -0.003em;
+}
+
+@media (min-width: 768px) {
+  .blog-prose {
+    font-size: 1.25rem; /* 20px на десктопі */
+    line-height: 1.8;
+  }
+}
+
+.blog-prose p {
+  margin-bottom: 1.5em;
+}
+
+.blog-prose h1,
+.blog-prose h2,
+.blog-prose h3 {
+  font-family: var(--font-blog-heading);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 2em;
+  margin-bottom: 0.75em;
+}
+
+.blog-prose h1 {
+  font-size: 2.25rem;
+  letter-spacing: -0.02em;
+}
+
+.blog-prose h2 {
+  font-size: 1.75rem;
+  letter-spacing: -0.015em;
+}
+
+.blog-prose h3 {
+  font-size: 1.375rem;
+  letter-spacing: -0.01em;
+}
+
+/* Транслітерація в блозі - ключовий елемент */
+.blog-translit,
+.blog-prose .translit,
+.blog-transliteration {
+  font-family: var(--font-blog-translit) !important;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.15em;
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+
+  /* Критичні налаштування для діакритичних знаків */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "kern" 1, "liga" 1;
+  font-variant-ligatures: common-ligatures;
+
+  /* Запобігає "розповзанню" анусвари та інших знаків */
+  unicode-bidi: isolate;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Санскрит в блозі */
+.blog-sanskrit {
+  font-family: var(--font-devanagari) !important;
+  font-size: 1.4em;
+  line-height: 1.6;
+  font-weight: 400;
+  text-rendering: optimizeLegibility;
+}
+
+/* Синоніми/послівний переклад в блозі */
+.blog-synonyms {
+  font-family: var(--font-blog-translit) !important;
+  font-size: 1rem;
+  line-height: 1.65;
+  letter-spacing: 0;
+}
+
+/* =========================
+   BLOG EDITOR (Substack-style минімалізм)
+   ========================= */
+
+/* Контейнер редактора - чистий, без рамок */
+.blog-editor-container {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .blog-editor-container {
+    padding: 3rem 2rem;
+  }
+}
+
+/* Мінімалістичний редактор тексту */
+.blog-editor .ProseMirror {
+  font-family: var(--font-blog-body);
+  font-size: 1.125rem;
+  line-height: 1.75;
+  min-height: 50vh;
+  padding: 0;
+  outline: none;
+  border: none;
+}
+
+@media (min-width: 768px) {
+  .blog-editor .ProseMirror {
+    font-size: 1.25rem;
+    line-height: 1.8;
+  }
+}
+
+.blog-editor .ProseMirror p {
+  margin-bottom: 1.25em;
+}
+
+.blog-editor .ProseMirror h1 {
+  font-family: var(--font-blog-heading);
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.5em;
+  letter-spacing: -0.02em;
+}
+
+.blog-editor .ProseMirror h2 {
+  font-family: var(--font-blog-heading);
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+/* Placeholder в стилі Substack */
+.blog-editor .ProseMirror p.is-editor-empty:first-child::before {
+  color: hsl(var(--muted-foreground) / 0.5);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  font-style: normal;
+}
+
+/* Тулбар редактора - мінімалістичний, як у Substack */
+.blog-editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid hsl(var(--border) / 0.5);
+  margin-bottom: 1.5rem;
+  position: sticky;
+  top: 0;
+  background: hsl(var(--background));
+  z-index: 10;
+}
+
+.blog-editor-toolbar button {
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  color: hsl(var(--muted-foreground));
+  transition: all 0.15s ease;
+}
+
+.blog-editor-toolbar button:hover {
+  color: hsl(var(--foreground));
+  background: hsl(var(--muted) / 0.5);
+}
+
+.blog-editor-toolbar button.is-active {
+  color: hsl(var(--foreground));
+  background: hsl(var(--muted));
+}
+
+/* Поле для транслітерації в редакторі */
+.blog-translit-input,
+textarea.blog-translit-input {
+  font-family: var(--font-blog-translit) !important;
+  font-size: 1.25rem !important;
+  font-style: italic;
+  line-height: 1.7 !important;
+  letter-spacing: 0.01em;
+
+  /* Діакритика */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "kern" 1, "liga" 1;
+
+  /* Стилі поля */
+  border: none;
+  background: transparent;
+  resize: none;
+  width: 100%;
+  padding: 0.75rem 0;
+}
+
+.blog-translit-input:focus {
+  outline: none;
+  border-bottom: 2px solid hsl(var(--primary) / 0.3);
+}
+
+/* Поле для санскриту в редакторі */
+.blog-sanskrit-input,
+textarea.blog-sanskrit-input {
+  font-family: var(--font-devanagari) !important;
+  font-size: 1.5rem !important;
+  line-height: 1.6 !important;
+  border: none;
+  background: transparent;
+  resize: none;
+  width: 100%;
+  padding: 0.75rem 0;
+}
+
+/* Заголовок поста - великий і чистий */
+.blog-title-input {
+  font-family: var(--font-blog-heading);
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  border: none;
+  background: transparent;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 0.5rem;
+}
+
+.blog-title-input::placeholder {
+  color: hsl(var(--muted-foreground) / 0.4);
+}
+
+.blog-title-input:focus {
+  outline: none;
+}
+
+/* Підзаголовок */
+.blog-subtitle-input {
+  font-family: var(--font-blog-body);
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: hsl(var(--muted-foreground));
+  border: none;
+  background: transparent;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 2rem;
+}
+
+.blog-subtitle-input::placeholder {
+  color: hsl(var(--muted-foreground) / 0.4);
+}
+
+.blog-subtitle-input:focus {
+  outline: none;
+}
+
+@media (min-width: 768px) {
+  .blog-title-input {
+    font-size: 3rem;
+  }
+
+  .blog-subtitle-input {
+    font-size: 1.375rem;
+  }
+}
+
+/* Заголовок блог-поста - Substack style */
+.blog-title {
+  font-family: var(--font-blog-heading);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: hsl(var(--foreground));
+}
+
+@media (min-width: 768px) {
+  .blog-title {
+    font-size: 2.75rem;
+  }
+}
+
+/* Тіло блог-поста - Substack style */
+.blog-body {
+  font-family: var(--font-blog-body);
+  font-size: 1.125rem;
+  line-height: 1.75;
+  color: hsl(var(--foreground));
+  letter-spacing: -0.003em;
+}
+
+@media (min-width: 768px) {
+  .blog-body {
+    font-size: 1.25rem;
+    line-height: 1.8;
+  }
+}
+
+.blog-body p {
+  margin-bottom: 1.5em;
+}
+
+/* Транслітерація в blog-body наслідує Spectral */
+.blog-body .translit,
+.blog-body .iast-text,
+.blog-body .transliteration {
+  font-family: var(--font-blog-translit) !important;
+  font-style: italic;
+  font-weight: 400;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1, "liga" 1;
 }
 
 /* =========================
