@@ -452,6 +452,7 @@ export type Database = {
           audio_url: string | null
           author_display_name: string | null
           author_id: string
+          author_name: string
           category_id: string
           content_en: string
           content_mode: string | null
@@ -503,6 +504,7 @@ export type Database = {
           audio_url?: string | null
           author_display_name?: string | null
           author_id: string
+          author_name?: string
           category_id: string
           content_en: string
           content_mode?: string | null
@@ -554,6 +556,7 @@ export type Database = {
           audio_url?: string | null
           author_display_name?: string | null
           author_id?: string
+          author_name?: string
           category_id?: string
           content_en?: string
           content_mode?: string | null
@@ -946,7 +949,7 @@ export type Database = {
           description_en: string | null
           description_uk: string | null
           id: string
-          is_published: boolean | null
+          is_published: boolean
           title_en: string
           title_uk: string
         }
@@ -958,7 +961,7 @@ export type Database = {
           description_en?: string | null
           description_uk?: string | null
           id?: string
-          is_published?: boolean | null
+          is_published?: boolean
           title_en: string
           title_uk: string
         }
@@ -970,7 +973,7 @@ export type Database = {
           description_en?: string | null
           description_uk?: string | null
           id?: string
-          is_published?: boolean | null
+          is_published?: boolean
           title_en?: string
           title_uk?: string
         }
@@ -4824,6 +4827,7 @@ export type Database = {
           audio_url: string | null
           author_display_name: string | null
           author_id: string
+          author_name: string
           category_id: string
           content_en: string
           content_mode: string | null
@@ -5094,7 +5098,7 @@ export type Database = {
           description_en: string | null
           description_uk: string | null
           id: string
-          is_published: boolean | null
+          is_published: boolean
           title_en: string
           title_uk: string
         }[]
@@ -5106,7 +5110,7 @@ export type Database = {
         }
       }
       get_canto_with_preview: {
-        Args: { p_canto_id: string; p_token: string }
+        Args: { p_canto_id: string; p_token?: string }
         Returns: {
           book_id: string
           canto_number: number
@@ -5115,7 +5119,7 @@ export type Database = {
           description_en: string | null
           description_uk: string | null
           id: string
-          is_published: boolean | null
+          is_published: boolean
           title_en: string
           title_uk: string
         }[]
@@ -5136,7 +5140,7 @@ export type Database = {
           description_en: string | null
           description_uk: string | null
           id: string
-          is_published: boolean | null
+          is_published: boolean
           title_en: string
           title_uk: string
         }[]
