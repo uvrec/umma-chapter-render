@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import type { Letter } from "@/types/letter";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useReaderSettings } from "@/hooks/useReaderSettings";
 
 
 export const LetterView = () => {
@@ -42,6 +43,7 @@ export const LetterView = () => {
   const queryClient = useQueryClient();
   const { isAdmin } = useAuth();
   const { language, getLocalizedPath } = useLanguage();
+  const { dualLanguageMode } = useReaderSettings();
 
   // Inline editing state
   const [isEditing, setIsEditing] = useState(false);
@@ -167,10 +169,13 @@ export const LetterView = () => {
     ? letter.location_uk
     : letter.location_en;
 
+  const hasContentUk = letter.content_uk && letter.content_uk.trim().length > 20;
+  const hasContentEn = letter.content_en && letter.content_en.trim().length > 20;
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
+      <main className={`container mx-auto px-4 py-8 ${dualLanguageMode ? "max-w-7xl" : "max-w-4xl"}`}>
         {/* Навігація + Edit button */}
         <div className="mb-6 flex items-center justify-between">
           <Button
@@ -348,7 +353,45 @@ export const LetterView = () => {
               </div>
             </div>
           </div>
+        ) : dualLanguageMode ? (
+          // DUAL MODE - Side by side
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Ukrainian Column */}
+            <div>
+              <div className="text-xs font-semibold text-muted-foreground mb-4 uppercase tracking-wide">
+                Українська
+              </div>
+              {hasContentUk ? (
+                <div
+                  className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: letter.content_uk! }}
+                />
+              ) : (
+                <div className="text-center py-12 text-muted-foreground">
+                  <p className="text-lg">Контент українською ще не додано</p>
+                </div>
+              )}
+            </div>
+
+            {/* English Column */}
+            <div>
+              <div className="text-xs font-semibold text-muted-foreground mb-4 uppercase tracking-wide">
+                English
+              </div>
+              {hasContentEn ? (
+                <div
+                  className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: letter.content_en }}
+                />
+              ) : (
+                <div className="text-center py-12 text-muted-foreground">
+                  <p className="text-lg">English content not yet added</p>
+                </div>
+              )}
+            </div>
+          </div>
         ) : (
+          // SINGLE LANGUAGE MODE
           <div
             className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed"
             dangerouslySetInnerHTML={{
