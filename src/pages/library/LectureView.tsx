@@ -52,6 +52,7 @@ import {
 } from "lucide-react";
 import { transliterateIAST } from "@/utils/text/transliteration";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useReaderSettings } from "@/hooks/useReaderSettings";
 
 export const LectureView = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -59,6 +60,7 @@ export const LectureView = () => {
   const queryClient = useQueryClient();
   const { isAdmin } = useAuth();
   const { language, getLocalizedPath } = useLanguage();
+  const { dualLanguageMode } = useReaderSettings();
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentParagraph, setCurrentParagraph] = useState<number | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -566,94 +568,79 @@ export const LectureView = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="container mx-auto px-4 py-8 max-w-5xl">
-        {/* Навігація назад */}
-        <Button
-          variant="ghost"
-          onClick={() => navigate(getLocalizedPath("/library/lectures"))}
-          className="mb-6"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          {language === "uk" ? "Назад до бібліотеки" : "Back to library"}
-        </Button>
+      <main className={`container mx-auto px-4 py-8 ${dualLanguageMode ? "max-w-7xl" : "max-w-5xl"}`}>
+        {/* Навігація назад + Edit button */}
+        <div className="mb-6 flex items-center justify-between flex-wrap gap-2">
+          <Button
+            variant="ghost"
+            onClick={() => navigate(getLocalizedPath("/library/lectures"))}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            {language === "uk" ? "Назад до бібліотеки" : "Back to library"}
+          </Button>
 
-        {/* Admin Edit Header */}
-        {isAdmin && (
-          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm pb-4 mb-4 -mx-4 px-4 border-b">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {isEditing && (
-                  <span className="text-sm text-muted-foreground">
-                    Режим редагування
-                    {isTranslating && translatingParagraphId && (
-                      <span className="ml-2">
-                        (Переклад...)
-                      </span>
-                    )}
-                  </span>
-                )}
-              </div>
-              <div className="flex gap-2 flex-wrap">
-                {isEditing ? (
-                  <>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={transliterateAll}
-                      disabled={isTranslating}
-                      title="Транслітерувати санскрит у всіх параграфах"
-                    >
-                      <Languages className="mr-2 h-4 w-4" />
-                      Транслітерувати все
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={translateAllWithAI}
-                      disabled={isTranslating}
-                      title="AI переклад всіх параграфів без українського тексту"
-                    >
-                      {isTranslating ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      ) : (
-                        <Sparkles className="mr-2 h-4 w-4" />
-                      )}
-                      {isTranslating ? "Перекладаю..." : "Перекласти все AI"}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowBulkTranslationDialog(true)}
-                      disabled={isTranslating}
-                      title="Вставити повний переклад для всіх параграфів"
-                    >
-                      <ClipboardPaste className="mr-2 h-4 w-4" />
-                      Вставити переклад
-                    </Button>
-                    <Button
-                      variant="default"
-                      size="sm"
-                      onClick={saveEdit}
-                      disabled={saveLectureMutation.isPending || isTranslating}
-                    >
-                      <Save className="mr-2 h-4 w-4" />
-                      {saveLectureMutation.isPending ? "Збереження..." : "Зберегти"}
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={cancelEdit} disabled={isTranslating}>
-                      <X className="mr-2 h-4 w-4" />
-                      Скасувати
-                    </Button>
-                  </>
-                ) : (
-                  <Button variant="ghost" size="sm" onClick={startEdit}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    Редагувати
+          {/* Admin Edit Controls */}
+          {isAdmin && (
+            <div className="flex gap-2 flex-wrap">
+              {isEditing ? (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={transliterateAll}
+                    disabled={isTranslating}
+                    title="Транслітерувати санскрит у всіх параграфах"
+                  >
+                    <Languages className="mr-2 h-4 w-4" />
+                    Транслітерувати все
                   </Button>
-                )}
-              </div>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={translateAllWithAI}
+                    disabled={isTranslating}
+                    title="AI переклад всіх параграфів без українського тексту"
+                  >
+                    {isTranslating ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Sparkles className="mr-2 h-4 w-4" />
+                    )}
+                    {isTranslating ? "Перекладаю..." : "Перекласти все AI"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowBulkTranslationDialog(true)}
+                    disabled={isTranslating}
+                    title="Вставити повний переклад для всіх параграфів"
+                  >
+                    <ClipboardPaste className="mr-2 h-4 w-4" />
+                    Вставити переклад
+                  </Button>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={saveEdit}
+                    disabled={saveLectureMutation.isPending || isTranslating}
+                  >
+                    <Save className="mr-2 h-4 w-4" />
+                    {saveLectureMutation.isPending ? "Збереження..." : "Зберегти"}
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={cancelEdit} disabled={isTranslating}>
+                    <X className="mr-2 h-4 w-4" />
+                    Скасувати
+                  </Button>
+                </>
+              ) : (
+                <Button variant="ghost" size="sm" onClick={startEdit}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Редагувати
+                </Button>
+              )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Заголовок лекції */}
         <div className="mb-8">
@@ -861,7 +848,65 @@ export const LectureView = () => {
                 </div>
               ))}
             </div>
+          ) : dualLanguageMode ? (
+            // DUAL MODE - Side by side
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Ukrainian Column */}
+              <div>
+                <div className="text-xs font-semibold text-muted-foreground mb-4 uppercase tracking-wide">
+                  Українська
+                </div>
+                <div className="prose prose-lg dark:prose-invert max-w-none text-foreground">
+                  {paragraphs.map((paragraph) => {
+                    const isCurrentParagraph = currentParagraph === paragraph.paragraph_number;
+                    const hasContent = paragraph.content_uk && paragraph.content_uk.trim().length > 0;
+
+                    return (
+                      <p
+                        key={`uk-${paragraph.id}`}
+                        ref={(el) => (paragraphRefs.current[paragraph.paragraph_number] = el)}
+                        className={`mb-4 leading-relaxed transition-colors ${
+                          isCurrentParagraph ? "bg-primary/10 -mx-2 px-2 py-1" : ""
+                        }`}
+                      >
+                        {hasContent ? (
+                          formatText(paragraph.content_uk!)
+                        ) : (
+                          <span className="text-muted-foreground italic">
+                            [Переклад не додано]
+                          </span>
+                        )}
+                      </p>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* English Column */}
+              <div>
+                <div className="text-xs font-semibold text-muted-foreground mb-4 uppercase tracking-wide">
+                  English
+                </div>
+                <div className="prose prose-lg dark:prose-invert max-w-none text-foreground">
+                  {paragraphs.map((paragraph) => {
+                    const isCurrentParagraph = currentParagraph === paragraph.paragraph_number;
+
+                    return (
+                      <p
+                        key={`en-${paragraph.id}`}
+                        className={`mb-4 leading-relaxed transition-colors ${
+                          isCurrentParagraph ? "bg-primary/10 -mx-2 px-2 py-1" : ""
+                        }`}
+                      >
+                        {formatText(paragraph.content_en)}
+                      </p>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
           ) : (
+            // SINGLE LANGUAGE MODE
             <div className="prose prose-lg dark:prose-invert max-w-none text-foreground">
               {paragraphs.map((paragraph) => {
                 const content =
