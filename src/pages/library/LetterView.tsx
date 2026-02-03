@@ -35,6 +35,7 @@ import {
 import type { Letter } from "@/types/letter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
+import { ContentToolbar } from "@/components/ContentToolbar";
 
 
 export const LetterView = () => {
@@ -176,8 +177,8 @@ export const LetterView = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className={`container mx-auto px-4 py-8 ${dualLanguageMode ? "max-w-7xl" : "max-w-4xl"}`}>
-        {/* Навігація + Edit button */}
-        <div className="mb-6 flex items-center justify-between">
+        {/* Навігація + Toolbar + Edit button */}
+        <div className="mb-6 flex items-center justify-between flex-wrap gap-2">
           <Button
             variant="ghost"
             onClick={() => navigate(getLocalizedPath("/library/letters"))}
@@ -186,33 +187,41 @@ export const LetterView = () => {
             {language === "uk" ? "До списку листів" : "Back to letters"}
           </Button>
 
-          {/* Admin Edit Controls */}
-          {isAdmin && (
-            <div className="flex gap-2">
-              {isEditing ? (
-                <>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={saveEdit}
-                    disabled={saveLetterMutation.isPending}
-                  >
-                    <Save className="mr-2 h-4 w-4" />
-                    {saveLetterMutation.isPending ? "Збереження..." : "Зберегти"}
+          <div className="flex items-center gap-2">
+            {/* Content Toolbar */}
+            <ContentToolbar
+              title={`${language === "uk" ? "Лист до" : "Letter to"} ${recipient}`}
+              contentType="letter"
+            />
+
+            {/* Admin Edit Controls */}
+            {isAdmin && (
+              <div className="flex gap-2">
+                {isEditing ? (
+                  <>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={saveEdit}
+                      disabled={saveLetterMutation.isPending}
+                    >
+                      <Save className="mr-2 h-4 w-4" />
+                      {saveLetterMutation.isPending ? "Збереження..." : "Зберегти"}
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={cancelEdit}>
+                      <X className="mr-2 h-4 w-4" />
+                      Скасувати
+                    </Button>
+                  </>
+                ) : (
+                  <Button variant="ghost" size="sm" onClick={startEdit}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Редагувати
                   </Button>
-                  <Button variant="outline" size="sm" onClick={cancelEdit}>
-                    <X className="mr-2 h-4 w-4" />
-                    Скасувати
-                  </Button>
-                </>
-              ) : (
-                <Button variant="ghost" size="sm" onClick={startEdit}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Редагувати
-                </Button>
-              )}
-            </div>
-          )}
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Метадані листа */}
@@ -354,39 +363,29 @@ export const LetterView = () => {
             </div>
           </div>
         ) : dualLanguageMode ? (
-          // DUAL MODE - Side by side
+          // DUAL MODE - Side by side (no labels - functional minimalism)
           <div className="grid md:grid-cols-2 gap-8">
             {/* Ukrainian Column */}
             <div>
-              <div className="text-xs font-semibold text-muted-foreground mb-4 uppercase tracking-wide">
-                Українська
-              </div>
               {hasContentUk ? (
                 <div
                   className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed"
                   dangerouslySetInnerHTML={{ __html: letter.content_uk! }}
                 />
               ) : (
-                <div className="text-center py-12 text-muted-foreground">
-                  <p className="text-lg">Контент українською ще не додано</p>
-                </div>
+                <div className="text-muted-foreground/50 italic">—</div>
               )}
             </div>
 
             {/* English Column */}
             <div>
-              <div className="text-xs font-semibold text-muted-foreground mb-4 uppercase tracking-wide">
-                English
-              </div>
               {hasContentEn ? (
                 <div
                   className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed"
                   dangerouslySetInnerHTML={{ __html: letter.content_en }}
                 />
               ) : (
-                <div className="text-center py-12 text-muted-foreground">
-                  <p className="text-lg">English content not yet added</p>
-                </div>
+                <div className="text-muted-foreground/50 italic">—</div>
               )}
             </div>
           </div>
