@@ -197,10 +197,16 @@ export default function AddEditBlogPost() {
         audio_commentary_en_url: audioCommentaryEnUrl,
       };
 
-      await supabase.from("blog_posts").update(postData).eq("id", id);
+      const { error } = await supabase.from("blog_posts").update(postData).eq("id", id);
+      if (error) throw error;
       setLastSaved(new Date());
-    } catch (error) {
+    } catch (error: any) {
       console.error("Auto-save error:", error);
+      toast({
+        title: "Помилка автозбереження",
+        description: error?.message || "Невідома помилка",
+        variant: "destructive"
+      });
     } finally {
       setIsSaving(false);
     }
@@ -389,9 +395,13 @@ export default function AddEditBlogPost() {
         toast({ title: "Пост створено" });
       }
       navigate("/admin/blog-posts");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving post:", error);
-      toast({ title: "Помилка збереження", variant: "destructive" });
+      toast({
+        title: "Помилка збереження",
+        description: error?.message || error?.toString() || "Невідома помилка",
+        variant: "destructive"
+      });
     }
   };
 
