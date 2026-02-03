@@ -415,7 +415,7 @@ export default function BlogPost() {
             <ContentToolbar
               title={title || ""}
               contentType="blog"
-              editUrl={isAdmin ? `/admin/blog/${post.id}` : undefined}
+              editUrl={isAdmin ? `/admin/blog-posts/${post.id}/edit` : undefined}
             />
           </div>
 
