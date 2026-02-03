@@ -33,7 +33,7 @@ export default function BlogPost() {
   const { language } = useLanguage();
   const { isAdmin } = useAuth();
   const queryClient = useQueryClient();
-  const { dualLanguageMode } = useReaderSettings();
+  const { dualLanguageMode, zenMode, fullscreenMode } = useReaderSettings();
 
   // ✅ ДОДАНО: Display blocks для контролю видимості блоків
   const [displayBlocks, setDisplayBlocks] = useState({
@@ -287,8 +287,13 @@ export default function BlogPost() {
   const htmlLang = language === "uk" ? "uk" : "en";
   const ogLocale = language === "uk" ? "uk_UK" : "en_US";
 
+  // Fullscreen classes
+  const fullscreenClasses = fullscreenMode
+    ? "fixed inset-0 z-50 overflow-auto bg-background"
+    : "min-h-screen bg-background";
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className={fullscreenClasses}>
       <Helmet>
         <html lang={htmlLang} />
         <title>{`${title || ''} | ${SITE_CONFIG.siteName}`}</title>
@@ -342,12 +347,12 @@ export default function BlogPost() {
         ]}
       />
 
-      <Header />
+      {!zenMode && <Header />}
 
-      <article className="container mx-auto py-8">
+      <article className={`container mx-auto ${zenMode ? "py-4" : "py-8"}`}>
         <div className={dualLanguageMode ? "max-w-7xl mx-auto" : "max-w-4xl mx-auto"}>
           {/* ✅ ДОДАНО: Панель налаштувань блоків (тільки для адміна) */}
-          {isAdmin && (
+          {isAdmin && !zenMode && (
             <div className="mb-6 p-4 bg-card/50">
               <h3 className="font-semibold mb-3 text-sm uppercase tracking-wide text-muted-foreground">
                 {language === "uk" ? "Налаштування відображення блоків" : "Display Blocks Settings"}
@@ -415,7 +420,7 @@ export default function BlogPost() {
             <ContentToolbar
               title={title || ""}
               contentType="blog"
-              editUrl={isAdmin ? `/admin/blog/${post.id}` : undefined}
+              editUrl={isAdmin ? `/admin/blog-posts/${post.id}/edit` : undefined}
             />
           </div>
 
@@ -657,7 +662,7 @@ export default function BlogPost() {
         </div>
       </article>
 
-      <Footer />
+      {!zenMode && <Footer />}
     </div>
   );
 }
