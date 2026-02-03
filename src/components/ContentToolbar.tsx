@@ -347,7 +347,7 @@ export const ContentToolbar = ({
       </div>
 
       {/* Settings Panel */}
-      <GlobalSettingsPanel open={settingsOpen} onOpenChange={setSettingsOpen} />
+      <GlobalSettingsPanel isOpen={settingsOpen} onOpenChange={setSettingsOpen} showFloatingButton={false} />
 
       {/* Keyboard Shortcuts Modal */}
       <KeyboardShortcutsModal
