@@ -37,15 +37,38 @@ const LOCATION_TRANSLATIONS = {
   "Los Angeles": "Лос-Анджелес",
   "San Francisco": "Сан-Франциско",
   "London": "Лондон",
+  "Paris": "Париж",
   "Bombay": "Бомбей",
+  "Mumbai": "Мумбаї",
   "Vrindavan": "Вріндаван",
   "Mayapur": "Маяпур",
   "Delhi": "Делі",
+  "New Delhi": "Нью-Делі",
   "Calcutta": "Калькутта",
   "Tokyo": "Токіо",
   "Montreal": "Монреаль",
+  "Toronto": "Торонто",
   "Boston": "Бостон",
   "Hawaii": "Гаваї",
+  "Honolulu": "Гонолулу",
+  "Melbourne": "Мельбурн",
+  "Sydney": "Сідней",
+  "Chicago": "Чикаго",
+  "Detroit": "Детройт",
+  "Seattle": "Сіетл",
+  "Dallas": "Даллас",
+  "Atlanta": "Атланта",
+  "Berlin": "Берлін",
+  "Hyderabad": "Гайдерабад",
+  "Madras": "Мадрас",
+  "Chennai": "Ченнаї",
+  "Bangalore": "Бангалор",
+  "Nairobi": "Найробі",
+  "Johannesburg": "Йоганнесбург",
+  "Tehran": "Тегеран",
+  "Mexico City": "Мехіко",
+  "Caracas": "Каракас",
+  "Buenos Aires": "Буенос-Айрес",
 };
 
 // Утиліти
@@ -126,7 +149,9 @@ function parseDateFromSlug(slug) {
   if (!match) return null;
 
   const [, yy, mm, dd] = match;
-  const year = parseInt(yy) > 50 ? `19${yy}` : `20${yy}`;
+  // Прабгупада жив 1896-1977, всі листи - це 19xx роки
+  // Для безпеки: якщо yy <= 77, це точно 19xx; якщо > 77 і < 96, теж 19xx
+  const year = `19${yy}`;
 
   try {
     const date = new Date(`${year}-${mm}-${dd}`);
@@ -145,6 +170,55 @@ function parseRecipientFromSlug(slug) {
   ).join(" ");
 }
 
+// Витягти локацію з HTML для листів
+function extractLetterLocation(html, slug, $) {
+  // Спосіб 1: Шукати в метаданих сторінки (link з ?location=)
+  const locationLinkMatch = html.match(/href="[^"]*\?location=([^"&]+)"/i);
+  if (locationLinkMatch && locationLinkMatch[1]) {
+    const loc = decodeURIComponent(locationLinkMatch[1].replace(/\+/g, " "));
+    if (LOCATION_TRANSLATIONS[loc] || loc.length > 2) {
+      return loc;
+    }
+  }
+
+  // Спосіб 2: JSON embedded data - "location":"City Name"
+  // Але тільки якщо це валідне місто, а не текст з "…"
+  const jsonMatch = html.match(/"location":"([^"]+)"/);
+  if (jsonMatch && jsonMatch[1]) {
+    const loc = jsonMatch[1];
+    // Перевірити що це відоме місто
+    if (LOCATION_TRANSLATIONS[loc]) {
+      return loc;
+    }
+  }
+
+  // Спосіб 3: Шукати в заголовку листа формат "City, Date"
+  // Наприклад: "New York, January 5, 1968"
+  const headerPattern = /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?),?\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2}/;
+  const headerMatch = html.match(headerPattern);
+  if (headerMatch && headerMatch[1]) {
+    const loc = headerMatch[1].trim();
+    if (LOCATION_TRANSLATIONS[loc]) {
+      return loc;
+    }
+  }
+
+  // Спосіб 4: Код міста в slug (формат: YYMMDD_recipient або YYMMDD_recipient_city)
+  const slugParts = slug.split("_");
+  if (slugParts.length >= 3) {
+    const lastPart = slugParts[slugParts.length - 1];
+    // Перевірити чи це код міста
+    for (const city of Object.keys(LOCATION_TRANSLATIONS)) {
+      const cityLower = city.toLowerCase().replace(/\s+/g, "");
+      if (lastPart.toLowerCase() === cityLower) {
+        return city;
+      }
+    }
+  }
+
+  return null; // Краще null ніж "Unknown" - дозволяє зрозуміти що локація не знайдена
+}
+
 // Парсер листа
 function parseLetter(html, slug) {
   const $ = cheerio.load(html);
@@ -158,16 +232,19 @@ function parseLetter(html, slug) {
   }
 
   let recipient = parseRecipientFromSlug(slug);
-  const titleMatch = title.match(/(?:to|Letter to)\s+(.+?)(?:\s*[-–—]|\s*$)/i);
+  // Витягнути ім'я отримувача з заголовка
+  const titleMatch = title.match(/(?:Letter\s+to:?\s*|to:?\s+)(.+?)(?:\s*[-–—]|\s*$)/i);
   if (titleMatch) {
     recipient = titleMatch[1].trim();
   }
+  // Очистити recipient від залишків "Letter to:" якщо є
+  recipient = recipient
+    .replace(/^Letter\s+to:?\s*/i, '')
+    .replace(/^to:?\s*/i, '')
+    .trim();
 
-  let location = "Unknown";
-  const locationMatch = html.match(/(?:from|written in|written at)\s+([A-Za-z\s]+?)(?:[,\.\n])/i);
-  if (locationMatch) {
-    location = locationMatch[1].trim();
-  }
+  // Використовуємо нову функцію для витягування локації
+  const location = extractLetterLocation(html, slug, $);
 
   let reference = null;
   const refMatch = html.match(/(?:Ref|Reference)[:\s]+([^\n<]+)/i);
