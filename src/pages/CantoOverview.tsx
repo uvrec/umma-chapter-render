@@ -252,26 +252,37 @@ export const CantoOverview = () => {
       let chaptersData = data;
       if (error) {
         console.error('RPC get_chapters_by_canto_with_preview error:', error);
-        // Fallback to direct query - only show published chapters
-        const { data: fallbackData, error: fallbackError } = await supabase
+        // Fallback to direct query - only filter by is_published if no preview token
+        let fallbackQuery = supabase
           .from("chapters")
           .select("*")
-          .eq("canto_id", canto.id)
-          .eq("is_published", true)
-          .order("chapter_number");
+          .eq("canto_id", canto.id);
+
+        // Only filter by is_published if user doesn't have a preview token
+        if (!previewToken) {
+          fallbackQuery = fallbackQuery.eq("is_published", true);
+        }
+
+        const { data: fallbackData, error: fallbackError } = await fallbackQuery.order("chapter_number");
         if (fallbackError) throw fallbackError;
         chaptersData = fallbackData;
       }
 
-      // Fetch verse counts for each chapter (only published verses)
+      // Fetch verse counts for each chapter
+      // Only filter by is_published if no preview token
       const chaptersWithCounts = await Promise.all(
         (chaptersData || []).map(async (chapter: any) => {
-          const { count } = await supabase
+          let countQuery = supabase
             .from("verses")
             .select("*", { count: "exact", head: true })
             .eq("chapter_id", chapter.id)
-            .eq("is_published", true)
             .is("deleted_at", null);
+
+          if (!previewToken) {
+            countQuery = countQuery.eq("is_published", true);
+          }
+
+          const { count } = await countQuery;
           return { ...chapter, verse_count: count || 0 };
         })
       );

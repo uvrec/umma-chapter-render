@@ -351,12 +351,18 @@ export const BookOverview = () => {
 
       if (error) {
         console.error('Error fetching cantos:', error);
-        // Fallback to direct query (will respect RLS)
-        const { data: fallbackData, error: fallbackError } = await supabase
+        // Fallback to direct query - filter by is_published only if no admin AND no preview token
+        let fallbackQuery = supabase
           .from("cantos")
           .select("*")
-          .eq("book_id", book.id)
-          .order("canto_number");
+          .eq("book_id", book.id);
+
+        // Only filter by is_published if user is not admin AND doesn't have a preview token
+        if (!isAdmin && !previewToken) {
+          fallbackQuery = fallbackQuery.eq("is_published", true);
+        }
+
+        const { data: fallbackData, error: fallbackError } = await fallbackQuery.order("canto_number");
         if (fallbackError) throw fallbackError;
         return fallbackData || [];
       }
@@ -370,8 +376,8 @@ export const BookOverview = () => {
             .select("*", { count: "exact", head: true })
             .eq("canto_id", canto.id);
 
-          // Filter by is_published for non-admin users
-          if (!isAdmin) {
+          // Filter by is_published for non-admin users without preview token
+          if (!isAdmin && !previewToken) {
             query = query.eq("is_published", true);
           }
 
@@ -389,13 +395,13 @@ export const BookOverview = () => {
     data: chapters = [],
     isLoading: chaptersLoading
   } = useQuery({
-    queryKey: ["chapters-with-verse-counts", book?.id, isAdmin],
+    queryKey: ["chapters-with-verse-counts", book?.id, isAdmin, previewToken],
     queryFn: async () => {
       if (!book?.id) return [];
 
-      // Build query with is_published filter for non-admin users
+      // Build query with is_published filter only if no admin AND no preview token
       let query = supabase.from("chapters").select("*").eq("book_id", book.id);
-      if (!isAdmin) {
+      if (!isAdmin && !previewToken) {
         query = query.eq("is_published", true);
       }
       query = query.order("chapter_number");
@@ -403,15 +409,21 @@ export const BookOverview = () => {
       const { data, error } = await query;
       if (error) throw error;
 
-      // Fetch verse counts for each chapter (only count published verses)
+      // Fetch verse counts for each chapter
+      // Only count published verses for non-admin users without preview token
       const chaptersWithCounts = await Promise.all(
         (data || []).map(async (chapter) => {
-          const { count } = await supabase
+          let countQuery = supabase
             .from("verses")
             .select("*", { count: "exact", head: true })
             .eq("chapter_id", chapter.id)
-            .eq("is_published", true)
             .is("deleted_at", null);
+
+          if (!isAdmin && !previewToken) {
+            countQuery = countQuery.eq("is_published", true);
+          }
+
+          const { count } = await countQuery;
           return { ...chapter, verse_count: count || 0 };
         })
       );
@@ -425,7 +437,7 @@ export const BookOverview = () => {
     data: noiVerses = [],
     isLoading: noiVersesLoading
   } = useQuery({
-    queryKey: ["noi-verses", book?.id],
+    queryKey: ["noi-verses", book?.id, isAdmin, previewToken],
     queryFn: async () => {
       if (!book?.id || bookSlug !== 'noi') return [];
 
@@ -435,12 +447,19 @@ export const BookOverview = () => {
         error: chapterError
       } = await supabase.from("chapters").select("id").eq("book_id", book.id).eq("chapter_number", 1).maybeSingle();
       if (chapterError || !chapter1) return [];
-      const {
-        data,
-        error
-      } = await supabase.from("verses").select("id, verse_number, translation_uk, translation_en").eq("chapter_id", chapter1.id).is("deleted_at", null).eq("is_published", true).order("sort_key", {
-        ascending: true
-      });
+
+      let query = supabase
+        .from("verses")
+        .select("id, verse_number, translation_uk, translation_en")
+        .eq("chapter_id", chapter1.id)
+        .is("deleted_at", null);
+
+      // Only filter by is_published for non-admin users without preview token
+      if (!isAdmin && !previewToken) {
+        query = query.eq("is_published", true);
+      }
+
+      const { data, error } = await query.order("sort_key", { ascending: true });
       if (error) throw error;
       return data || [];
     },
