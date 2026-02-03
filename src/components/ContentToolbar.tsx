@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/tooltip";
 import {
   Share2,
-  Link,
+  Link as LinkIcon,
   Copy,
   BookOpen,
   Leaf,
@@ -30,7 +30,9 @@ import {
   Minimize2,
   Settings,
   Keyboard,
+  Pencil,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 import { KeyboardShortcutsModal } from "@/components/KeyboardShortcutsModal";
@@ -52,6 +54,8 @@ interface ContentToolbarProps {
   showOnMobile?: boolean;
   /** Custom class name */
   className?: string;
+  /** Edit URL - shows edit button when provided (admin only) */
+  editUrl?: string;
 }
 
 export const ContentToolbar = ({
@@ -62,6 +66,7 @@ export const ContentToolbar = ({
   onCopy,
   showOnMobile = false,
   className = "",
+  editUrl,
 }: ContentToolbarProps) => {
   const { language } = useLanguage();
   const {
@@ -225,6 +230,25 @@ export const ContentToolbar = ({
   return (
     <TooltipProvider delayDuration={300}>
       <div className={`flex items-center gap-1 ${showOnMobile ? "" : "hidden md:flex"} ${className}`}>
+        {/* Edit (admin only) */}
+        {editUrl && (
+          <>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" asChild>
+                  <Link to={editUrl}>
+                    <Pencil className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {language === "uk" ? "Редагувати" : "Edit"}
+              </TooltipContent>
+            </Tooltip>
+            <Separator orientation="vertical" className="h-6 mx-1" />
+          </>
+        )}
+
         {/* Share */}
         <Tooltip>
           <TooltipTrigger asChild>
@@ -241,7 +265,7 @@ export const ContentToolbar = ({
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant="ghost" size="icon" onClick={handleCopyUrl}>
-              <Link className="h-4 w-4" />
+              <LinkIcon className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
