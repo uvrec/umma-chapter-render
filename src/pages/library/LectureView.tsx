@@ -53,6 +53,7 @@ import {
 import { transliterateIAST } from "@/utils/text/transliteration";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
+import { ContentToolbar } from "@/components/ContentToolbar";
 
 export const LectureView = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -569,7 +570,7 @@ export const LectureView = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className={`container mx-auto px-4 py-8 ${dualLanguageMode ? "max-w-7xl" : "max-w-5xl"}`}>
-        {/* Навігація назад + Edit button */}
+        {/* Навігація назад + Toolbar + Edit button */}
         <div className="mb-6 flex items-center justify-between flex-wrap gap-2">
           <Button
             variant="ghost"
@@ -579,9 +580,16 @@ export const LectureView = () => {
             {language === "uk" ? "Назад до бібліотеки" : "Back to library"}
           </Button>
 
-          {/* Admin Edit Controls */}
-          {isAdmin && (
-            <div className="flex gap-2 flex-wrap">
+          <div className="flex items-center gap-2">
+            {/* Content Toolbar */}
+            <ContentToolbar
+              title={title}
+              contentType="lecture"
+            />
+
+            {/* Admin Edit Controls */}
+            {isAdmin && (
+              <div className="flex gap-2 flex-wrap">
               {isEditing ? (
                 <>
                   <Button
@@ -638,8 +646,9 @@ export const LectureView = () => {
                   Редагувати
                 </Button>
               )}
-            </div>
-          )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Заголовок лекції */}
@@ -849,60 +858,44 @@ export const LectureView = () => {
               ))}
             </div>
           ) : dualLanguageMode ? (
-            // DUAL MODE - Side by side
+            // DUAL MODE - Side by side (no labels - functional minimalism)
             <div className="grid md:grid-cols-2 gap-8">
               {/* Ukrainian Column */}
-              <div>
-                <div className="text-xs font-semibold text-muted-foreground mb-4 uppercase tracking-wide">
-                  Українська
-                </div>
-                <div className="prose prose-lg dark:prose-invert max-w-none text-foreground">
-                  {paragraphs.map((paragraph) => {
-                    const isCurrentParagraph = currentParagraph === paragraph.paragraph_number;
-                    const hasContent = paragraph.content_uk && paragraph.content_uk.trim().length > 0;
+              <div className="prose prose-lg dark:prose-invert max-w-none text-foreground">
+                {paragraphs.map((paragraph) => {
+                  const isCurrentParagraph = currentParagraph === paragraph.paragraph_number;
+                  const hasContent = paragraph.content_uk && paragraph.content_uk.trim().length > 0;
 
-                    return (
-                      <p
-                        key={`uk-${paragraph.id}`}
-                        ref={(el) => (paragraphRefs.current[paragraph.paragraph_number] = el)}
-                        className={`mb-4 leading-relaxed transition-colors ${
-                          isCurrentParagraph ? "bg-primary/10 -mx-2 px-2 py-1" : ""
-                        }`}
-                      >
-                        {hasContent ? (
-                          formatText(paragraph.content_uk!)
-                        ) : (
-                          <span className="text-muted-foreground italic">
-                            [Переклад не додано]
-                          </span>
-                        )}
-                      </p>
-                    );
-                  })}
-                </div>
+                  return (
+                    <p
+                      key={`uk-${paragraph.id}`}
+                      ref={(el) => (paragraphRefs.current[paragraph.paragraph_number] = el)}
+                      className={`mb-4 leading-relaxed transition-colors ${
+                        isCurrentParagraph ? "bg-primary/10 -mx-2 px-2 py-1" : ""
+                      }`}
+                    >
+                      {hasContent ? formatText(paragraph.content_uk!) : <span className="text-muted-foreground/50">—</span>}
+                    </p>
+                  );
+                })}
               </div>
 
               {/* English Column */}
-              <div>
-                <div className="text-xs font-semibold text-muted-foreground mb-4 uppercase tracking-wide">
-                  English
-                </div>
-                <div className="prose prose-lg dark:prose-invert max-w-none text-foreground">
-                  {paragraphs.map((paragraph) => {
-                    const isCurrentParagraph = currentParagraph === paragraph.paragraph_number;
+              <div className="prose prose-lg dark:prose-invert max-w-none text-foreground">
+                {paragraphs.map((paragraph) => {
+                  const isCurrentParagraph = currentParagraph === paragraph.paragraph_number;
 
-                    return (
-                      <p
-                        key={`en-${paragraph.id}`}
-                        className={`mb-4 leading-relaxed transition-colors ${
-                          isCurrentParagraph ? "bg-primary/10 -mx-2 px-2 py-1" : ""
-                        }`}
-                      >
-                        {formatText(paragraph.content_en)}
-                      </p>
-                    );
-                  })}
-                </div>
+                  return (
+                    <p
+                      key={`en-${paragraph.id}`}
+                      className={`mb-4 leading-relaxed transition-colors ${
+                        isCurrentParagraph ? "bg-primary/10 -mx-2 px-2 py-1" : ""
+                      }`}
+                    >
+                      {formatText(paragraph.content_en)}
+                    </p>
+                  );
+                })}
               </div>
             </div>
           ) : (
