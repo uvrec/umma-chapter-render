@@ -137,7 +137,7 @@ export function useReaderSettings() {
   const [showNumbers, setShowNumbers] = useState<boolean>(() => readBool(LS.showNumbers, true));
   const [flowMode, setFlowMode] = useState<boolean>(() => readBool(LS.flowMode, false));
   const [mobileSafeMode, setMobileSafeMode] = useState<boolean>(() => readBool(LS.mobileSafeMode, false));
-  const [showVerseContour, setShowVerseContour] = useState<boolean>(() => readBool(LS.showVerseContour, true));
+  const [showVerseContour, setShowVerseContour] = useState<boolean>(() => readBool(LS.showVerseContour, false));
   const [fullscreenMode, setFullscreenMode] = useState<boolean>(() => readBool(LS.fullscreenMode, false));
   const [zenMode, setZenMode] = useState<boolean>(() => readBool(LS.zenMode, false));
   const [presentationMode, setPresentationMode] = useState<boolean>(() => readBool(LS.presentationMode, false));
@@ -342,7 +342,7 @@ export function useReaderSettings() {
       if (e.key === LS.showNumbers) setShowNumbers(readBool(LS.showNumbers, true));
       if (e.key === LS.flowMode) setFlowMode(readBool(LS.flowMode, false));
       if (e.key === LS.mobileSafeMode) setMobileSafeMode(readBool(LS.mobileSafeMode, false));
-      if (e.key === LS.showVerseContour) setShowVerseContour(readBool(LS.showVerseContour, true));
+      if (e.key === LS.showVerseContour) setShowVerseContour(readBool(LS.showVerseContour, false));
       if (e.key === LS.fullscreenMode) setFullscreenMode(readBool(LS.fullscreenMode, false));
       if (e.key === LS.zenMode) setZenMode(readBool(LS.zenMode, false));
       if (e.key === LS.presentationMode) setPresentationMode(readBool(LS.presentationMode, false));
@@ -364,7 +364,7 @@ export function useReaderSettings() {
       const newShowNumbers = readBool(LS.showNumbers, true);
       const newFlowMode = readBool(LS.flowMode, false);
       const newMobileSafeMode = readBool(LS.mobileSafeMode, false);
-      const newShowVerseContour = readBool(LS.showVerseContour, true);
+      const newShowVerseContour = readBool(LS.showVerseContour, false);
       const newFullscreenMode = readBool(LS.fullscreenMode, false);
       const newZenMode = readBool(LS.zenMode, false);
       const newPresentationMode = readBool(LS.presentationMode, false);

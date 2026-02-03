@@ -26,6 +26,14 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
+
+    // Update URL if currently on a localized path
+    const currentPath = window.location.pathname;
+    if (currentPath.startsWith('/uk/') || currentPath.startsWith('/en/')) {
+      const pathWithoutLang = currentPath.replace(/^\/(uk|en)/, '');
+      const newPath = `/${lang}${pathWithoutLang}`;
+      window.history.replaceState(null, '', newPath + window.location.search + window.location.hash);
+    }
   };
 
   const t = useCallback((uk: string, en: string) => {
