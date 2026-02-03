@@ -3,8 +3,8 @@
  * Використовується в Library.tsx та LettersLibrary.tsx
  */
 
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -28,21 +28,48 @@ import type {
 
 export const LettersContent = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { language, t, getLocalizedPath } = useLanguage();
 
-  // Пошук та фільтрація
-  const [searchQuery, setSearchQuery] = useState("");
+  // Пошук та фільтрація - ініціалізуємо з URL параметрів
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [filters, setFilters] = useState<LetterFilters>({
-    recipient: "all",
-    location: "all",
+    recipient: searchParams.get("recipient") || "all",
+    location: searchParams.get("location") || "all",
+    yearFrom: searchParams.get("yearFrom") ? parseInt(searchParams.get("yearFrom")!) : undefined,
+    yearTo: searchParams.get("yearTo") ? parseInt(searchParams.get("yearTo")!) : undefined,
   });
 
   // Сортування
   const [sortBy, setSortBy] = useState<LetterSortBy>("date");
   const [sortOrder, setSortOrder] = useState<LetterSortOrder>("desc");
 
-  // Групування
-  const [groupBy, setGroupBy] = useState<"none" | "year" | "recipient">("year");
+  // Групування - вимикаємо групування коли є активні фільтри з URL
+  const hasUrlFilters = searchParams.get("recipient") || searchParams.get("location") || searchParams.get("yearFrom");
+  const [groupBy, setGroupBy] = useState<"none" | "year" | "recipient">(hasUrlFilters ? "none" : "year");
+
+  // Оновлюємо стан при зміні URL параметрів
+  useEffect(() => {
+    const recipient = searchParams.get("recipient");
+    const location = searchParams.get("location");
+    const yearFrom = searchParams.get("yearFrom");
+    const yearTo = searchParams.get("yearTo");
+    const q = searchParams.get("q");
+
+    setFilters({
+      recipient: recipient || "all",
+      location: location || "all",
+      yearFrom: yearFrom ? parseInt(yearFrom) : undefined,
+      yearTo: yearTo ? parseInt(yearTo) : undefined,
+    });
+
+    if (q) setSearchQuery(q);
+
+    // Вимикаємо групування якщо є фільтри
+    if (recipient || location || yearFrom) {
+      setGroupBy("none");
+    }
+  }, [searchParams]);
 
   // Завантажити листи з БД
   const { data: letters = [], isLoading } = useQuery({

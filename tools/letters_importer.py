@@ -206,10 +206,52 @@ class LettersImporter:
 
         return metadata
 
+    def _extract_html_preserving_formatting(self, tag: Tag) -> str:
+        """
+        Витягнути HTML з тега, зберігаючи форматування (bold/italic).
+        Конвертує <i> -> <em>, <b> -> <strong> для консистентності.
+        """
+        if not tag:
+            return ""
+
+        # Список дозволених тегів для збереження
+        allowed_tags = {'em', 'i', 'strong', 'b', 'br', 'p'}
+
+        def clean_tag(element):
+            """Рекурсивно очистити тег, зберігаючи лише дозволені теги"""
+            if isinstance(element, NavigableString):
+                return str(element)
+
+            if isinstance(element, Tag):
+                tag_name = element.name.lower()
+
+                # Замінити i на em, b на strong
+                if tag_name == 'i':
+                    tag_name = 'em'
+                elif tag_name == 'b':
+                    tag_name = 'strong'
+
+                # Обробити дочірні елементи
+                children_html = ''.join(clean_tag(child) for child in element.children)
+
+                if tag_name in allowed_tags:
+                    if tag_name == 'br':
+                        return '<br>'
+                    return f'<{tag_name}>{children_html}</{tag_name}>'
+                else:
+                    return children_html
+
+            return ""
+
+        result = clean_tag(tag)
+        # Очистити зайві пробіли
+        result = re.sub(r'\s+', ' ', result).strip()
+        return result
+
     def parse_letter_content(self, html: str) -> str:
         """
-        Витягнути текст листа з HTML
-        Повертає суцільний текст листа
+        Витягнути текст листа з HTML, зберігаючи форматування (bold/italic).
+        Повертає HTML з параграфами.
         """
         soup = BeautifulSoup(html, "lxml")
 
@@ -234,9 +276,10 @@ class LettersImporter:
         # Паттерни для пропуску
         skip_patterns = ["previous", "next", "share", "download", "copyright", "vedabase.io"]
 
-        # Витягнути параграфи
+        # Витягнути параграфи зі збереженням HTML форматування
         paragraphs = []
         for p_tag in para_tags:
+            # Отримати текст для перевірки на skip patterns
             text = p_tag.get_text(separator=" ", strip=True)
             if text and len(text) > 5:
                 # Пропустити UI елементи
@@ -244,13 +287,16 @@ class LettersImporter:
                 if any(skip in text_lower for skip in skip_patterns):
                     continue
 
-                paragraphs.append(text)
+                # Витягнути HTML зі збереженням форматування
+                html_content = self._extract_html_preserving_formatting(p_tag)
+                if html_content:
+                    paragraphs.append(f"<p>{html_content}</p>")
 
                 # Витягнути санскритські терміни
                 self._extract_sanskrit_terms(p_tag, text)
 
         # Об'єднати параграфи
-        content = "\n\n".join(paragraphs)
+        content = "\n".join(paragraphs)
 
         return content
 

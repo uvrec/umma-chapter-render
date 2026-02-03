@@ -130,17 +130,56 @@ function parseLetter(html, slug) {
   const contentDiv = $(".r-text, .letter-content, .content, article").first();
   let content = "";
 
+  // Helper to extract HTML preserving bold/italic formatting
+  const extractHtmlContent = (element) => {
+    // Clone the element to manipulate without affecting original
+    const clone = $(element).clone();
+
+    // Convert <em> and <i> to <em> for consistency
+    clone.find('i').each((_, el) => {
+      $(el).replaceWith(`<em>${$(el).html()}</em>`);
+    });
+
+    // Convert <strong> to <strong> (keep as is)
+    // Convert <b> to <strong> for consistency
+    clone.find('b').each((_, el) => {
+      $(el).replaceWith(`<strong>${$(el).html()}</strong>`);
+    });
+
+    // Get inner HTML
+    let html = clone.html() || '';
+
+    // Clean up extra whitespace but preserve paragraph breaks
+    html = html.replace(/\s+/g, ' ').trim();
+
+    return html;
+  };
+
   if (contentDiv.length) {
-    content = contentDiv.text().trim();
+    // Get paragraphs from content div preserving HTML formatting
+    const paragraphs = [];
+    contentDiv.find("p, div.copy").each((_, el) => {
+      const html = extractHtmlContent(el);
+      if (html && html.length > 20) {
+        paragraphs.push(`<p>${html}</p>`);
+      }
+    });
+
+    if (paragraphs.length > 0) {
+      content = paragraphs.join("\n");
+    } else {
+      // Fallback: get all HTML content
+      content = extractHtmlContent(contentDiv);
+    }
   } else {
     const paragraphs = [];
     $("p").each((_, el) => {
-      const text = $(el).text().trim();
-      if (text && text.length > 20) {
-        paragraphs.push(text);
+      const html = extractHtmlContent(el);
+      if (html && html.length > 20) {
+        paragraphs.push(`<p>${html}</p>`);
       }
     });
-    content = paragraphs.join("\n\n");
+    content = paragraphs.join("\n");
   }
 
   if (!content) {

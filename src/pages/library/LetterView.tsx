@@ -171,8 +171,8 @@ export const LetterView = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Навігація */}
-        <div className="mb-6">
+        {/* Навігація + Edit button */}
+        <div className="mb-6 flex items-center justify-between">
           <Button
             variant="ghost"
             onClick={() => navigate(getLocalizedPath("/library/letters"))}
@@ -180,46 +180,35 @@ export const LetterView = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             {language === "uk" ? "До списку листів" : "Back to letters"}
           </Button>
-        </div>
 
-        {/* Admin Edit Header */}
-        {isAdmin && (
-          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm pb-4 mb-4 -mx-4 px-4 border-b">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {isEditing && (
-                  <span className="text-sm text-muted-foreground">
-                    Режим редагування
-                  </span>
-                )}
-              </div>
-              <div className="flex gap-2">
-                {isEditing ? (
-                  <>
-                    <Button
-                      variant="default"
-                      size="sm"
-                      onClick={saveEdit}
-                      disabled={saveLetterMutation.isPending}
-                    >
-                      <Save className="mr-2 h-4 w-4" />
-                      {saveLetterMutation.isPending ? "Збереження..." : "Зберегти"}
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={cancelEdit}>
-                      <X className="mr-2 h-4 w-4" />
-                      Скасувати
-                    </Button>
-                  </>
-                ) : (
-                  <Button variant="ghost" size="sm" onClick={startEdit}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    Редагувати
+          {/* Admin Edit Controls */}
+          {isAdmin && (
+            <div className="flex gap-2">
+              {isEditing ? (
+                <>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={saveEdit}
+                    disabled={saveLetterMutation.isPending}
+                  >
+                    <Save className="mr-2 h-4 w-4" />
+                    {saveLetterMutation.isPending ? "Збереження..." : "Зберегти"}
                   </Button>
-                )}
-              </div>
+                  <Button variant="outline" size="sm" onClick={cancelEdit}>
+                    <X className="mr-2 h-4 w-4" />
+                    Скасувати
+                  </Button>
+                </>
+              ) : (
+                <Button variant="ghost" size="sm" onClick={startEdit}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Редагувати
+                </Button>
+              )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Метадані листа */}
         <div className="mb-8">
@@ -275,20 +264,40 @@ export const LetterView = () => {
             <div className="flex items-start gap-3 mb-4">
               <User className="w-6 h-6 mt-1 flex-shrink-0 text-muted-foreground" />
               <div className="flex-1">
-                <h1 className="text-2xl font-bold mb-2">Лист до {recipient}</h1>
+                <h1 className="text-2xl font-bold mb-2">
+                  {language === "uk" ? "Лист до " : "Letter to "}
+                  <button
+                    onClick={() => navigate(getLocalizedPath(`/library/letters?recipient=${encodeURIComponent(letter.recipient_en)}`))}
+                    className="hover:text-primary hover:underline underline-offset-2 transition-colors"
+                  >
+                    {recipient}
+                  </button>
+                </h1>
                 <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      const year = new Date(letter.letter_date).getFullYear();
+                      navigate(getLocalizedPath(`/library/letters?yearFrom=${year}&yearTo=${year}`));
+                    }}
+                    className="flex items-center gap-2 hover:text-primary hover:underline underline-offset-2 transition-colors"
+                  >
                     <Calendar className="w-4 h-4" />
-                    {new Date(letter.letter_date).toLocaleDateString("uk-UA", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </div>
-                  <div className="flex items-center gap-2">
+                    {new Date(letter.letter_date).toLocaleDateString(
+                      language === "uk" ? "uk-UA" : "en-US",
+                      {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      }
+                    )}
+                  </button>
+                  <button
+                    onClick={() => navigate(getLocalizedPath(`/library/letters?location=${encodeURIComponent(letter.location_en)}`))}
+                    className="flex items-center gap-2 hover:text-primary hover:underline underline-offset-2 transition-colors"
+                  >
                     <MapPin className="w-4 h-4" />
                     {location}
-                  </div>
+                  </button>
                 </div>
               </div>
             </div>
