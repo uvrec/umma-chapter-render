@@ -12,8 +12,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Search,
   BookOpen,
-  FileText,
-  Download,
   Loader2,
   BarChart3,
   BookMarked,
@@ -21,13 +19,10 @@ import {
   ChevronUp,
   Plus,
   Minus,
-  Eye
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
 import {
   Select,
   SelectContent,
@@ -445,220 +440,6 @@ export default function KnowledgeCompiler() {
     });
   };
 
-  // Export compilation as PDF
-  const exportAsPDF = () => {
-    if (compilation.length === 0) {
-      toast.error(language === 'uk' ? "Збірка порожня" : "Compilation is empty");
-      return;
-    }
-
-    try {
-      const doc = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      const margin = 20;
-      const maxWidth = pageWidth - (margin * 2);
-      let yPosition = margin;
-
-      // Helper to add new page if needed
-      const checkPageBreak = (neededSpace: number) => {
-        if (yPosition + neededSpace > pageHeight - margin) {
-          doc.addPage();
-          yPosition = margin;
-        }
-      };
-
-      // Helper to wrap and add text
-      const addWrappedText = (text: string, fontSize: number, fontStyle: string = 'normal', color: number[] = [0, 0, 0]) => {
-        doc.setFontSize(fontSize);
-        doc.setFont('helvetica', fontStyle);
-        doc.setTextColor(color[0], color[1], color[2]);
-
-        const lines = doc.splitTextToSize(text, maxWidth);
-        const lineHeight = fontSize * 0.5;
-
-        checkPageBreak(lines.length * lineHeight);
-
-        lines.forEach((line: string) => {
-          doc.text(line, margin, yPosition);
-          yPosition += lineHeight;
-        });
-      };
-
-      // Title page
-      doc.setFontSize(24);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(40, 40, 40);
-      const title = compilationTitle || (language === 'uk' ? 'Тематична Збірка' : 'Thematic Compilation');
-      doc.text(title, pageWidth / 2, 40, { align: 'center' });
-
-      yPosition = 60;
-
-      // Metadata
-      doc.setFontSize(11);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(80, 80, 80);
-      doc.text(`${language === 'uk' ? 'Тема' : 'Topic'}: ${searchQuery}`, margin, yPosition);
-      yPosition += 7;
-      doc.text(`${language === 'uk' ? 'Дата створення' : 'Created'}: ${new Date().toLocaleDateString()}`, margin, yPosition);
-      yPosition += 7;
-      doc.text(`${language === 'uk' ? 'Кількість віршів' : 'Number of verses'}: ${compilation.length}`, margin, yPosition);
-      yPosition += 15;
-
-      // Separator line
-      doc.setDrawColor(200, 200, 200);
-      doc.line(margin, yPosition, pageWidth - margin, yPosition);
-      yPosition += 10;
-
-      // Add each verse
-      compilation.forEach((verse, index) => {
-        checkPageBreak(40);
-
-        // Verse number and reference
-        const reference = verse.canto_number
-          ? `${verse.book_title}, ${language === 'uk' ? 'Пісня' : 'Canto'} ${verse.canto_number}, ${language === 'uk' ? 'Розділ' : 'Chapter'} ${verse.chapter_number}, ${language === 'uk' ? 'Вірш' : 'Verse'} ${verse.verse_number}`
-          : `${verse.book_title}, ${language === 'uk' ? 'Розділ' : 'Chapter'} ${verse.chapter_number}, ${language === 'uk' ? 'Вірш' : 'Verse'} ${verse.verse_number}`;
-
-        // Verse header with background
-        doc.setFillColor(245, 245, 245);
-        doc.rect(margin - 2, yPosition - 5, maxWidth + 4, 10, 'F');
-
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(40, 40, 40);
-        doc.text(`${index + 1}. ${reference}`, margin, yPosition);
-        yPosition += 12;
-
-        // Sanskrit (if exists)
-        if (verse.sanskrit) {
-          checkPageBreak(15);
-          doc.setFontSize(11);
-          doc.setFont('helvetica', 'italic');
-          doc.setTextColor(100, 60, 60);
-          const sanskritLines = doc.splitTextToSize(verse.sanskrit, maxWidth);
-          sanskritLines.forEach((line: string) => {
-            doc.text(line, margin, yPosition);
-            yPosition += 5;
-          });
-          yPosition += 3;
-        }
-
-        // Transliteration (if exists)
-        if (verse.transliteration) {
-          checkPageBreak(15);
-          doc.setFontSize(10);
-          doc.setFont('helvetica', 'italic');
-          doc.setTextColor(120, 120, 120);
-          const translitLines = doc.splitTextToSize(verse.transliteration, maxWidth);
-          translitLines.forEach((line: string) => {
-            doc.text(line, margin, yPosition);
-            yPosition += 4.5;
-          });
-          yPosition += 3;
-        }
-
-        // Synonyms (if exists)
-        if (verse.synonyms) {
-          checkPageBreak(20);
-          doc.setFontSize(9);
-          doc.setFont('helvetica', 'bold');
-          doc.setTextColor(60, 60, 60);
-          doc.text(language === 'uk' ? 'Синоніми:' : 'Synonyms:', margin, yPosition);
-          yPosition += 5;
-
-          doc.setFont('helvetica', 'normal');
-          doc.setTextColor(80, 80, 80);
-          const synonymLines = doc.splitTextToSize(verse.synonyms, maxWidth);
-          synonymLines.forEach((line: string) => {
-            checkPageBreak(5);
-            doc.text(line, margin, yPosition);
-            yPosition += 4;
-          });
-          yPosition += 3;
-        }
-
-        // Translation
-        if (verse.translation) {
-          checkPageBreak(20);
-          doc.setFontSize(9);
-          doc.setFont('helvetica', 'bold');
-          doc.setTextColor(60, 60, 60);
-          doc.text(language === 'uk' ? 'Переклад:' : 'Translation:', margin, yPosition);
-          yPosition += 5;
-
-          doc.setFontSize(10);
-          doc.setFont('helvetica', 'normal');
-          doc.setTextColor(0, 0, 0);
-          const translationLines = doc.splitTextToSize(verse.translation, maxWidth);
-          translationLines.forEach((line: string) => {
-            checkPageBreak(5);
-            doc.text(line, margin, yPosition);
-            yPosition += 5;
-          });
-          yPosition += 3;
-        }
-
-        // Commentary (if exists)
-        if (verse.commentary) {
-          checkPageBreak(20);
-          doc.setFontSize(9);
-          doc.setFont('helvetica', 'bold');
-          doc.setTextColor(60, 60, 60);
-          doc.text(language === 'uk' ? 'Коментар:' : 'Commentary:', margin, yPosition);
-          yPosition += 5;
-
-          doc.setFontSize(9);
-          doc.setFont('helvetica', 'normal');
-          doc.setTextColor(40, 40, 40);
-          const commentaryLines = doc.splitTextToSize(verse.commentary, maxWidth);
-          commentaryLines.forEach((line: string) => {
-            checkPageBreak(4.5);
-            doc.text(line, margin, yPosition);
-            yPosition += 4.5;
-          });
-          yPosition += 5;
-        }
-
-        // Separator between verses
-        if (index < compilation.length - 1) {
-          checkPageBreak(5);
-          doc.setDrawColor(220, 220, 220);
-          doc.line(margin, yPosition, pageWidth - margin, yPosition);
-          yPosition += 8;
-        }
-      });
-
-      // Footer on each page
-      const totalPages = doc.internal.pages.length - 1;
-      for (let i = 1; i <= totalPages; i++) {
-        doc.setPage(i);
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(150, 150, 150);
-        doc.text(
-          `${language === 'uk' ? 'Сторінка' : 'Page'} ${i} ${language === 'uk' ? 'з' : 'of'} ${totalPages}`,
-          pageWidth / 2,
-          pageHeight - 10,
-          { align: 'center' }
-        );
-      }
-
-      // Save PDF
-      const fileName = `${compilationTitle || 'збірка'}_${searchQuery.substring(0, 20)}.pdf`;
-      doc.save(fileName);
-
-      toast.success(language === 'uk' ? "PDF експортовано успішно" : "PDF exported successfully");
-    } catch (error) {
-      console.error('PDF export error:', error);
-      toast.error(language === 'uk' ? "Помилка при експорті PDF" : "Error exporting PDF");
-    }
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/20">
       <Header />
@@ -1015,14 +796,6 @@ export default function KnowledgeCompiler() {
                     onChange={(e) => setCompilationTitle(e.target.value)}
                   />
                 </div>
-
-                {/* Export Button */}
-                {compilation.length > 0 && (
-                  <Button onClick={exportAsPDF} className="w-full" size="lg">
-                    <Download className="w-4 h-4 mr-2" />
-                    {language === 'uk' ? 'Експортувати як PDF' : 'Export as PDF'}
-                  </Button>
-                )}
 
                 {/* Compilation List */}
                 {compilation.length === 0 ? (
