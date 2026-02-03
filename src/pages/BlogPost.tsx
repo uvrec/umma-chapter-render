@@ -16,7 +16,7 @@ import { SubstackEmbed } from "@/components/blog/SubstackEmbed";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar, Clock, Eye } from "lucide-react";
+import { Calendar, Clock, Eye, X } from "lucide-react";
 import { ContentToolbar } from "@/components/ContentToolbar";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -33,7 +33,7 @@ export default function BlogPost() {
   const { language } = useLanguage();
   const { isAdmin } = useAuth();
   const queryClient = useQueryClient();
-  const { dualLanguageMode, zenMode, fullscreenMode } = useReaderSettings();
+  const { dualLanguageMode, zenMode, fullscreenMode, setZenMode, setFullscreenMode } = useReaderSettings();
 
   // ✅ ДОДАНО: Display blocks для контролю видимості блоків
   const [displayBlocks, setDisplayBlocks] = useState({
@@ -421,6 +421,7 @@ export default function BlogPost() {
               title={title || ""}
               contentType="blog"
               editUrl={isAdmin ? `/admin/blog-posts/${post.id}/edit` : undefined}
+              showOnMobile={true}
             />
           </div>
 
@@ -663,6 +664,21 @@ export default function BlogPost() {
       </article>
 
       {!zenMode && <Footer />}
+
+      {/* Floating exit button for zen/fullscreen modes */}
+      {(zenMode || fullscreenMode) && (
+        <Button
+          variant="outline"
+          size="icon"
+          className="fixed top-4 right-4 z-[60] bg-background/80 backdrop-blur-sm"
+          onClick={() => {
+            setZenMode(false);
+            setFullscreenMode(false);
+          }}
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      )}
     </div>
   );
 }
