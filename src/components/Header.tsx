@@ -96,12 +96,6 @@ function DesktopHeader() {
                     Вивчення
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to={getLocalizedPath("/chat")} className="flex items-center cursor-pointer">
-                    <Bot className="mr-2 h-4 w-4" />
-                    VedaVOICE
-                  </Link>
-                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -190,10 +184,6 @@ function DesktopHeader() {
                       <span>Збірки знань</span>
                     </Link>
 
-                    <Link to={getLocalizedPath("/chat")} className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
-                      <Bot className="h-4 w-4" />
-                      <span>VedaVOICE</span>
-                    </Link>
                   </CollapsibleContent>
                 </Collapsible>
 

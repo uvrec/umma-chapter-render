@@ -64,24 +64,28 @@ function slugifyRecipient(recipient) {
     .substring(0, 30); // Limit length
 }
 
-// Згенерувати короткий slug для листа
+// Згенерувати короткий slug для листа (тільки ім'я-номер)
 async function generateShortSlug(recipient) {
   const recipientSlug = slugifyRecipient(recipient);
-  const baseSlug = `letter-to-${recipientSlug}`;
 
   // Знайти існуючі slug'и з таким же базовим ім'ям
   const { data: existing } = await supabase
     .from("letters")
     .select("slug")
-    .like("slug", `${baseSlug}%`);
+    .like("slug", `${recipientSlug}%`);
 
   if (!existing || existing.length === 0) {
-    return `${baseSlug}-1`;
+    return recipientSlug;
   }
 
   // Знайти максимальний номер
   let maxNum = 0;
   for (const row of existing) {
+    // Якщо slug == recipientSlug, це перший лист
+    if (row.slug === recipientSlug) {
+      maxNum = Math.max(maxNum, 1);
+      continue;
+    }
     const match = row.slug.match(/-(\d+)$/);
     if (match) {
       const num = parseInt(match[1]);
@@ -89,7 +93,12 @@ async function generateShortSlug(recipient) {
     }
   }
 
-  return `${baseSlug}-${maxNum + 1}`;
+  // Якщо є тільки один лист без номера, наступний буде -2
+  if (maxNum === 0) {
+    return recipientSlug;
+  }
+
+  return `${recipientSlug}-${maxNum + 1}`;
 }
 
 async function fetchHtml(url) {

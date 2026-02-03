@@ -30,7 +30,7 @@ const DEFAULTS = {
   showNumbers: true,
   flowMode: false,
   mobileSafeMode: false,
-  showVerseContour: true,
+  showVerseContour: false,
   fullscreenMode: false,
   blocks: {
     showSanskrit: true,
