@@ -242,8 +242,8 @@ export const ChapterVersesList = () => {
           query = query.eq("canto_id", canto.id);
         }
 
-        // Filter by is_published for non-admin users
-        if (!isAdmin) {
+        // Filter by is_published only if not admin AND no preview token
+        if (!isAdmin && !previewToken) {
           query = query.eq("is_published", true);
         }
 
@@ -279,8 +279,8 @@ export const ChapterVersesList = () => {
           .eq("chapter_number", parseInt(effectiveChapterParam as string))
           .is("canto_id", null);
 
-        // Filter by is_published for non-admin users
-        if (!isAdmin) {
+        // Filter by is_published only if not admin AND no preview token
+        if (!isAdmin && !previewToken) {
           query = query.eq("is_published", true);
         }
 
@@ -316,8 +316,8 @@ export const ChapterVersesList = () => {
           .eq("chapter_id", chapter.id)
           .is("deleted_at", null);
 
-        // Filter by is_published for non-admin users
-        if (!isAdmin) {
+        // Filter by is_published only if not admin AND no preview token
+        if (!isAdmin && !previewToken) {
           query = query.eq("is_published", true);
         }
 
@@ -352,8 +352,8 @@ export const ChapterVersesList = () => {
           .eq("chapter_id", fallbackChapter.id)
           .is("deleted_at", null);
 
-        // Filter by is_published for non-admin users
-        if (!isAdmin) {
+        // Filter by is_published only if not admin AND no preview token
+        if (!isAdmin && !previewToken) {
           query = query.eq("is_published", true);
         }
 
