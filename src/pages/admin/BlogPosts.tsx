@@ -183,7 +183,7 @@ export default function BlogPostsInfinite() {
                   )}
                 </TableCell>
                 <TableCell className="font-medium">{language === "uk" ? post.title_uk : post.title_en}</TableCell>
-                <TableCell>{post.author_name || "Аніруддга дас"}</TableCell>
+                <TableCell>{post.author_display_name || "Аніруддга дас"}</TableCell>
                 <TableCell>
                   {post.category ? (language === "uk" ? post.category.name_uk : post.category.name_en) : "-"}
                 </TableCell>

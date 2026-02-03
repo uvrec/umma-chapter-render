@@ -461,7 +461,7 @@ export default function BlogPost() {
                   </Button>
                 </header>
 
-                <div className="blog-body prose prose-lg prose-slate dark:prose-invert max-w-none">
+                <div className="blog-body prose prose-slate dark:prose-invert max-w-none">
                   {hasContentUk ? (
                     post.content_mode === "poetry" ? (
                       <BlogPoetryContent
@@ -523,7 +523,7 @@ export default function BlogPost() {
                   </Button>
                 </header>
 
-                <div className="blog-body prose prose-lg prose-slate dark:prose-invert max-w-none">
+                <div className="blog-body prose prose-slate dark:prose-invert max-w-none">
                   {hasContentEn ? (
                     post.content_mode === "poetry" ? (
                       <BlogPoetryContent
@@ -600,7 +600,7 @@ export default function BlogPost() {
                 </Button>
               </header>
 
-              <div className="blog-body prose prose-lg prose-slate dark:prose-invert max-w-none">
+              <div className="blog-body prose prose-slate dark:prose-invert max-w-none">
                 {language === "uk" ? (
                   hasContentUk ? (
                     post.content_mode === "poetry" ? (
