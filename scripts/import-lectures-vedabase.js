@@ -65,6 +65,7 @@ const LOCATION_TRANSLATIONS = {
   "Vrindavan": "Вріндаван",
   "Mayapur": "Маяпур",
   "Delhi": "Делі",
+  "New Delhi": "Нью-Делі",
   "Honolulu": "Гонолулу",
   "Tokyo": "Токіо",
   "Melbourne": "Мельбурн",
@@ -78,6 +79,17 @@ const LOCATION_TRANSLATIONS = {
   "Dallas": "Даллас",
   "Atlanta": "Атланта",
   "Hawaii": "Гаваї",
+  "Berlin": "Берлін",
+  "Hyderabad": "Гайдерабад",
+  "Madras": "Мадрас",
+  "Chennai": "Ченнаї",
+  "Bangalore": "Бангалор",
+  "Nairobi": "Найробі",
+  "Johannesburg": "Йоганнесбург",
+  "Tehran": "Тегеран",
+  "Mexico City": "Мехіко",
+  "Caracas": "Каракас",
+  "Buenos Aires": "Буенос-Айрес",
 };
 
 // Утиліти
@@ -110,7 +122,8 @@ function parseDateFromSlug(slug) {
   if (!match) return null;
 
   const [, yy, mm, dd] = match;
-  const year = parseInt(yy) > 50 ? `19${yy}` : `20${yy}`;
+  // Прабгупада жив 1896-1977, всі лекції - це 19xx роки
+  const year = `19${yy}`;
 
   try {
     const date = new Date(`${year}-${mm}-${dd}`);
@@ -178,6 +191,63 @@ function transliterateTitle(title) {
   return result;
 }
 
+// Витягти локацію з HTML
+function extractLocation(html, slug) {
+  // Спосіб 1: JSON embedded data - "location":"City Name"
+  const jsonMatch = html.match(/"location":"([^"]+)"/);
+  if (jsonMatch && jsonMatch[1] && jsonMatch[1] !== "Location…") {
+    return jsonMatch[1];
+  }
+
+  // Спосіб 2: URL параметр - ?location=City+Name або location=City+Name
+  const urlMatch = html.match(/location=([A-Za-z+%]+)/);
+  if (urlMatch && urlMatch[1]) {
+    return decodeURIComponent(urlMatch[1].replace(/\+/g, " "));
+  }
+
+  // Спосіб 3: Код міста в slug - останні 2-3 літери
+  // Формат slug: YYMMDD + TYPE + LOCATION_CODE (напр. 681231pula = PU + LA)
+  const slugLocationCodes = {
+    "la": "Los Angeles",
+    "ny": "New York",
+    "sf": "San Francisco",
+    "lon": "London",
+    "bom": "Bombay",
+    "vrn": "Vrindavan",
+    "may": "Mayapur",
+    "del": "Delhi",
+    "cal": "Calcutta",
+    "hon": "Honolulu",
+    "tok": "Tokyo",
+    "mel": "Melbourne",
+    "syd": "Sydney",
+    "mon": "Montreal",
+    "tor": "Toronto",
+    "bos": "Boston",
+    "chi": "Chicago",
+    "det": "Detroit",
+    "sea": "Seattle",
+    "dal": "Dallas",
+    "atl": "Atlanta",
+    "par": "Paris",
+    "ber": "Berlin",
+    "hyd": "Hyderabad",
+    "mad": "Madras",
+    "ban": "Bangalore",
+    "nai": "Nairobi",
+  };
+
+  // Спробувати витягти код міста з slug (останні 2-3 символи після дати+типу)
+  const slugLower = slug.toLowerCase();
+  for (const [code, city] of Object.entries(slugLocationCodes)) {
+    if (slugLower.endsWith(code)) {
+      return city;
+    }
+  }
+
+  return "Unknown";
+}
+
 // Парсер лекції
 function parseLecture(html, slug) {
   const $ = cheerio.load(html);
@@ -194,14 +264,8 @@ function parseLecture(html, slug) {
     return null;
   }
 
-  let location = "Unknown";
-  const slugParts = slug.split("-");
-  if (slugParts.length > 1) {
-    location = slugParts.slice(1).join(" ").replace(/_/g, " ");
-    location = location.split(" ").map(word =>
-      word.charAt(0).toUpperCase() + word.slice(1)
-    ).join(" ");
-  }
+  // Використовуємо нову функцію для витягування локації
+  const location = extractLocation(html, slug);
 
   const { type: lectureType, bookSlug } = detectLectureType(title, slug);
   const { chapter, verse } = parseChapterVerse(title);

@@ -26,6 +26,19 @@ import type {
   LetterSortOrder,
 } from "@/types/letter";
 
+// Очистити HTML теги для превью
+const stripHtmlTags = (html: string): string => {
+  return html
+    .replace(/<[^>]*>/g, '') // Видалити всі HTML теги
+    .replace(/&nbsp;/g, ' ') // Замінити &nbsp; на пробіл
+    .replace(/&amp;/g, '&')  // Декодувати &amp;
+    .replace(/&lt;/g, '<')   // Декодувати &lt;
+    .replace(/&gt;/g, '>')   // Декодувати &gt;
+    .replace(/&quot;/g, '"') // Декодувати &quot;
+    .replace(/\s+/g, ' ')    // Нормалізувати пробіли
+    .trim();
+};
+
 export const LettersContent = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -262,8 +275,8 @@ export const LettersContent = () => {
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-2 mt-2">
                         {language === "uk" && letter.content_uk
-                          ? letter.content_uk.substring(0, 150) + "..."
-                          : letter.content_en.substring(0, 150) + "..."}
+                          ? stripHtmlTags(letter.content_uk).substring(0, 150) + "..."
+                          : stripHtmlTags(letter.content_en).substring(0, 150) + "..."}
                       </p>
                     </div>
                   </div>
