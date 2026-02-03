@@ -16,7 +16,8 @@ import { SubstackEmbed } from "@/components/blog/SubstackEmbed";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar, Clock, Eye, Share2 } from "lucide-react";
+import { Calendar, Clock, Eye } from "lucide-react";
+import { ContentToolbar } from "@/components/ContentToolbar";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBlogPostView } from "@/hooks/useBlogPostView";
@@ -279,14 +280,6 @@ export default function BlogPost() {
   const hasContentUk = contentUk && contentUk.trim().length > 20;
   const hasContentEn = contentEn && contentEn.trim().length > 20;
 
-  const handleShare = async () => {
-    if (navigator.share) {
-      await navigator.share({ title, text: excerpt, url: window.location.href });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-    }
-  };
-
   // SEO URLs
   const uaUrl = `${SITE_CONFIG.baseUrl}/uk/blog/${slug}`;
   const enUrl = `${SITE_CONFIG.baseUrl}/en/blog/${slug}`;
@@ -399,24 +392,31 @@ export default function BlogPost() {
             </div>
           )}
           
-          {/* Breadcrumbs */}
-          <nav className="mb-6 text-sm text-muted-foreground">
-            <Link to="/" className="hover:text-foreground">
-              {language === "uk" ? "Головна" : "Home"}
-            </Link>{" "}
-            {" > "}
-            <Link to="/blog" className="hover:text-foreground">
-              {language === "uk" ? "Блог" : "Blog"}
-            </Link>
-            {post.category && (
-              <>
-                {" > "}
-                <span>{language === "uk" ? post.category.name_uk : post.category.name_en}</span>
-              </>
-            )}
-            {" > "}
-            <span className="text-foreground">{title}</span>
-          </nav>
+          {/* Breadcrumbs + Toolbar */}
+          <div className="mb-6 flex items-center justify-between flex-wrap gap-2">
+            <nav className="text-sm text-muted-foreground">
+              <Link to="/" className="hover:text-foreground">
+                {language === "uk" ? "Головна" : "Home"}
+              </Link>{" "}
+              {" > "}
+              <Link to="/blog" className="hover:text-foreground">
+                {language === "uk" ? "Блог" : "Blog"}
+              </Link>
+              {post.category && (
+                <>
+                  {" > "}
+                  <span>{language === "uk" ? post.category.name_uk : post.category.name_en}</span>
+                </>
+              )}
+              {" > "}
+              <span className="text-foreground">{title}</span>
+            </nav>
+
+            <ContentToolbar
+              title={title || ""}
+              contentType="blog"
+            />
+          </div>
 
           {/* Featured Image */}
           {post.featured_image && (
@@ -453,12 +453,7 @@ export default function BlogPost() {
                     </div>
                   </div>
 
-                  <div className="text-sm text-muted-foreground mb-4">Автор: {post.author_display_name}</div>
-
-                  <Button variant="outline" onClick={handleShare} className="mb-6">
-                    <Share2 className="h-4 w-4 mr-2" />
-                    Поділитися
-                  </Button>
+                  <div className="text-sm text-muted-foreground">Автор: {post.author_display_name}</div>
                 </header>
 
                 <div className="blog-body prose prose-slate dark:prose-invert max-w-none">
@@ -515,12 +510,7 @@ export default function BlogPost() {
                     </div>
                   </div>
 
-                  <div className="text-sm text-muted-foreground mb-4">Author: {post.author_display_name}</div>
-
-                  <Button variant="outline" onClick={handleShare} className="mb-6">
-                    <Share2 className="h-4 w-4 mr-2" />
-                    Share
-                  </Button>
+                  <div className="text-sm text-muted-foreground">Author: {post.author_display_name}</div>
                 </header>
 
                 <div className="blog-body prose prose-slate dark:prose-invert max-w-none">
@@ -593,11 +583,6 @@ export default function BlogPost() {
                     </span>
                   </div>
                 </div>
-
-                <Button variant="outline" onClick={handleShare} className="mb-6">
-                  <Share2 className="h-4 w-4 mr-2" />
-                  {language === "uk" ? "Поділитися" : "Share"}
-                </Button>
               </header>
 
               <div className="blog-body prose prose-slate dark:prose-invert max-w-none">
