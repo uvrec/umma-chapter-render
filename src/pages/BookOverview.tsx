@@ -351,13 +351,14 @@ export const BookOverview = () => {
 
       if (error) {
         console.error('Error fetching cantos:', error);
-        // Fallback to direct query - filter by is_published for non-admin users
+        // Fallback to direct query - filter by is_published only if no admin AND no preview token
         let fallbackQuery = supabase
           .from("cantos")
           .select("*")
           .eq("book_id", book.id);
 
-        if (!isAdmin) {
+        // Only filter by is_published if user is not admin AND doesn't have a preview token
+        if (!isAdmin && !previewToken) {
           fallbackQuery = fallbackQuery.eq("is_published", true);
         }
 
@@ -394,13 +395,13 @@ export const BookOverview = () => {
     data: chapters = [],
     isLoading: chaptersLoading
   } = useQuery({
-    queryKey: ["chapters-with-verse-counts", book?.id, isAdmin],
+    queryKey: ["chapters-with-verse-counts", book?.id, isAdmin, previewToken],
     queryFn: async () => {
       if (!book?.id) return [];
 
-      // Build query with is_published filter for non-admin users
+      // Build query with is_published filter only if no admin AND no preview token
       let query = supabase.from("chapters").select("*").eq("book_id", book.id);
-      if (!isAdmin) {
+      if (!isAdmin && !previewToken) {
         query = query.eq("is_published", true);
       }
       query = query.order("chapter_number");
