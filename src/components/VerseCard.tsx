@@ -20,7 +20,7 @@ import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
 import { parseSynonymPairs } from "@/utils/glossaryParser";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { formatExplanationParagraphs } from "@/utils/text/dropCap";
-import { SyncedText } from "@/components/SyncedText";
+// SyncedText removed - audio sync highlighting was poorly implemented
 
 /* =========================
    Типи пропсів
@@ -39,9 +39,6 @@ interface VerseCardProps {
   audioSynonyms?: string; // окреме аудіо для послівного
   audioTranslation?: string; // окреме аудіо для перекладу
   audioCommentary?: string; // окреме аудіо для пояснення
-
-  // ✅ НОВЕ: LRC синхронізація для точного підсвічування рядків
-  lrcContent?: string | null; // LRC формат з таймкодами
 
   // ✅ НОВЕ: Підтримка складених віршів
   is_composite?: boolean;
@@ -118,7 +115,6 @@ export const VerseCard = ({
   audioSynonyms,
   audioTranslation,
   audioCommentary,
-  lrcContent,
   is_composite = false,
   start_verse,
   end_verse,
@@ -218,9 +214,8 @@ export const VerseCard = ({
     return currentTrack.id?.startsWith(`${verseNumber}-`) || false;
   }, [currentTrack, verseId, verseNumber, isPlaying]);
 
-  // Простий клас для підсвітки всіх секцій коли вірш грає
-  // Детальна синхронізація рядків працює через SyncedText + lrcContent
-  const sectionHighlightClass = isNowPlaying ? 'synced-section-active' : '';
+  // Audio sync block highlighting removed - it was poorly implemented
+  // and didn't match the functional minimalism concept
 
   const verseRef = useRef<HTMLDivElement>(null);
 
@@ -511,7 +506,7 @@ export const VerseCard = ({
 
         {/* Деванагарі */}
         {textDisplaySettings.showSanskrit && (isEditing || sanskritText) && (
-          <div className={`mb-3 synced-section transition-all duration-300 ${sectionHighlightClass}`} data-synced-section="sanskrit">
+          <div className="mb-3" data-synced-section="sanskrit">
             {isEditing ? (
               <Textarea
                 value={edited.sanskrit}
@@ -523,22 +518,7 @@ export const VerseCard = ({
                 }
                 className="min-h-[100px] text-center sanskrit-text"
               />
-            ) : lrcContent ? (
-              // Точна синхронізація з LRC - кожен рядок/слово підсвічується
-              <SyncedText
-                text={processedSanskrit}
-                verseId={verseId}
-                section="sanskrit"
-                lrcContent={lrcContent}
-                className="text-center sanskrit-text"
-                lineClassName="whitespace-pre-line"
-                activeLineClassName="text-primary font-semibold bg-primary/10 rounded px-1"
-                showProgress={true}
-                autoScroll={true}
-                clickToSeek={true}
-              />
             ) : (
-              // Без LRC - просто текст
               <p className="whitespace-pre-line text-center sanskrit-text" style={{ fontSize: `${fontSize}px`, lineHeight }}>{processedSanskrit}</p>
             )}
           </div>
@@ -546,7 +526,7 @@ export const VerseCard = ({
 
         {/* Транслітерація */}
         {textDisplaySettings.showTransliteration && (isEditing || transliteration) && (
-          <div className={`mb-4 synced-section transition-all duration-300 ${sectionHighlightClass}`} data-synced-section="transliteration">
+          <div className="mb-4" data-synced-section="transliteration">
             {isEditing ? (
               <Textarea
                 value={edited.transliteration}
@@ -575,7 +555,7 @@ export const VerseCard = ({
 
         {/* Послівний переклад з окремою кнопкою Volume2 */}
         {textDisplaySettings.showSynonyms && (isEditing || synonyms) && (
-          <div className={`mb-6 synced-section transition-all duration-300 ${sectionHighlightClass}`} data-synced-section="synonyms">
+          <div className="mb-6" data-synced-section="synonyms">
             {/* Mobile: центрована стрілка для collapse/expand */}
             {isMobile && (
               <button
@@ -689,7 +669,7 @@ export const VerseCard = ({
 
         {/* Літературний переклад з окремою кнопкою Volume2 */}
         {textDisplaySettings.showTranslation && (isEditing || translation) && (
-          <div className={`mb-6 synced-section transition-all duration-300 ${sectionHighlightClass}`} data-synced-section="translation">
+          <div className="mb-6" data-synced-section="translation">
             {/* Заголовок + кнопка Volume2 (hidden on mobile via CSS for clean reading) */}
             <div className="section-header hidden md:flex items-center justify-center gap-4 mb-4">
               <h4 className="text-foreground font-serif">{labels.translation}</h4>
@@ -729,7 +709,7 @@ export const VerseCard = ({
 
         {/* Пояснення з окремою кнопкою Volume2 */}
         {textDisplaySettings.showCommentary && (isEditing || commentary) && (
-          <div className={`synced-section transition-all duration-300 ${sectionHighlightClass}`} data-synced-section="commentary">
+          <div data-synced-section="commentary">
             {/* Заголовок + кнопка Volume2 (hidden on mobile via CSS for clean reading) */}
             <div className="section-header hidden md:flex items-center justify-center gap-4 mb-4">
               <h4 className="text-foreground font-serif">{labels.commentary}</h4>
