@@ -49,7 +49,9 @@ import {
   Sparkles,
   Loader2,
   ClipboardPaste,
+  Music,
 } from "lucide-react";
+import { AudioUploader } from "@/components/admin/shared/AudioUploader";
 import { transliterateIAST } from "@/utils/text/transliteration";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
@@ -74,6 +76,7 @@ export const LectureView = () => {
     title_en: string;
     location_uk: string;
     location_en: string;
+    audio_url: string;
   } | null>(null);
   const [editedParagraphs, setEditedParagraphs] = useState<{
     [id: string]: { content_uk: string; content_en: string };
@@ -228,6 +231,7 @@ export const LectureView = () => {
       if (editedLecture.title_en !== lecture.title_en) lectureUpdates.title_en = editedLecture.title_en;
       if (editedLecture.location_uk !== lecture.location_uk) lectureUpdates.location_uk = editedLecture.location_uk;
       if (editedLecture.location_en !== lecture.location_en) lectureUpdates.location_en = editedLecture.location_en;
+      if (editedLecture.audio_url !== (lecture.audio_url || "")) lectureUpdates.audio_url = editedLecture.audio_url || null;
 
       if (Object.keys(lectureUpdates).length > 0) {
         const { error } = await (supabase as any)
@@ -274,6 +278,7 @@ export const LectureView = () => {
       title_en: lecture.title_en,
       location_uk: lecture.location_uk || "",
       location_en: lecture.location_en,
+      audio_url: lecture.audio_url || "",
     });
     const paragraphEdits: { [id: string]: { content_uk: string; content_en: string } } = {};
     paragraphs.forEach((p) => {
@@ -722,8 +727,18 @@ export const LectureView = () => {
           </div>
 
 
-          {/* Аудіо плеєр */}
-          {lecture.audio_url && (
+          {/* Аудіо плеєр / Завантаження аудіо */}
+          {isEditing && editedLecture ? (
+            <div className="mt-6">
+              <AudioUploader
+                label="Аудіо лекції"
+                value={editedLecture.audio_url}
+                onChange={(url) => setEditedLecture({ ...editedLecture, audio_url: url })}
+                bucket="verse-audio"
+                primary
+              />
+            </div>
+          ) : lecture.audio_url ? (
             <div className="mt-6">
               <div className="flex items-center space-x-4">
                 <Button
@@ -745,7 +760,7 @@ export const LectureView = () => {
               </div>
               <audio ref={audioRef} src={lecture.audio_url} preload="metadata" />
             </div>
-          )}
+          ) : null}
         </div>
 
         {/* Текст лекції */}
