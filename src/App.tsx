@@ -179,6 +179,9 @@ function AppContent() {
             <Route index element={<NewHome />} />
 
             {/* /lib/ - ОСНОВНІ МАРШРУТИ (короткі URL) */}
+            {/* Редіректи для вкладок бібліотеки */}
+            <Route path="lib/lectures" element={<Navigate to="../library?tab=lectures" replace />} />
+            <Route path="lib/letters" element={<Navigate to="../library?tab=letters" replace />} />
             <Route path="lib/:bookId/:p1/:p2/:p3" element={<LibThreeParamRouter />} />
             <Route path="lib/:bookId/:p1/:p2" element={<LibTwoParamRouter />} />
             <Route path="lib/:bookId/:p1" element={<LibOneParamRouter />} />
