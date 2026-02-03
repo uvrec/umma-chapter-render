@@ -303,13 +303,14 @@ export const ContentToolbar = ({
           </TooltipContent>
         </Tooltip>
 
-        {/* Zen Mode */}
+        {/* Zen Mode - desktop only */}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               variant={zenMode ? "secondary" : "ghost"}
               size="icon"
               onClick={toggleZenMode}
+              className="hidden md:inline-flex"
             >
               <Leaf className="h-4 w-4" />
             </Button>
@@ -319,13 +320,14 @@ export const ContentToolbar = ({
           </TooltipContent>
         </Tooltip>
 
-        {/* Fullscreen Mode */}
+        {/* Fullscreen Mode - desktop only */}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               variant={fullscreenMode ? "secondary" : "ghost"}
               size="icon"
               onClick={toggleFullscreenMode}
+              className="hidden md:inline-flex"
             >
               {fullscreenMode ? (
                 <Minimize2 className="h-4 w-4" />
