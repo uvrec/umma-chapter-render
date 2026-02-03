@@ -53,6 +53,45 @@ async function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// Генерувати короткий slug з імені отримувача
+function slugifyRecipient(recipient) {
+  return recipient
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .substring(0, 30); // Limit length
+}
+
+// Згенерувати короткий slug для листа
+async function generateShortSlug(recipient) {
+  const recipientSlug = slugifyRecipient(recipient);
+  const baseSlug = `letter-to-${recipientSlug}`;
+
+  // Знайти існуючі slug'и з таким же базовим ім'ям
+  const { data: existing } = await supabase
+    .from("letters")
+    .select("slug")
+    .like("slug", `${baseSlug}%`);
+
+  if (!existing || existing.length === 0) {
+    return `${baseSlug}-1`;
+  }
+
+  // Знайти максимальний номер
+  let maxNum = 0;
+  for (const row of existing) {
+    const match = row.slug.match(/-(\d+)$/);
+    if (match) {
+      const num = parseInt(match[1]);
+      if (num > maxNum) maxNum = num;
+    }
+  }
+
+  return `${baseSlug}-${maxNum + 1}`;
+}
+
 async function fetchHtml(url) {
   try {
     const response = await fetch(url, {
@@ -253,34 +292,41 @@ async function fetchAvailableYears() {
 }
 
 // Імпортувати один лист
-async function importLetter(slug, year, dryRun = false) {
-  console.log(`  Processing: ${slug}`);
+async function importLetter(vedabaseSlug, year, dryRun = false) {
+  console.log(`  Processing: ${vedabaseSlug}`);
 
-  const { data: existing } = await supabase
-    .from("letters")
-    .select("id")
-    .eq("slug", slug)
-    .single();
-
-  if (existing) {
-    console.log(`    Skipping (already exists)`);
-    return true;
-  }
-
-  const html = await fetchHtml(`${VEDABASE_BASE_URL}/${year}/${slug}/`);
+  const html = await fetchHtml(`${VEDABASE_BASE_URL}/${year}/${vedabaseSlug}/`);
   if (!html) {
     console.error(`    Failed to fetch`);
     return false;
   }
 
-  const metadata = parseLetter(html, slug);
+  const metadata = parseLetter(html, vedabaseSlug);
   if (!metadata) {
     console.error(`    Failed to parse`);
     return false;
   }
 
+  // Перевірити чи вже існує лист з такою ж датою і отримувачем
+  const { data: existing } = await supabase
+    .from("letters")
+    .select("id, slug")
+    .eq("letter_date", metadata.letter_date)
+    .eq("recipient_en", metadata.recipient_en)
+    .single();
+
+  if (existing) {
+    console.log(`    Skipping (already exists: ${existing.slug})`);
+    return true;
+  }
+
+  // Згенерувати короткий slug
+  const shortSlug = await generateShortSlug(metadata.recipient_en);
+  metadata.slug = shortSlug;
+
   if (dryRun) {
     console.log(`    [DRY RUN] Would import letter to: ${metadata.recipient_en}`);
+    console.log(`      Slug: ${shortSlug}`);
     console.log(`      Date: ${metadata.letter_date}`);
     console.log(`      Location: ${metadata.location_en}`);
     console.log(`      Content length: ${metadata.content_en.length} chars`);
@@ -294,7 +340,7 @@ async function importLetter(slug, year, dryRun = false) {
     return false;
   }
 
-  console.log(`    ✓ Imported letter to ${metadata.recipient_en}`);
+  console.log(`    ✓ Imported: ${shortSlug} (${metadata.recipient_en})`);
   return true;
 }
 
