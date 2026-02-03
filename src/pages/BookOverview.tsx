@@ -339,7 +339,7 @@ export const BookOverview = () => {
     data: cantos = [],
     isLoading: cantosLoading
   } = useQuery({
-    queryKey: ["cantos-with-counts", book?.id, previewToken],
+    queryKey: ["cantos-with-counts", book?.id, previewToken, isAdmin],
     queryFn: async () => {
       if (!book?.id) return [];
 
@@ -362,12 +362,20 @@ export const BookOverview = () => {
       }
 
       // Fetch chapter counts for each canto
+      // Only count published chapters for non-admin users
       const cantosWithCounts = await Promise.all(
         (data || []).map(async (canto: any) => {
-          const { count } = await supabase
+          let query = supabase
             .from("chapters")
             .select("*", { count: "exact", head: true })
             .eq("canto_id", canto.id);
+
+          // Filter by is_published for non-admin users
+          if (!isAdmin) {
+            query = query.eq("is_published", true);
+          }
+
+          const { count } = await query;
           return { ...canto, chapter_count: count || 0 };
         })
       );
@@ -381,22 +389,28 @@ export const BookOverview = () => {
     data: chapters = [],
     isLoading: chaptersLoading
   } = useQuery({
-    queryKey: ["chapters-with-verse-counts", book?.id],
+    queryKey: ["chapters-with-verse-counts", book?.id, isAdmin],
     queryFn: async () => {
       if (!book?.id) return [];
-      const {
-        data,
-        error
-      } = await supabase.from("chapters").select("*").eq("book_id", book.id).order("chapter_number");
+
+      // Build query with is_published filter for non-admin users
+      let query = supabase.from("chapters").select("*").eq("book_id", book.id);
+      if (!isAdmin) {
+        query = query.eq("is_published", true);
+      }
+      query = query.order("chapter_number");
+
+      const { data, error } = await query;
       if (error) throw error;
 
-      // Fetch verse counts for each chapter
+      // Fetch verse counts for each chapter (only count published verses)
       const chaptersWithCounts = await Promise.all(
         (data || []).map(async (chapter) => {
           const { count } = await supabase
             .from("verses")
             .select("*", { count: "exact", head: true })
             .eq("chapter_id", chapter.id)
+            .eq("is_published", true)
             .is("deleted_at", null);
           return { ...chapter, verse_count: count || 0 };
         })

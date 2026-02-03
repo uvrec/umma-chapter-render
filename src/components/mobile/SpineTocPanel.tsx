@@ -230,16 +230,20 @@ export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelPro
       const booksWithCounts: BookWithChapters[] = await Promise.all(
         (booksData || []).map(async (book) => {
           if (book.has_cantos) {
+            // Count only published cantos
             const { count } = await supabase
               .from("cantos")
               .select("*", { count: "exact", head: true })
-              .eq("book_id", book.id);
+              .eq("book_id", book.id)
+              .eq("is_published", true);
             return { ...book, chapter_count: count || 0 };
           } else {
+            // Count only published chapters
             const { count } = await supabase
               .from("chapters")
               .select("*", { count: "exact", head: true })
-              .eq("book_id", book.id);
+              .eq("book_id", book.id)
+              .eq("is_published", true);
             return { ...book, chapter_count: count || 0 };
           }
         })

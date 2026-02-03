@@ -219,7 +219,7 @@ export const ChapterVersesList = () => {
     data: chapter,
     isLoading: isLoadingChapter
   } = useQuery({
-    queryKey: ["chapter", book?.id, canto?.id, effectiveChapterParam, isCantoMode, previewToken],
+    queryKey: ["chapter", book?.id, canto?.id, effectiveChapterParam, isCantoMode, previewToken, isAdmin],
     queryFn: async () => {
       if (!book?.id || !effectiveChapterParam) return null;
       // Try RPC function that supports preview tokens
@@ -232,14 +232,19 @@ export const ChapterVersesList = () => {
       if (error) {
         console.error('RPC get_chapter_by_number_with_preview error:', error);
         // Fallback to direct query (respects RLS, works for published chapters)
-        const query = supabase
+        let query = supabase
           .from("chapters")
           .select("*")
           .eq("book_id", book.id)
           .eq("chapter_number", parseInt(effectiveChapterParam as string));
 
         if (isCantoMode && canto?.id) {
-          query.eq("canto_id", canto.id);
+          query = query.eq("canto_id", canto.id);
+        }
+
+        // Filter by is_published for non-admin users
+        if (!isAdmin) {
+          query = query.eq("is_published", true);
         }
 
         const { data: fallbackData, error: fallbackError } = await query.single();
@@ -254,7 +259,7 @@ export const ChapterVersesList = () => {
   const {
     data: fallbackChapter
   } = useQuery({
-    queryKey: ["fallback-chapter", book?.id, effectiveChapterParam, previewToken],
+    queryKey: ["fallback-chapter", book?.id, effectiveChapterParam, previewToken, isAdmin],
     queryFn: async () => {
       if (!book?.id || !effectiveChapterParam) return null;
       // Try RPC function that supports preview tokens (with null canto_id for fallback)
@@ -267,13 +272,19 @@ export const ChapterVersesList = () => {
       if (error) {
         console.error('RPC get_chapter_by_number_with_preview fallback error:', error);
         // Fallback to direct query
-        const { data: fallbackData, error: fallbackError } = await supabase
+        let query = supabase
           .from("chapters")
           .select("*")
           .eq("book_id", book.id)
           .eq("chapter_number", parseInt(effectiveChapterParam as string))
-          .is("canto_id", null)
-          .single();
+          .is("canto_id", null);
+
+        // Filter by is_published for non-admin users
+        if (!isAdmin) {
+          query = query.eq("is_published", true);
+        }
+
+        const { data: fallbackData, error: fallbackError } = await query.single();
         if (fallbackError) throw fallbackError;
         return fallbackData;
       }
@@ -286,7 +297,7 @@ export const ChapterVersesList = () => {
     data: versesMain = [],
     isLoading: isLoadingVersesMain
   } = useQuery({
-    queryKey: ["chapter-verses-list", chapter?.id, previewToken],
+    queryKey: ["chapter-verses-list", chapter?.id, previewToken, isAdmin],
     queryFn: async () => {
       if (!chapter?.id) return [] as Verse[];
 
@@ -299,12 +310,18 @@ export const ChapterVersesList = () => {
       if (error) {
         console.error('RPC get_verses_by_chapter_with_preview error:', error);
         // Fallback to direct query (respects RLS, works for published verses)
-        const { data: fallbackData, error: fallbackError } = await supabase
+        let query = supabase
           .from("verses")
           .select("*")
           .eq("chapter_id", chapter.id)
-          .is("deleted_at", null)
-          .order("sort_key", { ascending: true });
+          .is("deleted_at", null);
+
+        // Filter by is_published for non-admin users
+        if (!isAdmin) {
+          query = query.eq("is_published", true);
+        }
+
+        const { data: fallbackData, error: fallbackError } = await query.order("sort_key", { ascending: true });
         if (fallbackError) throw fallbackError;
         return (fallbackData || []) as Verse[];
       }
@@ -316,7 +333,7 @@ export const ChapterVersesList = () => {
     data: versesFallback = [],
     isLoading: isLoadingVersesFallback
   } = useQuery({
-    queryKey: ["chapter-verses-fallback", fallbackChapter?.id, previewToken],
+    queryKey: ["chapter-verses-fallback", fallbackChapter?.id, previewToken, isAdmin],
     queryFn: async () => {
       if (!fallbackChapter?.id) return [] as Verse[];
 
@@ -329,12 +346,18 @@ export const ChapterVersesList = () => {
       if (error) {
         console.error('RPC get_verses_by_chapter_with_preview fallback error:', error);
         // Fallback to direct query
-        const { data: fallbackData, error: fallbackError } = await supabase
+        let query = supabase
           .from("verses")
           .select("*")
           .eq("chapter_id", fallbackChapter.id)
-          .is("deleted_at", null)
-          .order("sort_key", { ascending: true });
+          .is("deleted_at", null);
+
+        // Filter by is_published for non-admin users
+        if (!isAdmin) {
+          query = query.eq("is_published", true);
+        }
+
+        const { data: fallbackData, error: fallbackError } = await query.order("sort_key", { ascending: true });
         if (fallbackError) throw fallbackError;
         return (fallbackData || []) as Verse[];
       }
