@@ -351,12 +351,17 @@ export const BookOverview = () => {
 
       if (error) {
         console.error('Error fetching cantos:', error);
-        // Fallback to direct query (will respect RLS)
-        const { data: fallbackData, error: fallbackError } = await supabase
+        // Fallback to direct query - filter by is_published for non-admin users
+        let fallbackQuery = supabase
           .from("cantos")
           .select("*")
-          .eq("book_id", book.id)
-          .order("canto_number");
+          .eq("book_id", book.id);
+
+        if (!isAdmin) {
+          fallbackQuery = fallbackQuery.eq("is_published", true);
+        }
+
+        const { data: fallbackData, error: fallbackError } = await fallbackQuery.order("canto_number");
         if (fallbackError) throw fallbackError;
         return fallbackData || [];
       }
