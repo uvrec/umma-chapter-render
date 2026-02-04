@@ -41,6 +41,7 @@ export const Audiobooks = () => {
     data: category,
     isLoading: catLoading,
     isError: catError,
+    error: catErrorDetails,
   } = useQuery({
     queryKey: ["audiobooks-category"],
     queryFn: async () => {
@@ -59,6 +60,7 @@ export const Audiobooks = () => {
     data: audiobooks,
     isLoading: listLoading,
     isError: listError,
+    error: listErrorDetails,
   } = useQuery({
     queryKey: ["audiobooks-playlists", category?.id],
     enabled: !!category?.id,
@@ -115,12 +117,30 @@ export const Audiobooks = () => {
         {/* Помилки */}
         {catError && (
           <div className="text-center py-8 text-destructive">
-            Помилка завантаження категорії. Спробуйте оновити сторінку.
+            <p>Помилка завантаження категорії. Спробуйте оновити сторінку.</p>
+            {catErrorDetails && (
+              <p className="text-sm mt-2 text-muted-foreground">
+                {(catErrorDetails as Error).message}
+              </p>
+            )}
+          </div>
+        )}
+        {!catLoading && !catError && !category && (
+          <div className="text-center py-8 text-destructive">
+            <p>Категорію «audiobooks» не знайдено в базі даних.</p>
+            <p className="text-sm mt-2 text-muted-foreground">
+              Перевірте, чи застосовані всі міграції Supabase.
+            </p>
           </div>
         )}
         {listError && (
           <div className="text-center py-8 text-destructive">
-            Помилка завантаження аудіокниг. Спробуйте оновити сторінку.
+            <p>Помилка завантаження аудіокниг. Спробуйте оновити сторінку.</p>
+            {listErrorDetails && (
+              <p className="text-sm mt-2 text-muted-foreground">
+                {(listErrorDetails as Error).message}
+              </p>
+            )}
           </div>
         )}
 
