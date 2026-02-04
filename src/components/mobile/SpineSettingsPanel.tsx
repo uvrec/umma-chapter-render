@@ -14,7 +14,6 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Info,
-  ChevronRight,
   MessageCircle,
   Send,
   Instagram,
@@ -346,7 +345,6 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
               <Info className="h-5 w-5 text-muted-foreground" />
               <span>{t("Про «Прабгупада солов'їною»", "About the Project")}</span>
             </span>
-            <ChevronRight className="h-5 w-5 text-muted-foreground" />
           </button>
 
           <Separator />
@@ -406,7 +404,6 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
                 <MessageCircle className="h-5 w-5 text-muted-foreground" />
                 <span>{t("Написати нам", "Write to Us")}</span>
               </span>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
             </button>
           </div>
 

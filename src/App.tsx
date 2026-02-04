@@ -80,6 +80,7 @@ const ScriptLearning = lazy(() => import("./pages/tools/ScriptLearning"));
 const TextNormalization = lazy(() => import("./pages/tools/TextNormalization"));
 const FontComparisonTest = lazy(() => import("./pages/tools/FontComparisonTest"));
 const TimelinePage = lazy(() => import("./pages/TimelinePage"));
+const PrabhupadaTimeline = lazy(() => import("./pages/PrabhupadaTimeline"));
 const GVReferences = lazy(() => import("./pages/GVReferences"));
 const EkadashiList = lazy(() => import("./pages/EkadashiList"));
 const EkadashiDetail = lazy(() => import("./pages/EkadashiDetail"));
@@ -269,6 +270,7 @@ function AppContent() {
             <Route path="tattva/:slug" element={<TattvaPage />} />
             <Route path="stats" element={<ReadingStatsPage />} />
             <Route path="timeline" element={<TimelinePage />} />
+            <Route path="prabhupada/timeline" element={<PrabhupadaTimeline />} />
             <Route path="sadhana" element={<SadhanaTracker />} />
 
             {/* Вайшнавський календар */}
@@ -376,6 +378,7 @@ function AppContent() {
           <Route path="/tattva/:slug" element={<TattvaPage />} />
           <Route path="/stats" element={<ReadingStatsPage />} />
           <Route path="/timeline" element={<TimelinePage />} />
+          <Route path="/prabhupada/timeline" element={<PrabhupadaTimeline />} />
           <Route path="/sadhana" element={<SadhanaTracker />} />
 
           {/* Вайшнавський календар */}
