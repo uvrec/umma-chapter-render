@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguageSwitch } from "@/hooks/useLanguageSwitch";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -83,7 +83,7 @@ const SOCIAL_LINKS = [
 ];
 
 export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
-  const { language, setLanguage, t, getLocalizedPath } = useLanguage();
+  const { language, switchLanguage, t, getLocalizedPath } = useLanguageSwitch();
   const navigate = useNavigate();
   const [showRemindersSheet, setShowRemindersSheet] = useState(false);
   const [reminders, setReminders] = useState<ReminderSettings>(loadReminders);
@@ -193,7 +193,7 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
           {/* Language Toggle - no header */}
           <div className="flex gap-2">
             <button
-              onClick={() => setLanguage("uk")}
+              onClick={() => switchLanguage("uk")}
               className={cn(
                 "flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors",
                 language === "uk"
@@ -204,7 +204,7 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
               Українська
             </button>
             <button
-              onClick={() => setLanguage("en")}
+              onClick={() => switchLanguage("en")}
               className={cn(
                 "flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors",
                 language === "en"

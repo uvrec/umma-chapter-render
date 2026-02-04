@@ -14,11 +14,11 @@ import {
   DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "./ThemeProvider";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguageSwitch } from "@/hooks/useLanguageSwitch";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
-  const { language, setLanguage, t } = useLanguage();
+  const { language, switchLanguage, t } = useLanguageSwitch();
 
   // Cmd/Ctrl+J → light/dark, Cmd/Ctrl+Shift+J → craft
   useEffect(() => {
@@ -99,7 +99,7 @@ export function ThemeToggle() {
             <DropdownMenuItem
               role="menuitemradio"
               aria-checked={language === "uk"}
-              onClick={() => setLanguage("uk")}
+              onClick={() => switchLanguage("uk")}
               className="flex items-center justify-between"
             >
               <span>Українська</span>
@@ -108,7 +108,7 @@ export function ThemeToggle() {
             <DropdownMenuItem
               role="menuitemradio"
               aria-checked={language === "en"}
-              onClick={() => setLanguage("en")}
+              onClick={() => switchLanguage("en")}
               className="flex items-center justify-between"
             >
               <span>English</span>

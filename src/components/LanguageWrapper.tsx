@@ -23,12 +23,15 @@ export function LanguageWrapper() {
     return <Navigate to={`/${language}${currentPath || '/'}`} replace />;
   }
 
-  // Sync URL language with context
+  // Sync URL language with context when URL changes
+  // Note: We intentionally exclude 'language' from deps to avoid sync cycles
+  // when user switches language via UI (useLanguageSwitch handles that case)
   useEffect(() => {
     if (lang && lang !== language) {
       setLanguage(lang);
     }
-  }, [lang, language, setLanguage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lang, setLanguage]);
 
   return <Outlet />;
 }

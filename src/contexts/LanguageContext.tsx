@@ -24,16 +24,10 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('language', language);
   }, [language]);
 
+  // Note: URL navigation is now handled by useLanguageSwitch hook with React Router.
+  // This function only updates state - UI components should use useLanguageSwitch for switching.
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-
-    // Update URL if currently on a localized path
-    const currentPath = window.location.pathname;
-    if (currentPath.startsWith('/uk/') || currentPath.startsWith('/en/') || currentPath === '/uk' || currentPath === '/en') {
-      const pathWithoutLang = currentPath.replace(/^\/(uk|en)/, '');
-      const newPath = `/${lang}${pathWithoutLang || '/'}`;
-      window.history.replaceState(null, '', newPath + window.location.search + window.location.hash);
-    }
   };
 
   const t = useCallback((uk: string, en: string) => {
