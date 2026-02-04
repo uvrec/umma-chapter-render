@@ -29,9 +29,9 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
 
     // Update URL if currently on a localized path
     const currentPath = window.location.pathname;
-    if (currentPath.startsWith('/uk/') || currentPath.startsWith('/en/')) {
+    if (currentPath.startsWith('/uk/') || currentPath.startsWith('/en/') || currentPath === '/uk' || currentPath === '/en') {
       const pathWithoutLang = currentPath.replace(/^\/(uk|en)/, '');
-      const newPath = `/${lang}${pathWithoutLang}`;
+      const newPath = `/${lang}${pathWithoutLang || '/'}`;
       window.history.replaceState(null, '', newPath + window.location.search + window.location.hash);
     }
   };
