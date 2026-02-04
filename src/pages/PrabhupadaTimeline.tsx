@@ -181,7 +181,8 @@ export function PrabhupadaTimeline() {
         navigate(getLocalizedPath(`/library/letters/${item.slug}`));
         break;
       case "diary":
-        navigate(getLocalizedPath(`/lib/${item.slug}`));
+        // Diary slug is "canto/chapter/verse-slug", prepend book slug
+        navigate(getLocalizedPath(`/lib/td/${item.slug}`));
         break;
     }
   };

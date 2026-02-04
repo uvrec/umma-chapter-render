@@ -74,21 +74,25 @@ AS $$
   UNION ALL
 
   -- Diary entries (Transcendental Diary - book slug 'td')
+  -- Note: TD uses verse_number for date title (e.g. "November 26th, 1975")
+  -- and commentary_en/uk for the actual diary content
   SELECT
     v.event_date,
     'diary'::TEXT AS event_type,
-    c.title_en,
-    c.title_uk,
+    v.verse_number AS title_en,  -- Date title like "November 26th, 1975"
+    v.verse_number AS title_uk,  -- Same date title
     NULL::TEXT AS location_en,
     NULL::TEXT AS location_uk,
-    b.slug || '/' || c.chapter_number || '/' || v.verse_number AS slug,
+    cn.canto_number || '/' || c.chapter_number || '/' ||
+      regexp_replace(lower(v.verse_number), '[^a-z0-9]+', '-', 'g') AS slug,
     'diary_entry'::TEXT AS extra_type,
     b.slug AS book_slug,
     c.chapter_number,
     v.verse_number
   FROM public.verses v
   JOIN public.chapters c ON v.chapter_id = c.id
-  JOIN public.books b ON c.book_id = b.id
+  JOIN public.cantos cn ON c.canto_id = cn.id
+  JOIN public.books b ON cn.book_id = b.id
   WHERE b.slug = 'td'
     AND v.event_date IS NOT NULL
     AND 'diary' = ANY(p_event_types)
@@ -116,7 +120,8 @@ AS $$
     UNION
     SELECT DISTINCT EXTRACT(YEAR FROM event_date)::INTEGER AS year FROM public.verses v
     JOIN public.chapters c ON v.chapter_id = c.id
-    JOIN public.books b ON c.book_id = b.id
+    JOIN public.cantos cn ON c.canto_id = cn.id
+    JOIN public.books b ON cn.book_id = b.id
     WHERE b.slug = 'td' AND v.event_date IS NOT NULL
   ),
   lecture_counts AS (
@@ -133,7 +138,8 @@ AS $$
     SELECT EXTRACT(YEAR FROM v.event_date)::INTEGER AS year, COUNT(*) AS cnt
     FROM public.verses v
     JOIN public.chapters c ON v.chapter_id = c.id
-    JOIN public.books b ON c.book_id = b.id
+    JOIN public.cantos cn ON c.canto_id = cn.id
+    JOIN public.books b ON cn.book_id = b.id
     WHERE b.slug = 'td' AND v.event_date IS NOT NULL
     GROUP BY EXTRACT(YEAR FROM v.event_date)
   )
