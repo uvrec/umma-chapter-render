@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguageSwitch } from "@/hooks/useLanguageSwitch";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
@@ -124,7 +124,7 @@ export const GlobalSettingsPanel = ({
   const isControlled = externalIsOpen !== undefined;
   const isOpen = isControlled ? externalIsOpen : internalIsOpen;
   const setIsOpen = isControlled ? (externalOnOpenChange ?? (() => {})) : setInternalIsOpen;
-  const { language, setLanguage, t } = useLanguage();
+  const { language, switchLanguage, t } = useLanguageSwitch();
   const { theme, setTheme } = useTheme();
   const { isAdmin } = useAuth();
 
@@ -256,7 +256,7 @@ export const GlobalSettingsPanel = ({
               <div className="flex gap-2">
                 <Button
                   variant={language === "uk" ? "default" : "outline"}
-                  onClick={() => setLanguage("uk")}
+                  onClick={() => switchLanguage("uk")}
                   className="flex-1"
                 >
                   <Globe className="w-4 h-4 mr-2" />
@@ -264,7 +264,7 @@ export const GlobalSettingsPanel = ({
                 </Button>
                 <Button
                   variant={language === "en" ? "default" : "outline"}
-                  onClick={() => setLanguage("en")}
+                  onClick={() => switchLanguage("en")}
                   className="flex-1"
                 >
                   <Globe className="w-4 h-4 mr-2" />
