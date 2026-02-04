@@ -21,7 +21,6 @@ import {
   Settings,
   Mail,
   Search,
-  ChevronRight,
   Heart,
   Users,
 } from "lucide-react";
@@ -91,7 +90,6 @@ const DrawerItem = ({
           {badge}
         </span>
       )}
-      {!badge && <ChevronRight className="h-4 w-4 text-muted-foreground/50" />}
     </>
   );
 

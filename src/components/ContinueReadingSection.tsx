@@ -3,7 +3,7 @@
  */
 
 import { Link } from 'react-router-dom';
-import { BookOpen, Clock, ChevronRight, X } from 'lucide-react';
+import { BookOpen, Clock, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -98,11 +98,6 @@ export function ContinueReadingSection({ className, maxItems = 3 }: ContinueRead
               <Progress value={position.percentRead} className="h-1" />
             </div>
 
-            {/* Continue arrow */}
-            <div className="flex items-center justify-end mt-2 text-primary">
-              <span className="text-xs mr-1">{t('Продовжити', 'Continue')}</span>
-              <ChevronRight className="h-4 w-4" />
-            </div>
           </Link>
         ))}
       </div>
