@@ -17,17 +17,8 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -45,14 +36,8 @@ import {
   Edit,
   Save,
   X,
-  Languages,
-  Sparkles,
-  Loader2,
-  ClipboardPaste,
-  Music,
 } from "lucide-react";
 import { AudioUploader } from "@/components/admin/shared/AudioUploader";
-import { transliterateIAST } from "@/utils/text/transliteration";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { ContentToolbar } from "@/components/ContentToolbar";
@@ -77,24 +62,9 @@ export const LectureView = () => {
     location_uk: string;
     location_en: string;
     audio_url: string;
+    content_uk: string;
+    content_en: string;
   } | null>(null);
-  const [editedParagraphs, setEditedParagraphs] = useState<{
-    [id: string]: { content_uk: string; content_en: string };
-  }>({});
-
-  // Translation state
-  const [isTranslating, setIsTranslating] = useState(false);
-  const [translatingParagraphId, setTranslatingParagraphId] = useState<string | null>(null);
-
-  // Bulk translation paste state
-  const [showBulkTranslationDialog, setShowBulkTranslationDialog] = useState(false);
-  const [bulkTranslationText, setBulkTranslationText] = useState("");
-  const [detectedParagraphsCount, setDetectedParagraphsCount] = useState(0);
-
-  // Scroll sync state for bilingual editors
-  const [scrollSyncState, setScrollSyncState] = useState<{
-    [paragraphId: string]: { ratio: number; source: "uk" | "en"; counter: number };
-  }>({});
 
   // Завантаження лекції
   const { data: lecture, isLoading: lectureLoading } = useQuery({
@@ -220,231 +190,7 @@ export const LectureView = () => {
         });
   };
 
-  // Mutation for saving lecture changes
-  const saveLectureMutation = useMutation({
-    mutationFn: async () => {
-      if (!lecture || !editedLecture) return;
-
-      // Update lecture metadata
-      const lectureUpdates: Partial<Lecture> = {};
-      if (editedLecture.title_uk !== lecture.title_uk) lectureUpdates.title_uk = editedLecture.title_uk;
-      if (editedLecture.title_en !== lecture.title_en) lectureUpdates.title_en = editedLecture.title_en;
-      if (editedLecture.location_uk !== lecture.location_uk) lectureUpdates.location_uk = editedLecture.location_uk;
-      if (editedLecture.location_en !== lecture.location_en) lectureUpdates.location_en = editedLecture.location_en;
-      if (editedLecture.audio_url !== (lecture.audio_url || "")) lectureUpdates.audio_url = editedLecture.audio_url || null;
-
-      if (Object.keys(lectureUpdates).length > 0) {
-        const { error } = await (supabase as any)
-          .from("lectures")
-          .update(lectureUpdates)
-          .eq("id", lecture.id);
-        if (error) throw error;
-      }
-
-      // Update paragraphs
-      for (const [paragraphId, content] of Object.entries(editedParagraphs)) {
-        const originalParagraph = paragraphs.find((p) => p.id === paragraphId);
-        if (!originalParagraph) continue;
-
-        const updates: Partial<LectureParagraph> = {};
-        if (content.content_uk !== originalParagraph.content_uk) updates.content_uk = content.content_uk;
-        if (content.content_en !== originalParagraph.content_en) updates.content_en = content.content_en;
-
-        if (Object.keys(updates).length > 0) {
-          const { error } = await (supabase as any)
-            .from("lecture_paragraphs")
-            .update(updates)
-            .eq("id", paragraphId);
-          if (error) throw error;
-        }
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["lecture", slug] });
-      queryClient.invalidateQueries({ queryKey: ["lecture-paragraphs", lecture?.id] });
-      setIsEditing(false);
-      toast.success("Зміни збережено");
-    },
-    onError: (error) => {
-      console.error("Save error:", error);
-      toast.error("Помилка збереження");
-    },
-  });
-
-  const startEdit = () => {
-    if (!lecture) return;
-    setEditedLecture({
-      title_uk: lecture.title_uk || "",
-      title_en: lecture.title_en,
-      location_uk: lecture.location_uk || "",
-      location_en: lecture.location_en,
-      audio_url: lecture.audio_url || "",
-    });
-    const paragraphEdits: { [id: string]: { content_uk: string; content_en: string } } = {};
-    paragraphs.forEach((p) => {
-      paragraphEdits[p.id] = {
-        content_uk: p.content_uk || "",
-        content_en: p.content_en,
-      };
-    });
-    setEditedParagraphs(paragraphEdits);
-    setIsEditing(true);
-  };
-
-  const cancelEdit = () => {
-    setIsEditing(false);
-    setEditedLecture(null);
-    setEditedParagraphs({});
-  };
-
-  const saveEdit = () => {
-    saveLectureMutation.mutate();
-  };
-
-  // Транслітерація параграфа
-  const transliterateParagraph = (paragraphId: string) => {
-    const content = editedParagraphs[paragraphId];
-    if (!content?.content_en) return;
-
-    const transliterated = transliterateIAST(content.content_en);
-    setEditedParagraphs((prev) => ({
-      ...prev,
-      [paragraphId]: { ...prev[paragraphId], content_uk: transliterated },
-    }));
-    toast.success("Транслітерацію застосовано");
-  };
-
-  // Транслітерація всіх параграфів
-  const transliterateAll = () => {
-    setEditedParagraphs((prev) => {
-      const updated = { ...prev };
-      for (const [id, content] of Object.entries(updated)) {
-        if (content.content_en) {
-          updated[id] = {
-            ...content,
-            content_uk: transliterateIAST(content.content_en),
-          };
-        }
-      }
-      return updated;
-    });
-    toast.success("Транслітерацію застосовано до всіх параграфів");
-  };
-
-  // AI переклад параграфа
-  const translateParagraphWithAI = async (paragraphId: string) => {
-    const content = editedParagraphs[paragraphId];
-    if (!content?.content_en) return;
-
-    setTranslatingParagraphId(paragraphId);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) {
-        throw new Error("Необхідно увійти в систему");
-      }
-
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translate-claude`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({
-            text: content.content_en,
-            context: "lecture",
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || "Translation failed");
-      }
-
-      const data = await response.json();
-
-      setEditedParagraphs((prev) => ({
-        ...prev,
-        [paragraphId]: { ...prev[paragraphId], content_uk: data.translated },
-      }));
-
-      toast.success("Параграф перекладено");
-    } catch (error: any) {
-      toast.error(error.message || "Помилка перекладу");
-      console.error(error);
-    } finally {
-      setTranslatingParagraphId(null);
-    }
-  };
-
-  // AI переклад всіх параграфів
-  const translateAllWithAI = async () => {
-    const untranslated = Object.entries(editedParagraphs).filter(
-      ([_, content]) => content.content_en && !content.content_uk
-    );
-
-    if (untranslated.length === 0) {
-      toast.info("Всі параграфи вже мають український текст");
-      return;
-    }
-
-    setIsTranslating(true);
-    let translated = 0;
-
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) {
-        throw new Error("Необхідно увійти в систему");
-      }
-
-      for (const [paragraphId, content] of Object.entries(editedParagraphs)) {
-        if (!content.content_en || content.content_uk) continue;
-
-        setTranslatingParagraphId(paragraphId);
-
-        const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translate-claude`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${session.access_token}`,
-            },
-            body: JSON.stringify({
-              text: content.content_en,
-              context: "lecture",
-            }),
-          }
-        );
-
-        if (!response.ok) {
-          console.error(`Failed to translate paragraph ${paragraphId}`);
-          continue;
-        }
-
-        const data = await response.json();
-
-        setEditedParagraphs((prev) => ({
-          ...prev,
-          [paragraphId]: { ...prev[paragraphId], content_uk: data.translated },
-        }));
-
-        translated++;
-      }
-
-      toast.success(`Перекладено ${translated} параграфів`);
-    } catch (error: any) {
-      toast.error(error.message || "Помилка перекладу");
-      console.error(error);
-    } finally {
-      setIsTranslating(false);
-      setTranslatingParagraphId(null);
-    }
-  };
-
-  // Функція для парсингу HTML та отримання параграфів
+  // Helper function to parse HTML into paragraphs
   const parseHtmlParagraphs = (html: string): string[] => {
     if (!html.trim() || html === "<p></p>") {
       return [];
@@ -482,59 +228,95 @@ export const LectureView = () => {
     return result;
   };
 
-  // Оновлення кількості визначених параграфів при зміні тексту
-  const handleBulkTextChange = (html: string) => {
-    setBulkTranslationText(html);
-    const detected = parseHtmlParagraphs(html);
-    setDetectedParagraphsCount(detected.length);
+  // Helper function to merge paragraphs into single HTML
+  const mergeParagraphsToHtml = (paras: LectureParagraph[], lang: "uk" | "en"): string => {
+    return paras
+      .map((p) => {
+        const content = lang === "uk" ? p.content_uk : p.content_en;
+        return content ? `<p>${content}</p>` : "<p></p>";
+      })
+      .join("\n");
   };
 
-  // Вставка повного перекладу (розбиття по параграфах з HTML)
-  const applyBulkTranslation = () => {
-    const translatedParagraphs = parseHtmlParagraphs(bulkTranslationText);
+  // Mutation for saving lecture changes
+  const saveLectureMutation = useMutation({
+    mutationFn: async () => {
+      if (!lecture || !editedLecture) return;
 
-    if (translatedParagraphs.length === 0) {
-      toast.error("Введіть текст перекладу");
-      return;
-    }
+      // Update lecture metadata
+      const lectureUpdates: Partial<Lecture> = {};
+      if (editedLecture.title_uk !== lecture.title_uk) lectureUpdates.title_uk = editedLecture.title_uk;
+      if (editedLecture.title_en !== lecture.title_en) lectureUpdates.title_en = editedLecture.title_en;
+      if (editedLecture.location_uk !== lecture.location_uk) lectureUpdates.location_uk = editedLecture.location_uk;
+      if (editedLecture.location_en !== lecture.location_en) lectureUpdates.location_en = editedLecture.location_en;
+      if (editedLecture.audio_url !== (lecture.audio_url || "")) lectureUpdates.audio_url = editedLecture.audio_url || null;
 
-    // Отримуємо параграфи у правильному порядку
-    const sortedParagraphs = [...paragraphs].sort(
-      (a, b) => a.paragraph_number - b.paragraph_number
-    );
-
-    // Застосовуємо переклад до відповідних параграфів (зберігаємо HTML форматування)
-    setEditedParagraphs((prev) => {
-      const updated = { ...prev };
-      const minCount = Math.min(sortedParagraphs.length, translatedParagraphs.length);
-
-      for (let i = 0; i < minCount; i++) {
-        const paragraph = sortedParagraphs[i];
-        const paragraphId = paragraph.id;
-
-        if (updated[paragraphId]) {
-          updated[paragraphId] = {
-            ...updated[paragraphId],
-            // Зберігаємо HTML форматування з вставленого тексту
-            content_uk: translatedParagraphs[i],
-          };
-        }
+      if (Object.keys(lectureUpdates).length > 0) {
+        const { error } = await (supabase as any)
+          .from("lectures")
+          .update(lectureUpdates)
+          .eq("id", lecture.id);
+        if (error) throw error;
       }
 
-      return updated;
+      // Parse edited content into paragraphs
+      const ukParagraphs = parseHtmlParagraphs(editedLecture.content_uk);
+      const enParagraphs = parseHtmlParagraphs(editedLecture.content_en);
+
+      // Update existing paragraphs
+      const sortedParagraphs = [...paragraphs].sort((a, b) => a.paragraph_number - b.paragraph_number);
+
+      for (let i = 0; i < sortedParagraphs.length; i++) {
+        const paragraph = sortedParagraphs[i];
+        const newUk = ukParagraphs[i] || "";
+        const newEn = enParagraphs[i] || paragraph.content_en;
+
+        const updates: Partial<LectureParagraph> = {};
+        if (newUk !== paragraph.content_uk) updates.content_uk = newUk;
+        if (newEn !== paragraph.content_en) updates.content_en = newEn;
+
+        if (Object.keys(updates).length > 0) {
+          const { error } = await (supabase as any)
+            .from("lecture_paragraphs")
+            .update(updates)
+            .eq("id", paragraph.id);
+          if (error) throw error;
+        }
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["lecture", slug] });
+      queryClient.invalidateQueries({ queryKey: ["lecture-paragraphs", lecture?.id] });
+      setIsEditing(false);
+      toast.success("Зміни збережено");
+    },
+    onError: (error) => {
+      console.error("Save error:", error);
+      toast.error("Помилка збереження");
+    },
+  });
+
+  const startEdit = () => {
+    if (!lecture) return;
+    setEditedLecture({
+      title_uk: lecture.title_uk || "",
+      title_en: lecture.title_en,
+      location_uk: lecture.location_uk || "",
+      location_en: lecture.location_en,
+      audio_url: lecture.audio_url || "",
+      content_uk: mergeParagraphsToHtml(paragraphs, "uk"),
+      content_en: mergeParagraphsToHtml(paragraphs, "en"),
     });
+    setIsEditing(true);
+  };
 
-    const appliedCount = Math.min(sortedParagraphs.length, translatedParagraphs.length);
-    toast.success(`Застосовано переклад до ${appliedCount} параграфів`);
+  const cancelEdit = () => {
+    setIsEditing(false);
+    setEditedLecture(null);
+  };
 
-    if (translatedParagraphs.length !== paragraphs.length) {
-      toast.info(
-        `Параграфів у тексті: ${translatedParagraphs.length}, у лекції: ${paragraphs.length}`
-      );
-    }
-
-    setShowBulkTranslationDialog(false);
-    setBulkTranslationText("");
+  const saveEdit = () => {
+    saveLectureMutation.mutate();
   };
 
   if (lectureLoading || paragraphsLoading) {
@@ -594,63 +376,29 @@ export const LectureView = () => {
 
             {/* Admin Edit Controls */}
             {isAdmin && (
-              <div className="flex gap-2 flex-wrap">
-              {isEditing ? (
-                <>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={transliterateAll}
-                    disabled={isTranslating}
-                    title="Транслітерувати санскрит у всіх параграфах"
-                  >
-                    <Languages className="mr-2 h-4 w-4" />
-                    Транслітерувати все
+              <div className="flex gap-2">
+                {isEditing ? (
+                  <>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={saveEdit}
+                      disabled={saveLectureMutation.isPending}
+                    >
+                      <Save className="mr-2 h-4 w-4" />
+                      {saveLectureMutation.isPending ? "Збереження..." : "Зберегти"}
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={cancelEdit}>
+                      <X className="mr-2 h-4 w-4" />
+                      Скасувати
+                    </Button>
+                  </>
+                ) : (
+                  <Button variant="ghost" size="sm" onClick={startEdit}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Редагувати
                   </Button>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={translateAllWithAI}
-                    disabled={isTranslating}
-                    title="AI переклад всіх параграфів без українського тексту"
-                  >
-                    {isTranslating ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Sparkles className="mr-2 h-4 w-4" />
-                    )}
-                    {isTranslating ? "Перекладаю..." : "Перекласти все AI"}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowBulkTranslationDialog(true)}
-                    disabled={isTranslating}
-                    title="Вставити повний переклад для всіх параграфів"
-                  >
-                    <ClipboardPaste className="mr-2 h-4 w-4" />
-                    Вставити переклад
-                  </Button>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={saveEdit}
-                    disabled={saveLectureMutation.isPending || isTranslating}
-                  >
-                    <Save className="mr-2 h-4 w-4" />
-                    {saveLectureMutation.isPending ? "Збереження..." : "Зберегти"}
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={cancelEdit} disabled={isTranslating}>
-                    <X className="mr-2 h-4 w-4" />
-                    Скасувати
-                  </Button>
-                </>
-              ) : (
-                <Button variant="ghost" size="sm" onClick={startEdit}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Редагувати
-                </Button>
-              )}
+                )}
               </div>
             )}
           </div>
@@ -765,112 +513,24 @@ export const LectureView = () => {
 
         {/* Текст лекції */}
         <div>
-          {isEditing ? (
-            <div className="space-y-6">
-              {paragraphs.map((paragraph) => (
-                <div
-                  key={paragraph.id}
-                  className={`border rounded-lg p-4 bg-muted/20 ${
-                    translatingParagraphId === paragraph.id ? "ring-2 ring-primary" : ""
-                  }`}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="text-xs text-muted-foreground">
-                      Параграф {paragraph.paragraph_number}
-                    </div>
-                    <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => transliterateParagraph(paragraph.id)}
-                        disabled={isTranslating}
-                        title="Транслітерувати санскрит"
-                      >
-                        <Languages className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => translateParagraphWithAI(paragraph.id)}
-                        disabled={translatingParagraphId === paragraph.id || isTranslating}
-                        title="AI переклад"
-                      >
-                        {translatingParagraphId === paragraph.id ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Sparkles className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm text-muted-foreground mb-1 block">Українська</label>
-                      <EnhancedInlineEditor
-                        content={editedParagraphs[paragraph.id]?.content_uk || ""}
-                        onChange={(html) =>
-                          setEditedParagraphs((prev) => ({
-                            ...prev,
-                            [paragraph.id]: {
-                              ...prev[paragraph.id],
-                              content_uk: html,
-                            },
-                          }))
-                        }
-                        label="Редагувати текст UA"
-                        onScroll={(ratio) =>
-                          setScrollSyncState((prev) => ({
-                            ...prev,
-                            [paragraph.id]: {
-                              ratio,
-                              source: "uk",
-                              counter: (prev[paragraph.id]?.counter || 0) + 1,
-                            },
-                          }))
-                        }
-                        syncScrollRatio={
-                          scrollSyncState[paragraph.id]?.source === "en"
-                            ? scrollSyncState[paragraph.id]?.ratio
-                            : undefined
-                        }
-                        scrollSyncId={`${paragraph.id}-${scrollSyncState[paragraph.id]?.counter || 0}`}
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm text-muted-foreground mb-1 block">English</label>
-                      <EnhancedInlineEditor
-                        content={editedParagraphs[paragraph.id]?.content_en || ""}
-                        onChange={(html) =>
-                          setEditedParagraphs((prev) => ({
-                            ...prev,
-                            [paragraph.id]: {
-                              ...prev[paragraph.id],
-                              content_en: html,
-                            },
-                          }))
-                        }
-                        label="Edit text EN"
-                        onScroll={(ratio) =>
-                          setScrollSyncState((prev) => ({
-                            ...prev,
-                            [paragraph.id]: {
-                              ratio,
-                              source: "en",
-                              counter: (prev[paragraph.id]?.counter || 0) + 1,
-                            },
-                          }))
-                        }
-                        syncScrollRatio={
-                          scrollSyncState[paragraph.id]?.source === "uk"
-                            ? scrollSyncState[paragraph.id]?.ratio
-                            : undefined
-                        }
-                        scrollSyncId={`${paragraph.id}-${scrollSyncState[paragraph.id]?.counter || 0}`}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
+          {isEditing && editedLecture ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="border rounded-lg p-4 bg-muted/20">
+                <label className="text-sm text-muted-foreground mb-2 block">Текст UA</label>
+                <EnhancedInlineEditor
+                  content={editedLecture.content_uk}
+                  onChange={(html) => setEditedLecture({ ...editedLecture, content_uk: html })}
+                  minHeight="400px"
+                />
+              </div>
+              <div className="border rounded-lg p-4 bg-muted/20">
+                <label className="text-sm text-muted-foreground mb-2 block">Content EN</label>
+                <EnhancedInlineEditor
+                  content={editedLecture.content_en}
+                  onChange={(html) => setEditedLecture({ ...editedLecture, content_en: html })}
+                  minHeight="400px"
+                />
+              </div>
             </div>
           ) : dualLanguageMode ? (
             // DUAL MODE - Side by side (no labels - functional minimalism)
@@ -967,67 +627,6 @@ export const LectureView = () => {
         </div>
       </main>
       <Footer />
-
-      {/* Діалог вставки повного перекладу */}
-      <Dialog open={showBulkTranslationDialog} onOpenChange={(open) => {
-        setShowBulkTranslationDialog(open);
-        if (!open) {
-          setBulkTranslationText("");
-          setDetectedParagraphsCount(0);
-        }
-      }}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Вставити переклад для всіх параграфів</DialogTitle>
-            <DialogDescription>
-              Вставте повний український переклад лекції з форматуванням (bold, italic тощо).
-              Кожен параграф має бути в окремому абзаці (натискайте Enter двічі між параграфами).
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="flex gap-4 text-sm py-2">
-            <div className="px-3 py-1 rounded bg-muted">
-              Параграфів у лекції: <strong>{paragraphs.length}</strong>
-            </div>
-            <div className={`px-3 py-1 rounded ${
-              detectedParagraphsCount === paragraphs.length
-                ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                : detectedParagraphsCount > 0
-                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                  : "bg-muted"
-            }`}>
-              Визначено параграфів: <strong>{detectedParagraphsCount}</strong>
-              {detectedParagraphsCount > 0 && detectedParagraphsCount !== paragraphs.length && (
-                <span className="ml-1">
-                  ({detectedParagraphsCount > paragraphs.length ? "+" : ""}{detectedParagraphsCount - paragraphs.length})
-                </span>
-              )}
-            </div>
-          </div>
-
-          <div className="py-2">
-            <EnhancedInlineEditor
-              content={bulkTranslationText}
-              onChange={handleBulkTextChange}
-              minHeight="300px"
-              placeholder="Вставте тут повний текст перекладу українською мовою з форматуванням..."
-            />
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowBulkTranslationDialog(false)}>
-              Скасувати
-            </Button>
-            <Button
-              onClick={applyBulkTranslation}
-              disabled={detectedParagraphsCount === 0}
-            >
-              <ClipboardPaste className="mr-2 h-4 w-4" />
-              Застосувати переклад ({Math.min(detectedParagraphsCount, paragraphs.length)} пар.)
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
