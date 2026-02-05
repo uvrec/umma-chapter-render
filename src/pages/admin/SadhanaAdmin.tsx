@@ -32,8 +32,7 @@ export default function SadhanaAdmin() {
       const { data, error } = await supabase
         .from("user_sadhana_monthly_stats")
         .select("*")
-        .order("year", { ascending: false })
-        .order("month", { ascending: false })
+        .order("stats_month", { ascending: false })
         .limit(100);
       if (error) throw error;
       return data;
@@ -47,7 +46,7 @@ export default function SadhanaAdmin() {
       const { data, error } = await supabase
         .from("user_sadhana_daily")
         .select("*, profiles:user_id(email, full_name)")
-        .order("date", { ascending: false })
+        .order("entry_date", { ascending: false })
         .limit(50);
       if (error) throw error;
       return data;
@@ -165,13 +164,13 @@ export default function SadhanaAdmin() {
                     </TableHeader>
                     <TableBody>
                       {monthlyStats.slice(0, 10).map((stat) => (
-                        <TableRow key={`${stat.user_id}-${stat.year}-${stat.month}`}>
+                        <TableRow key={`${stat.user_id}-${stat.stats_month}`}>
                           <TableCell>
-                            {stat.month}/{stat.year}
+                            {stat.stats_month}
                           </TableCell>
                           <TableCell>{stat.total_japa_rounds || 0}</TableCell>
                           <TableCell>{stat.total_reading_minutes || 0}</TableCell>
-                          <TableCell>{stat.days_with_entries || 0}</TableCell>
+                          <TableCell>{stat.days_tracked || 0}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -269,7 +268,7 @@ export default function SadhanaAdmin() {
                       {recentEntries.map((entry) => (
                         <TableRow key={entry.id}>
                           <TableCell>
-                            {new Date(entry.date).toLocaleDateString("uk-UA")}
+                            {new Date(entry.entry_date).toLocaleDateString("uk-UA")}
                           </TableCell>
                           <TableCell>
                             {(entry.profiles as any)?.full_name || entry.user_id.slice(0, 8)}
@@ -277,9 +276,9 @@ export default function SadhanaAdmin() {
                           <TableCell>
                             <Badge variant="secondary">
                               {(entry.japa_before_730 || 0) +
-                                (entry.japa_before_10 || 0) +
-                                (entry.japa_before_18 || 0) +
-                                (entry.japa_after_18 || 0)} кіл
+                                (entry.japa_before_1000 || 0) +
+                                (entry.japa_before_1800 || 0) +
+                                (entry.japa_after_1800 || 0)} кіл
                             </Badge>
                           </TableCell>
                           <TableCell>{entry.reading_minutes || 0} хв</TableCell>

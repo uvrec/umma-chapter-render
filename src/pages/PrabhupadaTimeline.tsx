@@ -60,9 +60,9 @@ export function PrabhupadaTimeline() {
   const { data: yearStats } = useQuery({
     queryKey: ["timeline-years"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_timeline_years");
+      const { data, error } = await (supabase.rpc as any)("get_timeline_years");
       if (error) throw error;
-      return data as YearStats[];
+      return (data || []) as YearStats[];
     },
   });
 
@@ -76,13 +76,13 @@ export function PrabhupadaTimeline() {
   const { data: timelineItems, isLoading } = useQuery({
     queryKey: ["prabhupada-timeline", selectedYear, selectedMonth, eventTypes],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_prabhupada_timeline", {
+      const { data, error } = await (supabase.rpc as any)("get_prabhupada_timeline", {
         p_year: selectedYear,
         p_month: selectedMonth,
         p_event_types: eventTypes,
       });
       if (error) throw error;
-      return data as TimelineItem[];
+      return (data || []) as TimelineItem[];
     },
   });
 
