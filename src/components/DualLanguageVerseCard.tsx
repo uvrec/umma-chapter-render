@@ -563,7 +563,7 @@ export const DualLanguageVerseCard = ({
                       fontSize: `${fontSize}px`,
                       lineHeight: 1.4,
                     }}
-                    className="text-justify"
+                    className="text-justify synonyms-text"
                   >
                     {synonymsParsedUk.map((syn, i) => {
                       const words = syn.term
@@ -621,7 +621,7 @@ export const DualLanguageVerseCard = ({
                       fontSize: `${fontSize}px`,
                       lineHeight: 1.4,
                     }}
-                    className="text-justify"
+                    className="text-justify synonyms-text"
                   >
                     {synonymsParsedEn.map((syn, i) => {
                       const words = syn.term
