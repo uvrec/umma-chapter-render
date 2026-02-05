@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
-import { useNavigate, Link, useParams } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Plus, Trash2, BookOpen, Eye, EyeOff, Link2, Check } from "lucide-react";
+import { Plus, Trash2, BookOpen, Eye, EyeOff } from "lucide-react";
 import { PreviewShareButton } from "@/components/PreviewShareButton";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -22,16 +22,8 @@ import { toast } from "sonner";
 
 const Cantos = () => {
   const { bookId } = useParams();
-  const { user, isAdmin } = useAuth();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [cantoToDelete, setCantoToDelete] = useState<{ id: string; title: string } | null>(null);
-
-  useEffect(() => {
-    if (!user || !isAdmin) {
-      navigate("/auth");
-    }
-  }, [user, isAdmin, navigate]);
 
   const { data: book } = useQuery({
     queryKey: ["admin-book", bookId],
@@ -40,7 +32,7 @@ const Cantos = () => {
       if (error) throw error;
       return data;
     },
-    enabled: !!user && isAdmin && !!bookId,
+    enabled: !!bookId,
   });
 
   const { data: cantos, isLoading } = useQuery({
@@ -48,16 +40,13 @@ const Cantos = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("cantos")
-        .select(`
-          *,
-          chapters(id, chapter_number)
-        `)
+        .select(`*, chapters(id, chapter_number)`)
         .eq("book_id", bookId)
         .order("canto_number", { ascending: true });
       if (error) throw error;
       return data;
     },
-    enabled: !!user && isAdmin && !!bookId,
+    enabled: !!bookId,
   });
 
   const deleteMutation = useMutation({
@@ -75,7 +64,6 @@ const Cantos = () => {
     },
   });
 
-  // Toggle publish status mutation
   const togglePublishMutation = useMutation({
     mutationFn: async ({ cantoId, isPublished }: { cantoId: string; isPublished: boolean }) => {
       const { error } = await supabase
@@ -103,35 +91,32 @@ const Cantos = () => {
     }
   };
 
-  if (!user || !isAdmin) return null;
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/admin/dashboard" },
+    { label: "Книги", href: "/admin/books" },
+    { label: book?.title_uk || "Пісні" },
+  ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/admin/books">
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Назад до книг
-                </Link>
-              </Button>
-              <h1 className="text-2xl font-bold">Пісні: {book?.title_uk || "Завантаження..."}</h1>
-            </div>
-            <Button asChild>
-              <Link to={`/admin/cantos/${bookId}/new`}>
-                <Plus className="w-4 h-4 mr-2" />
-                Додати пісню
-              </Link>
-            </Button>
+    <AdminLayout breadcrumbs={breadcrumbs}>
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold">Пісні</h1>
+            <p className="text-muted-foreground">{book?.title_uk}</p>
           </div>
+          <Button asChild>
+            <Link to={`/admin/cantos/${bookId}/new`}>
+              <Plus className="w-4 h-4 mr-2" />
+              Додати пісню
+            </Link>
+          </Button>
         </div>
-      </header>
 
-      <div className="container mx-auto px-4 py-8">
         {isLoading ? (
-          <p>Завантаження...</p>
+          <div className="flex items-center justify-center py-12">
+            <p className="text-muted-foreground">Завантаження...</p>
+          </div>
         ) : cantos && cantos.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {cantos.map((canto) => (
@@ -160,7 +145,6 @@ const Cantos = () => {
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">{canto.title_en}</p>
                   <div className="flex flex-wrap gap-2">
-                    {/* Publish/Unpublish toggle */}
                     <Button
                       size="sm"
                       variant={canto.is_published ? "outline" : "default"}
@@ -182,7 +166,6 @@ const Cantos = () => {
                         </>
                       )}
                     </Button>
-                    {/* Preview share - always visible */}
                     <PreviewShareButton
                       resourceType="canto"
                       resourceId={canto.id}
@@ -199,7 +182,7 @@ const Cantos = () => {
                       <Button size="sm" asChild variant="outline">
                         <Link
                           to={`/admin/scripture?chapterId=${
-                            canto.chapters.sort((a, b) => a.chapter_number - b.chapter_number)[0].id
+                            canto.chapters.sort((a: any, b: any) => a.chapter_number - b.chapter_number)[0].id
                           }`}
                         >
                           <BookOpen className="w-4 h-4 mr-1" />
@@ -231,7 +214,6 @@ const Cantos = () => {
             <AlertDialogTitle>Ви впевнені?</AlertDialogTitle>
             <AlertDialogDescription>
               Це призведе до видалення <strong>{cantoToDelete?.title}</strong> та всіх пов'язаних з ним глав і віршів.
-              Цю дію неможливо скасувати.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -245,7 +227,7 @@ const Cantos = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </AdminLayout>
   );
 };
 

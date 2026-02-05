@@ -1,8 +1,7 @@
-import { useState, useMemo, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,16 +24,8 @@ type CategoryRow = {
 };
 
 export default function BlogCategories() {
-  const { user, isAdmin } = useAuth();
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    if (!user || !isAdmin) {
-      navigate("/auth");
-    }
-  }, [user, isAdmin, navigate]);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [editId, setEditId] = useState<string | null>(null);
@@ -202,12 +193,19 @@ export default function BlogCategories() {
     }
   };
 
-  if (!user || !isAdmin) return null;
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/admin/dashboard" },
+    { label: "Категорії блогу" },
+  ];
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Категорії блогу</h1>
+    <AdminLayout breadcrumbs={breadcrumbs}>
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-2xl font-bold">Категорії блогу</h1>
+            <p className="text-muted-foreground">Управління категоріями постів</p>
+          </div>
 
         <Dialog open={open} onOpenChange={handleDialogChange}>
           <DialogTrigger asChild>
@@ -332,6 +330,7 @@ export default function BlogCategories() {
           </TableBody>
         </Table>
       </div>
-    </div>
+      </div>
+    </AdminLayout>
   );
 }
