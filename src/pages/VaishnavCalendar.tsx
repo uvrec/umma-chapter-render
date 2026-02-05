@@ -29,11 +29,13 @@ import { useToast } from "@/hooks/use-toast";
 import {
   useEkadashiFastingForDate,
   useLocationToGeo,
+  useDailyPanchang,
 } from "@/hooks/useEkadashiFasting";
 import { CalendarMonthView } from "@/components/calendar/CalendarMonthView";
 import { CalendarMobileView } from "@/components/calendar/CalendarMobileView";
 import { CalendarEventCard } from "@/components/calendar/CalendarEventCard";
 import { DayView } from "@/components/calendar/DayView";
+import { DailyRoutines } from "@/components/calendar/DailyRoutines";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   ChevronLeft,
@@ -44,10 +46,10 @@ import {
   Locate,
   Loader2,
   Sunrise,
+  Sunset,
   Clock,
   LayoutGrid,
   List,
-  Settings,
 } from "lucide-react";
 
 export default function VaishnavCalendar() {
@@ -151,6 +153,12 @@ export default function VaishnavCalendar() {
     fastingTimes: nextEkadashiFastingTimes,
     isLoading: isLoadingFastingTimes,
   } = useEkadashiFastingForDate(nextEkadashiDate, geoLocation);
+
+  // Panchang for selected day (sunrise/sunset, tithi, moon)
+  const {
+    panchang: selectedDayPanchang,
+    moonIllumination: selectedDayMoon,
+  } = useDailyPanchang(selectedDate, geoLocation);
 
   const weekDays = language === "uk"
     ? ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"]
@@ -413,25 +421,55 @@ export default function VaishnavCalendar() {
           </div>
         )}
 
-        {/* Selected date events - shown below calendar on click */}
-        {!isMobile && selectedDate && selectedDateEvents.length > 0 && (
+        {/* Selected date details - always shown when date selected */}
+        {!isMobile && selectedDate && (
           <div className="mt-6 pt-6 border-t">
-            <h3 className="text-sm font-medium text-muted-foreground mb-3">
-              {selectedDate.toLocaleDateString(language === "uk" ? "uk-UA" : "en-US", {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long'
-              })}
-            </h3>
-            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {selectedDateEvents.map((event) => (
-                <CalendarEventCard
-                  key={event.event_id}
-                  event={event}
-                  language={language}
-                />
-              ))}
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">
+                {selectedDate.toLocaleDateString(language === "uk" ? "uk-UA" : "en-US", {
+                  weekday: 'long',
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric'
+                })}
+              </h3>
+
+              {/* Sunrise/Sunset info */}
+              {selectedDayPanchang && (
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    <Sunrise className="h-4 w-4 text-amber-500" />
+                    {selectedDayPanchang.sunriseFormatted}
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <Sunset className="h-4 w-4 text-orange-500" />
+                    {selectedDayPanchang.sunsetFormatted}
+                  </span>
+                  {selectedDayMoon !== null && (
+                    <span className="flex items-center gap-1.5">
+                      <Moon className="h-4 w-4 text-slate-400" />
+                      {selectedDayMoon}%
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
+
+            {/* Events for selected date */}
+            {selectedDateEvents.length > 0 && (
+              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 mb-6">
+                {selectedDateEvents.map((event) => (
+                  <CalendarEventCard
+                    key={event.event_id}
+                    event={event}
+                    language={language}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Daily Routines (Sadhana) */}
+            <DailyRoutines selectedDate={selectedDate} />
           </div>
         )}
 
