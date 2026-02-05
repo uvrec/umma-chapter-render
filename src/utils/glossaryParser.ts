@@ -85,8 +85,9 @@ const DASH_SEPARATORS = [' — ', ' – ', ' - ', '—', '–', '-', ' —\n', '
 export const parseSynonymPairs = (raw: string): SynonymPair[] => {
   if (!raw) return [];
 
-  // Remove HTML tags before parsing
-  const cleaned = raw.replace(/<[^>]*>/g, '').trim();
+  // Remove HTML tags and normalize Unicode (NFC) to convert combining diacritical marks
+  // (e.g., 'а' + '◌̄') into precomposed characters (e.g., 'ā') for proper rendering
+  const cleaned = raw.replace(/<[^>]*>/g, '').trim().normalize('NFC');
 
   // Split ONLY by semicolon (comma is used inside meanings like "те, Верховний")
   const parts = cleaned
