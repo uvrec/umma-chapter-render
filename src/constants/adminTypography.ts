@@ -21,77 +21,73 @@ export interface AdminTypographyConfig {
   commentary: BlockStyle;
 }
 
-// Доступні шрифти (відповідно до Vedabase.io specification)
+// Доступні шрифти (ПОТОЧНІ налаштування сайту)
 export const AVAILABLE_FONTS = {
   sanskrit: [
+    { value: '"Noto Sans Devanagari", sans-serif', label: 'Noto Sans Devanagari (поточний)' },
     { value: 'var(--font-devanagari)', label: 'Noto Sans Devanagari (Vedabase)' },
-    { value: '"Noto Sans Devanagari", sans-serif', label: 'Noto Sans Devanagari' },
   ],
   transliteration: [
-    { value: 'var(--font-translit)', label: 'Noto Serif (notoSerifVedabase)' },
+    { value: '"Charis SIL", "Gentium Plus", "Noto Serif", serif', label: 'Charis SIL (поточний, українська діакритика)' },
+    { value: '"Gentium Plus", "Noto Serif", serif', label: 'Gentium Plus' },
     { value: '"Noto Serif", serif', label: 'Noto Serif' },
     { value: 'Georgia, serif', label: 'Georgia' },
   ],
   synonyms: [
-    { value: 'var(--font-synonyms)', label: 'Noto Serif (з діакритикою)' },
+    { value: '"Charis SIL", "Noto Serif", serif', label: 'Charis SIL (поточний)' },
     { value: '"Noto Serif", serif', label: 'Noto Serif' },
-    { value: 'var(--font-primary)', label: 'Noto Serif variable' },
-    { value: 'system-ui, sans-serif', label: 'System UI' },
+    { value: 'Georgia, serif', label: 'Georgia' },
   ],
   text: [
-    { value: 'var(--font-primary)', label: 'Noto Serif variable (Vedabase)' },
+    { value: 'inherit', label: 'Успадкований (поточний)' },
     { value: '"Noto Serif", serif', label: 'Noto Serif' },
     { value: 'Georgia, serif', label: 'Georgia' },
     { value: 'system-ui, sans-serif', label: 'System UI' },
   ],
-  bengali: [
-    { value: 'var(--font-bengali)', label: 'Noto Serif (для транслітерації)' },
-    { value: '"Noto Serif", serif', label: 'Noto Serif' },
-  ],
 };
 
-// Налаштування за замовчуванням (Vedabase.io specification)
+// Налаштування за замовчуванням (ПОТОЧНІ налаштування сайту)
 export const DEFAULT_ADMIN_TYPOGRAPHY: AdminTypographyConfig = {
   sanskrit: {
-    fontFamily: 'var(--font-devanagari)', // Noto Sans Devanagari
-    fontSize: 1.5, // 150% від базового (як на Vedabase)
-    fontWeight: 400, // Regular
+    fontFamily: '"Noto Sans Devanagari", sans-serif',
+    fontSize: 1.15, // +15% від базового (поточне)
+    fontWeight: 400,
     fontStyle: 'normal',
     color: 'hsl(var(--foreground))',
     letterSpacing: '0em',
-    lineHeight: 1.618, // golden ratio
+    lineHeight: 1.6,
   },
   transliteration: {
-    fontFamily: 'var(--font-translit)', // Noto Serif (notoSerifVedabase custom)
-    fontSize: 1.1, // 110% від базового
-    fontWeight: 400, // Regular
-    fontStyle: 'normal', // Vedabase uses normal, not italic
-    color: 'hsl(var(--muted-foreground))',
-    letterSpacing: '0em',
+    fontFamily: '"Charis SIL", "Gentium Plus", "Noto Serif", serif', // Charis SIL для української діакритики
+    fontSize: 1, // базовий розмір (поточне)
+    fontWeight: 400,
+    fontStyle: 'italic', // курсив (поточне)
+    color: 'hsl(var(--foreground))',
+    letterSpacing: '0.01em', // (поточне)
     lineHeight: 1.6,
   },
   synonyms: {
-    fontFamily: 'var(--font-synonyms)', // Noto Serif з підтримкою діакритики
-    fontSize: 0.95, // 95% від базового
-    fontWeight: 400, // Regular
+    fontFamily: '"Charis SIL", "Noto Serif", serif',
+    fontSize: 1,
+    fontWeight: 400,
     fontStyle: 'normal',
     color: 'hsl(var(--foreground))',
     letterSpacing: '0em',
     lineHeight: 1.75,
   },
   translation: {
-    fontFamily: 'var(--font-primary)', // Noto Serif variable 100-900
-    fontSize: 1.0, // 100% від базового
-    fontWeight: 400, // Regular (variable font підтримує 100-900)
+    fontFamily: 'inherit', // успадковується (поточне)
+    fontSize: 1,
+    fontWeight: 400,
     fontStyle: 'normal',
     color: 'hsl(var(--foreground))',
     letterSpacing: '0em',
     lineHeight: 1.6,
   },
   commentary: {
-    fontFamily: 'var(--font-primary)', // Noto Serif variable 100-900
-    fontSize: 1.0, // 100% від базового
-    fontWeight: 400, // Regular (variable font підтримує 100-900)
+    fontFamily: 'inherit', // успадковується (поточне)
+    fontSize: 1,
+    fontWeight: 400,
     fontStyle: 'normal',
     color: 'hsl(var(--foreground))',
     letterSpacing: '0em',
