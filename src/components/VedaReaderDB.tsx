@@ -257,14 +257,19 @@ export const VedaReaderDB = () => {
   });
 
   // Fallback: legacy chapter without canto - with preview token support
-  // Only use fallback when NOT in canto mode, or when canto lookup completed and found nothing
+  // Only use fallback when main chapter query completed and found nothing
   const {
     data: fallbackChapter
   } = useQuery({
     queryKey: ["fallback-chapter", book?.id, effectiveChapterParam, previewToken],
     staleTime: 60_000,
-    // For canto books: wait for canto query to complete before enabling fallback
-    enabled: !!book?.id && !!effectiveChapterParam && (!isCantoMode || (!isLoadingCanto && !canto?.id)),
+    // FIX: Prevent duplicate queries by only enabling fallback when main query completed with no results
+    // For canto books: only if canto lookup completed and found nothing
+    // For non-canto books: only if main chapter query completed and found nothing
+    enabled: !!book?.id && !!effectiveChapterParam && (
+      (isCantoMode && !isLoadingCanto && !canto?.id) ||
+      (!isCantoMode && !isLoadingChapter && !chapter)
+    ),
     queryFn: async () => {
       if (!book?.id || !effectiveChapterParam) return null;
       const { data, error } = await (supabase.rpc as any)("get_chapter_by_number_with_preview", {
