@@ -14,6 +14,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { stripParagraphTags } from '@/utils/import/normalizers';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useHapticFeedback } from '@/hooks/useHapticFeedback';
 
 // Тип для даних вірша
 interface VerseData {
@@ -66,6 +67,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
   const { language, getLocalizedPath } = useLanguage();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const { impact, selection, notify } = useHapticFeedback();
 
   // Check if current track is favorited
   const isCurrentFavorite = currentTrack ? isFavorite(currentTrack.id) : false;
@@ -73,6 +75,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
   // Toggle favorite for current track
   const toggleFavorite = () => {
     if (!currentTrack) return;
+    notify('success');
     if (isCurrentFavorite) {
       removeFavorite(currentTrack.id);
       toast.success(language === 'uk' ? 'Видалено з улюблених' : 'Removed from favorites');
@@ -343,7 +346,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                 {/* Main Controls */}
                 <div className="flex items-center justify-center gap-6 mb-4">
                   <button
-                    onClick={toggleShuffle}
+                    onClick={() => { selection(); toggleShuffle(); }}
                     className={`p-3 rounded-full transition ${
                       isShuffled
                         ? 'text-primary bg-primary/20'
@@ -354,14 +357,14 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                   </button>
 
                   <button
-                    onClick={prevTrack}
+                    onClick={() => { impact('light'); prevTrack(); }}
                     className="p-3 rounded-full hover:bg-foreground/10 transition text-foreground"
                   >
                     <SkipBack className="w-7 h-7" />
                   </button>
 
                   <button
-                    onClick={togglePlay}
+                    onClick={() => { impact('medium'); togglePlay(); }}
                     className="p-5 rounded-full bg-primary text-primary-foreground hover:scale-105 transition shadow-lg"
                   >
                     {isPlaying ? (
@@ -372,14 +375,14 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                   </button>
 
                   <button
-                    onClick={nextTrack}
+                    onClick={() => { impact('light'); nextTrack(); }}
                     className="p-3 rounded-full hover:bg-foreground/10 transition text-foreground"
                   >
                     <SkipForward className="w-7 h-7" />
                   </button>
 
                   <button
-                    onClick={toggleRepeat}
+                    onClick={() => { selection(); toggleRepeat(); }}
                     className={`p-3 rounded-full transition ${
                       repeatMode !== 'off'
                         ? 'text-primary bg-primary/20'
@@ -626,14 +629,14 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
               {/* Main Controls - Large */}
               <div className="flex items-center justify-center gap-8 mb-6">
                 <button
-                  onClick={prevTrack}
+                  onClick={() => { impact('light'); prevTrack(); }}
                   className="p-3 text-foreground active:scale-95 transition"
                 >
                   <SkipBack className="w-8 h-8" fill="currentColor" />
                 </button>
 
                 <button
-                  onClick={togglePlay}
+                  onClick={() => { impact('medium'); togglePlay(); }}
                   className="p-5 rounded-full bg-foreground text-background active:scale-95 transition shadow-lg"
                 >
                   {isPlaying ? (
@@ -644,7 +647,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                 </button>
 
                 <button
-                  onClick={nextTrack}
+                  onClick={() => { impact('light'); nextTrack(); }}
                   className="p-3 text-foreground active:scale-95 transition"
                 >
                   <SkipForward className="w-8 h-8" fill="currentColor" />
@@ -664,7 +667,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
 
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={toggleMute}
+                    onClick={() => { selection(); toggleMute(); }}
                     className="p-2.5 text-muted-foreground"
                   >
                     {isMuted || volume === 0 ?
@@ -683,7 +686,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                 </div>
 
                 <button
-                  onClick={toggleRepeat}
+                  onClick={() => { selection(); toggleRepeat(); }}
                   className={`p-2.5 rounded-full transition ${
                     repeatMode !== 'off' ? 'text-primary' : 'text-muted-foreground'
                   }`}
@@ -758,14 +761,14 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                 {/* Central Controls - visible on all devices */}
                 <div className="flex items-center justify-center gap-1 md:gap-2 flex-1">
                   <button
-                    onClick={prevTrack}
+                    onClick={() => { impact('light'); prevTrack(); }}
                     className="p-1.5 md:p-2 rounded-full hover:bg-muted transition"
                   >
                     <SkipBack className="w-4 h-4 md:w-5 md:h-5 text-card-foreground" />
                   </button>
 
                   <button
-                    onClick={togglePlay}
+                    onClick={() => { impact('medium'); togglePlay(); }}
                     className="p-2 md:p-2.5 rounded-full bg-primary text-primary-foreground hover:scale-105 transition"
                   >
                     {isPlaying ? (
@@ -776,7 +779,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                   </button>
 
                   <button
-                    onClick={nextTrack}
+                    onClick={() => { impact('light'); nextTrack(); }}
                     className="p-1.5 md:p-2 rounded-full hover:bg-muted transition"
                   >
                     <SkipForward className="w-4 h-4 md:w-5 md:h-5 text-card-foreground" />

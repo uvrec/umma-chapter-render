@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Home, Book, Headphones, Calendar, User } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
+import { useHapticFeedback } from "@/hooks/useHapticFeedback";
 
 interface TabItem {
   id: string;
@@ -65,6 +66,7 @@ export function MobileTabBar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { language, getLocalizedPath } = useLanguage();
+  const { selection } = useHapticFeedback();
 
   // Remove language prefix from pathname for matching
   const getPathWithoutLang = (pathname: string) => {
@@ -111,7 +113,7 @@ export function MobileTabBar() {
           return (
             <button
               key={tab.id}
-              onClick={() => navigate(getTabPath(tab))}
+              onClick={() => { selection(); navigate(getTabPath(tab)); }}
               className={cn(
                 "flex flex-col items-center justify-center flex-1 h-full py-1 px-2 transition-colors",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
