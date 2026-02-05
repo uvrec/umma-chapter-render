@@ -150,17 +150,33 @@ import { UnifiedSearch, useUnifiedSearch } from "./components/UnifiedSearch";
 import { MobileLayout } from "./components/mobile";
 import { ReadingModeExitButton } from "./components/ReadingModeExitButton";
 import { useEffect } from "react";
+import { loadAdminTypography, applyAdminTypographyToCSS } from "./constants/adminTypography";
 
 // Внутрішній компонент з доступом до hooks
 function AppContent() {
   const { open: searchOpen, setOpen: setSearchOpen } = useUnifiedSearch();
 
-  // Очищаємо режими читання при завантаженні застосунку
-  // щоб вони не впливали на сторінки поза читачем
+  // Ініціалізація застосунку
   useEffect(() => {
+    // Очищаємо режими читання при завантаженні застосунку
+    // щоб вони не впливали на сторінки поза читачем
     document.documentElement.setAttribute('data-fullscreen-reading', 'false');
     document.documentElement.setAttribute('data-zen-mode', 'false');
     document.documentElement.setAttribute('data-presentation-mode', 'false');
+
+    // Завантажуємо та застосовуємо налаштування типографіки з адмінки
+    const typographyConfig = loadAdminTypography();
+    applyAdminTypographyToCSS(typographyConfig);
+
+    // Слухаємо зміни типографіки (коли адмін змінює налаштування)
+    const handleTypographyChange = (e: CustomEvent) => {
+      applyAdminTypographyToCSS(e.detail);
+    };
+    window.addEventListener('vv-admin-typography-changed', handleTypographyChange as EventListener);
+
+    return () => {
+      window.removeEventListener('vv-admin-typography-changed', handleTypographyChange as EventListener);
+    };
   }, []);
 
   return (

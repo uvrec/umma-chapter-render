@@ -5,9 +5,52 @@
 
    ⚠️ ВАЖЛИВО:
    - Шрифти завантажуються через <link> в index.html (оптимальніше для performance)
-   - Тут тільки стилі для конкретних класів
+   - Стилі контролюються через CSS змінні з /admin/typography
    - Стилі для textarea в index.css в блоці "TEXTAREA ТРАНСЛІТЕРАТОРА"
    ========================================== */
+
+/* -------- CSS змінні за замовчуванням (поточні налаштування сайту) -------- */
+:root {
+  /* Транслітерація - Charis SIL для української діакритики (ПОТОЧНІ НАЛАШТУВАННЯ) */
+  --vv-transliteration-font-family: "Charis SIL", "Gentium Plus", "Noto Serif", serif;
+  --vv-transliteration-font-size-multiplier: 1;
+  --vv-transliteration-font-weight: 400;
+  --vv-transliteration-font-style: italic;
+  --vv-transliteration-letter-spacing: 0.01em;
+  --vv-transliteration-line-height: 1.6;
+
+  /* Санскрит (Деванагарі) - ПОТОЧНІ НАЛАШТУВАННЯ */
+  --vv-sanskrit-font-family: "Noto Sans Devanagari", sans-serif;
+  --vv-sanskrit-font-size-multiplier: 1.15;
+  --vv-sanskrit-font-weight: 400;
+  --vv-sanskrit-font-style: normal;
+  --vv-sanskrit-letter-spacing: 0em;
+  --vv-sanskrit-line-height: 1.6;
+
+  /* Послівний переклад (синоніми) - ПОТОЧНІ НАЛАШТУВАННЯ */
+  --vv-synonyms-font-family: "Charis SIL", "Noto Serif", serif;
+  --vv-synonyms-font-size-multiplier: 1;
+  --vv-synonyms-font-weight: 400;
+  --vv-synonyms-font-style: normal;
+  --vv-synonyms-letter-spacing: 0em;
+  --vv-synonyms-line-height: 1.75;
+
+  /* Літературний переклад - ПОТОЧНІ НАЛАШТУВАННЯ */
+  --vv-translation-font-family: inherit;
+  --vv-translation-font-size-multiplier: 1;
+  --vv-translation-font-weight: 400;
+  --vv-translation-font-style: normal;
+  --vv-translation-letter-spacing: 0em;
+  --vv-translation-line-height: 1.6;
+
+  /* Пояснення (коментар) - ПОТОЧНІ НАЛАШТУВАННЯ */
+  --vv-commentary-font-family: inherit;
+  --vv-commentary-font-size-multiplier: 1;
+  --vv-commentary-font-weight: 400;
+  --vv-commentary-font-style: normal;
+  --vv-commentary-letter-spacing: 0em;
+  --vv-commentary-line-height: 1.75;
+}
 
 /* -------- Блок для трансліту (використовується в читалці віршів) -------- */
 /* Charis SIL - найкращий шрифт для української транслітерації з діакритичними знаками
@@ -16,20 +59,20 @@
 .prose-reader .translit,
 .result-text,
 [data-result] {
-  /* Шрифтова сім'я - Charis SIL для кращої підтримки комбінуючих діакритичних знаків (!important для пріоритету) */
-  font-family: "Charis SIL", "Gentium Plus", "Noto Serif", serif !important;
-  font-style: italic;
-  font-weight: 400 !important;
+  /* Шрифтова сім'я - контролюється з адмінки */
+  font-family: var(--vv-transliteration-font-family) !important;
+  font-style: var(--vv-transliteration-font-style);
+  font-weight: var(--vv-transliteration-font-weight) !important;
+  letter-spacing: var(--vv-transliteration-letter-spacing);
 
-  /* Розмір шрифту - базовий */
-  font-size: var(--vv-reader-font-size) !important;
-  line-height: var(--vv-reader-line-height) !important;
+  /* Розмір шрифту - базовий з множником */
+  font-size: calc(var(--vv-reader-font-size, 18px) * var(--vv-transliteration-font-size-multiplier)) !important;
+  line-height: var(--vv-transliteration-line-height) !important;
 
   /* OpenType features для правильного рендерингу діакритики (mark positioning) */
   font-feature-settings: "kern" 1, "liga" 1, "mark" 1, "mkmk" 1;
   font-variant-position: normal;
   font-variant-ligatures: common-ligatures;
-  letter-spacing: 0.01em;
 
   /* Рендеринг шрифтів - критично для діакритики */
   -webkit-font-smoothing: antialiased;
@@ -45,12 +88,47 @@
 /* -------- Санскрит (Деванагарі) для читалки -------- */
 .sanskrit-text,
 .prose-reader .sanskrit {
-  /* Шрифтова сім'я для ДЕВАНАГАРІ (!important для пріоритету) */
-  font-family: "Noto Sans Devanagari", sans-serif !important;
-  font-style: normal !important;
-  font-weight: 400 !important;
+  /* Шрифтова сім'я - контролюється з адмінки */
+  font-family: var(--vv-sanskrit-font-family) !important;
+  font-style: var(--vv-sanskrit-font-style) !important;
+  font-weight: var(--vv-sanskrit-font-weight) !important;
+  letter-spacing: var(--vv-sanskrit-letter-spacing);
 
-  /* Розмір шрифту - трохи більший ніж базовий (+15%) */
-  font-size: calc(var(--vv-reader-font-size) * 1.15) !important;
-  line-height: var(--vv-reader-line-height) !important;
+  /* Розмір шрифту - з множником */
+  font-size: calc(var(--vv-reader-font-size, 18px) * var(--vv-sanskrit-font-size-multiplier)) !important;
+  line-height: var(--vv-sanskrit-line-height) !important;
+}
+
+/* -------- Послівний переклад (синоніми) -------- */
+.synonyms-text,
+.prose-reader .synonyms {
+  font-family: var(--vv-synonyms-font-family);
+  font-style: var(--vv-synonyms-font-style);
+  font-weight: var(--vv-synonyms-font-weight);
+  letter-spacing: var(--vv-synonyms-letter-spacing);
+  font-size: calc(var(--vv-reader-font-size, 18px) * var(--vv-synonyms-font-size-multiplier));
+  line-height: var(--vv-synonyms-line-height);
+}
+
+/* -------- Літературний переклад -------- */
+.translation-text,
+.prose-reader .translation {
+  font-family: var(--vv-translation-font-family);
+  font-style: var(--vv-translation-font-style);
+  font-weight: var(--vv-translation-font-weight);
+  letter-spacing: var(--vv-translation-letter-spacing);
+  font-size: calc(var(--vv-reader-font-size, 18px) * var(--vv-translation-font-size-multiplier));
+  line-height: var(--vv-translation-line-height);
+}
+
+/* -------- Пояснення (коментар) -------- */
+.commentary-text,
+.prose-reader .commentary,
+.prose-reader .purport {
+  font-family: var(--vv-commentary-font-family);
+  font-style: var(--vv-commentary-font-style);
+  font-weight: var(--vv-commentary-font-weight);
+  letter-spacing: var(--vv-commentary-letter-spacing);
+  font-size: calc(var(--vv-reader-font-size, 18px) * var(--vv-commentary-font-size-multiplier));
+  line-height: var(--vv-commentary-line-height);
 }
