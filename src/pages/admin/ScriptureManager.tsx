@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSearchParams, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -11,7 +11,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ScriptureTreeNav } from "@/components/admin/ScriptureTreeNav";
 import { VerseQuickEdit } from "@/components/admin/VerseQuickEdit";
 import {
-  ArrowLeft,
   Plus,
   Edit,
   Eye,
@@ -38,8 +37,6 @@ import { cn } from "@/lib/utils";
 import { stripParagraphTags } from "@/utils/import/normalizers";
 
 export default function ScriptureManager() {
-  const { user, isAdmin } = useAuth();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -57,12 +54,6 @@ export default function ScriptureManager() {
   const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null);
   const [rangeInput, setRangeInput] = useState("");
 
-  useEffect(() => {
-    if (!user || !isAdmin) {
-      navigate("/auth");
-    }
-  }, [user, isAdmin, navigate]);
-
   // Sync URL params when chapter selection changes
   useEffect(() => {
     const params = new URLSearchParams();
@@ -77,7 +68,6 @@ export default function ScriptureManager() {
       if (error) throw error;
       return data;
     },
-    enabled: !!user && isAdmin,
   });
 
   const { data: cantos } = useQuery({
@@ -87,7 +77,6 @@ export default function ScriptureManager() {
       if (error) throw error;
       return data;
     },
-    enabled: !!user && isAdmin,
   });
 
   const { data: chapters } = useQuery({
@@ -100,7 +89,6 @@ export default function ScriptureManager() {
       if (error) throw error;
       return data;
     },
-    enabled: !!user && isAdmin,
   });
 
   const { data: verses, isLoading: versesLoading } = useQuery({
@@ -254,20 +242,17 @@ export default function ScriptureManager() {
 
   const selectedChapter = chapters?.find((ch) => ch.id === selectedChapterId);
 
-  if (!user || !isAdmin) return null;
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/admin/dashboard" },
+    { label: "Scripture Manager" },
+  ];
 
   return (
-    <div className="h-screen flex flex-col bg-background">
-      {/* Header */}
-      <header className="border-b">
-        <div className="px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/admin/dashboard">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Dashboard
-              </Link>
-            </Button>
+    <AdminLayout breadcrumbs={breadcrumbs}>
+      <div className="h-[calc(100vh-64px)] flex flex-col">
+        {/* Header */}
+        <header className="border-b bg-background">
+          <div className="px-4 py-3 flex items-center justify-between">
             <div>
               <h1 className="text-xl font-bold">Scripture Manager</h1>
               {selectedChapter && (
@@ -278,66 +263,65 @@ export default function ScriptureManager() {
                 </p>
               )}
             </div>
-          </div>
 
-          <div className="flex gap-2">
-            {selectedChapterId && bulkDeleteMode && selectedVerses.size > 0 && (
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => {
-                  if (confirm(`Видалити ${selectedVerses.size} вибраних віршів?`)) {
-                    bulkDeleteMutation.mutate({
-                      ids: Array.from(selectedVerses),
-                      count: selectedVerses.size,
-                    });
-                  }
-                }}
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Видалити ({selectedVerses.size})
-              </Button>
-            )}
-            {selectedChapterId && verses && verses.length > 0 && (
-              <Button
-                variant={bulkDeleteMode ? "secondary" : "outline"}
-                size="sm"
-                onClick={() => {
-                  setBulkDeleteMode(!bulkDeleteMode);
-                  setSelectedVerses(new Set());
-                  setLastSelectedIndex(null);
-                }}
-              >
-                {bulkDeleteMode ? "Скасувати" : "Масове видалення"}
-              </Button>
-            )}
-            {selectedChapterId && (
-              <>
+            <div className="flex gap-2">
+              {selectedChapterId && bulkDeleteMode && selectedVerses.size > 0 && (
                 <Button
+                  variant="destructive"
                   size="sm"
-                  variant="outline"
                   onClick={() => {
-                    setSelectedVerseId(null);
-                    setIsCreatingVerse(true);
+                    if (confirm(`Видалити ${selectedVerses.size} вибраних віршів?`)) {
+                      bulkDeleteMutation.mutate({
+                        ids: Array.from(selectedVerses),
+                        count: selectedVerses.size,
+                      });
+                    }
                   }}
                 >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Швидке створення
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Видалити ({selectedVerses.size})
                 </Button>
-                <Button size="sm" asChild>
-                  <Link to={`/admin/verses/new?chapterId=${selectedChapterId}`}>
-                    <Columns2 className="w-4 h-4 mr-2" />
-                    Розширений редактор
-                  </Link>
+              )}
+              {selectedChapterId && verses && verses.length > 0 && (
+                <Button
+                  variant={bulkDeleteMode ? "secondary" : "outline"}
+                  size="sm"
+                  onClick={() => {
+                    setBulkDeleteMode(!bulkDeleteMode);
+                    setSelectedVerses(new Set());
+                    setLastSelectedIndex(null);
+                  }}
+                >
+                  {bulkDeleteMode ? "Скасувати" : "Масове видалення"}
                 </Button>
-              </>
-            )}
+              )}
+              {selectedChapterId && (
+                <>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedVerseId(null);
+                      setIsCreatingVerse(true);
+                    }}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Швидке створення
+                  </Button>
+                  <Button size="sm" asChild>
+                    <Link to={`/admin/verses/new?chapterId=${selectedChapterId}`}>
+                      <Columns2 className="w-4 h-4 mr-2" />
+                      Розширений редактор
+                    </Link>
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* 3-Panel Layout */}
-      <div className="flex-1 flex overflow-hidden">
+        {/* 3-Panel Layout */}
+        <div className="flex-1 flex overflow-hidden">
         {/* Left Panel: Tree Navigation */}
         <div className="w-64 flex-shrink-0">
           <ScriptureTreeNav
@@ -556,6 +540,7 @@ export default function ScriptureManager() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+      </div>
+    </AdminLayout>
   );
 }

@@ -3,14 +3,44 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Plus, Edit, Trash2, Loader2 } from "lucide-react";
+import { Plus, Edit, Trash2, Loader2, MoreHorizontal } from "lucide-react";
 import * as Icons from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface AudioCategory {
   id: string;
@@ -47,6 +77,7 @@ export default function AudioCategories() {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<AudioCategory | null>(null);
+  const [deleteCategory, setDeleteCategory] = useState<AudioCategory | null>(null);
   const [isCheckingSlug, setIsCheckingSlug] = useState(false);
 
   const [formData, setFormData] = useState<FormState>({
@@ -178,9 +209,11 @@ export default function AudioCategories() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["audio-categories"] });
       toast.success("Категорію видалено");
+      setDeleteCategory(null);
     },
     onError: (error: any) => {
       toast.error(error?.message ?? "Не вдалось видалити");
+      setDeleteCategory(null);
     },
   });
 
@@ -200,201 +233,245 @@ export default function AudioCategories() {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-2xl font-bold">Категорії аудіо</h1>
-            <p className="text-muted-foreground">Управління категоріями аудіо контенту</p>
+            <p className="text-muted-foreground text-sm">
+              {categories?.length || 0} категорій
+            </p>
           </div>
-
-          <Dialog open={isDialogOpen} onOpenChange={(o) => (o ? openCreate() : handleCloseDialog())}>
-            <DialogTrigger asChild>
-              <Button onClick={openCreate}>
-                <Plus className="w-4 h-4 mr-2" />
-                Додати категорію
-              </Button>
-            </DialogTrigger>
-
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>{editingCategory ? "Редагувати категорію" : "Нова категорія"}</DialogTitle>
-              </DialogHeader>
-
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="name_uk">Назва (UK) *</Label>
-                    <Input
-                      id="name_uk"
-                      value={formData.name_uk}
-                      onChange={(e) => setFormData((s) => ({ ...s, name_uk: e.target.value }))}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="name_en">Назва (EN) *</Label>
-                    <Input
-                      id="name_en"
-                      value={formData.name_en}
-                      onChange={(e) => setFormData((s) => ({ ...s, name_en: e.target.value }))}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-[1fr_auto_auto] items-end gap-2">
-                  <div>
-                    <Label htmlFor="slug">Slug *</Label>
-                    <Input
-                      id="slug"
-                      value={formData.slug}
-                      onChange={(e) => setFormData((s) => ({ ...s, slug: e.target.value }))}
-                      required
-                    />
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="mt-6"
-                    onClick={() =>
-                      setFormData((s) => ({
-                        ...s,
-                        slug: s.slug || generateSlug(s.name_uk || s.name_en),
-                      }))
-                    }
-                  >
-                    Згенерувати
-                  </Button>
-                  {isCheckingSlug && (
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                      <Loader2 className="h-4 w-4 animate-spin" /> перевірка…
-                    </div>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-[1fr_auto] items-end gap-3">
-                  <div>
-                    <Label htmlFor="icon">Іконка (Lucide)</Label>
-                    <Input
-                      id="icon"
-                      value={formData.icon}
-                      onChange={(e) => setFormData((s) => ({ ...s, icon: e.target.value }))}
-                      placeholder="Mic, Music, Radio, Headphones ..."
-                    />
-                  </div>
-                  <div className="flex items-center justify-center h-10 rounded border">
-                    <IconPreview className="w-5 h-5 opacity-80" />
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="display_order">Порядок відображення</Label>
-                  <Input
-                    id="display_order"
-                    type="number"
-                    value={formData.display_order}
-                    onChange={(e) => setFormData((s) => ({ ...s, display_order: parseInt(e.target.value || "0", 10) }))}
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">Менше число — вище у списку.</p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="description_uk">Опис (UK)</Label>
-                    <Textarea
-                      id="description_uk"
-                      value={formData.description_uk}
-                      onChange={(e) => setFormData((s) => ({ ...s, description_uk: e.target.value }))}
-                      rows={3}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="description_en">Опис (EN)</Label>
-                    <Textarea
-                      id="description_en"
-                      value={formData.description_en}
-                      onChange={(e) => setFormData((s) => ({ ...s, description_en: e.target.value }))}
-                      rows={3}
-                    />
-                  </div>
-                </div>
-
-                <DialogFooter className="gap-2">
-                  <Button type="button" variant="outline" onClick={handleCloseDialog}>
-                    Скасувати
-                  </Button>
-                  <Button type="submit" disabled={saveMutation.isPending}>
-                    {saveMutation.isPending ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Збереження…
-                      </>
-                    ) : (
-                      "Зберегти"
-                    )}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <Button onClick={openCreate}>
+            <Plus className="w-4 h-4 mr-2" />
+            Додати категорію
+          </Button>
         </div>
 
         {isLoading ? (
-          <div className="flex items-center gap-2 text-muted-foreground">
+          <div className="flex items-center gap-2 text-muted-foreground py-12 justify-center">
             <Loader2 className="h-4 w-4 animate-spin" /> Завантаження…
           </div>
         ) : categories && categories.length > 0 ? (
-          <div className="grid gap-4">
-            {categories.map((category) => {
-              const Icon = (Icons as any)[category.icon ?? ""] ?? Icons.Tags;
-              return (
-                <Card key={category.id} className="overflow-hidden">
-                  <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
-                      <Icon className="w-5 h-5 opacity-80" />
-                      <span className="font-semibold">{category.name_uk}</span>
-                      <span className="text-muted-foreground">/ {category.name_en}</span>
-                    </CardTitle>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => handleEdit(category)}>
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => {
-                          if (confirm("Видалити цю категорію?")) {
-                            deleteMutation.mutate(category.id);
-                          }
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="text-sm text-muted-foreground space-y-1">
-                    <p>
-                      <span className="text-foreground">Slug:</span> {category.slug}
-                    </p>
-                    {category.icon && (
-                      <p>
-                        <span className="text-foreground">Іконка:</span> {category.icon}
-                      </p>
-                    )}
-                    <p>
-                      <span className="text-foreground">Порядок:</span> {category.display_order}
-                    </p>
-                    {category.description_uk && (
-                      <p>
-                        <span className="text-foreground">Опис:</span> {category.description_uk}
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            })}
+          <div className="border rounded-lg">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[50px]">Іконка</TableHead>
+                  <TableHead>Назва</TableHead>
+                  <TableHead className="w-[120px]">Slug</TableHead>
+                  <TableHead className="w-[80px]">Порядок</TableHead>
+                  <TableHead className="w-[80px] text-right">Дії</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {categories.map((category) => {
+                  const Icon = (Icons as any)[category.icon ?? ""] ?? Icons.Tags;
+                  return (
+                    <TableRow key={category.id}>
+                      <TableCell>
+                        <div className="w-8 h-8 rounded bg-muted flex items-center justify-center">
+                          <Icon className="w-4 h-4 opacity-70" />
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="font-medium">{category.name_uk}</div>
+                          <div className="text-sm text-muted-foreground">{category.name_en}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <code className="text-xs bg-muted px-1.5 py-0.5 rounded">
+                          {category.slug}
+                        </code>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {category.display_order}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleEdit(category)}>
+                              <Edit className="w-4 h-4 mr-2" />
+                              Редагувати
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => setDeleteCategory(category)}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Видалити
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
           </div>
         ) : (
-          <Card className="p-8 text-center text-muted-foreground">
-            Категорій поки немає. Створіть першу через кнопку «Додати категорію».
-          </Card>
+          <div className="border rounded-lg p-8 text-center">
+            <p className="text-muted-foreground mb-4">Категорій поки немає</p>
+            <Button onClick={openCreate}>
+              <Plus className="w-4 h-4 mr-2" />
+              Створити першу категорію
+            </Button>
+          </div>
         )}
       </div>
+
+      {/* Edit/Create Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={(o) => (o ? null : handleCloseDialog())}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{editingCategory ? "Редагувати категорію" : "Нова категорія"}</DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="name_uk">Назва (UK) *</Label>
+                <Input
+                  id="name_uk"
+                  value={formData.name_uk}
+                  onChange={(e) => setFormData((s) => ({ ...s, name_uk: e.target.value }))}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="name_en">Назва (EN) *</Label>
+                <Input
+                  id="name_en"
+                  value={formData.name_en}
+                  onChange={(e) => setFormData((s) => ({ ...s, name_en: e.target.value }))}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-[1fr_auto_auto] items-end gap-2">
+              <div>
+                <Label htmlFor="slug">Slug *</Label>
+                <Input
+                  id="slug"
+                  value={formData.slug}
+                  onChange={(e) => setFormData((s) => ({ ...s, slug: e.target.value }))}
+                  required
+                />
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                className="mt-6"
+                onClick={() =>
+                  setFormData((s) => ({
+                    ...s,
+                    slug: s.slug || generateSlug(s.name_uk || s.name_en),
+                  }))
+                }
+              >
+                Згенерувати
+              </Button>
+              {isCheckingSlug && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                  <Loader2 className="h-4 w-4 animate-spin" /> перевірка…
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-[1fr_auto] items-end gap-3">
+              <div>
+                <Label htmlFor="icon">Іконка (Lucide)</Label>
+                <Input
+                  id="icon"
+                  value={formData.icon}
+                  onChange={(e) => setFormData((s) => ({ ...s, icon: e.target.value }))}
+                  placeholder="Mic, Music, Radio, Headphones ..."
+                />
+              </div>
+              <div className="flex items-center justify-center h-10 w-10 rounded border">
+                <IconPreview className="w-5 h-5 opacity-80" />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="display_order">Порядок відображення</Label>
+              <Input
+                id="display_order"
+                type="number"
+                value={formData.display_order}
+                onChange={(e) => setFormData((s) => ({ ...s, display_order: parseInt(e.target.value || "0", 10) }))}
+              />
+              <p className="text-xs text-muted-foreground mt-1">Менше число — вище у списку.</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="description_uk">Опис (UK)</Label>
+                <Textarea
+                  id="description_uk"
+                  value={formData.description_uk}
+                  onChange={(e) => setFormData((s) => ({ ...s, description_uk: e.target.value }))}
+                  rows={3}
+                />
+              </div>
+              <div>
+                <Label htmlFor="description_en">Опис (EN)</Label>
+                <Textarea
+                  id="description_en"
+                  value={formData.description_en}
+                  onChange={(e) => setFormData((s) => ({ ...s, description_en: e.target.value }))}
+                  rows={3}
+                />
+              </div>
+            </div>
+
+            <DialogFooter className="gap-2">
+              <Button type="button" variant="outline" onClick={handleCloseDialog}>
+                Скасувати
+              </Button>
+              <Button type="submit" disabled={saveMutation.isPending}>
+                {saveMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Збереження…
+                  </>
+                ) : (
+                  "Зберегти"
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!deleteCategory} onOpenChange={() => setDeleteCategory(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Видалити категорію?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteCategory && (
+                <span className="block mb-2 font-medium text-foreground">
+                  «{deleteCategory.name_uk}»
+                </span>
+              )}
+              Ця дія видалить категорію назавжди.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Скасувати</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteCategory && deleteMutation.mutate(deleteCategory.id)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Видалити
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminLayout>
   );
 }
