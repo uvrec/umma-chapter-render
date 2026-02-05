@@ -1,14 +1,14 @@
 // src/pages/admin/Chapters.tsx
-import { useEffect, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
+import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Plus, Edit, Trash2, FileText, BookOpen, Eye, EyeOff } from "lucide-react";
+import { Plus, Edit, Trash2, FileText, BookOpen, Eye, EyeOff } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { PreviewShareButton } from "@/components/PreviewShareButton";
@@ -45,8 +45,6 @@ interface ChapterForm {
 
 export default function Chapters() {
   const { bookId, cantoId } = useParams();
-  const navigate = useNavigate();
-  const { user, isAdmin } = useAuth();
   const queryClient = useQueryClient();
 
   const parentId = cantoId || bookId;
@@ -55,7 +53,6 @@ export default function Chapters() {
   const [isAddingChapter, setIsAddingChapter] = useState(false);
   const [editingChapter, setEditingChapter] = useState<any>(null);
 
-  // Форма глави
   const [form, setForm] = useState<ChapterForm>({
     chapter_number: "",
     title_uk: "",
@@ -76,12 +73,11 @@ export default function Chapters() {
     });
   };
 
-  // --- helper: перевірити, чи зайнятий номер глави в межах книги/пісні
   async function isChapterNumberTaken(params: {
     chapterNumber: number;
     bookId?: string | null;
     cantoId?: string | null;
-    excludeId?: string | null; // для редагування
+    excludeId?: string | null;
   }) {
     const { chapterNumber, bookId, cantoId, excludeId } = params;
 
@@ -105,12 +101,6 @@ export default function Chapters() {
     return (count ?? 0) > 0;
   }
 
-  useEffect(() => {
-    if (!user || !isAdmin) {
-      navigate("/auth");
-    }
-  }, [user, isAdmin, navigate]);
-
   const { data: book } = useQuery({
     queryKey: ["book", bookId],
     queryFn: async () => {
@@ -119,7 +109,7 @@ export default function Chapters() {
       if (error) throw error;
       return data;
     },
-    enabled: !!bookId && !!user && isAdmin && !isCantoMode,
+    enabled: !!bookId && !isCantoMode,
   });
 
   const { data: canto } = useQuery({
@@ -129,7 +119,7 @@ export default function Chapters() {
       if (error) throw error;
       return data;
     },
-    enabled: !!cantoId && !!user && isAdmin,
+    enabled: !!cantoId,
   });
 
   const { data: chapters, isLoading } = useQuery({
@@ -147,20 +137,11 @@ export default function Chapters() {
       if (error) throw error;
       return data;
     },
-    enabled: !!parentId && !!user && isAdmin,
+    enabled: !!parentId,
   });
 
   const addMutation = useMutation({
-    mutationFn: async (payload: {
-      chapter_number: number;
-      title_uk: string;
-      title_en: string | null;
-      chapter_type: ChapterType;
-      content_uk: string | null;
-      content_en: string | null;
-      book_id?: string;
-      canto_id?: string;
-    }) => {
+    mutationFn: async (payload: any) => {
       const { error } = await supabase.from("chapters").insert(payload);
       if (error) throw error as any;
     },
@@ -171,11 +152,10 @@ export default function Chapters() {
       resetForm();
     },
     onError: (error: any) => {
-      // дружній меседж для унікальності
       if (error?.code === "23505") {
         toast({
           title: "Номер вже зайнятий",
-          description: "Глава з таким номером уже існує в цій книзі/пісні. Оберіть інший номер.",
+          description: "Глава з таким номером уже існує в цій книзі/пісні.",
           variant: "destructive",
         });
       } else {
@@ -189,15 +169,7 @@ export default function Chapters() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async (payload: {
-      id: string;
-      chapter_number: number;
-      title_uk: string;
-      title_en: string | null;
-      chapter_type: ChapterType;
-      content_uk: string | null;
-      content_en: string | null;
-    }) => {
+    mutationFn: async (payload: any) => {
       const { error } = await supabase
         .from("chapters")
         .update({
@@ -222,7 +194,7 @@ export default function Chapters() {
       if (error?.code === "23505") {
         toast({
           title: "Номер вже зайнятий",
-          description: "Глава з таким номером уже існує в цій книзі/пісні. Оберіть інший номер.",
+          description: "Глава з таким номером уже існує в цій книзі/пісні.",
           variant: "destructive",
         });
       } else {
@@ -253,7 +225,6 @@ export default function Chapters() {
     },
   });
 
-  // Toggle publish status mutation
   const togglePublishMutation = useMutation({
     mutationFn: async ({ chapterId, isPublished }: { chapterId: string; isPublished: boolean }) => {
       const { error } = await supabase
@@ -299,7 +270,6 @@ export default function Chapters() {
       return;
     }
 
-    // фронт-перевірка унікальності перед відправкою
     const taken = await isChapterNumberTaken({
       chapterNumber: num,
       bookId: isCantoMode ? null : bookId!,
@@ -310,7 +280,7 @@ export default function Chapters() {
     if (taken) {
       toast({
         title: "Номер вже зайнятий",
-        description: "Глава з таким номером уже існує в цій книзі/пісні. Оберіть інший номер.",
+        description: "Глава з таким номером уже існує в цій книзі/пісні.",
         variant: "destructive",
       });
       return;
@@ -326,10 +296,7 @@ export default function Chapters() {
     };
 
     if (editingChapter) {
-      updateMutation.mutate({
-        id: editingChapter.id,
-        ...payload,
-      });
+      updateMutation.mutate({ id: editingChapter.id, ...payload });
     } else {
       addMutation.mutate(
         isCantoMode ? { ...payload, canto_id: cantoId! } : { ...payload, book_id: bookId! }
@@ -356,39 +323,33 @@ export default function Chapters() {
     resetForm();
   };
 
-  if (!user || !isAdmin) return null;
+  const parentTitle = isCantoMode && canto
+    ? `${canto.books?.title_uk} — Пісня ${canto.canto_number}`
+    : book?.title_uk || "";
+
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/admin/dashboard" },
+    { label: "Книги", href: "/admin/books" },
+    ...(isCantoMode && canto?.book_id
+      ? [{ label: "Пісні", href: `/admin/cantos/${canto.book_id}` }]
+      : []),
+    { label: parentTitle || "Глави" },
+  ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" asChild>
-                <Link to={isCantoMode ? `/admin/cantos/${canto?.book_id}` : "/admin/books"}>
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  {isCantoMode ? "До пісень" : "До книг"}
-                </Link>
-              </Button>
-              <div>
-                <h1 className="text-2xl font-bold">Глави</h1>
-                {isCantoMode && canto && (
-                  <p className="text-sm text-muted-foreground">
-                    {canto.books?.title_uk} — Пісня {canto.canto_number}: {canto.title_uk}
-                  </p>
-                )}
-                {!isCantoMode && book && <p className="text-sm text-muted-foreground">{book.title_uk}</p>}
-              </div>
-            </div>
-            <Button onClick={() => setIsAddingChapter(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              Додати главу
-            </Button>
+    <AdminLayout breadcrumbs={breadcrumbs}>
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold">Глави</h1>
+            <p className="text-muted-foreground">{parentTitle}</p>
           </div>
+          <Button onClick={() => setIsAddingChapter(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Додати главу
+          </Button>
         </div>
-      </header>
 
-      <div className="container mx-auto px-4 py-8">
         {isAddingChapter && (
           <Card className="mb-6">
             <CardHeader>
@@ -432,16 +393,10 @@ export default function Chapters() {
                         </SelectItem>
                       </SelectContent>
                     </Select>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {form.chapter_type === "text"
-                        ? "Глава з текстовим контентом (оповідання, есе, тощо)"
-                        : "Глава з віршами та коментарями"}
-                    </p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Українська колонка */}
                   <div className="space-y-4">
                     <h3 className="font-semibold text-lg border-b pb-2">Українська</h3>
                     <div>
@@ -455,8 +410,6 @@ export default function Chapters() {
                       />
                     </div>
                   </div>
-
-                  {/* English колонка */}
                   <div className="space-y-4">
                     <h3 className="font-semibold text-lg border-b pb-2">English</h3>
                     <div>
@@ -471,7 +424,6 @@ export default function Chapters() {
                   </div>
                 </div>
 
-                {/* Редактор контенту для текстових глав */}
                 {form.chapter_type === "text" && (
                   <div className="space-y-4">
                     <h3 className="font-semibold text-lg border-b pb-2">Контент глави</h3>
@@ -508,7 +460,9 @@ export default function Chapters() {
         )}
 
         {isLoading ? (
-          <p>Завантаження...</p>
+          <div className="flex items-center justify-center py-12">
+            <p className="text-muted-foreground">Завантаження...</p>
+          </div>
         ) : chapters && chapters.length > 0 ? (
           <div className="grid gap-4">
             {chapters.map((chapter) => (
@@ -546,7 +500,6 @@ export default function Chapters() {
                       {chapter.title_en && <p className="text-sm text-muted-foreground mt-1">{chapter.title_en}</p>}
                     </div>
                     <div className="flex gap-2 flex-wrap">
-                      {/* Publish/Unpublish toggle */}
                       <Button
                         size="sm"
                         variant={chapter.is_published ? "outline" : "default"}
@@ -568,7 +521,6 @@ export default function Chapters() {
                           </>
                         )}
                       </Button>
-                      {/* Preview share - always visible */}
                       <PreviewShareButton
                         resourceType="chapter"
                         resourceId={chapter.id}
@@ -590,8 +542,8 @@ export default function Chapters() {
                             <AlertDialogTitle>Ви впевнені?</AlertDialogTitle>
                             <AlertDialogDescription>
                               {chapter.chapter_type === "text"
-                                ? "Це видалить главу та весь її вміст. Цю дію неможливо скасувати."
-                                : "Це видалить главу та всі вірші в ній. Цю дію неможливо скасувати."}
+                                ? "Це видалить главу та весь її вміст."
+                                : "Це видалить главу та всі вірші в ній."}
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
@@ -611,11 +563,11 @@ export default function Chapters() {
         ) : (
           <Card>
             <CardContent className="py-8 text-center">
-              <p className="text-muted-foreground">Глав не знайдено для цієї книги</p>
+              <p className="text-muted-foreground">Глав не знайдено</p>
             </CardContent>
           </Card>
         )}
       </div>
-    </div>
+    </AdminLayout>
   );
 }

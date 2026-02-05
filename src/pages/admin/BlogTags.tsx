@@ -1,9 +1,8 @@
 // src/pages/admin/BlogTags.tsx
 import { useMemo, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,15 +21,6 @@ type BlogTag = {
 };
 
 export default function BlogTags() {
-  const { user, isAdmin } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!user || !isAdmin) {
-      navigate("/auth");
-    }
-  }, [user, isAdmin, navigate]);
-
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
 
@@ -157,13 +147,19 @@ export default function BlogTags() {
     });
   }, [tags, debouncedSearch]);
 
-  if (!user || !isAdmin) return null;
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/admin/dashboard" },
+    { label: "Теги блогу" },
+  ];
 
   return (
-    <div className="container mx-auto py-8">
-      {/* Хедер дій */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Теги блогу</h1>
+    <AdminLayout breadcrumbs={breadcrumbs}>
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-2xl font-bold">Теги блогу</h1>
+            <p className="text-muted-foreground">Управління тегами постів</p>
+          </div>
         <Dialog
           open={open}
           onOpenChange={(val) => {
@@ -285,6 +281,7 @@ export default function BlogTags() {
           </TableBody>
         </Table>
       </div>
-    </div>
+      </div>
+    </AdminLayout>
   );
 }

@@ -1,16 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, Edit, Trash2, Loader2 } from "lucide-react";
+import { Plus, Edit, Trash2, Loader2 } from "lucide-react";
 import * as Icons from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 
 interface AudioCategory {
@@ -38,23 +37,15 @@ function generateSlug(input: string) {
   return input
     .toLowerCase()
     .trim()
-    .replace(/[ʼ'’`"]/g, "") // апострофи
-    .replace(/[^a-z0-9\s-]/g, "") // тільки латиниця/цифри/пробіли/дефіс
+    .replace(/[ʼ''`"]/g, "")
+    .replace(/[^a-z0-9\s-]/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-");
 }
 
 export default function AudioCategories() {
-  const { user, isAdmin } = useAuth();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  useEffect(() => {
-    if (!user || !isAdmin) {
-      navigate("/auth");
-    }
-  }, [user, isAdmin, navigate]);
   const [editingCategory, setEditingCategory] = useState<AudioCategory | null>(null);
   const [isCheckingSlug, setIsCheckingSlug] = useState(false);
 
@@ -141,14 +132,12 @@ export default function AudioCategories() {
 
   const saveMutation = useMutation({
     mutationFn: async (data: FormState) => {
-      // валідація
       if (!data.name_uk.trim() || !data.name_en.trim()) {
-        throw new Error("Назви (UA/EN) обов’язкові");
+        throw new Error("Назви (UA/EN) обов'язкові");
       }
       if (!data.slug.trim()) {
-        throw new Error("Slug обов’язковий");
+        throw new Error("Slug обов'язковий");
       }
-      // унікальність slug
       if (await slugExists(data.slug, editingCategory?.id)) {
         throw new Error("Такий slug уже існує");
       }
@@ -200,213 +189,212 @@ export default function AudioCategories() {
     saveMutation.mutate(formData);
   };
 
-  if (!user || !isAdmin) return null;
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/admin/dashboard" },
+    { label: "Категорії аудіо" },
+  ];
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
-        <Link to="/admin/dashboard">
-          <Button variant="ghost">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Назад до Dashboard
-          </Button>
-        </Link>
-      </div>
+    <AdminLayout breadcrumbs={breadcrumbs}>
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-2xl font-bold">Категорії аудіо</h1>
+            <p className="text-muted-foreground">Управління категоріями аудіо контенту</p>
+          </div>
 
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Категорії аудіо</h1>
+          <Dialog open={isDialogOpen} onOpenChange={(o) => (o ? openCreate() : handleCloseDialog())}>
+            <DialogTrigger asChild>
+              <Button onClick={openCreate}>
+                <Plus className="w-4 h-4 mr-2" />
+                Додати категорію
+              </Button>
+            </DialogTrigger>
 
-        <Dialog open={isDialogOpen} onOpenChange={(o) => (o ? openCreate() : handleCloseDialog())}>
-          <DialogTrigger asChild>
-            <Button onClick={openCreate}>
-              <Plus className="w-4 h-4 mr-2" />
-              Додати категорію
-            </Button>
-          </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>{editingCategory ? "Редагувати категорію" : "Нова категорія"}</DialogTitle>
+              </DialogHeader>
 
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>{editingCategory ? "Редагувати категорію" : "Нова категорія"}</DialogTitle>
-            </DialogHeader>
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="name_uk">Назва (UK) *</Label>
-                  <Input
-                    id="name_uk"
-                    value={formData.name_uk}
-                    onChange={(e) => setFormData((s) => ({ ...s, name_uk: e.target.value }))}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="name_en">Назва (EN) *</Label>
-                  <Input
-                    id="name_en"
-                    value={formData.name_en}
-                    onChange={(e) => setFormData((s) => ({ ...s, name_en: e.target.value }))}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-[1fr_auto_auto] items-end gap-2">
-                <div>
-                  <Label htmlFor="slug">Slug *</Label>
-                  <Input
-                    id="slug"
-                    value={formData.slug}
-                    onChange={(e) => setFormData((s) => ({ ...s, slug: e.target.value }))}
-                    required
-                  />
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="mt-6"
-                  onClick={() =>
-                    setFormData((s) => ({
-                      ...s,
-                      slug: s.slug || generateSlug(s.name_uk || s.name_en),
-                    }))
-                  }
-                >
-                  Згенерувати
-                </Button>
-                {isCheckingSlug && (
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                    <Loader2 className="h-4 w-4 animate-spin" /> перевірка…
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="name_uk">Назва (UK) *</Label>
+                    <Input
+                      id="name_uk"
+                      value={formData.name_uk}
+                      onChange={(e) => setFormData((s) => ({ ...s, name_uk: e.target.value }))}
+                      required
+                    />
                   </div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-[1fr_auto] items-end gap-3">
-                <div>
-                  <Label htmlFor="icon">Іконка (Lucide)</Label>
-                  <Input
-                    id="icon"
-                    value={formData.icon}
-                    onChange={(e) => setFormData((s) => ({ ...s, icon: e.target.value }))}
-                    placeholder="Mic, Music, Radio, Headphones ..."
-                  />
-                </div>
-                <div className="flex items-center justify-center h-10 rounded border">
-                  <IconPreview className="w-5 h-5 opacity-80" />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="display_order">Порядок відображення</Label>
-                <Input
-                  id="display_order"
-                  type="number"
-                  value={formData.display_order}
-                  onChange={(e) => setFormData((s) => ({ ...s, display_order: parseInt(e.target.value || "0", 10) }))}
-                />
-                <p className="text-xs text-muted-foreground mt-1">Менше число — вище у списку.</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="description_uk">Опис (UK)</Label>
-                  <Textarea
-                    id="description_uk"
-                    value={formData.description_uk}
-                    onChange={(e) => setFormData((s) => ({ ...s, description_uk: e.target.value }))}
-                    rows={3}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="description_en">Опис (EN)</Label>
-                  <Textarea
-                    id="description_en"
-                    value={formData.description_en}
-                    onChange={(e) => setFormData((s) => ({ ...s, description_en: e.target.value }))}
-                    rows={3}
-                  />
-                </div>
-              </div>
-
-              <DialogFooter className="gap-2">
-                <Button type="button" variant="outline" onClick={handleCloseDialog}>
-                  Скасувати
-                </Button>
-                <Button type="submit" disabled={saveMutation.isPending}>
-                  {saveMutation.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Збереження…
-                    </>
-                  ) : (
-                    "Зберегти"
-                  )}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {isLoading ? (
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" /> Завантаження…
-        </div>
-      ) : categories && categories.length > 0 ? (
-        <div className="grid gap-4">
-          {categories.map((category) => {
-            const Icon = (Icons as any)[category.icon ?? ""] ?? Icons.Tags;
-            return (
-              <Card key={category.id} className="overflow-hidden">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="flex items-center gap-2">
-                    <Icon className="w-5 h-5 opacity-80" />
-                    <span className="font-semibold">{category.name_uk}</span>
-                    <span className="text-muted-foreground">/ {category.name_en}</span>
-                  </CardTitle>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => handleEdit(category)}>
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => {
-                        if (confirm("Видалити цю категорію?")) {
-                          deleteMutation.mutate(category.id);
-                        }
-                      }}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                  <div>
+                    <Label htmlFor="name_en">Назва (EN) *</Label>
+                    <Input
+                      id="name_en"
+                      value={formData.name_en}
+                      onChange={(e) => setFormData((s) => ({ ...s, name_en: e.target.value }))}
+                      required
+                    />
                   </div>
-                </CardHeader>
-                <CardContent className="text-sm text-muted-foreground space-y-1">
-                  <p>
-                    <span className="text-foreground">Slug:</span> {category.slug}
-                  </p>
-                  {category.icon && (
-                    <p>
-                      <span className="text-foreground">Іконка:</span> {category.icon}
-                    </p>
+                </div>
+
+                <div className="grid grid-cols-[1fr_auto_auto] items-end gap-2">
+                  <div>
+                    <Label htmlFor="slug">Slug *</Label>
+                    <Input
+                      id="slug"
+                      value={formData.slug}
+                      onChange={(e) => setFormData((s) => ({ ...s, slug: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="mt-6"
+                    onClick={() =>
+                      setFormData((s) => ({
+                        ...s,
+                        slug: s.slug || generateSlug(s.name_uk || s.name_en),
+                      }))
+                    }
+                  >
+                    Згенерувати
+                  </Button>
+                  {isCheckingSlug && (
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                      <Loader2 className="h-4 w-4 animate-spin" /> перевірка…
+                    </div>
                   )}
-                  <p>
-                    <span className="text-foreground">Порядок:</span> {category.display_order}
-                  </p>
-                  {category.description_uk && (
-                    <p>
-                      <span className="text-foreground">Опис:</span> {category.description_uk}
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-            );
-          })}
+                </div>
+
+                <div className="grid grid-cols-[1fr_auto] items-end gap-3">
+                  <div>
+                    <Label htmlFor="icon">Іконка (Lucide)</Label>
+                    <Input
+                      id="icon"
+                      value={formData.icon}
+                      onChange={(e) => setFormData((s) => ({ ...s, icon: e.target.value }))}
+                      placeholder="Mic, Music, Radio, Headphones ..."
+                    />
+                  </div>
+                  <div className="flex items-center justify-center h-10 rounded border">
+                    <IconPreview className="w-5 h-5 opacity-80" />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="display_order">Порядок відображення</Label>
+                  <Input
+                    id="display_order"
+                    type="number"
+                    value={formData.display_order}
+                    onChange={(e) => setFormData((s) => ({ ...s, display_order: parseInt(e.target.value || "0", 10) }))}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">Менше число — вище у списку.</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="description_uk">Опис (UK)</Label>
+                    <Textarea
+                      id="description_uk"
+                      value={formData.description_uk}
+                      onChange={(e) => setFormData((s) => ({ ...s, description_uk: e.target.value }))}
+                      rows={3}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="description_en">Опис (EN)</Label>
+                    <Textarea
+                      id="description_en"
+                      value={formData.description_en}
+                      onChange={(e) => setFormData((s) => ({ ...s, description_en: e.target.value }))}
+                      rows={3}
+                    />
+                  </div>
+                </div>
+
+                <DialogFooter className="gap-2">
+                  <Button type="button" variant="outline" onClick={handleCloseDialog}>
+                    Скасувати
+                  </Button>
+                  <Button type="submit" disabled={saveMutation.isPending}>
+                    {saveMutation.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Збереження…
+                      </>
+                    ) : (
+                      "Зберегти"
+                    )}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
-      ) : (
-        <Card className="p-8 text-center text-muted-foreground">
-          Категорій поки немає. Створіть першу через кнопку «Додати категорію».
-        </Card>
-      )}
-    </div>
+
+        {isLoading ? (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" /> Завантаження…
+          </div>
+        ) : categories && categories.length > 0 ? (
+          <div className="grid gap-4">
+            {categories.map((category) => {
+              const Icon = (Icons as any)[category.icon ?? ""] ?? Icons.Tags;
+              return (
+                <Card key={category.id} className="overflow-hidden">
+                  <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon className="w-5 h-5 opacity-80" />
+                      <span className="font-semibold">{category.name_uk}</span>
+                      <span className="text-muted-foreground">/ {category.name_en}</span>
+                    </CardTitle>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => handleEdit(category)}>
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => {
+                          if (confirm("Видалити цю категорію?")) {
+                            deleteMutation.mutate(category.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="text-sm text-muted-foreground space-y-1">
+                    <p>
+                      <span className="text-foreground">Slug:</span> {category.slug}
+                    </p>
+                    {category.icon && (
+                      <p>
+                        <span className="text-foreground">Іконка:</span> {category.icon}
+                      </p>
+                    )}
+                    <p>
+                      <span className="text-foreground">Порядок:</span> {category.display_order}
+                    </p>
+                    {category.description_uk && (
+                      <p>
+                        <span className="text-foreground">Опис:</span> {category.description_uk}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        ) : (
+          <Card className="p-8 text-center text-muted-foreground">
+            Категорій поки немає. Створіть першу через кнопку «Додати категорію».
+          </Card>
+        )}
+      </div>
+    </AdminLayout>
   );
 }
