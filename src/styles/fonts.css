@@ -28,7 +28,8 @@
   --vv-sanskrit-line-height: 1.6;
 
   /* Послівний переклад (синоніми) - ПОТОЧНІ НАЛАШТУВАННЯ */
-  --vv-synonyms-font-family: "Charis SIL", "Noto Serif", serif;
+  /* Noto Serif краще підтримує кириличні combining diacritical marks ніж Charis SIL */
+  --vv-synonyms-font-family: "Noto Serif", "Charis SIL", serif;
   --vv-synonyms-font-size-multiplier: 1;
   --vv-synonyms-font-weight: 400;
   --vv-synonyms-font-style: normal;
@@ -108,6 +109,13 @@
   letter-spacing: var(--vv-synonyms-letter-spacing);
   font-size: calc(var(--vv-reader-font-size, 18px) * var(--vv-synonyms-font-size-multiplier));
   line-height: var(--vv-synonyms-line-height);
+}
+
+/* Ensure font-family inherits to all children for proper diacritics rendering */
+.synonyms-text span,
+.synonyms-text * {
+  font-family: inherit;
+  letter-spacing: inherit;
 }
 
 /* -------- Літературний переклад -------- */
