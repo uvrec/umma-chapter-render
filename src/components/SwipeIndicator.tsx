@@ -9,6 +9,7 @@ import { useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
+import { useHapticFeedback } from "@/hooks/useHapticFeedback";
 
 interface SwipeIndicatorProps {
   isSwiping: boolean;
@@ -27,19 +28,18 @@ export function SwipeIndicator({
 }: SwipeIndicatorProps) {
   const { t } = useLanguage();
   const hasVibratedRef = useRef(false);
+  const { impact } = useHapticFeedback();
 
   // Haptic feedback when threshold is reached
   useEffect(() => {
     if (progress >= 1 && !hasVibratedRef.current && isSwiping) {
       hasVibratedRef.current = true;
-      // Vibrate if supported (short pulse)
-      if (navigator.vibrate) {
-        navigator.vibrate(10);
-      }
+      // Haptic feedback using unified hook (works on native + PWA)
+      impact('light');
     } else if (progress < 0.8) {
       hasVibratedRef.current = false;
     }
-  }, [progress, isSwiping]);
+  }, [progress, isSwiping, impact]);
 
   if (!isSwiping || !direction) return null;
 

@@ -4,6 +4,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { useHapticFeedback } from "@/hooks/useHapticFeedback";
 
 interface VerseSliderProps {
   verses: { id: string; verse_number: string }[];
@@ -24,6 +25,8 @@ export function VerseSlider({
   const [hoveredVerse, setHoveredVerse] = useState<string | null>(null);
   const [magnifierY, setMagnifierY] = useState<number>(0);
   const sliderRef = useRef<HTMLDivElement>(null);
+  const lastHapticVerse = useRef<string | null>(null);
+  const { tick, selection } = useHapticFeedback();
 
   // Розрахувати позицію вірша на основі координати Y
   const getVerseFromY = useCallback(
@@ -46,32 +49,46 @@ export function VerseSlider({
   const handleTouchStart = useCallback(
     (e: React.TouchEvent) => {
       setIsDragging(true);
+      tick(); // Haptic feedback on touch start
       const verseNum = getVerseFromY(e.touches[0].clientY);
-      if (verseNum) setHoveredVerse(verseNum);
+      if (verseNum) {
+        setHoveredVerse(verseNum);
+        lastHapticVerse.current = verseNum;
+      }
     },
-    [getVerseFromY]
+    [getVerseFromY, tick]
   );
 
   const handleTouchMove = useCallback(
     (e: React.TouchEvent) => {
       if (!isDragging) return;
       const verseNum = getVerseFromY(e.touches[0].clientY);
-      if (verseNum) setHoveredVerse(verseNum);
+      if (verseNum) {
+        setHoveredVerse(verseNum);
+        // Haptic tick when verse changes during drag
+        if (verseNum !== lastHapticVerse.current) {
+          tick();
+          lastHapticVerse.current = verseNum;
+        }
+      }
     },
-    [isDragging, getVerseFromY]
+    [isDragging, getVerseFromY, tick]
   );
 
   const handleTouchEnd = useCallback(() => {
     if (hoveredVerse) {
+      selection(); // Haptic selection feedback on verse select
       onVerseSelect(hoveredVerse);
     }
     setIsDragging(false);
     setHoveredVerse(null);
+    lastHapticVerse.current = null;
     onClose();
-  }, [hoveredVerse, onVerseSelect, onClose]);
+  }, [hoveredVerse, onVerseSelect, onClose, selection]);
 
   // Клік на конкретний вірш
   const handleVerseClick = (verseNumber: string) => {
+    selection(); // Haptic feedback on direct click
     onVerseSelect(verseNumber);
     onClose();
   };
