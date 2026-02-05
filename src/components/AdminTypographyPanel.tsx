@@ -149,23 +149,24 @@ export const AdminTypographyPanel = ({ language }: AdminTypographyPanelProps) =>
 
         {/* Font Size Multiplier */}
         <div className="space-y-2">
-          <Label>{t('Розмір (множник)', 'Size (multiplier)')}: {style.fontSize}x</Label>
+          <Label>{t('Розмір (множник)', 'Size (multiplier)')}</Label>
           <Input
-            type="range"
+            type="number"
             min="0.5"
             max="2.5"
-            step="0.1"
+            step="0.05"
             value={style.fontSize}
-            onChange={(e) => updateBlockStyle(blockType, { fontSize: parseFloat(e.target.value) })}
+            onChange={(e) => updateBlockStyle(blockType, { fontSize: parseFloat(e.target.value) || 1 })}
+            className="w-24"
           />
           <p className="text-xs text-muted-foreground">
-            {t('1.0 = базовий розмір, 1.5 = 150% від базового', '1.0 = base size, 1.5 = 150% of base')}
+            {t('1 = базовий розмір, 1.5 = 150%', '1 = base size, 1.5 = 150%')}
           </p>
         </div>
 
         {/* Font Weight */}
         <div className="space-y-2">
-          <Label>{t('Товщина шрифта', 'Font Weight')}: {style.fontWeight}</Label>
+          <Label>{t('Товщина шрифта', 'Font Weight')}</Label>
           <Select
             value={String(style.fontWeight)}
             onValueChange={(value) => updateBlockStyle(blockType, { fontWeight: parseInt(value) })}
@@ -202,27 +203,29 @@ export const AdminTypographyPanel = ({ language }: AdminTypographyPanelProps) =>
 
         {/* Letter Spacing */}
         <div className="space-y-2">
-          <Label>{t('Міжбуквений інтервал', 'Letter Spacing')}: {style.letterSpacing}</Label>
+          <Label>{t('Міжбуквений інтервал (em)', 'Letter Spacing (em)')}</Label>
           <Input
-            type="range"
+            type="number"
             min="-0.05"
             max="0.2"
-            step="0.01"
+            step="0.005"
             value={parseFloat(style.letterSpacing) || 0}
             onChange={(e) => updateBlockStyle(blockType, { letterSpacing: `${e.target.value}em` })}
+            className="w-24"
           />
         </div>
 
         {/* Line Height */}
         <div className="space-y-2">
-          <Label>{t('Міжряддя', 'Line Height')}: {style.lineHeight}</Label>
+          <Label>{t('Міжряддя', 'Line Height')}</Label>
           <Input
-            type="range"
-            min="1.0"
+            type="number"
+            min="1"
             max="2.5"
             step="0.05"
             value={style.lineHeight}
-            onChange={(e) => updateBlockStyle(blockType, { lineHeight: parseFloat(e.target.value) })}
+            onChange={(e) => updateBlockStyle(blockType, { lineHeight: parseFloat(e.target.value) || 1.5 })}
+            className="w-24"
           />
         </div>
 
