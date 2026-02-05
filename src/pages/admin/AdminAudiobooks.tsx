@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,8 +23,6 @@ interface AudiobooksPageSettings {
 
 export default function AdminAudiobooks() {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const { getLocalizedPath } = useLanguage();
   const { toast } = useToast();
 
   const [settings, setSettings] = useState<AudiobooksPageSettings>({
@@ -42,30 +40,8 @@ export default function AdminAudiobooks() {
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-    checkAuth();
     loadSettings();
-  }, [user]);
-
-  const checkAuth = async () => {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
-
-    const { data, error } = await supabase.rpc("has_role", {
-      _user_id: user.id,
-      _role: "admin",
-    });
-
-    if (error || !data) {
-      toast({
-        title: "Немає доступу",
-        description: "Тільки адміністратори можуть редагувати налаштування",
-        variant: "destructive",
-      });
-      navigate(getLocalizedPath("/"));
-    }
-  };
+  }, []);
 
   const loadSettings = async () => {
     try {
@@ -187,22 +163,30 @@ export default function AdminAudiobooks() {
     }));
   };
 
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/admin/dashboard" },
+    { label: "Аудіокниги" },
+  ];
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin" />
-      </div>
+      <AdminLayout breadcrumbs={breadcrumbs}>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin" />
+        </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-4xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Редагування сторінки Аудіокниги</h1>
-        <p className="text-muted-foreground">Керуйте заголовками, описом та Hero зображенням сторінки</p>
-      </div>
+    <AdminLayout breadcrumbs={breadcrumbs}>
+      <div className="p-6 max-w-4xl">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold">Налаштування сторінки Аудіокниги</h1>
+          <p className="text-muted-foreground text-sm">Заголовки, опис та Hero зображення</p>
+        </div>
 
-      <div className="space-y-6">
+        <div className="space-y-6">
         {/* Hero зображення */}
         <Card className="p-6">
           <h2 className="text-lg font-semibold mb-4">Hero зображення</h2>
@@ -330,15 +314,13 @@ export default function AdminAudiobooks() {
 
         {/* Кнопки дій */}
         <div className="flex gap-4 justify-end">
-          <Button variant="outline" onClick={() => navigate("/admin")}>
-            Скасувати
-          </Button>
           <Button onClick={handleSave} disabled={saving}>
             {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
             Зберегти зміни
           </Button>
         </div>
+        </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 }

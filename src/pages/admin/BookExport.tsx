@@ -1,9 +1,9 @@
 // src/pages/admin/BookExport.tsx
 // Інструмент для експорту глав/віршів з HTML форматуванням
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -20,7 +20,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  ArrowLeft,
   Download,
   FileText,
   Loader2,
@@ -32,7 +31,6 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Link } from "react-router-dom";
 import {
   initializeGoogleDrive,
   uploadToGoogleDrive,
@@ -257,8 +255,6 @@ function generateFilename(
 }
 
 export default function BookExport() {
-  const { user, isAdmin } = useAuth();
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   // URL params for pre-selection (from reader page)
@@ -318,13 +314,6 @@ export default function BookExport() {
     chapters.find(c => c.id === selectedChapterId),
     [chapters, selectedChapterId]
   );
-
-  // Auth check
-  useEffect(() => {
-    if (!user || !isAdmin) {
-      navigate("/auth");
-    }
-  }, [user, isAdmin, navigate]);
 
   // Initialize Google Drive
   useEffect(() => {
@@ -754,30 +743,22 @@ ${exportPreview.split('\n').map(line => {
     }
   };
 
-  if (!user || !isAdmin) return null;
-
   const selectedVersesCount = selectAllVerses ? verses.length : selectedVerseIds.size;
 
-  return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b sticky top-0 bg-background z-10">
-        <div className="container mx-auto px-4 py-4 flex items-center gap-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link to="/admin/dashboard">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Назад
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-xl font-bold">Експорт книг</h1>
-            <p className="text-sm text-muted-foreground">
-              Експорт глав та віршів з HTML форматуванням
-            </p>
-          </div>
-        </div>
-      </header>
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/admin/dashboard" },
+    { label: "Експорт книг" },
+  ];
 
-      <div className="container mx-auto px-4 py-6">
+  return (
+    <AdminLayout breadcrumbs={breadcrumbs}>
+      <div className="p-6">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold">Експорт книг</h1>
+          <p className="text-sm text-muted-foreground">
+            Експорт глав та віршів з HTML форматуванням
+          </p>
+        </div>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="select" className="flex items-center gap-2">
@@ -1160,6 +1141,6 @@ ${exportPreview.split('\n').map(line => {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </AdminLayout>
   );
 }

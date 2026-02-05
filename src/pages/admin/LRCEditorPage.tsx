@@ -1,22 +1,17 @@
 /**
  * LRCEditorPage - Окрема адмін сторінка для редагування LRC timestamps
- *
- * Функції:
- * - Вибір книги → глави → вірша
- * - Редагування LRC для різних секцій (санскрит, переклад, коментар)
- * - Збереження в таблицю verse_lyrics
  */
 
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Music, ChevronLeft, ChevronRight, Save } from "lucide-react";
+import { Music, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { LRCEditor } from "@/components/admin/LRCEditor";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,7 +19,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 type Section = 'sanskrit' | 'transliteration' | 'translation' | 'commentary';
 
 export default function LRCEditorPage() {
-  const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -34,13 +28,6 @@ export default function LRCEditorPage() {
   const [selectedChapterId, setSelectedChapterId] = useState(searchParams.get("chapterId") || "");
   const [selectedVerseId, setSelectedVerseId] = useState(searchParams.get("verseId") || "");
   const [activeSection, setActiveSection] = useState<Section>("sanskrit");
-
-  // Auth check
-  useEffect(() => {
-    if (!user || !isAdmin) {
-      navigate("/auth");
-    }
-  }, [user, isAdmin, navigate]);
 
   // Fetch books
   const { data: books } = useQuery({
@@ -53,7 +40,6 @@ export default function LRCEditorPage() {
       if (error) throw error;
       return data;
     },
-    enabled: !!user && isAdmin,
   });
 
   const selectedBook = books?.find((b) => b.id === selectedBookId);
@@ -221,22 +207,21 @@ export default function LRCEditorPage() {
   const versesWithAudio = verses?.filter((v) => v.full_verse_audio_url) || [];
   const currentVerseIndex = verses?.findIndex((v) => v.id === selectedVerseId) ?? -1;
 
-  if (!user || !isAdmin) return null;
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/admin/dashboard" },
+    { label: "LRC Editor" },
+  ];
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      <Button variant="ghost" onClick={() => navigate("/admin/dashboard")} className="mb-4">
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Назад до панелі
-      </Button>
-
-      <div className="flex items-center gap-3 mb-6">
-        <Music className="h-8 w-8 text-primary" />
-        <div>
-          <h1 className="text-2xl font-bold">LRC Editor</h1>
-          <p className="text-muted-foreground">Створення timestamps для синхронізації аудіо з текстом</p>
+    <AdminLayout breadcrumbs={breadcrumbs}>
+      <div className="p-6 max-w-6xl">
+        <div className="flex items-center gap-3 mb-6">
+          <Music className="h-8 w-8 text-primary" />
+          <div>
+            <h1 className="text-2xl font-bold">LRC Editor</h1>
+            <p className="text-muted-foreground text-sm">Створення timestamps для синхронізації аудіо</p>
+          </div>
         </div>
-      </div>
 
       {/* Selection Panel */}
       <Card className="mb-6">
@@ -451,6 +436,7 @@ export default function LRCEditorPage() {
           </CardContent>
         </Card>
       )}
-    </div>
+      </div>
+    </AdminLayout>
   );
 }
