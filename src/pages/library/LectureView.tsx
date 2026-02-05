@@ -12,7 +12,7 @@
 
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,7 @@ import { AudioUploader } from "@/components/admin/shared/AudioUploader";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { ContentToolbar } from "@/components/ContentToolbar";
+import { useAudio } from "@/contexts/ModernAudioContext";
 
 export const LectureView = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -49,10 +50,11 @@ export const LectureView = () => {
   const { isAdmin } = useAuth();
   const { language, getLocalizedPath } = useLanguage();
   const { dualLanguageMode } = useReaderSettings();
-  const [isPlaying, setIsPlaying] = useState(false);
   const [currentParagraph, setCurrentParagraph] = useState<number | null>(null);
-  const audioRef = useRef<HTMLAudioElement>(null);
   const paragraphRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
+
+  // Global audio context for the player
+  const { playTrack, currentTrack, isPlaying, togglePlay, currentTime } = useAudio();
 
   // Inline editing state
   const [isEditing, setIsEditing] = useState(false);
@@ -98,60 +100,63 @@ export const LectureView = () => {
     enabled: !!lecture?.id,
   });
 
-  // Керування аудіо
+  // Check if this lecture's audio is currently playing
+  const lectureTrackId = lecture?.id ? `lecture-${lecture.id}` : null;
+  const isThisLecturePlaying = useMemo(() => {
+    return currentTrack?.id === lectureTrackId && isPlaying;
+  }, [currentTrack?.id, lectureTrackId, isPlaying]);
+
+  // Play or pause the lecture audio using global player
   const togglePlayPause = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
+    if (!lecture?.audio_url) return;
+
+    // If this lecture is already loaded, just toggle play/pause
+    if (currentTrack?.id === lectureTrackId) {
+      togglePlay();
+      return;
     }
+
+    // Play this lecture in the global player
+    const lectureTitle = language === "uk" && lecture.title_uk ? lecture.title_uk : lecture.title_en;
+    const lectureLocation = language === "uk" && lecture.location_uk ? lecture.location_uk : lecture.location_en;
+
+    playTrack({
+      id: lectureTrackId!,
+      title: lectureTitle,
+      subtitle: lectureLocation,
+      src: lecture.audio_url,
+      artist: "Шріла Прабгупада",
+    });
   };
 
-  // Синхронізація параграфів з аудіо
+  // Синхронізація параграфів з аудіо (using global audio context)
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
+    // Only sync if this lecture is currently playing
+    if (!isThisLecturePlaying || paragraphs.length === 0) return;
 
-    const updateCurrentParagraph = () => {
-      const currentTime = audio.currentTime;
+    // Знайти поточний параграф на основі timecode
+    const current = paragraphs.find((p, idx) => {
+      const next = paragraphs[idx + 1];
+      return (
+        p.audio_timecode !== null &&
+        currentTime >= p.audio_timecode &&
+        (!next || !next.audio_timecode || currentTime < next.audio_timecode)
+      );
+    });
 
-      // Знайти поточний параграф на основі timecode
-      const current = paragraphs.find((p, idx) => {
-        const next = paragraphs[idx + 1];
-        return (
-          p.audio_timecode !== null &&
-          currentTime >= p.audio_timecode &&
-          (!next || !next.audio_timecode || currentTime < next.audio_timecode)
-        );
-      });
+    if (current && current.paragraph_number !== currentParagraph) {
+      setCurrentParagraph(current.paragraph_number);
 
-      if (current) {
-        setCurrentParagraph(current.paragraph_number);
-
-        // Прокрутити до поточного параграфа
-        const ref = paragraphRefs.current[current.paragraph_number];
-        if (ref) {
-          ref.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          });
-        }
+      // Прокрутити до поточного параграфа
+      const ref = paragraphRefs.current[current.paragraph_number];
+      if (ref) {
+        ref.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
       }
-    };
-
-    audio.addEventListener("timeupdate", updateCurrentParagraph);
-    audio.addEventListener("play", () => setIsPlaying(true));
-    audio.addEventListener("pause", () => setIsPlaying(false));
-
-    return () => {
-      audio.removeEventListener("timeupdate", updateCurrentParagraph);
-      audio.removeEventListener("play", () => setIsPlaying(true));
-      audio.removeEventListener("pause", () => setIsPlaying(false));
-    };
-  }, [paragraphs]);
+    }
+  }, [currentTime, paragraphs, isThisLecturePlaying, currentParagraph]);
 
   // Форматування тексту (санскритські терміни просто курсивом, без підкреслень)
   const formatText = (text: string): JSX.Element => {
@@ -491,11 +496,11 @@ export const LectureView = () => {
               <div className="flex items-center space-x-4">
                 <Button
                   size="lg"
-                  variant="outline"
+                  variant={isThisLecturePlaying ? "default" : "outline"}
                   onClick={togglePlayPause}
                   className="w-12 h-12 rounded-full"
                 >
-                  {isPlaying ? (
+                  {isThisLecturePlaying ? (
                     <Pause className="w-6 h-6" />
                   ) : (
                     <Play className="w-6 h-6" />
@@ -504,9 +509,14 @@ export const LectureView = () => {
                 <div className="flex items-center text-sm text-muted-foreground">
                   <Volume2 className="w-4 h-4 mr-2" />
                   {language === "uk" ? "Аудіо лекція" : "Audio lecture"}
+                  {isThisLecturePlaying && (
+                    <span className="ml-2 text-primary animate-pulse">
+                      {language === "uk" ? "● Відтворюється" : "● Playing"}
+                    </span>
+                  )}
                 </div>
               </div>
-              <audio ref={audioRef} src={lecture.audio_url} preload="metadata" />
+              {/* Audio is now played through the global ModernGlobalPlayer */}
             </div>
           ) : null}
         </div>
