@@ -5,7 +5,7 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/s
 import { AdminSidebar } from "./AdminSidebar";
 import { GlobalSearch } from "./GlobalSearch";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Search, PanelLeft } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import {
   Breadcrumb,
