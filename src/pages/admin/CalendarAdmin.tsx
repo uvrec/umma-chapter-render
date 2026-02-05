@@ -14,30 +14,34 @@ import { Edit, Plus, Trash2, Calendar, Moon, Star, Loader2 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
-interface Ekadashi {
+// Use database types directly
+type Ekadashi = {
   id: string;
   name_sanskrit: string | null;
   name_uk: string | null;
   name_en: string | null;
   slug: string;
-  glory_uk: string | null;
-  glory_en: string | null;
-  deity: string | null;
+  glory_text_uk?: string | null;
+  glory_text_en?: string | null;
+  presiding_deity_uk?: string | null;
+  presiding_deity_en?: string | null;
   fasting_rules_uk: string | null;
   fasting_rules_en: string | null;
   benefits_uk: string | null;
   benefits_en: string | null;
-}
+  [key: string]: any;
+};
 
-interface Festival {
+type Festival = {
   id: string;
   name_uk: string | null;
   name_en: string | null;
   description_uk: string | null;
   description_en: string | null;
-  category_id: string | null;
-  is_fasting_day: boolean | null;
-}
+  category_id: number | null;
+  fasting_level?: string | null;
+  [key: string]: any;
+};
 
 export default function CalendarAdmin() {
   const queryClient = useQueryClient();
@@ -55,7 +59,7 @@ export default function CalendarAdmin() {
         .select("*")
         .order("name_uk");
       if (error) throw error;
-      return data as Ekadashi[];
+      return (data || []) as Ekadashi[];
     },
   });
 
@@ -68,7 +72,7 @@ export default function CalendarAdmin() {
         .select("*")
         .order("name_uk");
       if (error) throw error;
-      return data as Festival[];
+      return (data || []) as Festival[];
     },
   });
 
