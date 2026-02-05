@@ -1,5 +1,6 @@
 // src/pages/admin/BlogPostsInfinite.tsx
 import { RefreshFeedButton } from "@/components/admin/RefreshFeedButton";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Plus, Search, Edit, Trash2, Eye } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
@@ -120,20 +121,29 @@ export default function BlogPostsInfinite() {
     }
   };
 
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/admin/dashboard" },
+    { label: "Блог" },
+  ];
+
   return (
-    <div className="container mx-auto py-8">
-      {/* Header (оновлений блок дій) */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Керування постами блогу</h1>
-        <div className="flex gap-2">
-          <RefreshFeedButton />
-          <Link to="/admin/blog-posts/new">
-            <Button>
-              <Plus className="mr-2 h-4 w-4" /> Новий пост
-            </Button>
-          </Link>
+    <AdminLayout breadcrumbs={breadcrumbs}>
+      <div className="p-6">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-2xl font-bold">Пости блогу</h1>
+            <p className="text-muted-foreground">Керування постами та публікаціями</p>
+          </div>
+          <div className="flex gap-2">
+            <RefreshFeedButton />
+            <Link to="/admin/blog-posts/new">
+              <Button>
+                <Plus className="mr-2 h-4 w-4" /> Новий пост
+              </Button>
+            </Link>
+          </div>
         </div>
-      </div>
 
       {/* Controls */}
       <div className="flex gap-4 mb-6">
@@ -239,6 +249,7 @@ export default function BlogPostsInfinite() {
           </TableBody>
         </Table>
       </div>
-    </div>
+      </div>
+    </AdminLayout>
   );
 }

@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Plus, Eye, EyeOff, Trash2, ExternalLink, BookOpen } from "lucide-react";
+import { Plus, Eye, EyeOff, Trash2, ExternalLink, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import { PreviewShareButton } from "@/components/PreviewShareButton";
 import { Badge } from "@/components/ui/badge";
@@ -22,17 +22,9 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const Books = () => {
-  const { user, isAdmin } = useAuth();
   const { getLocalizedPath } = useLanguage();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [deleteBookId, setDeleteBookId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!user || !isAdmin) {
-      navigate("/auth");
-    }
-  }, [user, isAdmin, navigate]);
 
   const { data: books, isLoading } = useQuery({
     queryKey: ["admin-books"],
@@ -46,7 +38,6 @@ const Books = () => {
       if (error) throw error;
       return data;
     },
-    enabled: !!user && isAdmin,
   });
 
   const togglePublishMutation = useMutation({
@@ -87,35 +78,33 @@ const Books = () => {
     },
   });
 
-  if (!user || !isAdmin) return null;
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/admin/dashboard" },
+    { label: "Книги" },
+  ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/admin/dashboard">
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Назад
-                </Link>
-              </Button>
-              <h1 className="text-2xl font-bold">Книги</h1>
-            </div>
-            <Button asChild>
-              <Link to="/admin/books/new">
-                <Plus className="w-4 h-4 mr-2" />
-                Додати книгу
-              </Link>
-            </Button>
+    <AdminLayout breadcrumbs={breadcrumbs}>
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold">Книги</h1>
+            <p className="text-muted-foreground">
+              Управління книгами та їх структурою
+            </p>
           </div>
+          <Button asChild>
+            <Link to="/admin/books/new">
+              <Plus className="w-4 h-4 mr-2" />
+              Додати книгу
+            </Link>
+          </Button>
         </div>
-      </header>
 
-      <div className="container mx-auto px-4 py-8">
         {isLoading ? (
-          <p>Завантаження...</p>
+          <div className="flex items-center justify-center py-12">
+            <p className="text-muted-foreground">Завантаження...</p>
+          </div>
         ) : books && books.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {books.map((book) => (
@@ -149,7 +138,6 @@ const Books = () => {
                       <p className="text-sm text-muted-foreground">Slug: {book.slug}</p>
                     </div>
                     <div className="flex gap-2 flex-wrap">
-                      {/* Publish/Unpublish toggle */}
                       <Button
                         size="sm"
                         variant={book.is_published ? "outline" : "default"}
@@ -168,7 +156,6 @@ const Books = () => {
                           </>
                         )}
                       </Button>
-                      {/* Preview share - always visible */}
                       <PreviewShareButton
                         resourceType="book"
                         resourceId={book.id}
@@ -236,7 +223,7 @@ const Books = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </AdminLayout>
   );
 };
 
