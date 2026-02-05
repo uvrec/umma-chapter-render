@@ -12,6 +12,7 @@ type Language = 'uk' | 'en';
  * - LanguageWrapper's useEffect then sees URL mismatch and reverts the change
  *
  * By using navigate() with replace: true, React Router stays in sync with URL changes.
+ * We also write to localStorage synchronously to prevent race conditions.
  */
 export function useLanguageSwitch() {
   const navigate = useNavigate();
@@ -21,7 +22,11 @@ export function useLanguageSwitch() {
   const switchLanguage = useCallback((newLang: Language) => {
     if (newLang === language) return;
 
-    // Update React state first
+    // IMPORTANT: Write to localStorage SYNCHRONOUSLY before navigation
+    // This prevents LanguageWrapper's useEffect from reverting the change
+    localStorage.setItem('language', newLang);
+
+    // Update React state
     setLanguageState(newLang);
 
     // Update URL through React Router (not replaceState)
