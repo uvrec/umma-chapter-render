@@ -595,7 +595,7 @@ export const VerseCard = ({
                       fontSize: `${fontSize}px`,
                       lineHeight: 1.4,
                     }}
-                    className="text-justify"
+                    className="text-justify synonyms-text"
                   >
                     {synonymPairs.map((pair, i) => {
                         const words = pair.term
