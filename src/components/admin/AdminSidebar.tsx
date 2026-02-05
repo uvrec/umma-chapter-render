@@ -35,6 +35,10 @@ import {
   ExternalLink,
   Highlighter,
   Hash,
+  Type,
+  Calendar,
+  Target,
+  Calculator,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -92,11 +96,20 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
+    title: "Інструменти",
+    items: [
+      { title: "Нумерологія", href: "/admin/numcal", icon: Calculator },
+      { title: "Календар", href: "/admin/calendar", icon: Calendar },
+      { title: "Садгана трекер", href: "/admin/sadhana", icon: Target },
+    ],
+  },
+  {
     title: "Налаштування",
     items: [
       { title: "Сторінки", href: "/admin/pages", icon: FileEdit },
       { title: "Статичні сторінки", href: "/admin/static-pages", icon: FileEdit },
       { title: "Банери", href: "/admin/site-banners", icon: Image },
+      { title: "Типографіка", href: "/admin/typography", icon: Type },
     ],
   },
   {
@@ -106,7 +119,6 @@ const navGroups: NavGroup[] = [
       { title: "Fix RLS Policies", href: "/admin/fix-rls-policies", icon: Wrench },
       { title: "Highlights", href: "/admin/highlights", icon: Highlighter },
       { title: "Merge NOI", href: "/admin/merge-noi", icon: Wrench },
-      { title: "NumCal", href: "/admin/numcal", icon: Hash },
     ],
   },
 ];

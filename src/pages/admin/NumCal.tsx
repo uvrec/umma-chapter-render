@@ -1,26 +1,16 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Calculator } from "lucide-react";
+import { Calculator } from "lucide-react";
 import { calculateNumCal, isValidBirthDate, formatDate, NumCalResult } from "@/utils/numcal";
 
 const NumCal = () => {
-  const { user, isAdmin } = useAuth();
-  const navigate = useNavigate();
-
   const [birthDate, setBirthDate] = useState<string>("");
   const [result, setResult] = useState<NumCalResult | null>(null);
   const [error, setError] = useState<string>("");
-
-  useEffect(() => {
-    if (!user || !isAdmin) {
-      navigate("/auth");
-    }
-  }, [user, isAdmin, navigate]);
 
   const handleCalculate = () => {
     setError("");
@@ -48,25 +38,22 @@ const NumCal = () => {
     setError("");
   };
 
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/admin/dashboard" },
+    { label: "Нумерологія" },
+  ];
+
   return (
-    <div className="container mx-auto py-8 px-4 max-w-4xl">
-      <div className="mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/admin/dashboard")}
-          className="mb-4"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Назад до панелі адміністратора
-        </Button>
+    <AdminLayout breadcrumbs={breadcrumbs}>
+      <div className="p-6 max-w-4xl">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold">NumCal - Нумерологічний калькулятор</h1>
+          <p className="text-muted-foreground">
+            Розрахунок нумерологічних чисел на основі дати народження
+          </p>
+        </div>
 
-        <h1 className="text-3xl font-bold mb-2">NumCal - Нумерологічний калькулятор</h1>
-        <p className="text-muted-foreground">
-          Розрахунок нумерологічних чисел на основі дати народження
-        </p>
-      </div>
-
-      <div className="grid gap-6">
+        <div className="grid gap-6">
         {/* Форма введення */}
         <Card>
           <CardHeader>
@@ -461,8 +448,9 @@ const NumCal = () => {
             </Card>
           </>
         )}
+        </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 };
 
