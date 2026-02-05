@@ -23,14 +23,15 @@ export function LanguageWrapper() {
     return <Navigate to={`/${language}${currentPath || '/'}`} replace />;
   }
 
-  // Sync URL language with context when URL changes
-  // Note: We intentionally exclude 'language' from deps to avoid sync cycles
-  // when user switches language via UI (useLanguageSwitch handles that case)
+  // Sync URL language with context when URL changes (e.g., direct navigation, back/forward)
+  // We check localStorage (not context state) to avoid race conditions during user-initiated switches
   useEffect(() => {
-    if (lang && lang !== language) {
+    const storedLang = localStorage.getItem('language');
+    // Only sync if URL language differs from stored language
+    // This means it's an external navigation, not a user switch
+    if (lang && lang !== storedLang) {
       setLanguage(lang);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lang, setLanguage]);
 
   return <Outlet />;
