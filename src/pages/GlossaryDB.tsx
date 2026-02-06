@@ -418,41 +418,51 @@ export default function GlossaryDB() {
 
                     return (
                       <div key={groupedTerm.term} className="mb-6">
-                        {/* Term — bold, large */}
-                        <div
-                          className={`text-xl font-bold text-foreground ${isMultiUsage ? "cursor-pointer" : ""}`}
-                          onClick={isMultiUsage ? () => toggleTermExpanded(groupedTerm.term) : undefined}
-                        >
-                          {groupedTerm.term}
-                          {isMultiUsage && (
-                            <span className="text-sm font-normal text-muted-foreground ml-2">
-                              ({groupedTerm.usage_count})
-                              <ChevronDown className={`inline h-4 w-4 ml-1 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Single usage — show meaning + verse ref inline */}
+                        {/* Single usage with details — entire block is a link */}
                         {singleUsageDetails ? (
-                          <div className="pl-8 mt-1">
-                            <span className="text-foreground">{singleUsageDetails.meaning || groupedTerm.sample_meanings?.[0] || "—"}</span>
-                            <span className="text-muted-foreground"> — </span>
-                            <Link
-                              to={getLocalizedPath(singleUsageDetails.verse_link)}
-                              className="text-primary hover:underline font-medium"
+                          <Link
+                            to={getLocalizedPath(singleUsageDetails.verse_link)}
+                            className="block hover:bg-muted/30 rounded-lg px-2 -mx-2 py-1 transition-colors group"
+                          >
+                            <div className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
+                              {groupedTerm.term}
+                            </div>
+                            <div className="pl-8 mt-1">
+                              <span className="text-foreground">{singleUsageDetails.meaning || groupedTerm.sample_meanings?.[0] || "—"}</span>
+                              <span className="text-muted-foreground"> — </span>
+                              <span className="text-primary font-medium">
+                                {formatVerseRef(singleUsageDetails)}
+                              </span>
+                            </div>
+                          </Link>
+                        ) : (
+                          <>
+                            {/* Term — bold, large */}
+                            <div
+                              className={`text-xl font-bold text-foreground ${isMultiUsage ? "cursor-pointer hover:text-primary transition-colors" : ""}`}
+                              onClick={isMultiUsage ? () => toggleTermExpanded(groupedTerm.term) : undefined}
                             >
-                              {formatVerseRef(singleUsageDetails)}
-                            </Link>
-                          </div>
-                        ) : !isMultiUsage && loadingTerms.has(groupedTerm.term) ? (
-                          <div className="pl-8 mt-1">
-                            <span className="text-muted-foreground">{groupedTerm.sample_meanings?.[0] || "..."}</span>
-                          </div>
-                        ) : !isMultiUsage ? (
-                          <div className="pl-8 mt-1">
-                            <span className="text-foreground">{groupedTerm.sample_meanings?.[0] || "—"}</span>
-                          </div>
-                        ) : null}
+                              {groupedTerm.term}
+                              {isMultiUsage && (
+                                <span className="text-sm font-normal text-muted-foreground ml-2">
+                                  ({groupedTerm.usage_count})
+                                  <ChevronDown className={`inline h-4 w-4 ml-1 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Single usage without details yet */}
+                            {!isMultiUsage && loadingTerms.has(groupedTerm.term) ? (
+                              <div className="pl-8 mt-1">
+                                <span className="text-muted-foreground">{groupedTerm.sample_meanings?.[0] || "..."}</span>
+                              </div>
+                            ) : !isMultiUsage ? (
+                              <div className="pl-8 mt-1">
+                                <span className="text-foreground">{groupedTerm.sample_meanings?.[0] || "—"}</span>
+                              </div>
+                            ) : null}
+                          </>
+                        )}
 
                         {/* Multi usage — collapsed: show sample meanings */}
                         {isMultiUsage && !isExpanded && (
