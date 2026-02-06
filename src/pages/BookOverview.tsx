@@ -483,6 +483,10 @@ export const BookOverview = () => {
     },
     enabled: !!book?.id
   });
+  // Split intro chapters: "Вступ" (introduction) stays before main content, rest goes after
+  const introBeforeContent = introChapters.filter(ch => ch.slug === "introduction");
+  const introAfterContent = introChapters.filter(ch => ch.slug !== "introduction");
+
   const isLoading = bookLoading || cantosLoading || chaptersLoading || introLoading || noiVersesLoading;
   const bookTitle = language === "uk" ? book?.title_uk : book?.title_en;
   const bookDescription = language === "uk" ? book?.description_uk : book?.description_en;
@@ -516,6 +520,23 @@ export const BookOverview = () => {
           {bookTitle}
         </h1>
       </div>
+
+      {/* Вступ (Introduction) - before main content */}
+      {introBeforeContent.length > 0 && (
+        <div className="divide-y divide-border/50">
+          {introBeforeContent.map(intro => (
+            <Link
+              key={intro.id}
+              to={getPathWithPreview(`/lib/${bookSlug}/intro/${intro.slug}`)}
+              className="block px-4 py-4 active:bg-muted/50"
+            >
+              <div className="font-medium text-foreground">
+                {language === "uk" ? intro.title_uk : intro.title_en}
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
 
       {/* Cantos/Chapters - swipeable rows like library */}
       <div className="divide-y divide-border/50">
@@ -556,10 +577,10 @@ export const BookOverview = () => {
         }
       </div>
 
-      {/* Intro chapters - AFTER main chapters */}
-      {introChapters.length > 0 && (
+      {/* Other intro chapters - AFTER main content */}
+      {introAfterContent.length > 0 && (
         <div className="divide-y divide-border/50 mt-4 pt-4 border-t">
-          {introChapters.map(intro => (
+          {introAfterContent.map(intro => (
             <Link
               key={intro.id}
               to={getPathWithPreview(`/lib/${bookSlug}/intro/${intro.slug}`)}
@@ -635,11 +656,11 @@ export const BookOverview = () => {
           }} className="text-4xl md:text-5xl font-bold mb-8 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent text-center">{bookTitle}</h1>
         </div>
 
-        {/* Intro chapters + Cantos/Chapters list */}
+        {/* Вступ + Cantos/Chapters + other intro chapters */}
         <div className="mb-8">
           <div className="space-y-2">
-            {/* Intro chapters - same style as chapters */}
-            {introChapters.map(intro => {
+            {/* Вступ (Introduction) - before main content */}
+            {introBeforeContent.map(intro => {
               const introTitleUk = intro.title_uk;
               const introTitleEn = intro.title_en;
               return dualLanguageMode ? (
@@ -713,6 +734,26 @@ export const BookOverview = () => {
                       </div>
                     </Link>;
           })}
+
+            {/* Other intro chapters - after main content */}
+            {introAfterContent.map(intro => {
+              const introTitleUk = intro.title_uk;
+              const introTitleEn = intro.title_en;
+              return dualLanguageMode ? (
+                <Link key={intro.id} to={getPathWithPreview(`/lib/${bookSlug}/intro/${intro.slug}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
+                  <div className="grid gap-8 md:grid-cols-2">
+                    <div className="text-xl md:text-2xl text-primary font-semibold">{introTitleUk}</div>
+                    <div className="text-xl md:text-2xl text-primary font-semibold">{introTitleEn}</div>
+                  </div>
+                </Link>
+              ) : (
+                <Link key={intro.id} to={getPathWithPreview(`/lib/${bookSlug}/intro/${intro.slug}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
+                  <div className="text-xl md:text-2xl text-primary font-semibold">
+                    {language === "uk" ? introTitleUk : introTitleEn}
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>
