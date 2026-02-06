@@ -42,6 +42,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { ContentToolbar } from "@/components/ContentToolbar";
 import { useAudio } from "@/contexts/ModernAudioContext";
+import { sanitizeForRender } from "@/utils/import/normalizers";
 
 export const LectureView = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -157,28 +158,6 @@ export const LectureView = () => {
       }
     }
   }, [currentTime, paragraphs, isThisLecturePlaying, currentParagraph]);
-
-  // Форматування тексту (санскритські терміни просто курсивом, без підкреслень)
-  const formatText = (text: string): JSX.Element => {
-    // Слова з діакритичними знаками - тільки курсив
-    const diacriticPattern = /(\b\w*[āīūṛṝḷḹēōṃḥṇṭḍśṣ]\w*\b)/gi;
-    const parts = text.split(diacriticPattern);
-
-    return (
-      <>
-        {parts.map((part, idx) => {
-          if (part.match(diacriticPattern)) {
-            return (
-              <em key={idx} className="not-italic font-medium">
-                {part}
-              </em>
-            );
-          }
-          return <span key={idx}>{part}</span>;
-        })}
-      </>
-    );
-  };
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -551,7 +530,16 @@ export const LectureView = () => {
                   const isCurrentParagraph = currentParagraph === paragraph.paragraph_number;
                   const hasContent = paragraph.content_uk && paragraph.content_uk.trim().length > 0;
 
-                  return (
+                  return hasContent ? (
+                    <p
+                      key={`uk-${paragraph.id}`}
+                      ref={(el) => (paragraphRefs.current[paragraph.paragraph_number] = el)}
+                      className={`mb-4 leading-relaxed transition-colors ${
+                        isCurrentParagraph ? "bg-primary/10 -mx-2 px-2 py-1" : ""
+                      }`}
+                      dangerouslySetInnerHTML={{ __html: sanitizeForRender(paragraph.content_uk!) }}
+                    />
+                  ) : (
                     <p
                       key={`uk-${paragraph.id}`}
                       ref={(el) => (paragraphRefs.current[paragraph.paragraph_number] = el)}
@@ -559,7 +547,7 @@ export const LectureView = () => {
                         isCurrentParagraph ? "bg-primary/10 -mx-2 px-2 py-1" : ""
                       }`}
                     >
-                      {hasContent ? formatText(paragraph.content_uk!) : <span className="text-muted-foreground/50">—</span>}
+                      <span className="text-muted-foreground/50">—</span>
                     </p>
                   );
                 })}
@@ -576,9 +564,8 @@ export const LectureView = () => {
                       className={`mb-4 leading-relaxed transition-colors ${
                         isCurrentParagraph ? "bg-primary/10 -mx-2 px-2 py-1" : ""
                       }`}
-                    >
-                      {formatText(paragraph.content_en)}
-                    </p>
+                      dangerouslySetInnerHTML={{ __html: sanitizeForRender(paragraph.content_en) }}
+                    />
                   );
                 })}
               </div>
@@ -606,9 +593,8 @@ export const LectureView = () => {
                         ? "bg-primary/10 -mx-2 px-2 py-1"
                         : ""
                     }`}
-                  >
-                    {formatText(content)}
-                  </p>
+                    dangerouslySetInnerHTML={{ __html: sanitizeForRender(content) }}
+                  />
                 );
               })}
             </div>
