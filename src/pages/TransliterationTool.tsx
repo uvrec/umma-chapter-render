@@ -128,7 +128,7 @@ export default function TransliterationTool() {
       <main className="flex-1 container mx-auto px-4 py-12 max-w-6xl">
         {/* Заголовок */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
             Транслітератор санскриту
           </h1>
           <p className="text-lg text-muted-foreground">Конвертація в українську кирилицю з діакритикою</p>

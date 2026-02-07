@@ -1,7 +1,5 @@
 import { Footer } from "@/components/Footer";
-import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import nectarInstructionsNewCover from "@/assets/nectar-instructions-new-cover.webp";
 import songsAcharyasCover from "@/assets/songs-acharyas-cover.webp";
@@ -43,7 +41,7 @@ const acharyasBooks: Book[] = [
   },
   {
     id: "raja-vidya",
-    title: "Раджа-відя - найшляхетніше знання",
+    title: "Раджа-відья - найшляхетніше знання",
     description: "Можна пишатися академічною освітою, але не знати відповіді на запитання \"хто я?\". Усі люди за рідкісними винятками вважають себе за це тіло.",
     price: "48 грн",
     coverImage: "/api/placeholder/300/400",
@@ -72,10 +70,10 @@ export const AcharyasBooks = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 py-8">
-        <div className="w-full h-64 md:h-80 lg:h-96 rounded-lg mb-12 overflow-hidden shadow-lg">
-          <img 
-            src="/lovable-uploads/38e84a84-ccf1-4f23-9197-595040426276.png" 
-            alt="Студія звукозапису" 
+        <div className="w-full h-64 md:h-80 lg:h-96 rounded-lg mb-12 overflow-hidden">
+          <img
+            src="/lovable-uploads/38e84a84-ccf1-4f23-9197-595040426276.png"
+            alt="Студія звукозапису"
             className="w-full h-full object-cover"
           />
         </div>
@@ -83,9 +81,9 @@ export const AcharyasBooks = () => {
         <div className="text-center mb-8">
           <div className="flex justify-center mb-6">
             <div className="w-24 h-24">
-              <img 
-                src="/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png" 
-                alt="Прабгупада солов'їною" 
+              <img
+                src="/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png"
+                alt="Прабгупада солов'їною"
                 className="w-full h-full object-contain"
               />
             </div>
@@ -99,14 +97,14 @@ export const AcharyasBooks = () => {
         <section>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             {acharyasBooks.map(book => (
-              <Card key={book.id} className="group hover:shadow-lg transition-all duration-300 border-border/50">
-                <div className="aspect-[3/4] bg-gradient-to-br from-primary/5 to-primary/10 rounded-t-lg overflow-hidden">
+              <div key={book.id} className="group">
+                <div className="aspect-[3/4] bg-muted/30 rounded-lg overflow-hidden">
                   {book.coverImage && typeof book.coverImage === 'string' && !book.coverImage.includes('placeholder') ? (
                     <div className="block w-full h-full">
-                      <img src={book.coverImage} alt={book.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                      <img src={book.coverImage} alt={book.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     </div>
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 flex items-center justify-center hover:scale-105 transition-transform duration-300">
+                    <div className="w-full h-full bg-muted/50 flex items-center justify-center">
                       <div className="text-center p-3">
                         <div className="mb-2">
                           <img src={smallBookIcon} alt="Book icon" className="w-12 h-12 mx-auto" />
@@ -118,7 +116,7 @@ export const AcharyasBooks = () => {
                     </div>
                   )}
                 </div>
-                <CardContent className="p-3">
+                <div className="p-3">
                   <h3 className="font-medium text-foreground mb-2 text-sm line-clamp-2 text-center">
                     {book.title}
                   </h3>
@@ -132,8 +130,8 @@ export const AcharyasBooks = () => {
                       </Badge>
                     </a>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
         </section>

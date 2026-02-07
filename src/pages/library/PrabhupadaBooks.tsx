@@ -1,7 +1,6 @@
 import { Footer } from "@/components/Footer";
 import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Headphones, User } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -87,10 +86,10 @@ export const PrabhupadaBooks = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 py-8">
-        <div className="w-full h-64 md:h-80 lg:h-96 rounded-lg mb-12 overflow-hidden shadow-lg">
-          <img 
-            src="/lovable-uploads/38e84a84-ccf1-4f23-9197-595040426276.png" 
-            alt="Студія звукозапису" 
+        <div className="w-full h-64 md:h-80 lg:h-96 rounded-lg mb-12 overflow-hidden">
+          <img
+            src="/lovable-uploads/38e84a84-ccf1-4f23-9197-595040426276.png"
+            alt="Студія звукозапису"
             className="w-full h-full object-cover"
           />
         </div>
@@ -98,9 +97,9 @@ export const PrabhupadaBooks = () => {
         <div className="text-center mb-8">
           <div className="flex justify-center mb-6">
             <div className="w-24 h-24">
-              <img 
-                src="/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png" 
-                alt="Прабгупада солов'їною" 
+              <img
+                src="/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png"
+                alt="Прабгупада солов'їною"
                 className="w-full h-full object-contain"
               />
             </div>
@@ -114,15 +113,15 @@ export const PrabhupadaBooks = () => {
         <section>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {prabhupadaBooks.map(book => (
-              <Card key={book.id} className="group hover:shadow-lg transition-all duration-300 border-border/50">
-                <div className="aspect-[3/4] bg-gradient-to-br from-primary/10 to-primary/5 rounded-t-lg overflow-hidden">
+              <div key={book.id} className="group">
+                <div className="aspect-[3/4] bg-muted/30 rounded-lg overflow-hidden">
                   {book.coverImage && typeof book.coverImage === 'string' && !book.coverImage.includes('placeholder') ? (
                     <Link to={book.verseLink ? getLocalizedPath(book.verseLink) : '#'} className="block w-full h-full">
-                      <img src={book.coverImage} alt={book.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                      <img src={book.coverImage} alt={book.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     </Link>
                   ) : (
                     <Link to={book.verseLink ? getLocalizedPath(book.verseLink) : '#'} className="block w-full h-full">
-                      <div className="w-full h-full bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/20 dark:to-orange-900/20 flex items-center justify-center hover:scale-105 transition-transform duration-300">
+                      <div className="w-full h-full bg-muted/50 flex items-center justify-center">
                         <div className="text-center p-4">
                           <div className="text-6xl mb-4 text-primary">
                             ॐ
@@ -135,7 +134,7 @@ export const PrabhupadaBooks = () => {
                     </Link>
                   )}
                 </div>
-                <CardContent className="p-4">
+                <div className="p-4">
                   <h3 className="font-semibold text-foreground mb-2 line-clamp-2 text-center">
                     {book.title}
                   </h3>
@@ -169,8 +168,8 @@ export const PrabhupadaBooks = () => {
                       </Link>
                     </Badge>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
         </section>

@@ -9,7 +9,6 @@ import SiteBanners from "@/components/SiteBanners";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
@@ -18,7 +17,6 @@ import {
   BookOpen,
   Search,
   Quote as QuoteIcon,
-  Sparkles,
   RefreshCw,
 } from "lucide-react";
 import {
@@ -60,7 +58,7 @@ export function Quotes() {
 
       <main className="min-h-screen bg-background">
         {/* Header */}
-        <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-40">
+        <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-40">
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
               <Link to={getLocalizedPath("/")}>
@@ -87,8 +85,8 @@ export function Quotes() {
             {/* Page Header */}
             <div className="text-center mb-8">
               <div className="flex items-center justify-center gap-3 mb-4">
-                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
-                  <QuoteIcon className="h-6 w-6 text-white" />
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <QuoteIcon className="h-6 w-6 text-primary" />
                 </div>
               </div>
               <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
@@ -103,38 +101,34 @@ export function Quotes() {
             </div>
 
             {/* Random Quote */}
-            <Card className="mb-8 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border-amber-200 dark:border-amber-800">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-400 flex items-center gap-2">
-                    <Sparkles className="h-4 w-4" />
-                    {t("Цитата дня", "Quote of the Day")}
-                  </CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    disabled={true}
-                    className="h-8 px-2"
-                  >
-                    <RefreshCw className="h-4 w-4" />
-                  </Button>
+            <div className="mb-8 bg-muted/30 rounded-lg p-4 md:p-6">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <QuoteIcon className="h-4 w-4" />
+                  {t("Цитата дня", "Quote of the Day")}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={true}
+                  className="h-8 px-2"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+              </div>
+              {randomLoading ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
                 </div>
-              </CardHeader>
-              <CardContent>
-                {randomLoading ? (
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
-                  </div>
-                ) : randomQuote ? (
-                  <QuoteCard quote={randomQuote} showSource showCategory className="shadow-none border-0 bg-transparent" />
-                ) : (
-                  <p className="text-muted-foreground text-center py-4">
-                    {t("Цитати ще не завантажено", "No quotes loaded yet")}
-                  </p>
-                )}
-              </CardContent>
-            </Card>
+              ) : randomQuote ? (
+                <QuoteCard quote={randomQuote} showSource showCategory className="shadow-none border-0 bg-transparent" />
+              ) : (
+                <p className="text-muted-foreground text-center py-4">
+                  {t("Цитати ще не завантажено", "No quotes loaded yet")}
+                </p>
+              )}
+            </div>
 
             {/* Search */}
             <form onSubmit={handleSearch} className="mb-6">
@@ -208,13 +202,11 @@ export function Quotes() {
                 {searchLoading ? (
                   <div className="space-y-4">
                     {[...Array(3)].map((_, i) => (
-                      <Card key={i}>
-                        <CardContent className="p-6">
-                          <Skeleton className="h-4 w-full mb-2" />
-                          <Skeleton className="h-4 w-3/4 mb-4" />
-                          <Skeleton className="h-6 w-24" />
-                        </CardContent>
-                      </Card>
+                      <div key={i} className="p-6">
+                        <Skeleton className="h-4 w-full mb-2" />
+                        <Skeleton className="h-4 w-3/4 mb-4" />
+                        <Skeleton className="h-6 w-24" />
+                      </div>
                     ))}
                   </div>
                 ) : searchResults && searchResults.length > 0 ? (
@@ -224,35 +216,31 @@ export function Quotes() {
                     ))}
                   </div>
                 ) : (
-                  <Card>
-                    <CardContent className="py-12 text-center">
-                      <QuoteIcon className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-                      <p className="text-muted-foreground">
-                        {t("Нічого не знайдено", "No results found")}
-                      </p>
-                    </CardContent>
-                  </Card>
+                  <div className="py-12 text-center">
+                    <QuoteIcon className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+                    <p className="text-muted-foreground">
+                      {t("Нічого не знайдено", "No results found")}
+                    </p>
+                  </div>
                 )}
               </div>
             )}
 
             {/* Info about importing */}
-            <Card className="mt-8 border-dashed">
-              <CardContent className="py-6">
-                <h3 className="font-medium mb-2">
-                  {t("Як додати цитати?", "How to add quotes?")}
-                </h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  {t(
-                    "Цитати імпортуються з Vaniquotes.org за допомогою Python скрипта:",
-                    "Quotes are imported from Vaniquotes.org using a Python script:"
-                  )}
-                </p>
-                <code className="text-xs bg-muted px-2 py-1 rounded block overflow-x-auto">
-                  python tools/vaniquotes_parser.py --topic "Spiritual_Master" --limit 100
-                </code>
-              </CardContent>
-            </Card>
+            <div className="mt-8 border border-dashed border-border rounded-lg p-6">
+              <h3 className="font-medium mb-2">
+                {t("Як додати цитати?", "How to add quotes?")}
+              </h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                {t(
+                  "Цитати імпортуються з Vaniquotes.org за допомогою Python скрипта:",
+                  "Quotes are imported from Vaniquotes.org using a Python script:"
+                )}
+              </p>
+              <code className="text-xs bg-muted px-2 py-1 rounded block overflow-x-auto">
+                python tools/vaniquotes_parser.py --topic "Spiritual_Master" --limit 100
+              </code>
+            </div>
           </div>
         </div>
 

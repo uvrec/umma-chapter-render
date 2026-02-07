@@ -383,7 +383,7 @@ function FeaturedBooks() {
                   loading="lazy"
                 />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
+                <div className="w-full h-full bg-muted/50 flex items-center justify-center">
                   <BookOpen className="h-10 w-10 text-primary/50" />
                 </div>
               )}

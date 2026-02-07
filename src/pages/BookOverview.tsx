@@ -653,7 +653,7 @@ export const BookOverview = () => {
         <div className="mt-6 mb-8">
           <h1 style={{
             fontFamily: "var(--font-primary)"
-          }} className="text-4xl md:text-5xl font-bold mb-8 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent text-center">{bookTitle}</h1>
+          }} className="text-4xl md:text-5xl font-bold mb-8 text-foreground text-center">{bookTitle}</h1>
         </div>
 
         {/* Вступ + Cantos/Chapters + other intro chapters */}
