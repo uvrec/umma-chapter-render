@@ -201,8 +201,6 @@ export default function KnowledgeCompiler() {
     setIsSearching(true);
 
     try {
-      console.log('Starting search with query:', searchQuery);
-
       // Try to call the advanced search function
       const { data, error } = await supabase.rpc('search_verses_fulltext', {
         search_query: searchQuery,
@@ -218,7 +216,6 @@ export default function KnowledgeCompiler() {
 
       // If function doesn't exist, use fallback simple search
       if (error && (error.code === '42883' || error.message?.includes('function') || error.message?.includes('does not exist'))) {
-        console.warn('Advanced search function not found, using fallback search');
         toast.info(
           language === 'uk'
             ? 'Використовується простий пошук (функції бази даних ще не застосовані)'
@@ -348,8 +345,6 @@ export default function KnowledgeCompiler() {
         return;
       }
 
-      console.log('Search results:', data);
-
       // Add highlighting to snippets from database results
       const enhancedResults = data?.map((verse: any) => {
         const translation = language === 'uk' ? verse.translation : verse.translation;
@@ -384,7 +379,6 @@ export default function KnowledgeCompiler() {
       if (!statsError) {
         setTopicStats(statsData || []);
       } else {
-        console.warn('Topic statistics function not available:', statsError);
         // Skip statistics if function doesn't exist
         setTopicStats([]);
       }
@@ -441,7 +435,7 @@ export default function KnowledgeCompiler() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/20">
+    <div className="min-h-screen flex flex-col bg-background">
       <Header />
 
       <main className="flex-1 container mx-auto px-4 py-8 max-w-7xl">
@@ -453,7 +447,7 @@ export default function KnowledgeCompiler() {
               {language === 'uk' ? 'Новий інструмент' : 'New Tool'}
             </span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
             {language === 'uk' ? 'Ведична Тематична Збірка' : 'Spiritual Knowledge Compiler'}
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">

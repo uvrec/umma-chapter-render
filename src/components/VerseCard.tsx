@@ -265,22 +265,18 @@ export const VerseCard = ({
   // Функція для відтворення конкретної секції
   const playSection = (section: string, audioSrc?: string) => {
     const src = audioSrc || audioUrl;
-    console.log("[VerseCard] playSection called:", { section, audioSrc, audioUrl, src, verseId });
 
     if (!src || !src.trim()) {
-      console.warn("[VerseCard] playSection: No audio source available!");
       return;
     }
     const trackId = `${verseNumber}-${section}`;
 
     // Якщо вже грає цей трек — тумблер
     if (currentTrack?.id === trackId || currentTrack?.verseId === verseId) {
-      console.log("[VerseCard] Track already playing, toggling");
       togglePlay();
       return;
     }
     // Use playVerseWithChapterContext to load all chapter verses with audio
-    console.log("[VerseCard] Calling playVerseWithChapterContext with src:", src.substring(0, 80));
     playVerseWithChapterContext({
       id: trackId,
       title: `${verseNumber} — ${section}`,

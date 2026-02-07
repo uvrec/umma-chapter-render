@@ -247,7 +247,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center">
+                      <div className="w-full h-full bg-muted/50 flex items-center justify-center">
                         <Music className="w-20 h-20 text-primary/50" />
                       </div>
                     )}
@@ -373,7 +373,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
 
                   <button
                     onClick={() => { impact('medium'); togglePlay(); }}
-                    className="p-5 rounded-full bg-primary text-primary-foreground hover:scale-105 transition"
+                    className="p-5 rounded-full bg-primary text-primary-foreground transition"
                   >
                     {isPlaying ? (
                       <Pause className="w-8 h-8" />
@@ -598,7 +598,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
+                    <div className="w-full h-full bg-muted/50 flex items-center justify-center">
                       <Music className="w-20 h-20 text-muted-foreground/30" />
                     </div>
                   )}

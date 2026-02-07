@@ -91,7 +91,7 @@ function NowPlayingSection() {
       {/* Now Playing Card */}
       {currentTrack && (
         <div
-          className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent rounded-2xl p-4 mb-3"
+          className="bg-muted/30 rounded-2xl p-4 mb-3"
           onClick={() => setIsExpanded(true)}
         >
           <div className="flex items-center gap-4">
@@ -342,7 +342,7 @@ function CategoryCard({ category, playlists, isLoading }: CategoryCardProps) {
               className="group cursor-pointer"
             >
               {/* Cover */}
-              <div className="relative aspect-square overflow-hidden rounded-xl shadow-sm group-hover:shadow-md transition-all">
+              <div className="relative aspect-square overflow-hidden rounded-xl transition-all">
                 {playlist.cover_image_url ? (
                   <img
                     src={playlist.cover_image_url}
@@ -351,14 +351,14 @@ function CategoryCard({ category, playlists, isLoading }: CategoryCardProps) {
                     loading="lazy"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
+                  <div className="w-full h-full bg-muted/50 flex items-center justify-center">
                     <Icon className="w-8 h-8 text-primary/50" />
                   </div>
                 )}
 
                 {/* Hover Play Button */}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                  <div className="w-10 h-10 rounded-full bg-primary/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
+                  <div className="w-10 h-10 rounded-full bg-primary/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <Play className="w-5 h-5 text-primary-foreground ml-0.5" />
                   </div>
                 </div>
