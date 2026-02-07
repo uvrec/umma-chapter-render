@@ -123,7 +123,7 @@ export function RichTextEditor({
   return (
     <div className={cn('flex flex-col border rounded-lg overflow-hidden bg-card', className)}>
       {/* Toolbar */}
-      <div className="flex items-center gap-1 px-2 py-1.5 border-b bg-muted/30 flex-wrap">
+      <div className="sticky top-0 z-10 flex items-center gap-1 px-2 py-1.5 border-b bg-muted/30 backdrop-blur-sm flex-wrap">
         <Button
           type="button"
           variant={editor.isActive('bold') ? 'default' : 'ghost'}

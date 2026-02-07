@@ -3,7 +3,7 @@
  */
 
 import { Link } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -78,8 +78,8 @@ export default function EkadashiList() {
       </div>
 
       {/* Вступ */}
-      <Card className="border-purple-200 dark:border-purple-900 bg-purple-50/50 dark:bg-purple-950/20">
-        <CardContent className="pt-6">
+      <div className="bg-purple-50/50 dark:bg-purple-950/20 py-6 px-4 rounded-lg">
+        <div>
           <div className="flex gap-4">
             <BookOpen className="h-8 w-8 text-purple-600 flex-shrink-0" />
             <div className="space-y-2">
@@ -93,8 +93,8 @@ export default function EkadashiList() {
               </p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Список екадаші по місяцях */}
       <div className="space-y-8">
@@ -124,16 +124,14 @@ export default function EkadashiList() {
 
       {/* Якщо даних немає */}
       {ekadashis.length === 0 && (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <Moon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">
-              {language === "uk"
-                ? "Дані про екадаші незабаром будуть додані"
-                : "Ekadashi data will be added soon"}
-            </p>
-          </CardContent>
-        </Card>
+        <div className="py-12 text-center">
+          <Moon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <p className="text-muted-foreground">
+            {language === "uk"
+              ? "Дані про екадаші незабаром будуть додані"
+              : "Ekadashi data will be added soon"}
+          </p>
+        </div>
       )}
     </div>
   );
@@ -165,8 +163,8 @@ function EkadashiCard({ ekadashi, language }: EkadashiCardProps) {
 
   return (
     <Link to={`/calendar/ekadashi/${ekadashi.slug}`}>
-      <Card className="hover:shadow-md transition-shadow cursor-pointer group">
-        <CardContent className="p-4">
+      <div className="hover:bg-muted/30 transition-colors cursor-pointer group p-4 rounded-lg">
+        <div>
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
               {/* Іконка */}
@@ -219,8 +217,8 @@ function EkadashiCard({ ekadashi, language }: EkadashiCardProps) {
             {/* Стрілка */}
             <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </Link>
   );
 }

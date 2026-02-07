@@ -175,6 +175,7 @@ export const LectureView = () => {
   };
 
   // Helper function to parse HTML into paragraphs
+  // Uses outerHTML to preserve paragraph-level formatting (text-align, class, etc.)
   const parseHtmlParagraphs = (html: string): string[] => {
     if (!html.trim() || html === "<p></p>") {
       return [];
@@ -190,7 +191,8 @@ export const LectureView = () => {
       pElements.forEach((p) => {
         const content = p.innerHTML.trim();
         if (content && content !== "<br>" && content !== "<br/>") {
-          result.push(content);
+          // Save outerHTML to preserve <p> attributes (style="text-align: center", class, etc.)
+          result.push(p.outerHTML);
         }
       });
     } else {
@@ -213,11 +215,17 @@ export const LectureView = () => {
   };
 
   // Helper function to merge paragraphs into single HTML
+  // Handles both old format (plain innerHTML) and new format (full <p> outerHTML with attributes)
   const mergeParagraphsToHtml = (paras: LectureParagraph[], lang: "uk" | "en"): string => {
     return paras
       .map((p) => {
         const content = lang === "uk" ? p.content_uk : p.content_en;
-        return content ? `<p>${content}</p>` : "<p></p>";
+        if (!content) return "<p></p>";
+        const trimmed = content.trim();
+        // If content already has a block-level wrapper (<p>, <h1-h6>, <div>), use as-is
+        if (/^<(p|h[1-6]|div)[\s>]/i.test(trimmed)) return trimmed;
+        // Otherwise wrap in <p> for backward compatibility with old data
+        return `<p>${content}</p>`;
       })
       .join("\n");
   };
@@ -531,7 +539,7 @@ export const LectureView = () => {
                   const hasContent = paragraph.content_uk && paragraph.content_uk.trim().length > 0;
 
                   return hasContent ? (
-                    <p
+                    <div
                       key={`uk-${paragraph.id}`}
                       ref={(el) => (paragraphRefs.current[paragraph.paragraph_number] = el)}
                       className={`mb-4 leading-relaxed transition-colors ${
@@ -540,7 +548,7 @@ export const LectureView = () => {
                       dangerouslySetInnerHTML={{ __html: sanitizeForRender(paragraph.content_uk!) }}
                     />
                   ) : (
-                    <p
+                    <div
                       key={`uk-${paragraph.id}`}
                       ref={(el) => (paragraphRefs.current[paragraph.paragraph_number] = el)}
                       className={`mb-4 leading-relaxed transition-colors ${
@@ -548,7 +556,7 @@ export const LectureView = () => {
                       }`}
                     >
                       <span className="text-muted-foreground/50">—</span>
-                    </p>
+                    </div>
                   );
                 })}
               </div>
@@ -559,7 +567,7 @@ export const LectureView = () => {
                   const isCurrentParagraph = currentParagraph === paragraph.paragraph_number;
 
                   return (
-                    <p
+                    <div
                       key={`en-${paragraph.id}`}
                       className={`mb-4 leading-relaxed transition-colors ${
                         isCurrentParagraph ? "bg-primary/10 -mx-2 px-2 py-1" : ""
@@ -583,7 +591,7 @@ export const LectureView = () => {
                   currentParagraph === paragraph.paragraph_number;
 
                 return (
-                  <p
+                  <div
                     key={paragraph.id}
                     ref={(el) =>
                       (paragraphRefs.current[paragraph.paragraph_number] = el)

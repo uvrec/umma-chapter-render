@@ -165,7 +165,7 @@ export const GVReferences = () => {
                   <AccordionItem
                     key={catalogue.id}
                     value={catalogue.id}
-                    className="border rounded-lg px-4"
+                    className="border-b px-4"
                   >
                     <AccordionTrigger className="hover:no-underline">
                       <div className="flex items-center gap-3">
@@ -280,7 +280,7 @@ export const GVReferences = () => {
                         {eraAuthors.map((author) => (
                           <div
                             key={author.id}
-                            className="p-4 rounded-lg border bg-card hover:shadow-md transition-shadow"
+                            className="p-4 rounded-lg hover:bg-muted/30 transition-colors"
                           >
                             {/* Sanskrit name */}
                             {author.name_sanskrit && (
