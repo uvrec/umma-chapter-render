@@ -26,7 +26,6 @@ import {
   ArrowLeft,
   Calendar,
   MapPin,
-  User,
   Loader2,
   Edit,
   Save,
@@ -275,44 +274,41 @@ export const LetterView = () => {
               </div>
             </div>
           ) : (
-            <div className="flex items-start gap-3 mb-4">
-              <User className="w-6 h-6 mt-1 flex-shrink-0 text-muted-foreground" />
-              <div className="flex-1">
-                <h1 className="text-2xl font-bold mb-2">
-                  {language === "uk" ? "Лист до " : "Letter to "}
-                  <button
-                    onClick={() => navigate(getLocalizedPath(`/library/letters?recipient=${encodeURIComponent(letter.recipient_en)}`))}
-                    className="hover:text-primary hover:underline underline-offset-2 transition-colors"
-                  >
-                    {recipient}
-                  </button>
-                </h1>
-                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                  <button
-                    onClick={() => {
-                      const year = new Date(letter.letter_date).getFullYear();
-                      navigate(getLocalizedPath(`/library/letters?yearFrom=${year}&yearTo=${year}`));
-                    }}
-                    className="flex items-center gap-2 hover:text-primary hover:underline underline-offset-2 transition-colors"
-                  >
-                    <Calendar className="w-4 h-4" />
-                    {new Date(letter.letter_date).toLocaleDateString(
-                      language === "uk" ? "uk-UA" : "en-US",
-                      {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      }
-                    )}
-                  </button>
-                  <button
-                    onClick={() => navigate(getLocalizedPath(`/library/letters?location=${encodeURIComponent(letter.location_en)}`))}
-                    className="flex items-center gap-2 hover:text-primary hover:underline underline-offset-2 transition-colors"
-                  >
-                    <MapPin className="w-4 h-4" />
-                    {location}
-                  </button>
-                </div>
+            <div className="mb-4">
+              <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-center font-serif text-primary mb-3">
+                {language === "uk" ? "Лист до " : "Letter to "}
+                <button
+                  onClick={() => navigate(getLocalizedPath(`/library/letters?recipient=${encodeURIComponent(letter.recipient_en)}`))}
+                  className="hover:text-primary/80 transition-colors"
+                >
+                  {recipient}
+                </button>
+              </h1>
+              <div className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground">
+                <button
+                  onClick={() => {
+                    const year = new Date(letter.letter_date).getFullYear();
+                    navigate(getLocalizedPath(`/library/letters?yearFrom=${year}&yearTo=${year}`));
+                  }}
+                  className="flex items-center gap-2 hover:text-primary hover:underline underline-offset-2 transition-colors"
+                >
+                  <Calendar className="w-4 h-4" />
+                  {new Date(letter.letter_date).toLocaleDateString(
+                    language === "uk" ? "uk-UA" : "en-US",
+                    {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    }
+                  )}
+                </button>
+                <button
+                  onClick={() => navigate(getLocalizedPath(`/library/letters?location=${encodeURIComponent(letter.location_en)}`))}
+                  className="flex items-center gap-2 hover:text-primary hover:underline underline-offset-2 transition-colors"
+                >
+                  <MapPin className="w-4 h-4" />
+                  {location}
+                </button>
               </div>
             </div>
           )}
