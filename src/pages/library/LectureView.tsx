@@ -426,10 +426,10 @@ export const LectureView = () => {
               </div>
             </div>
           ) : (
-            <h1 className="text-3xl font-bold mb-4 text-foreground">{title}</h1>
+            <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-center font-serif text-primary mb-4">{title}</h1>
           )}
 
-          <div className="flex flex-wrap gap-4 text-muted-foreground">
+          <div className="flex flex-wrap justify-center gap-4 text-muted-foreground">
             <div className="flex items-center">
               <Calendar className="w-5 h-5 mr-2" />
               {formatDate(lecture.lecture_date)}
