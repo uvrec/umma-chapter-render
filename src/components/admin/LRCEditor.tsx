@@ -9,12 +9,13 @@
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Play, Pause, RotateCcw, Download, Upload, Save, Trash2 } from 'lucide-react';
+import { Play, Pause, RotateCcw, Download, Upload, Save, Trash2, Wand2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { generateSmartTimestamps } from '@/lib/autoTimestampGenerator';
 
 interface LRCLine {
   time: number | null; // null = не встановлено
@@ -51,6 +52,29 @@ export function LRCEditor({
   const [currentLineIndex, setCurrentLineIndex] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState('');
+
+  // Auto-generation state
+  const [isAutoGenerating, setIsAutoGenerating] = useState(false);
+
+  // Auto-generate timestamps using audio analysis
+  const autoGenerate = useCallback(async () => {
+    if (!audioUrl || lines.length === 0) return;
+
+    setIsAutoGenerating(true);
+    try {
+      const text = lines.map(l => l.text).join('\n');
+      const { lrc } = await generateSmartTimestamps(audioUrl, text, section);
+      const parsed = parseLRC(lrc);
+      setLines(parsed);
+      setCurrentLineIndex(0);
+      toast.success(`Автоматично згенеровано ${parsed.filter(l => l.time !== null).length} міток`);
+    } catch (error) {
+      console.error('Auto-generation failed:', error);
+      toast.error('Помилка автогенерації. Спробуйте ще раз.');
+    } finally {
+      setIsAutoGenerating(false);
+    }
+  }, [audioUrl, lines, section]);
 
   // Initialize lines from text or LRC
   useEffect(() => {
@@ -265,6 +289,20 @@ export function LRCEditor({
 
         {/* Controls */}
         <div className="flex items-center gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={autoGenerate}
+            disabled={isAutoGenerating || lines.length === 0}
+          >
+            {isAutoGenerating ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Wand2 className="h-4 w-4 mr-2" />
+            )}
+            {isAutoGenerating ? 'Аналіз аудіо...' : 'Автогенерація'}
+          </Button>
+
           <Button variant="outline" size="sm" onClick={resetTimestamps}>
             <RotateCcw className="h-4 w-4 mr-2" />
             Скинути мітки

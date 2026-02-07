@@ -44,6 +44,7 @@ import { useSectionMemento } from "@/hooks/useSectionMemento";
 import { ContentToolbar } from "@/components/ContentToolbar";
 import { useAudio } from "@/contexts/ModernAudioContext";
 import { sanitizeForRender } from "@/utils/import/normalizers";
+import { useVirtualizedList } from "@/hooks/useVirtualizedList";
 
 export const LectureView = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -101,6 +102,21 @@ export const LectureView = () => {
       return data as LectureParagraph[];
     },
     enabled: !!lecture?.id,
+  });
+
+  // Virtualization for lecture paragraphs
+  const {
+    listRef: lectureVirtualListRef,
+    virtualizer: paragraphVirtualizer,
+    shouldVirtualize: shouldVirtualizeParagraphs,
+    virtualItems: paragraphVirtualItems,
+    totalSize: paragraphTotalSize,
+    scrollToIndex: scrollToParagraphIndex,
+  } = useVirtualizedList({
+    count: paragraphs.length,
+    estimateSize: dualLanguageMode ? 150 : 100,
+    overscan: 5,
+    threshold: 40,
   });
 
   // Check if this lecture's audio is currently playing
@@ -533,74 +549,101 @@ export const LectureView = () => {
             </div>
           ) : dualLanguageMode ? (
             // DUAL MODE - Paired rows for synchronized paragraph alignment
-            <div className="space-y-4">
-              {paragraphs.map((paragraph) => {
+            shouldVirtualizeParagraphs && paragraphVirtualItems ? (
+            <div ref={lectureVirtualListRef} style={{ height: `${paragraphTotalSize}px`, width: '100%', position: 'relative' }}>
+              {paragraphVirtualItems.map((virtualRow) => {
+                const paragraph = paragraphs[virtualRow.index];
                 const isCurrentParagraph = currentParagraph === paragraph.paragraph_number;
                 const hasUkContent = paragraph.content_uk && paragraph.content_uk.trim().length > 0;
-
                 return (
                   <div
                     key={paragraph.id}
-                    ref={(el) => (paragraphRefs.current[paragraph.paragraph_number] = el)}
-                    className={`grid md:grid-cols-2 gap-6 transition-colors ${
-                      isCurrentParagraph ? "bg-primary/10 -mx-2 px-2 py-1" : ""
-                    }`}
+                    data-index={virtualRow.index}
+                    ref={(el) => {
+                      if (el) {
+                        paragraphVirtualizer.measureElement(el);
+                        paragraphRefs.current[paragraph.paragraph_number] = el;
+                      }
+                    }}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      transform: `translateY(${virtualRow.start - paragraphVirtualizer.options.scrollMargin}px)`,
+                    }}
+                    className="pb-4"
                   >
-                    {/* Ukrainian */}
-                    <div
-                      className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed"
-                      dangerouslySetInnerHTML={{
-                        __html: sanitizeForRender(
-                          hasUkContent
-                            ? paragraph.content_uk!
-                            : '<span class="text-muted-foreground/50">—</span>'
-                        ),
-                      }}
-                    />
-                    {/* English */}
-                    <div
-                      className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed border-l border-border pl-6"
-                      dangerouslySetInnerHTML={{
-                        __html: sanitizeForRender(paragraph.content_en),
-                      }}
-                    />
+                    <div className={`grid md:grid-cols-2 gap-6 transition-colors ${isCurrentParagraph ? "bg-primary/10 -mx-2 px-2 py-1" : ""}`}>
+                      <div className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: sanitizeForRender(hasUkContent ? paragraph.content_uk! : '<span class="text-muted-foreground/50">—</span>') }} />
+                      <div className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed border-l border-border pl-6" dangerouslySetInnerHTML={{ __html: sanitizeForRender(paragraph.content_en) }} />
+                    </div>
                   </div>
                 );
               })}
             </div>
+            ) : (
+            <div className="space-y-4">
+              {paragraphs.map((paragraph) => {
+                const isCurrentParagraph = currentParagraph === paragraph.paragraph_number;
+                const hasUkContent = paragraph.content_uk && paragraph.content_uk.trim().length > 0;
+                return (
+                  <div key={paragraph.id} ref={(el) => (paragraphRefs.current[paragraph.paragraph_number] = el)} className={`grid md:grid-cols-2 gap-6 transition-colors ${isCurrentParagraph ? "bg-primary/10 -mx-2 px-2 py-1" : ""}`}>
+                    <div className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: sanitizeForRender(hasUkContent ? paragraph.content_uk! : '<span class="text-muted-foreground/50">—</span>') }} />
+                    <div className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed border-l border-border pl-6" dangerouslySetInnerHTML={{ __html: sanitizeForRender(paragraph.content_en) }} />
+                  </div>
+                );
+              })}
+            </div>
+            )
           ) : (
             // SINGLE LANGUAGE MODE
-            <div className="prose prose-lg dark:prose-invert max-w-none text-foreground">
-              {paragraphs.map((paragraph) => {
-                const content =
-                  language === "uk"
-                    ? (paragraph.content_uk && paragraph.content_uk.trim().length > 0
-                        ? paragraph.content_uk
-                        : null)
-                    : paragraph.content_en;
-
-                // Skip paragraphs with no content in selected language
+            shouldVirtualizeParagraphs && paragraphVirtualItems ? (
+            <div ref={lectureVirtualListRef} className="prose prose-lg dark:prose-invert max-w-none text-foreground" style={{ height: `${paragraphTotalSize}px`, width: '100%', position: 'relative' }}>
+              {paragraphVirtualItems.map((virtualRow) => {
+                const paragraph = paragraphs[virtualRow.index];
+                const content = language === "uk"
+                  ? (paragraph.content_uk && paragraph.content_uk.trim().length > 0 ? paragraph.content_uk : null)
+                  : paragraph.content_en;
                 if (!content) return null;
-
-                const isCurrentParagraph =
-                  currentParagraph === paragraph.paragraph_number;
-
+                const isCurrentParagraph = currentParagraph === paragraph.paragraph_number;
                 return (
                   <div
                     key={paragraph.id}
-                    ref={(el) =>
-                      (paragraphRefs.current[paragraph.paragraph_number] = el)
-                    }
-                    className={`mb-4 leading-relaxed transition-colors ${
-                      isCurrentParagraph
-                        ? "bg-primary/10 -mx-2 px-2 py-1"
-                        : ""
-                    }`}
+                    data-index={virtualRow.index}
+                    ref={(el) => {
+                      if (el) {
+                        paragraphVirtualizer.measureElement(el);
+                        paragraphRefs.current[paragraph.paragraph_number] = el;
+                      }
+                    }}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      transform: `translateY(${virtualRow.start - paragraphVirtualizer.options.scrollMargin}px)`,
+                    }}
+                    className={`mb-4 leading-relaxed transition-colors ${isCurrentParagraph ? "bg-primary/10 -mx-2 px-2 py-1" : ""}`}
                     dangerouslySetInnerHTML={{ __html: sanitizeForRender(content) }}
                   />
                 );
               })}
             </div>
+            ) : (
+            <div className="prose prose-lg dark:prose-invert max-w-none text-foreground">
+              {paragraphs.map((paragraph) => {
+                const content = language === "uk"
+                  ? (paragraph.content_uk && paragraph.content_uk.trim().length > 0 ? paragraph.content_uk : null)
+                  : paragraph.content_en;
+                if (!content) return null;
+                const isCurrentParagraph = currentParagraph === paragraph.paragraph_number;
+                return (
+                  <div key={paragraph.id} ref={(el) => (paragraphRefs.current[paragraph.paragraph_number] = el)} className={`mb-4 leading-relaxed transition-colors ${isCurrentParagraph ? "bg-primary/10 -mx-2 px-2 py-1" : ""}`} dangerouslySetInnerHTML={{ __html: sanitizeForRender(content) }} />
+                );
+              })}
+            </div>
+            )
           )}
 
           {/* Якщо немає параграфів */}
