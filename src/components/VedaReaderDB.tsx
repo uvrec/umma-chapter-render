@@ -1,7 +1,7 @@
 // VedaReaderDB.tsx — ENHANCED VERSION
 // Додано: Sticky Header, Bookmark, Share, Download, Keyboard Navigation
 
-import { useEffect, useMemo, useState, useCallback, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle, GraduationCap, X, Maximize, Leaf, Copy, Link, Presentation } from "lucide-react";
@@ -399,6 +399,7 @@ export const VedaReaderDB = () => {
 
   // Highlights hook - needs chapter.id
   const {
+    highlights: chapterHighlights,
     createHighlight
   } = useHighlights(effectiveChapter?.id);
 
@@ -1133,7 +1134,7 @@ export const VedaReaderDB = () => {
   const scrollDirection = useScrollDirection({ threshold: 15 });
   const isHeaderHidden = scrollDirection === 'down' && !fullscreenMode && !zenMode;
 
-  const handleSaveHighlight = useCallback((notes: string) => {
+  const handleSaveHighlight = useCallback((notes: string, color: string) => {
     // Перевірка наявності даних
     if (!book?.id || !effectiveChapter?.id) {
       console.error("handleSaveHighlight: Missing book or chapter data", { bookId: book?.id, chapterId: effectiveChapter?.id });
@@ -1158,9 +1159,75 @@ export const VedaReaderDB = () => {
       context_before: selectionContext.before,
       context_after: selectionContext.after,
       notes: notes || undefined,
-      highlight_color: "yellow"
+      highlight_color: color || "yellow"
     });
   }, [book, canto, effectiveChapter, currentVerse, selectedTextForHighlight, selectionContext, createHighlight, t]);
+
+  // ✅ Apply saved highlights visually to the DOM after render
+  useLayoutEffect(() => {
+    if (!chapterHighlights || chapterHighlights.length === 0) return;
+
+    // Small delay to ensure VerseCard has finished rendering
+    const timer = setTimeout(() => {
+      const container = document.querySelector('[data-reader-root]');
+      if (!container) return;
+
+      // Clean up previous highlight marks
+      container.querySelectorAll('mark[data-hl]').forEach(mark => {
+        const parent = mark.parentNode;
+        if (parent) {
+          while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
+          parent.removeChild(mark);
+        }
+        parent?.normalize();
+      });
+
+      // Filter highlights for current verse (if in single verse mode)
+      const verseHighlights = currentVerse
+        ? chapterHighlights.filter(h => h.verse_id === currentVerse.id || !h.verse_id)
+        : chapterHighlights;
+
+      for (const hl of verseHighlights) {
+        const searchText = hl.selected_text;
+        if (!searchText || searchText.length < 5) continue;
+
+        // Use first 80 chars for matching (highlights can be long)
+        const searchFragment = searchText.substring(0, 80).trim();
+
+        const walker = document.createTreeWalker(
+          container,
+          NodeFilter.SHOW_TEXT,
+          null
+        );
+
+        let textNode: Text | null;
+        while ((textNode = walker.nextNode() as Text | null)) {
+          const nodeText = textNode.textContent || '';
+          const index = nodeText.indexOf(searchFragment);
+          if (index === -1) continue;
+
+          const highlightEnd = Math.min(nodeText.length, index + searchText.length);
+
+          try {
+            const range = document.createRange();
+            range.setStart(textNode, index);
+            range.setEnd(textNode, highlightEnd);
+
+            const mark = document.createElement('mark');
+            mark.dataset.hl = hl.id;
+            mark.className = `hl-${hl.highlight_color || 'yellow'}`;
+            range.surroundContents(mark);
+          } catch {
+            // surroundContents fails if range crosses element boundaries — skip
+          }
+
+          break; // Only highlight first occurrence per highlight
+        }
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [chapterHighlights, currentVerse]);
 
   // Визначити всі keyboard shortcuts
   const shortcuts: KeyboardShortcut[] = [
