@@ -219,6 +219,7 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
         )
         .limit(8);
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       verses?.forEach((verse: any) => {
         const book = verse.chapters.books;
         const chapter = verse.chapters;
