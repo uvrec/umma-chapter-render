@@ -6,13 +6,22 @@
  * - Presentation mode
  * - Fullscreen mode
  *
- * Також обробляє Escape для виходу з режимів
+ * Також обробляє Escape для виходу з режимів.
+ * Синхронізує стан через localStorage + подію vv-reader-prefs-changed,
+ * щоб useReaderSettings підхоплював зміни.
  */
 
 import { useEffect, useState, useCallback } from 'react';
 import { X } from 'lucide-react';
 
 type ReadingMode = 'zen' | 'presentation' | 'fullscreen' | null;
+
+// localStorage ключі — мають збігатися з useReaderSettings
+const LS_KEYS = {
+  fullscreenMode: 'vv_reader_fullscreenMode',
+  zenMode: 'vv_reader_zenMode',
+  presentationMode: 'vv_reader_presentationMode',
+};
 
 export function ReadingModeExitButton() {
   const [activeMode, setActiveMode] = useState<ReadingMode>(null);
@@ -31,12 +40,27 @@ export function ReadingModeExitButton() {
     }
   }, []);
 
-  // Вихід з режиму
+  // Вихід з режиму — синхронізуємо DOM, localStorage та React стан через подію
   const exitMode = useCallback(() => {
     const root = document.documentElement;
+
+    // 1. Скидаємо DOM атрибути
     root.setAttribute('data-presentation-mode', 'false');
     root.setAttribute('data-zen-mode', 'false');
     root.setAttribute('data-fullscreen-reading', 'false');
+
+    // 2. Скидаємо localStorage (щоб useReaderSettings підхопив при наступній ініціалізації)
+    try {
+      localStorage.setItem(LS_KEYS.presentationMode, 'false');
+      localStorage.setItem(LS_KEYS.zenMode, 'false');
+      localStorage.setItem(LS_KEYS.fullscreenMode, 'false');
+    } catch {
+      // localStorage may not be available
+    }
+
+    // 3. Сповіщаємо useReaderSettings через кастомну подію
+    window.dispatchEvent(new Event('vv-reader-prefs-changed'));
+
     setActiveMode(null);
   }, []);
 
@@ -44,13 +68,13 @@ export function ReadingModeExitButton() {
   useEffect(() => {
     checkActiveMode();
 
-    // MutationObserver для відстеження змін атрибутів
     const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
+      for (const mutation of mutations) {
         if (mutation.type === 'attributes' && mutation.attributeName?.startsWith('data-')) {
           checkActiveMode();
+          break;
         }
-      });
+      }
     });
 
     observer.observe(document.documentElement, {
@@ -77,7 +101,6 @@ export function ReadingModeExitButton() {
   // Не показуємо якщо немає активного режиму
   if (!activeMode) return null;
 
-  // Визначаємо стиль та текст залежно від режиму
   const getTitle = () => {
     switch (activeMode) {
       case 'presentation':
