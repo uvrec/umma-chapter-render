@@ -532,53 +532,41 @@ export const LectureView = () => {
               </div>
             </div>
           ) : dualLanguageMode ? (
-            // DUAL MODE - Side by side (no labels - functional minimalism)
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* Ukrainian Column */}
-              <div className="prose prose-lg dark:prose-invert max-w-none text-foreground">
-                {paragraphs.map((paragraph) => {
-                  const isCurrentParagraph = currentParagraph === paragraph.paragraph_number;
-                  const hasContent = paragraph.content_uk && paragraph.content_uk.trim().length > 0;
+            // DUAL MODE - Paired rows for synchronized paragraph alignment
+            <div className="space-y-4">
+              {paragraphs.map((paragraph) => {
+                const isCurrentParagraph = currentParagraph === paragraph.paragraph_number;
+                const hasUkContent = paragraph.content_uk && paragraph.content_uk.trim().length > 0;
 
-                  return hasContent ? (
+                return (
+                  <div
+                    key={paragraph.id}
+                    ref={(el) => (paragraphRefs.current[paragraph.paragraph_number] = el)}
+                    className={`grid md:grid-cols-2 gap-6 transition-colors ${
+                      isCurrentParagraph ? "bg-primary/10 -mx-2 px-2 py-1" : ""
+                    }`}
+                  >
+                    {/* Ukrainian */}
                     <div
-                      key={`uk-${paragraph.id}`}
-                      ref={(el) => (paragraphRefs.current[paragraph.paragraph_number] = el)}
-                      className={`mb-4 leading-relaxed transition-colors ${
-                        isCurrentParagraph ? "bg-primary/10 -mx-2 px-2 py-1" : ""
-                      }`}
-                      dangerouslySetInnerHTML={{ __html: sanitizeForRender(paragraph.content_uk!) }}
+                      className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed"
+                      dangerouslySetInnerHTML={{
+                        __html: sanitizeForRender(
+                          hasUkContent
+                            ? paragraph.content_uk!
+                            : '<span class="text-muted-foreground/50">—</span>'
+                        ),
+                      }}
                     />
-                  ) : (
+                    {/* English */}
                     <div
-                      key={`uk-${paragraph.id}`}
-                      ref={(el) => (paragraphRefs.current[paragraph.paragraph_number] = el)}
-                      className={`mb-4 leading-relaxed transition-colors ${
-                        isCurrentParagraph ? "bg-primary/10 -mx-2 px-2 py-1" : ""
-                      }`}
-                    >
-                      <span className="text-muted-foreground/50">—</span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* English Column */}
-              <div className="prose prose-lg dark:prose-invert max-w-none text-foreground">
-                {paragraphs.map((paragraph) => {
-                  const isCurrentParagraph = currentParagraph === paragraph.paragraph_number;
-
-                  return (
-                    <div
-                      key={`en-${paragraph.id}`}
-                      className={`mb-4 leading-relaxed transition-colors ${
-                        isCurrentParagraph ? "bg-primary/10 -mx-2 px-2 py-1" : ""
-                      }`}
-                      dangerouslySetInnerHTML={{ __html: sanitizeForRender(paragraph.content_en) }}
+                      className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed border-l border-border pl-6"
+                      dangerouslySetInnerHTML={{
+                        __html: sanitizeForRender(paragraph.content_en),
+                      }}
                     />
-                  );
-                })}
-              </div>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             // SINGLE LANGUAGE MODE
