@@ -343,7 +343,7 @@ export const VerseCard = ({
       className={`verse-surface w-full animate-fade-in ${contourClasses} ${famousVerseClasses}`}
     >
       <div
-        className="pt-2 pb-6"
+        className="pb-6"
         style={{
           fontSize: `${fontSize}px`,
           lineHeight,

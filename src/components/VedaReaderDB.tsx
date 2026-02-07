@@ -1482,7 +1482,7 @@ export const VedaReaderDB = () => {
           </div>
         </div>
 
-      <div className="container mx-auto px-4 py-4 md:py-8" data-reader-root="true">
+      <div className="container mx-auto px-4 pt-2 pb-4 md:pt-2 md:pb-8" data-reader-root="true">
         {/* Заголовок - тільки для безперервного читання або текстових глав */}
         {(continuousReadingSettings.enabled || isTextChapter) && <div className="mb-4 md:mb-8">
             <h1 className="text-center font-extrabold text-3xl md:text-5xl text-primary">{chapterTitle}</h1>
