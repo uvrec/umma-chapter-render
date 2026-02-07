@@ -8,9 +8,11 @@ import { Calendar, Clock, User, ArrowRight, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSectionMemento } from "@/hooks/useSectionMemento";
 
 export const Blog = () => {
   const { language } = useLanguage();
+  useSectionMemento();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
 

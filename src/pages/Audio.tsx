@@ -96,7 +96,7 @@ function NowPlayingSection() {
         >
           <div className="flex items-center gap-4">
             {/* Cover */}
-            <div className="w-16 h-16 rounded-xl overflow-hidden shadow-lg flex-shrink-0">
+            <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
               {currentTrack.coverImage ? (
                 <img
                   src={currentTrack.coverImage}
@@ -184,7 +184,7 @@ function NowPlayingSection() {
 
       {/* Queue List */}
       {showQueue && playlist.length > 0 && (
-        <div className="mt-2 rounded-xl border bg-card overflow-hidden">
+        <div className="mt-2 rounded-xl overflow-hidden">
           {/* Queue Header */}
           <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/30">
             <span className="text-sm font-medium text-muted-foreground">

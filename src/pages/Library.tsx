@@ -9,6 +9,7 @@ import { BookOpen, Mic, Mail } from 'lucide-react';
 import { LecturesContent } from '@/components/library/LecturesContent';
 import { LettersContent } from '@/components/library/LettersContent';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useSectionMemento } from '@/hooks/useSectionMemento';
 import { MobileLibraryList } from '@/components/mobile/MobileLibraryList';
 import { MobileLecturesTimeline } from '@/components/mobile/MobileLecturesTimeline';
 import { MobileLettersTimeline } from '@/components/mobile/MobileLettersTimeline';
@@ -19,6 +20,7 @@ export const Library = () => {
     getLocalizedPath
   } = useLanguage();
   const isMobile = useIsMobile();
+  useSectionMemento();
   const [searchParams] = useSearchParams();
   const tabFromUrl = searchParams.get('tab');
   const defaultTab = tabFromUrl === 'lectures' || tabFromUrl === 'letters' ? tabFromUrl : 'books';

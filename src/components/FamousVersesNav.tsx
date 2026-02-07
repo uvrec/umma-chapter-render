@@ -89,7 +89,7 @@ export function FamousVersesNav({
   return (
     <div
       className={cn(
-        'flex items-center gap-2 px-3 py-2 rounded-full bg-background/80 backdrop-blur-sm border shadow-sm',
+        'flex items-center gap-2 px-3 py-2 rounded-full bg-background/80 backdrop-blur-sm',
         className
       )}
     >

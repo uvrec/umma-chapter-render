@@ -88,7 +88,7 @@
 }
 
 .blog-body.prose img {
-  @apply rounded-lg shadow-md;
+  @apply rounded-lg;
 }
 
 /* ==========================================
@@ -118,14 +118,13 @@ mark {
   }
 }
 
-/* Стилі для карток результатів */
+/* Стилі для результатів */
 .result-card {
   transition: all 0.2s ease-in-out;
 }
 
 .result-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  background-color: hsl(var(--muted) / 0.3);
 }
 
 /* Анімація завантаження */

@@ -22,6 +22,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBlogPostView } from "@/hooks/useBlogPostView";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
+import { useSectionMemento } from "@/hooks/useSectionMemento";
 import { Helmet } from "react-helmet-async";
 import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
@@ -34,6 +35,7 @@ export default function BlogPost() {
   const { isAdmin } = useAuth();
   const queryClient = useQueryClient();
   const { dualLanguageMode, zenMode, fullscreenMode, setZenMode, setFullscreenMode } = useReaderSettings();
+  useSectionMemento();
 
   // ✅ ДОДАНО: Display blocks для контролю видимості блоків
   const [displayBlocks, setDisplayBlocks] = useState({

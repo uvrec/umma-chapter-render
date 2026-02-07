@@ -34,7 +34,7 @@ export function HomeSearchBar({ className }: HomeSearchBarProps) {
           'relative flex items-center gap-3 px-4 sm:px-5 py-3 sm:py-4',
           'bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm',
           'rounded-xl sm:rounded-2xl',
-          'shadow-lg'
+          'border border-border/50'
         )}
       >
         <Search className="h-5 w-5 text-muted-foreground flex-shrink-0" />
