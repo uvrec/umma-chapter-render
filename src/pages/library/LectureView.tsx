@@ -573,9 +573,14 @@ export const LectureView = () => {
             <div className="prose prose-lg dark:prose-invert max-w-none text-foreground">
               {paragraphs.map((paragraph) => {
                 const content =
-                  language === "uk" && paragraph.content_uk
-                    ? paragraph.content_uk
+                  language === "uk"
+                    ? (paragraph.content_uk && paragraph.content_uk.trim().length > 0
+                        ? paragraph.content_uk
+                        : null)
                     : paragraph.content_en;
+
+                // Skip paragraphs with no content in selected language
+                if (!content) return null;
 
                 const isCurrentParagraph =
                   currentParagraph === paragraph.paragraph_number;
