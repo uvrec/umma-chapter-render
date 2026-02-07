@@ -1,7 +1,6 @@
 // src/components/DailyQuoteBanner.tsx
 import { useEffect, useState } from "react";
 import { useDailyQuote } from "@/hooks/useDailyQuote";
-import { Button } from "@/components/ui/button";
 import { ExternalLink, Quote } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -108,24 +107,22 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
               )}
 
               {quote.source && (
-                <div
-                  className="flex items-center gap-2 font-medium text-white/70"
+                <cite
+                  className="not-italic block text-center"
                   style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}
                 >
-                  <span>{quote.source}</span>
-                  {quote.link && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      asChild
-                      className="h-6 text-white/70 hover:bg-white/10 transition-colors"
+                  {quote.link ? (
+                    <Link
+                      to={quote.link}
+                      className="inline-flex items-center gap-1.5 italic font-semibold text-amber-400/70 hover:text-amber-300/90 transition-colors no-underline"
                     >
-                      <Link to={quote.link}>
-                        <ExternalLink className="w-4 h-4" />
-                      </Link>
-                    </Button>
+                      <span>{quote.source}</span>
+                      <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                    </Link>
+                  ) : (
+                    <span className="italic font-semibold text-amber-400/70">{quote.source}</span>
                   )}
-                </div>
+                </cite>
               )}
             </footer>
           </blockquote>
