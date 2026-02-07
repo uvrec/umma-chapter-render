@@ -34,6 +34,16 @@ function MobileLayoutInner({
   // Hide spine when audio player is active (has a track loaded)
   const isPlayerActive = !!currentTrack;
 
+  // Hide spine on verse pages (VedaReaderDB sets data-verse-page on <html>)
+  const [isVersePage, setIsVersePage] = useState(false);
+  useEffect(() => {
+    // Check on route change
+    const check = () => setIsVersePage(document.documentElement.hasAttribute('data-verse-page'));
+    // Small delay to let the new page mount and set the attribute
+    const timer = setTimeout(check, 50);
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
+
   // Track spine visibility to move content with it
   const [isSpineVisible, setIsSpineVisible] = useState(() => {
     if (typeof window === "undefined") return true;
@@ -89,7 +99,8 @@ function MobileLayoutInner({
   }, [swipeDelta, exitFullscreen, isEdgeSwiping]);
 
   // When fullscreen, spine hidden, or player is active - remove left padding smoothly
-  const shouldShowPadding = !hideSpine && isSpineVisible && !isFullscreen && !isPlayerActive;
+  const shouldHideSpine = hideSpine || isVersePage;
+  const shouldShowPadding = !shouldHideSpine && isSpineVisible && !isFullscreen && !isPlayerActive;
 
   // Calculate content transform during swipe
   const contentStyle: React.CSSProperties = {
@@ -106,7 +117,7 @@ function MobileLayoutInner({
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {!hideSpine && !isPlayerActive && (
+      {!shouldHideSpine && !isPlayerActive && (
         <SpineNavigation
           bookId={detectedBookId}
           onVisibilityChange={handleSpineVisibilityChange}

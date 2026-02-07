@@ -79,6 +79,15 @@ export const VedaReaderDB = () => {
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   useSectionMemento(); // Preserve scroll position when navigating away and back
+
+  // Hide Spine navigation on mobile when verse page is active
+  useEffect(() => {
+    document.documentElement.setAttribute('data-verse-page', 'true');
+    return () => {
+      document.documentElement.removeAttribute('data-verse-page');
+    };
+  }, []);
+
   const [searchParams] = useSearchParams();
   const previewToken = searchParams.get('preview');
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
@@ -1467,7 +1476,7 @@ export const VedaReaderDB = () => {
 
             {/* Row 2: Chapter/Verse Selector - окремий рядок по центру */}
             {!continuousReadingSettings.enabled && !isTextChapter && verses.length > 0 && (
-              <div className="flex justify-center mt-3">
+              <div className="flex justify-center mt-1">
                 <ChapterVerseSelector
                   chapters={allChapters}
                   verses={verses}
