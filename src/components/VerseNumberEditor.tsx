@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Edit2, Check, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { getBookPrefix } from "@/utils/bookPrefixes";
 interface VerseNumberEditorProps {
   verseId: string;
   currentNumber: string;
@@ -14,18 +15,7 @@ interface VerseNumberEditorProps {
   bookSlug?: string; // для визначення префіксу (ШБ, БҐ, etc.)
 }
 
-/* Префікси книг */
-const getBookPrefix = (slug: string | undefined): string => {
-  const prefixes: Record<string, string> = {
-    sb: "ШБ",
-    bg: "БҐ",
-    cc: "ЧЧ",
-    noi: "НВ",
-    iso: "Ішо",
-    nod: "НВ",
-  };
-  return slug ? prefixes[slug] || slug.toUpperCase() : "";
-};
+/* getBookPrefix imported from @/utils/bookPrefixes */
 
 export const VerseNumberEditor = ({
   verseId,

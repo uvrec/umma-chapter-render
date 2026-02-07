@@ -642,6 +642,22 @@ body {
   }
 }
 
+/* =========================
+   TEXT HIGHLIGHT COLORS (NeuBible-style)
+   ========================= */
+mark.hl-yellow { background-color: rgba(253, 224, 71, 0.35); border-radius: 2px; padding: 1px 0; }
+mark.hl-green  { background-color: rgba(134, 239, 172, 0.35); border-radius: 2px; padding: 1px 0; }
+mark.hl-blue   { background-color: rgba(147, 197, 253, 0.35); border-radius: 2px; padding: 1px 0; }
+mark.hl-pink   { background-color: rgba(249, 168, 212, 0.35); border-radius: 2px; padding: 1px 0; }
+mark.hl-orange { background-color: rgba(253, 186, 116, 0.35); border-radius: 2px; padding: 1px 0; }
+
+/* Dark mode adjustments */
+.dark mark.hl-yellow { background-color: rgba(202, 138, 4, 0.3); }
+.dark mark.hl-green  { background-color: rgba(22, 163, 74, 0.3); }
+.dark mark.hl-blue   { background-color: rgba(37, 99, 235, 0.3); }
+.dark mark.hl-pink   { background-color: rgba(219, 39, 119, 0.3); }
+.dark mark.hl-orange { background-color: rgba(234, 88, 12, 0.3); }
+
 /* Tablet (640-1023px) - sm to md breakpoint */
 @media (min-width: 640px) and (max-width: 1023px) {
   :root {

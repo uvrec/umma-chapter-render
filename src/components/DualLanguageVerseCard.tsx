@@ -3,6 +3,7 @@ import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Edit, Save, X, Volume2, Star, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getBookPrefix } from "@/utils/bookPrefixes";
 import { Textarea } from "@/components/ui/textarea";
 import { useAudio } from "@/contexts/ModernAudioContext";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
@@ -81,20 +82,7 @@ interface DualLanguageVerseCardProps {
   bookSlug?: string; // для визначення префіксу (ШБ, БҐ, etc.)
 }
 
-/* =========================
-   Префікси книг
-   ========================= */
-const getBookPrefix = (slug: string | undefined): string => {
-  const prefixes: Record<string, string> = {
-    sb: "ШБ",
-    bg: "БҐ",
-    cc: "ЧЧ",
-    noi: "НВ",
-    iso: "Ішо",
-    nod: "НВ",
-  };
-  return slug ? prefixes[slug] || slug.toUpperCase() : "";
-};
+/* getBookPrefix imported from @/utils/bookPrefixes */
 
 // openGlossary function moved inside component to use useNavigate hook
 
@@ -328,7 +316,7 @@ export const DualLanguageVerseCard = ({
                 <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} bookSlug={bookSlug} />
               ) : (
                 <span className="font-semibold text-2xl md:text-5xl whitespace-nowrap" style={{ color: "rgb(188, 115, 26)" }}>
-                  {getBookPrefix(bookSlug)} {verseNumber}
+                  {getBookPrefix(bookSlug, "uk")} {verseNumber}
                 </span>
               )}
               {/* Кнопка "Додати до вивчення" */}

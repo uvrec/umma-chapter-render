@@ -147,27 +147,38 @@ export function ChapterVerseSelector({
 
   if (!currentChapter || !currentVerse) return null;
 
+  // Short chapter title for the trigger button
+  const currentChapterTitle = (() => {
+    const title = language === "uk" ? currentChapter.title_uk : currentChapter.title_en;
+    if (!title) return "";
+    const clean = title.replace(/<[^>]*>/g, '').trim();
+    return clean.length > 20 ? clean.slice(0, 20) + "…" : clean;
+  })();
+
   return (
-    <div className={cn("flex items-center justify-center gap-1", className)}>
+    <div className={cn("flex items-center justify-center gap-2", className)}>
       {/* Chapter selector */}
       {chapters.length > 1 && (
         <Popover open={chapterOpen} onOpenChange={setChapterOpen}>
           <PopoverTrigger asChild>
             <button
               className={cn(
-                "flex items-center gap-0.5 px-2 py-1 rounded-md",
+                "flex items-center gap-1 px-3 py-1.5 rounded-md",
                 "bg-primary/10 text-primary border border-primary/20",
                 "hover:bg-primary/20 transition-colors",
-                "text-xs font-medium"
+                "text-xs font-medium max-w-[200px]"
               )}
             >
-              <span className="text-muted-foreground">{t("Гл.", "Ch.")}</span>
-              <span className="font-semibold">{currentChapter.chapter_number}</span>
-              <ChevronDown className="h-3 w-3 ml-0.5" />
+              <span className="text-muted-foreground flex-shrink-0">{t("Гл.", "Ch.")}</span>
+              <span className="font-semibold flex-shrink-0">{currentChapter.chapter_number}</span>
+              {currentChapterTitle && (
+                <span className="text-muted-foreground truncate hidden sm:inline">{currentChapterTitle}</span>
+              )}
+              <ChevronDown className="h-3 w-3 ml-0.5 flex-shrink-0" />
             </button>
           </PopoverTrigger>
           <PopoverContent
-            className="w-64 p-0 max-h-[50vh] overflow-hidden"
+            className="w-80 p-0 max-h-[50vh] overflow-hidden"
             align="center"
           >
             <div className="overflow-y-auto max-h-[50vh]">
@@ -212,19 +223,22 @@ export function ChapterVerseSelector({
         <PopoverTrigger asChild>
           <button
             className={cn(
-              "flex items-center gap-0.5 px-2 py-1 rounded-md",
+              "flex items-center gap-1 px-3 py-1.5 rounded-md",
               "bg-primary/10 text-primary border border-primary/20",
               "hover:bg-primary/20 transition-colors",
-              "text-xs font-medium"
+              "text-xs font-medium max-w-[200px]"
             )}
           >
-            <span className="text-muted-foreground">{t("В.", "V.")}</span>
-            <span className="font-semibold">{getVerseLabel(currentVerse)}</span>
-            <ChevronDown className="h-3 w-3 ml-0.5" />
+            <span className="text-muted-foreground flex-shrink-0">{t("В.", "V.")}</span>
+            <span className="font-semibold flex-shrink-0">{getVerseLabel(currentVerse)}</span>
+            {getVersePreview(currentVerse) && (
+              <span className="text-muted-foreground truncate hidden sm:inline">{getVersePreview(currentVerse)}</span>
+            )}
+            <ChevronDown className="h-3 w-3 ml-0.5 flex-shrink-0" />
           </button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-64 p-0 max-h-[50vh] overflow-hidden"
+          className="w-80 p-0 max-h-[50vh] overflow-hidden"
           align="center"
         >
           <div className="overflow-y-auto max-h-[50vh]">
