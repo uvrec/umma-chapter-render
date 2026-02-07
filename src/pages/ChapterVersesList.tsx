@@ -29,6 +29,7 @@ import { Helmet } from "react-helmet-async";
 import { SITE_CONFIG } from "@/lib/constants";
 import { SelectionTooltip } from "@/components/SelectionTooltip";
 import { copyVerseWithLink, shareVerse, type VerseParams } from "@/utils/verseShare";
+import { useVirtualizedList } from "@/hooks/useVirtualizedList";
 
 /**
  * Safety check: detect if chapter content looks like incorrectly imported verse text
@@ -367,6 +368,23 @@ export const ChapterVersesList = () => {
   });
   const versesRaw = useMemo(() => versesMain && versesMain.length > 0 ? versesMain : versesFallback || [], [versesMain, versesFallback]);
   const verses = useMemo(() => (versesRaw || []).filter((v: Verse) => v?.translation_uk && v.translation_uk.trim().length > 0 || v?.translation_en && v.translation_en.trim().length > 0), [versesRaw]);
+
+  // Virtualization for desktop verse lists (poetry modes)
+  const {
+    listRef: virtualListRef,
+    virtualizer: verseVirtualizer,
+    shouldVirtualize,
+    virtualItems,
+    totalSize,
+    scrollToIndex: scrollToVirtualIndex,
+  } = useVirtualizedList({
+    count: verses.length,
+    estimateSize: dualLanguageMode ? 120 : 80,
+    overscan: 8,
+    enabled: !isMobile && !flowMode,
+    threshold: 30,
+  });
+
   const {
     data: adjacentChapters
   } = useQuery({
@@ -733,12 +751,22 @@ export const ChapterVersesList = () => {
 
   // Прокрутка до вірша при виборі зі слайдера
   const handleVerseSelect = useCallback((verseNumber: string) => {
+    // Try virtual scroll first for desktop poetry modes
+    if (shouldVirtualize) {
+      const idx = verses.findIndex(v => v.verse_number === verseNumber);
+      if (idx !== -1) {
+        scrollToVirtualIndex(idx, { align: 'center', behavior: 'smooth' });
+        setCurrentVisibleVerse(verseNumber);
+        return;
+      }
+    }
+    // Fallback for mobile and non-virtualized modes
     const element = verseRefs.current.get(verseNumber);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
       setCurrentVisibleVerse(verseNumber);
     }
-  }, []);
+  }, [shouldVirtualize, verses, scrollToVirtualIndex]);
 
   // Відстеження видимого вірша при скролі (для мобільних)
   useEffect(() => {
@@ -1048,13 +1076,125 @@ export const ChapterVersesList = () => {
           })}
             </div> : dualLanguageMode ? (
               /* Poetry-style dual language layout - synchronized rows */
+              shouldVirtualize && virtualItems ? (
+              <div ref={virtualListRef} style={{ ...readerTextStyle, height: `${totalSize}px`, width: '100%', position: 'relative' }}>
+                {virtualItems.map((virtualRow) => {
+                  const verse = verses[virtualRow.index];
+                  const translationUk = verse.translation_uk || "";
+                  const translationEn = verse.translation_en || "";
+                  return (
+                    <div
+                      key={verse.id}
+                      data-index={virtualRow.index}
+                      ref={verseVirtualizer.measureElement}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        transform: `translateY(${virtualRow.start - verseVirtualizer.options.scrollMargin}px)`,
+                      }}
+                      className="pb-6"
+                    >
+                      <div className="grid gap-6 md:grid-cols-2">
+                        {/* Ukrainian */}
+                        <p className="text-foreground text-justify leading-relaxed">
+                          {showNumbers && (
+                            <>
+                              <Link
+                                to={getVerseUrl(verse.verse_number)}
+                                className="text-primary font-semibold hover:text-primary/80 transition-colors"
+                              >
+                                Вірш {verse.verse_number}:
+                              </Link>{" "}
+                            </>
+                          )}
+                          {stripParagraphTags(translationUk) || (
+                            <span className="italic text-muted-foreground">Немає перекладу</span>
+                          )}
+                          {isAdmin && (
+                            verseToDelete === verse.id ? (
+                              <span className="inline-flex items-center gap-1 ml-2">
+                                <Button variant="destructive" size="sm" onClick={() => deleteVerseMutation.mutate(verse.id)} disabled={deleteVerseMutation.isPending} className="h-6 px-2 text-xs">Так</Button>
+                                <Button variant="outline" size="sm" onClick={() => setVerseToDelete(null)} className="h-6 px-2 text-xs">Ні</Button>
+                              </span>
+                            ) : (
+                              <Button variant="ghost" size="sm" onClick={() => setVerseToDelete(verse.id)} className="text-destructive hover:text-destructive hover:bg-destructive/10 h-6 w-6 p-0 ml-1 inline-flex">
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            )
+                          )}
+                        </p>
+                        {/* English */}
+                        <p className="text-foreground text-justify leading-relaxed border-l border-border pl-6">
+                          {showNumbers && (
+                            <>
+                              <Link to={getVerseUrl(verse.verse_number)} className="text-primary font-semibold hover:text-primary/80 transition-colors">
+                                Text {verse.verse_number}:
+                              </Link>{" "}
+                            </>
+                          )}
+                          {stripParagraphTags(translationEn) || (
+                            <span className="italic text-muted-foreground">No translation</span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              ) : (
               <div className="space-y-6" style={readerTextStyle}>
                 {verses.map((verse: Verse) => {
                   const translationUk = verse.translation_uk || "";
                   const translationEn = verse.translation_en || "";
                   return (
                     <div key={verse.id} className="grid gap-6 md:grid-cols-2">
-                      {/* Ukrainian */}
+                      <p className="text-foreground text-justify leading-relaxed">
+                        {showNumbers && (<><Link to={getVerseUrl(verse.verse_number)} className="text-primary font-semibold hover:text-primary/80 transition-colors">Вірш {verse.verse_number}:</Link>{" "}</>)}
+                        {stripParagraphTags(translationUk) || (<span className="italic text-muted-foreground">Немає перекладу</span>)}
+                        {!isMobile && isAdmin && (
+                          verseToDelete === verse.id ? (
+                            <span className="inline-flex items-center gap-1 ml-2">
+                              <Button variant="destructive" size="sm" onClick={() => deleteVerseMutation.mutate(verse.id)} disabled={deleteVerseMutation.isPending} className="h-6 px-2 text-xs">Так</Button>
+                              <Button variant="outline" size="sm" onClick={() => setVerseToDelete(null)} className="h-6 px-2 text-xs">Ні</Button>
+                            </span>
+                          ) : (
+                            <Button variant="ghost" size="sm" onClick={() => setVerseToDelete(verse.id)} className="text-destructive hover:text-destructive hover:bg-destructive/10 h-6 w-6 p-0 ml-1 inline-flex"><Trash2 className="h-3 w-3" /></Button>
+                          )
+                        )}
+                      </p>
+                      <p className="text-foreground text-justify leading-relaxed border-l border-border pl-6">
+                        {showNumbers && (<><Link to={getVerseUrl(verse.verse_number)} className="text-primary font-semibold hover:text-primary/80 transition-colors">Text {verse.verse_number}:</Link>{" "}</>)}
+                        {stripParagraphTags(translationEn) || (<span className="italic text-muted-foreground">No translation</span>)}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+              )
+            ) : (
+              /* Single language poetry-style layout */
+              shouldVirtualize && virtualItems ? (
+              <div ref={virtualListRef} className="max-w-4xl mx-auto" style={{ ...readerTextStyle, height: `${totalSize}px`, width: '100%', position: 'relative' }}>
+                {virtualItems.map((virtualRow) => {
+                  const verse = verses[virtualRow.index];
+                  const translationUk = verse.translation_uk || "";
+                  const translationEn = verse.translation_en || "";
+                  return (
+                    <div
+                      key={verse.id}
+                      data-index={virtualRow.index}
+                      ref={verseVirtualizer.measureElement}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        transform: `translateY(${virtualRow.start - verseVirtualizer.options.scrollMargin}px)`,
+                      }}
+                      className="pb-4"
+                    >
                       <p className="text-foreground text-justify leading-relaxed">
                         {showNumbers && (
                           <>
@@ -1062,84 +1202,37 @@ export const ChapterVersesList = () => {
                               to={getVerseUrl(verse.verse_number)}
                               className="text-primary font-semibold hover:text-primary/80 transition-colors"
                             >
-                              Вірш {verse.verse_number}:
+                              {language === "uk" ? `Вірш ${verse.verse_number}:` : `Text ${verse.verse_number}:`}
                             </Link>{" "}
                           </>
                         )}
-                        {stripParagraphTags(translationUk) || (
-                          <span className="italic text-muted-foreground">Немає перекладу</span>
-                        )}
-                        {!isMobile && isAdmin && (
+                        {language === "uk"
+                          ? stripParagraphTags(translationUk) || <span className="italic text-muted-foreground">Немає перекладу</span>
+                          : stripParagraphTags(translationEn) || <span className="italic text-muted-foreground">No translation</span>
+                        }
+                        {isAdmin && (
                           verseToDelete === verse.id ? (
                             <span className="inline-flex items-center gap-1 ml-2">
-                              <Button
-                                variant="destructive"
-                                size="sm"
-                                onClick={() => deleteVerseMutation.mutate(verse.id)}
-                                disabled={deleteVerseMutation.isPending}
-                                className="h-6 px-2 text-xs"
-                              >
-                                Так
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setVerseToDelete(null)}
-                                className="h-6 px-2 text-xs"
-                              >
-                                Ні
-                              </Button>
+                              <Button variant="destructive" size="sm" onClick={() => deleteVerseMutation.mutate(verse.id)} disabled={deleteVerseMutation.isPending} className="h-6 px-2 text-xs">{language === "uk" ? "Так" : "Yes"}</Button>
+                              <Button variant="outline" size="sm" onClick={() => setVerseToDelete(null)} className="h-6 px-2 text-xs">{language === "uk" ? "Ні" : "No"}</Button>
                             </span>
                           ) : (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setVerseToDelete(verse.id)}
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10 h-6 w-6 p-0 ml-1 inline-flex"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => setVerseToDelete(verse.id)} className="text-destructive hover:text-destructive hover:bg-destructive/10 h-6 w-6 p-0 ml-1 inline-flex"><Trash2 className="h-3 w-3" /></Button>
                           )
-                        )}
-                      </p>
-                      {/* English */}
-                      <p className="text-foreground text-justify leading-relaxed border-l border-border pl-6">
-                        {showNumbers && (
-                          <>
-                            <Link
-                              to={getVerseUrl(verse.verse_number)}
-                              className="text-primary font-semibold hover:text-primary/80 transition-colors"
-                            >
-                              Text {verse.verse_number}:
-                            </Link>{" "}
-                          </>
-                        )}
-                        {stripParagraphTags(translationEn) || (
-                          <span className="italic text-muted-foreground">No translation</span>
                         )}
                       </p>
                     </div>
                   );
                 })}
               </div>
-            ) : (
-              /* Single language poetry-style layout */
+              ) : (
               <div className="space-y-4 max-w-4xl mx-auto" style={readerTextStyle}>
                 {verses.map((verse: Verse) => {
                   const translationUk = verse.translation_uk || "";
                   const translationEn = verse.translation_en || "";
                   return (
                     <p key={verse.id} className="text-foreground text-justify leading-relaxed">
-                      {showNumbers && (
-                        <>
-                          <Link
-                            to={getVerseUrl(verse.verse_number)}
-                            className="text-primary font-semibold hover:text-primary/80 transition-colors"
-                          >
-                            {language === "uk" ? `Вірш ${verse.verse_number}:` : `Text ${verse.verse_number}:`}
-                          </Link>{" "}
-                        </>
-                      )}
+                      {showNumbers && (<><Link to={getVerseUrl(verse.verse_number)} className="text-primary font-semibold hover:text-primary/80 transition-colors">{language === "uk" ? `Вірш ${verse.verse_number}:` : `Text ${verse.verse_number}:`}</Link>{" "}</>)}
                       {language === "uk"
                         ? stripParagraphTags(translationUk) || <span className="italic text-muted-foreground">Немає перекладу</span>
                         : stripParagraphTags(translationEn) || <span className="italic text-muted-foreground">No translation</span>
@@ -1147,39 +1240,18 @@ export const ChapterVersesList = () => {
                       {!isMobile && isAdmin && (
                         verseToDelete === verse.id ? (
                           <span className="inline-flex items-center gap-1 ml-2">
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => deleteVerseMutation.mutate(verse.id)}
-                              disabled={deleteVerseMutation.isPending}
-                              className="h-6 px-2 text-xs"
-                            >
-                              {language === "uk" ? "Так" : "Yes"}
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setVerseToDelete(null)}
-                              className="h-6 px-2 text-xs"
-                            >
-                              {language === "uk" ? "Ні" : "No"}
-                            </Button>
+                            <Button variant="destructive" size="sm" onClick={() => deleteVerseMutation.mutate(verse.id)} disabled={deleteVerseMutation.isPending} className="h-6 px-2 text-xs">{language === "uk" ? "Так" : "Yes"}</Button>
+                            <Button variant="outline" size="sm" onClick={() => setVerseToDelete(null)} className="h-6 px-2 text-xs">{language === "uk" ? "Ні" : "No"}</Button>
                           </span>
                         ) : (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setVerseToDelete(verse.id)}
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10 h-6 w-6 p-0 ml-1 inline-flex"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => setVerseToDelete(verse.id)} className="text-destructive hover:text-destructive hover:bg-destructive/10 h-6 w-6 p-0 ml-1 inline-flex"><Trash2 className="h-3 w-3" /></Button>
                         )
                       )}
                     </p>
                   );
                 })}
               </div>
+              )
             )}
 
           {verses.length === 0}
