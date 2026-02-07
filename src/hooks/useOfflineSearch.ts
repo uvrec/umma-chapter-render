@@ -52,11 +52,6 @@ export function useOfflineSearch(options: UseOfflineSearchOptions = {}): UseOffl
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const abortRef = useRef(0);
 
-  // Перевіряємо доступність при монтуванні
-  useEffect(() => {
-    checkAvailability();
-  }, [checkAvailability]);
-
   const checkAvailability = useCallback(async () => {
     try {
       const available = await isOfflineSearchAvailable();
@@ -65,6 +60,11 @@ export function useOfflineSearch(options: UseOfflineSearchOptions = {}): UseOffl
       setIsAvailable(false);
     }
   }, []);
+
+  // Перевіряємо доступність при монтуванні
+  useEffect(() => {
+    checkAvailability();
+  }, [checkAvailability]);
 
   const refreshStats = useCallback(async () => {
     try {

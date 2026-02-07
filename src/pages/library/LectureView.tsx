@@ -75,7 +75,7 @@ export const LectureView = () => {
   const { data: lecture, isLoading: lectureLoading } = useQuery({
     queryKey: ["lecture", slug],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("lectures")
         .select("*")
         .eq("slug", slug)
@@ -91,7 +91,7 @@ export const LectureView = () => {
   const { data: paragraphs = [], isLoading: paragraphsLoading } = useQuery({
     queryKey: ["lecture-paragraphs", lecture?.id],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("lecture_paragraphs")
         .select("*")
         .eq("lecture_id", lecture!.id)
@@ -246,7 +246,7 @@ export const LectureView = () => {
       if (editedLecture.audio_url !== (lecture.audio_url || "")) lectureUpdates.audio_url = editedLecture.audio_url || null;
 
       if (Object.keys(lectureUpdates).length > 0) {
-        const { error } = await (supabase as any)
+        const { error } = await supabase
           .from("lectures")
           .update(lectureUpdates)
           .eq("id", lecture.id);
@@ -270,7 +270,7 @@ export const LectureView = () => {
         if (newEn !== paragraph.content_en) updates.content_en = newEn;
 
         if (Object.keys(updates).length > 0) {
-          const { error } = await (supabase as any)
+          const { error } = await supabase
             .from("lecture_paragraphs")
             .update(updates)
             .eq("id", paragraph.id);
