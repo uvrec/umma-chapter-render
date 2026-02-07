@@ -23,6 +23,13 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { formatExplanationParagraphs } from "@/utils/text/dropCap";
 // SyncedText removed - audio sync highlighting was poorly implemented
 
+// Перевіряє чи є реальний текстовий контент (не тільки HTML теги або пробіли)
+const hasContent = (text: string | null | undefined): boolean => {
+  if (!text) return false;
+  const stripped = stripParagraphTags(text);
+  return stripped.length > 0;
+};
+
 /* =========================
    Типи пропсів
    ========================= */
@@ -538,7 +545,7 @@ export const VerseCard = ({
         )}
 
         {/* Послівний переклад з окремою кнопкою Volume2 */}
-        {textDisplaySettings.showSynonyms && (isEditing || synonyms) && (
+        {textDisplaySettings.showSynonyms && (isEditing || hasContent(synonyms)) && (
           <div className="mb-6" data-synced-section="synonyms">
             {/* Mobile: центрована стрілка для collapse/expand */}
             {isMobile && (
@@ -652,7 +659,7 @@ export const VerseCard = ({
         )}
 
         {/* Літературний переклад з окремою кнопкою Volume2 */}
-        {textDisplaySettings.showTranslation && (isEditing || translation) && (
+        {textDisplaySettings.showTranslation && (isEditing || hasContent(translation)) && (
           <div className="mb-6" data-synced-section="translation">
             {/* Заголовок + кнопка Volume2 (hidden on mobile via CSS for clean reading) */}
             <div className="section-header hidden md:flex items-center justify-center gap-4 mb-4">
@@ -692,7 +699,7 @@ export const VerseCard = ({
         )}
 
         {/* Пояснення з окремою кнопкою Volume2 */}
-        {textDisplaySettings.showCommentary && (isEditing || commentary) && (
+        {textDisplaySettings.showCommentary && (isEditing || hasContent(commentary)) && (
           <div data-synced-section="commentary">
             {/* Заголовок + кнопка Volume2 (hidden on mobile via CSS for clean reading) */}
             <div className="section-header hidden md:flex items-center justify-center gap-4 mb-4">
