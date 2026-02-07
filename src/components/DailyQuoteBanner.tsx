@@ -1,7 +1,7 @@
 // src/components/DailyQuoteBanner.tsx
 import { useEffect, useState } from "react";
 import { useDailyQuote } from "@/hooks/useDailyQuote";
-import { ExternalLink, Quote } from "lucide-react";
+import { Quote } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -114,10 +114,9 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
                   {quote.link ? (
                     <Link
                       to={quote.link}
-                      className="inline-flex items-center gap-1.5 italic font-semibold text-amber-400/70 hover:text-amber-300/90 transition-colors no-underline"
+                      className="italic font-semibold text-amber-400/70 hover:text-amber-300/90 transition-colors no-underline"
                     >
-                      <span>{quote.source}</span>
-                      <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                      {quote.source}
                     </Link>
                   ) : (
                     <span className="italic font-semibold text-amber-400/70">{quote.source}</span>
