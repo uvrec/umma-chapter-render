@@ -3,10 +3,10 @@
  * UA/EN з підсвічуванням збігів та фільтрами
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, Filter, Book, ChevronRight, Loader2, X, HelpCircle } from 'lucide-react';
+import { Search, Filter, Book, ChevronRight, Loader2, X, HelpCircle, WifiOff } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Input } from '@/components/ui/input';
@@ -22,6 +22,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import DOMPurify from 'dompurify';
+import { offlineSearch, isOfflineSearchAvailable, OfflineSearchResult } from '@/services/offlineSearchService';
 
 interface SearchResult {
   verse_id: string;
@@ -63,6 +64,22 @@ export default function BookSearch() {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   
+  // Офлайн стан
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [offlineAvailable, setOfflineAvailable] = useState(false);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    isOfflineSearchAvailable().then(setOfflineAvailable);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
   // Фільтри
   const [selectedBooks, setSelectedBooks] = useState<string[]>([]);
   const [includeTranslation, setIncludeTranslation] = useState(true);
@@ -86,8 +103,8 @@ export default function BookSearch() {
     },
   });
 
-  // Пошук
-  const { data: results = [], isLoading, isFetching } = useQuery({
+  // Пошук (онлайн)
+  const { data: onlineResults = [], isLoading: isLoadingOnline, isFetching: isFetchingOnline } = useQuery({
     queryKey: [
       'book-search',
       submittedQuery,
@@ -117,8 +134,50 @@ export default function BookSearch() {
       if (error) throw error;
       return (data || []) as SearchResult[];
     },
-    enabled: submittedQuery.trim().length >= 2,
+    enabled: isOnline && submittedQuery.trim().length >= 2,
   });
+
+  // Пошук (офлайн — SQLite FTS5 / IndexedDB fallback)
+  const { data: offlineResults = [], isLoading: isLoadingOffline, isFetching: isFetchingOffline } = useQuery({
+    queryKey: ['book-search-offline', submittedQuery, language, selectedBooks],
+    queryFn: async (): Promise<SearchResult[]> => {
+      if (!submittedQuery.trim()) return [];
+
+      const offResults = await offlineSearch(submittedQuery.trim(), {
+        language,
+        bookIds: selectedBooks.length > 0 ? selectedBooks : undefined,
+        limit: 100,
+      });
+
+      return offResults.map((r: OfflineSearchResult) => ({
+        verse_id: r.verseId,
+        verse_number: r.verseNumber,
+        chapter_id: r.chapterId,
+        chapter_number: r.chapterNumber,
+        chapter_title: '',
+        book_id: r.bookId,
+        book_title: r.bookSlug.toUpperCase(),
+        book_slug: r.bookSlug,
+        canto_id: null,
+        canto_number: r.cantoNumber || null,
+        canto_title: null,
+        sanskrit: null,
+        transliteration: null,
+        synonyms: null,
+        translation: null,
+        commentary: null,
+        relevance_rank: r.rank,
+        matched_in: [r.matchedField.replace(/_uk|_en/g, '')],
+        search_snippet: r.snippet,
+      }));
+    },
+    enabled: !isOnline && offlineAvailable && submittedQuery.trim().length >= 2,
+  });
+
+  // Активні результати залежно від стану мережі
+  const results = !isOnline && offlineAvailable ? offlineResults : onlineResults;
+  const isLoading = !isOnline ? isLoadingOffline : isLoadingOnline;
+  const isFetching = !isOnline ? isFetchingOffline : isFetchingOnline;
 
   // Виконати пошук
   const handleSearch = () => {
@@ -231,6 +290,16 @@ export default function BookSearch() {
             )}
           </Button>
         </div>
+
+        {/* Офлайн-індикатор */}
+        {!isOnline && (
+          <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
+            <WifiOff className="h-4 w-4" />
+            {offlineAvailable
+              ? t('Офлайн-режим: пошук по завантажених книгах (SQLite FTS5)', 'Offline mode: searching downloaded books (SQLite FTS5)')
+              : t('Немає мережі. Завантажте книги для офлайн-пошуку.', 'No network. Download books for offline search.')}
+          </div>
+        )}
 
         {/* Фільтри та допомога */}
         <div className="flex gap-2 mb-4 flex-wrap">
