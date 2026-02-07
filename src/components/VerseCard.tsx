@@ -8,6 +8,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Edit, Save, X, Volume2, GraduationCap, Play, Pause, ChevronLeft, ChevronRight, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getBookPrefix } from "@/utils/bookPrefixes";
 import { Textarea } from "@/components/ui/textarea";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { useAudio } from "@/contexts/ModernAudioContext";
@@ -82,20 +83,7 @@ interface VerseCardProps {
   isFamous?: boolean; // чи є цей вірш знаменитою шлокою
 }
 
-/* =========================
-   Префікси книг
-   ========================= */
-const getBookPrefix = (slug: string | undefined): string => {
-  const prefixes: Record<string, string> = {
-    sb: "ШБ",
-    bg: "БҐ",
-    cc: "ЧЧ",
-    noi: "НВ",
-    iso: "Ішо",
-    nod: "НВ",
-  };
-  return slug ? prefixes[slug] || slug.toUpperCase() : "";
-};
+/* getBookPrefix imported from @/utils/bookPrefixes */
 
 /* =========================
    Компонент
@@ -358,7 +346,7 @@ export const VerseCard = ({
               className={`verse-number-clean md:hidden font-bold text-2xl whitespace-nowrap transition-colors ${isNowPlaying ? 'text-primary' : 'text-foreground'}`}
               disabled={!audioUrl && !audioSanskrit && !audioTranslation && !audioCommentary}
             >
-              {getBookPrefix(bookSlug)} {verseNumber}
+              {getBookPrefix(bookSlug, language)} {verseNumber}
             </button>
             {/* Desktop: VerseNumberEditor для адмінів, звичайний span для інших */}
             {isAdmin && verseId ? (
@@ -367,7 +355,7 @@ export const VerseCard = ({
               </div>
             ) : (
               <span className="hidden md:inline font-semibold text-5xl whitespace-nowrap" style={{ color: "rgb(188, 115, 26)" }}>
-                {getBookPrefix(bookSlug)} {verseNumber}
+                {getBookPrefix(bookSlug, language)} {verseNumber}
               </span>
             )}
             {/* Назва глави - відцентрована під номером вірша (hidden on mobile) */}
