@@ -124,6 +124,32 @@
 
   /* Радіуси */
   --radius: 0.75rem;
+
+  /* =========================
+     СЕМАНТИЧНІ ТОКЕНИ ДЛЯ ВІРШІВ
+     Telegram-style granular tokens (component-context-state)
+     Перевизначайте в кожній темі для точного налаштування
+     ========================= */
+
+  /* Verse section foreground colors */
+  --verse-sanskrit-fg: var(--foreground);
+  --verse-translit-fg: var(--foreground);
+  --verse-synonyms-fg: var(--foreground);
+  --verse-translation-fg: var(--foreground);
+  --verse-commentary-fg: var(--foreground);
+  --verse-number-fg: var(--primary);
+
+  /* Reader active states */
+  --reader-active-line-bg: var(--primary);
+  --reader-active-line-opacity: 0.1;
+  --reader-hover-bg: var(--muted);
+  --reader-hover-opacity: 0.3;
+
+  /* Player bar */
+  --player-bar-bg: var(--background);
+  --player-bar-progress: var(--primary);
+  --player-speed-active-fg: var(--primary);
+  --player-speed-active-bg: var(--primary);
 }
 
 /* =========================
@@ -214,6 +240,9 @@ html.dark {
   --ring: 38 80% 55%;
 
   color-scheme: dark;
+
+  /* Dark theme verse token overrides */
+  --reader-active-line-opacity: 0.15;
 }
 
 /* =========================
@@ -251,6 +280,9 @@ html.craft {
   --ring: 33 76% 42%;
 
   color-scheme: light;
+
+  /* Craft theme: warmer verse number */
+  --verse-number-fg: 31 70% 40%;
 
   /* Фактурний фон */
   background-color: hsl(var(--background));

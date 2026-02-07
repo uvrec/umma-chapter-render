@@ -35,6 +35,7 @@ import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 import { useTrackpadNavigation } from "@/hooks/useTrackpadNavigation";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import { useReadingSession } from "@/hooks/useReadingSession";
+import { useSectionMemento } from "@/hooks/useSectionMemento";
 import { useBooks } from "@/contexts/BooksContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -77,6 +78,7 @@ export const VedaReaderDB = () => {
   } = useAuth();
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
+  useSectionMemento(); // Preserve scroll position when navigating away and back
   const [searchParams] = useSearchParams();
   const previewToken = searchParams.get('preview');
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);

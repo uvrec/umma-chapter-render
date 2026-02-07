@@ -97,8 +97,16 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Playback speed options
+  // Playback speed options (Telegram-style: 6 presets)
   const speedOptions = [0.5, 0.75, 1, 1.25, 1.5, 2];
+
+  // Cycle through speed options on click (Telegram pattern)
+  const cycleSpeed = () => {
+    const currentIdx = speedOptions.indexOf(playbackRate);
+    const nextIdx = (currentIdx + 1) % speedOptions.length;
+    setPlaybackRate(speedOptions[nextIdx]);
+    selection();
+  };
 
   // Navigate to verse page
   const goToVersePage = () => {
@@ -195,7 +203,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
             <div className="flex items-center justify-between px-8 py-4 border-b border-border/50">
               <div className="flex items-center gap-4">
                 {/* Mini cover in header */}
-                <div className="w-12 h-12 rounded-lg overflow-hidden shadow-md flex-shrink-0">
+                <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
                   {currentTrack.coverImage ? (
                     <img
                       src={currentTrack.coverImage}
@@ -231,7 +239,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                 {/* Cover Art + Track Info Section */}
                 <div className="flex flex-col items-center mb-12">
                   {/* Cover Art */}
-                  <div className="w-48 h-48 xl:w-56 xl:h-56 rounded-2xl overflow-hidden shadow-2xl mb-6">
+                  <div className="w-48 h-48 xl:w-56 xl:h-56 rounded-2xl overflow-hidden  mb-6">
                     {currentTrack.coverImage ? (
                       <img
                         src={currentTrack.coverImage}
@@ -365,7 +373,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
 
                   <button
                     onClick={() => { impact('medium'); togglePlay(); }}
-                    className="p-5 rounded-full bg-primary text-primary-foreground hover:scale-105 transition shadow-lg"
+                    className="p-5 rounded-full bg-primary text-primary-foreground hover:scale-105 transition"
                   >
                     {isPlaying ? (
                       <Pause className="w-8 h-8" />
@@ -450,7 +458,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
 
                     {/* Settings Dropdown */}
                     {showSettingsMenu && (
-                      <div className="absolute bottom-full right-0 mb-2 w-56 bg-card rounded-lg shadow-xl border border-border overflow-hidden z-50">
+                      <div className="absolute bottom-full right-0 mb-2 w-56 bg-card rounded-lg border border-border overflow-hidden z-50">
                         {/* Sleep Timer */}
                         <button
                           onClick={() => {
@@ -478,7 +486,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
 
                           {/* Speed submenu */}
                           {showSpeedMenu && (
-                            <div className="absolute left-full bottom-0 ml-1 w-24 bg-card rounded-lg shadow-xl border border-border overflow-hidden">
+                            <div className="absolute left-full bottom-0 ml-1 w-24 bg-card rounded-lg border border-border overflow-hidden">
                               {speedOptions.map(speed => (
                                 <button
                                   key={speed}
@@ -543,7 +551,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                   <MoreVertical className="w-5 h-5" />
                 </button>
                 {showSettingsMenu && (
-                  <div className="absolute top-full right-0 mt-2 w-52 bg-card rounded-xl shadow-xl border border-border overflow-hidden z-50">
+                  <div className="absolute top-full right-0 mt-2 w-52 bg-card rounded-xl border border-border overflow-hidden z-50">
                     <button
                       onClick={() => { setShowSleepTimer(true); setShowSettingsMenu(false); }}
                       className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition text-left"
@@ -582,7 +590,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
             <div className="flex-1 flex flex-col px-6 pb-6 overflow-hidden">
               {/* Cover Art - Large, almost full width */}
               <div className="flex-shrink-0 flex justify-center py-4">
-                <div className="w-full max-w-[280px] aspect-square rounded-2xl overflow-hidden shadow-2xl">
+                <div className="w-full max-w-[280px] aspect-square rounded-2xl overflow-hidden ">
                   {currentTrack.coverImage ? (
                     <img
                       src={currentTrack.coverImage}
@@ -637,7 +645,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
 
                 <button
                   onClick={() => { impact('medium'); togglePlay(); }}
-                  className="p-5 rounded-full bg-foreground text-background active:scale-95 transition shadow-lg"
+                  className="p-5 rounded-full bg-foreground text-background active:scale-95 transition"
                 >
                   {isPlaying ? (
                     <Pause className="w-8 h-8" fill="currentColor" />
@@ -714,119 +722,86 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
           </div>
         )}
 
-        {/* Mini Player (Compact) */}
+        {/* Mini Player — Telegram-style compact bar (~40px) */}
         {!isExpanded && (
-          <div className="mx-3 mb-3 px-4 py-3 rounded-full bg-background/60 backdrop-blur-xl border border-white/10 shadow-lg safe-bottom">
-            <div className="max-w-6xl mx-auto">
-              {/* Progress bar (thin waveform) */}
-              <WaveformProgressBar
-                audioUrl={currentTrack.src}
-                currentTime={currentTime}
-                duration={duration}
-                onSeek={seek}
-                variant="mini"
-                className="mb-3"
+          <div className="bg-background/95 backdrop-blur-md safe-bottom">
+            {/* Thin progress bar at the very top of the player */}
+            <div
+              className="h-[3px] bg-muted cursor-pointer relative"
+              onClick={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const ratio = (e.clientX - rect.left) / rect.width;
+                seek(ratio * duration);
+              }}
+            >
+              <div
+                className="h-full bg-primary transition-[width] duration-150"
+                style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
               />
+            </div>
 
-              <div className="flex items-center gap-2 md:gap-4">
-                {/* Track Info + Cover - shrinks on mobile to give space for controls */}
-                <div
-                  className="flex items-center gap-2 md:gap-3 min-w-0 cursor-pointer flex-shrink md:flex-shrink-0 md:w-auto"
-                  onClick={() => setIsExpanded(true)}
-                >
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg overflow-hidden flex-shrink-0 shadow-md">
-                    {currentTrack.coverImage ? (
-                      <img
-                        src={currentTrack.coverImage}
-                        alt={currentTrack.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center">
-                        <Music className="w-5 h-5 md:w-6 md:h-6 text-primary-foreground/50" />
-                      </div>
-                    )}
-                  </div>
+            <div className="flex items-center gap-1 px-3 h-10 max-w-6xl mx-auto">
+              {/* Play/Pause — primary action */}
+              <button
+                onClick={() => { impact('medium'); togglePlay(); }}
+                className="p-1.5 text-primary flex-shrink-0"
+              >
+                {isPlaying ? (
+                  <Pause className="w-5 h-5" />
+                ) : (
+                  <Play className="w-5 h-5 ml-0.5" />
+                )}
+              </button>
 
-                  <div className="min-w-0 hidden sm:block md:block">
-                    <p className="font-medium text-card-foreground truncate text-sm max-w-[120px] md:max-w-none">
-                      {currentTrack.title_uk || currentTrack.title}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate max-w-[120px] md:max-w-none">
-                      {currentTrack.artist || currentTrack.subtitle || currentTrack.title_en || 'VedaVoice'}
-                    </p>
-                  </div>
-                </div>
+              {/* Track title — clickable to expand */}
+              <button
+                onClick={() => setIsExpanded(true)}
+                className="flex-1 min-w-0 text-left px-2"
+              >
+                <p className="text-sm font-medium text-foreground truncate">
+                  {currentTrack.title_uk || currentTrack.title}
+                </p>
+              </button>
 
-                {/* Central Controls - visible on all devices */}
-                <div className="flex items-center justify-center gap-1 md:gap-2 flex-1">
-                  <button
-                    onClick={() => { impact('light'); prevTrack(); }}
-                    className="p-1.5 md:p-2 rounded-full hover:bg-muted transition"
-                  >
-                    <SkipBack className="w-4 h-4 md:w-5 md:h-5 text-card-foreground" />
-                  </button>
+              {/* Time display */}
+              <span className="text-xs text-muted-foreground tabular-nums flex-shrink-0 hidden sm:inline">
+                {formatTime(currentTime)} / {formatTime(duration)}
+              </span>
 
-                  <button
-                    onClick={() => { impact('medium'); togglePlay(); }}
-                    className="p-2 md:p-2.5 rounded-full bg-primary text-primary-foreground hover:scale-105 transition"
-                  >
-                    {isPlaying ? (
-                      <Pause className="w-5 h-5 md:w-5 md:h-5" />
-                    ) : (
-                      <Play className="w-5 h-5 md:w-5 md:h-5 ml-0.5" />
-                    )}
-                  </button>
+              {/* Speed button — first-class control (Telegram pattern) */}
+              <button
+                onClick={cycleSpeed}
+                className={`px-1.5 py-0.5 text-xs font-semibold rounded tabular-nums flex-shrink-0 transition ${
+                  playbackRate !== 1
+                    ? 'text-primary bg-primary/10'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+                title={language === 'uk' ? 'Швидкість відтворення' : 'Playback speed'}
+              >
+                {playbackRate}x
+              </button>
 
-                  <button
-                    onClick={() => { impact('light'); nextTrack(); }}
-                    className="p-1.5 md:p-2 rounded-full hover:bg-muted transition"
-                  >
-                    <SkipForward className="w-4 h-4 md:w-5 md:h-5 text-card-foreground" />
-                  </button>
-                </div>
+              {/* Skip controls */}
+              <button
+                onClick={() => { impact('light'); prevTrack(); }}
+                className="p-1.5 text-muted-foreground hover:text-foreground transition flex-shrink-0"
+              >
+                <SkipBack className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => { impact('light'); nextTrack(); }}
+                className="p-1.5 text-muted-foreground hover:text-foreground transition flex-shrink-0"
+              >
+                <SkipForward className="w-4 h-4" />
+              </button>
 
-                {/* Volume - visible on all devices but smaller on mobile */}
-                <div className="flex items-center gap-1 md:gap-2">
-                  <button
-                    onClick={toggleMute}
-                    className="text-muted-foreground hover:text-foreground transition p-1"
-                  >
-                    {isMuted || volume === 0 ?
-                      <VolumeX className="w-4 h-4 md:w-5 md:h-5" /> :
-                      <Volume2 className="w-4 h-4 md:w-5 md:h-5" />
-                    }
-                  </button>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={volume}
-                    onChange={(e) => changeVolume(Number(e.target.value))}
-                    className="w-12 md:w-20 h-1 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
-                  />
-                </div>
-
-                {/* Sleep Timer - visible on all devices */}
-                <div className="flex-shrink-0">
-                  <SleepTimerIndicator onClick={() => setShowSleepTimer(true)} />
-                </div>
-
-                {/* Time - hidden on mobile, shown on tablet+ */}
-                <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground flex-shrink-0">
-                  <span>{formatTime(currentTime)}</span>
-                  <span>/</span>
-                  <span>{formatTime(duration)}</span>
-                </div>
-
-                {/* Expand button - mobile only */}
-                <button
-                  onClick={() => setIsExpanded(true)}
-                  className="md:hidden p-1.5 rounded-full hover:bg-muted transition text-muted-foreground"
-                >
-                  <ChevronUp className="w-5 h-5" />
-                </button>
-              </div>
+              {/* Close/dismiss */}
+              <button
+                onClick={() => setIsExpanded(true)}
+                className="p-1.5 text-muted-foreground hover:text-foreground transition flex-shrink-0"
+              >
+                <ChevronUp className="w-4 h-4" />
+              </button>
             </div>
           </div>
         )}

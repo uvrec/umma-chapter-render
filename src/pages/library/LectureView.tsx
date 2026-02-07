@@ -40,6 +40,7 @@ import {
 import { AudioUploader } from "@/components/admin/shared/AudioUploader";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
+import { useSectionMemento } from "@/hooks/useSectionMemento";
 import { ContentToolbar } from "@/components/ContentToolbar";
 import { useAudio } from "@/contexts/ModernAudioContext";
 import { sanitizeForRender } from "@/utils/import/normalizers";
@@ -51,6 +52,7 @@ export const LectureView = () => {
   const { isAdmin } = useAuth();
   const { language, getLocalizedPath } = useLanguage();
   const { dualLanguageMode } = useReaderSettings();
+  useSectionMemento(); // Preserve scroll position when navigating away and back
   const [currentParagraph, setCurrentParagraph] = useState<number | null>(null);
   const paragraphRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
 
