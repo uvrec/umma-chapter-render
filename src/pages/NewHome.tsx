@@ -18,7 +18,7 @@ import { InlineBannerEditor } from "@/components/InlineBannerEditor";
 import { Button } from "@/components/ui/button";
 import { DailyQuoteBanner } from "@/components/DailyQuoteBanner";
 import { ContinueReadingSection } from "@/components/ContinueReadingSection";
-import { Headphones, BookOpen, Play, Pause, Clock, ArrowRight, ChevronDown, ExternalLink } from "lucide-react";
+import { Headphones, BookOpen, Play, Pause, Clock, ArrowRight, ExternalLink } from "lucide-react";
 import { HomeSearchBar } from "@/components/HomeSearchBar";
 import { QuickActions } from "@/components/QuickActions";
 import { openExternal } from "@/lib/openExternal";
@@ -175,11 +175,6 @@ function Hero() {
         <div className="mt-4 sm:mt-6 mx-auto max-w-5xl sm:max-w-6xl px-2 sm:px-4">
           <HomeSearchBar className="mb-2 sm:mb-4" />
         </div>
-      </div>
-
-      {/* Scroll indicator - ховається на малих екранах */}
-      <div className="hidden sm:block absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 transform animate-bounce">
-        <ChevronDown className="h-6 w-6 sm:h-8 sm:w-8 text-white/70" />
       </div>
     </section>;
 }
