@@ -7,6 +7,7 @@
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
 import { Capacitor } from '@capacitor/core';
 import { CapacitorSQLite, SQLiteConnection, SQLiteDBConnection } from '@capacitor-community/sqlite';
+import { indexChapterVerses, removeChapterIndex, clearSearchIndex, IndexableVerse } from './offlineSearchService';
 
 // Types
 export interface CachedChapter {
@@ -146,7 +147,7 @@ async function initSQLite(): Promise<SQLiteDBConnection | null> {
 // ========================
 
 /**
- * Зберегти главу в офлайн-кеш
+ * Зберегти главу в офлайн-кеш та проіндексувати для пошуку
  */
 export async function cacheChapter(chapter: CachedChapter): Promise<void> {
   const chapterWithTimestamp = {
@@ -161,11 +162,13 @@ export async function cacheChapter(chapter: CachedChapter): Promise<void> {
       const idb = await getIndexedDB();
       await idb.put('chapters', chapterWithTimestamp);
       await cleanupOldChapters();
+      // Індексуємо для офлайн-пошуку (веб-fallback)
+      await indexChapterForSearch(chapterWithTimestamp);
       return;
     }
 
     const query = `
-      INSERT OR REPLACE INTO chapters 
+      INSERT OR REPLACE INTO chapters
       (id, bookId, bookSlug, cantoId, chapterNumber, titleUk, titleEn, contentUk, contentEn, versesJson, cachedAt, lastReadAt)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
@@ -191,6 +194,9 @@ export async function cacheChapter(chapter: CachedChapter): Promise<void> {
     await db.put('chapters', chapterWithTimestamp);
     await cleanupOldChapters();
   }
+
+  // Індексуємо вірші для FTS5 пошуку
+  await indexChapterForSearch(chapterWithTimestamp);
 }
 
 /**
@@ -273,7 +279,7 @@ export async function getRecentlyReadChapters(limit: number = 5): Promise<Cached
 }
 
 /**
- * Видалити главу з кешу
+ * Видалити главу з кешу та пошукового індексу
  */
 export async function removeCachedChapter(chapterId: string): Promise<void> {
   if (isNative()) {
@@ -281,6 +287,7 @@ export async function removeCachedChapter(chapterId: string): Promise<void> {
     if (!db) {
       const idb = await getIndexedDB();
       await idb.delete('chapters', chapterId);
+      await removeChapterIndex(chapterId);
       return;
     }
 
@@ -289,6 +296,8 @@ export async function removeCachedChapter(chapterId: string): Promise<void> {
     const db = await getIndexedDB();
     await db.delete('chapters', chapterId);
   }
+
+  await removeChapterIndex(chapterId);
 }
 
 /**
@@ -325,7 +334,7 @@ export async function getCacheSize(): Promise<number> {
 }
 
 /**
- * Очистити весь кеш
+ * Очистити весь кеш та пошуковий індекс
  */
 export async function clearAllCache(): Promise<void> {
   if (isNative()) {
@@ -333,6 +342,7 @@ export async function clearAllCache(): Promise<void> {
     if (!db) {
       const idb = await getIndexedDB();
       await idb.clear('chapters');
+      await clearSearchIndex();
       return;
     }
 
@@ -340,5 +350,50 @@ export async function clearAllCache(): Promise<void> {
   } else {
     const db = await getIndexedDB();
     await db.clear('chapters');
+  }
+
+  await clearSearchIndex();
+}
+
+// ========================
+// Search Index Helper
+// ========================
+
+/**
+ * Індексувати вірші глави для офлайн-пошуку
+ */
+async function indexChapterForSearch(chapter: CachedChapter): Promise<void> {
+  try {
+    let rawVerses: Record<string, string | undefined>[];
+    try {
+      rawVerses = JSON.parse(chapter.versesJson || '[]');
+    } catch {
+      return;
+    }
+
+    if (rawVerses.length === 0) return;
+
+    const indexableVerses: IndexableVerse[] = rawVerses.map((v) => ({
+      id: v.id,
+      chapterId: chapter.id,
+      bookId: chapter.bookId,
+      bookSlug: chapter.bookSlug,
+      verseNumber: v.verse_number || '',
+      chapterNumber: chapter.chapterNumber,
+      cantoNumber: undefined,
+      translationUk: v.translation_uk,
+      translationEn: v.translation_en,
+      commentaryUk: v.commentary_uk,
+      commentaryEn: v.commentary_en,
+      synonymsUk: v.synonyms_uk,
+      synonymsEn: v.synonyms_en,
+      sanskrit: v.sanskrit_uk || v.sanskrit_en,
+      transliteration: v.transliteration_uk || v.transliteration_en,
+    }));
+
+    await indexChapterVerses(indexableVerses, chapter.id, chapter.bookId);
+  } catch (error) {
+    console.error('[offlineCache] FTS index error:', error);
+    // Не блокуємо кешування якщо індексація не вдалась
   }
 }

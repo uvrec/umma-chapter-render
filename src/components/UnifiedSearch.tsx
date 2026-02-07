@@ -22,11 +22,12 @@ import {
   CommandSeparator,
 } from '@/components/ui/command';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, BookOpen, FileText, Clock, X, ArrowRight, Sparkles } from 'lucide-react';
+import { Loader2, BookOpen, FileText, Clock, X, ArrowRight, Sparkles, WifiOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSearchHistory } from '@/hooks/useSearchHistory';
 import { useDebounce } from '@/hooks/useDebounce';
+import { offlineSearch, isOfflineSearchAvailable, OfflineSearchResult } from '@/services/offlineSearchService';
 
 interface SuggestionResult {
   suggestion: string;
@@ -56,6 +57,27 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 300);
   const { history, addToHistory, removeFromHistory, clearHistory } = useSearchHistory();
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [offlineAvailable, setOfflineAvailable] = useState(false);
+
+  // Відстежуємо онлайн/офлайн статус
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // Перевіряємо чи є офлайн-дані
+  useEffect(() => {
+    if (open) {
+      isOfflineSearchAvailable().then(setOfflineAvailable);
+    }
+  }, [open]);
 
   // Скидаємо query при закритті
   useEffect(() => {
@@ -253,26 +275,64 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
     return searchResults;
   };
 
+  // Офлайн-пошук (коли немає мережі і є завантажені дані)
+  const { data: offlineResults = [], isLoading: isLoadingOffline } = useQuery({
+    queryKey: ['offline-search', debouncedQuery, language],
+    queryFn: async (): Promise<UnifiedSearchResult[]> => {
+      if (!debouncedQuery || debouncedQuery.length < 2) return [];
+
+      const offResults = await offlineSearch(debouncedQuery, {
+        language,
+        limit: 15,
+      });
+
+      return offResults.map((r: OfflineSearchResult) => {
+        const href = r.cantoNumber
+          ? getLocalizedPath(`/lib/${r.bookSlug}/${r.cantoNumber}/${r.chapterNumber}/${r.verseNumber}`)
+          : getLocalizedPath(`/lib/${r.bookSlug}/${r.chapterNumber}/${r.verseNumber}`);
+
+        return {
+          result_type: 'verse' as const,
+          result_id: r.verseId,
+          title: r.cantoNumber
+            ? `${r.bookSlug.toUpperCase()} ${r.cantoNumber}.${r.chapterNumber}.${r.verseNumber}`
+            : `${r.bookSlug.toUpperCase()} ${r.chapterNumber}.${r.verseNumber}`,
+          subtitle: r.matchedField.replace(/_uk|_en/g, ''),
+          snippet: r.snippet,
+          href,
+          relevance: -r.rank,
+          matched_in: [r.matchedField],
+        };
+      });
+    },
+    enabled: !isOnline && offlineAvailable && debouncedQuery.length >= 2,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Використовуємо офлайн-результати коли немає мережі
+  const activeResults = !isOnline && offlineAvailable ? offlineResults : results;
+  const activeLoading = !isOnline ? isLoadingOffline : isLoading;
+
   // Групуємо результати по типу
   const groupedResults = useMemo(() => {
     return {
-      verses: results.filter((r) => r.result_type === 'verse'),
-      blog: results.filter((r) => r.result_type === 'blog'),
-      lectures: results.filter((r) => r.result_type === 'lecture'),
-      letters: results.filter((r) => r.result_type === 'letter'),
+      verses: activeResults.filter((r) => r.result_type === 'verse'),
+      blog: activeResults.filter((r) => r.result_type === 'blog'),
+      lectures: activeResults.filter((r) => r.result_type === 'lecture'),
+      letters: activeResults.filter((r) => r.result_type === 'letter'),
     };
-  }, [results]);
+  }, [activeResults]);
 
   // Обробка вибору результату
   const handleSelect = useCallback(
     (href: string) => {
       if (query.trim().length >= 2) {
-        addToHistory(query.trim(), results.length);
+        addToHistory(query.trim(), activeResults.length);
       }
       navigate(href);
       onOpenChange(false);
     },
-    [query, results.length, addToHistory, navigate, onOpenChange]
+    [query, activeResults.length, addToHistory, navigate, onOpenChange]
   );
 
   // Вибір з історії
@@ -299,7 +359,7 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
     }
   };
 
-  const hasResults = results.length > 0;
+  const hasResults = activeResults.length > 0;
   const showHistory = !query && history.length > 0;
 
   return (
@@ -310,8 +370,16 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
         onValueChange={setQuery}
       />
       <CommandList className="max-h-[400px]">
+        {/* Офлайн-індикатор */}
+        {!isOnline && offlineAvailable && (
+          <div className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground">
+            <WifiOff className="h-3 w-3" />
+            {t('Офлайн-пошук по завантажених книгах', 'Offline search in downloaded books')}
+          </div>
+        )}
+
         {/* Стан завантаження */}
-        {isLoading && (
+        {activeLoading && (
           <div className="flex items-center justify-center py-6">
             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             <span className="ml-2 text-sm text-muted-foreground">
@@ -391,14 +459,16 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
         )}
 
         {/* Порожній стан */}
-        {!isLoading && query.length >= 2 && !hasResults && (
+        {!activeLoading && query.length >= 2 && !hasResults && (
           <CommandEmpty>
-            {t('Нічого не знайдено. Спробуйте інший запит.', 'No results found. Try another query.')}
+            {!isOnline && !offlineAvailable
+              ? t('Немає мережі та завантажених книг для пошуку', 'No network and no downloaded books for search')
+              : t('Нічого не знайдено. Спробуйте інший запит.', 'No results found. Try another query.')}
           </CommandEmpty>
         )}
 
         {/* Підказка для короткого запиту (тільки якщо немає підказок) */}
-        {!isLoading && query.length > 0 && query.length < 2 && suggestions.length === 0 && !isLoadingSuggestions && (
+        {!activeLoading && query.length > 0 && query.length < 2 && suggestions.length === 0 && !isLoadingSuggestions && (
           <CommandEmpty>
             {t('Введіть мінімум 2 символи', 'Enter at least 2 characters')}
           </CommandEmpty>
