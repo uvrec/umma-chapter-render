@@ -61,7 +61,7 @@ export const LetterView = () => {
   const { data: letter, isLoading } = useQuery({
     queryKey: ["letter", slug],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("letters")
         .select("*")
         .eq("slug", slug)
@@ -88,7 +88,7 @@ export const LetterView = () => {
       if (editedLetter.letter_date !== letter.letter_date) updates.letter_date = editedLetter.letter_date;
 
       if (Object.keys(updates).length > 0) {
-        const { error } = await (supabase as any)
+        const { error } = await supabase
           .from("letters")
           .update(updates)
           .eq("id", letter.id);

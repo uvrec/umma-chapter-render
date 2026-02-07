@@ -579,6 +579,7 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
 /**
  * Hook для глобального пошуку з Cmd+K / Ctrl+K
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useUnifiedSearch() {
   const [open, setOpen] = useState(false);
 
