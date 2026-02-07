@@ -29,12 +29,12 @@ import type {
 // Очистити HTML теги для превью
 const stripHtmlTags = (html: string): string => {
   return html
-    .replace(/<[^>]*>/g, '') // Видалити всі HTML теги
     .replace(/&nbsp;/g, ' ') // Замінити &nbsp; на пробіл
     .replace(/&amp;/g, '&')  // Декодувати &amp;
     .replace(/&lt;/g, '<')   // Декодувати &lt;
     .replace(/&gt;/g, '>')   // Декодувати &gt;
     .replace(/&quot;/g, '"') // Декодувати &quot;
+    .replace(/<[^>]*>/g, '') // Видалити всі HTML теги (після декодування entities!)
     .replace(/\s+/g, ' ')    // Нормалізувати пробіли
     .trim();
 };

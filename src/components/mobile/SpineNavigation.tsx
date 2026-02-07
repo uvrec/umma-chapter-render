@@ -329,7 +329,7 @@ export function SpineNavigation({
                   aria-label={btn.label}
                   aria-pressed={btn.active}
                 >
-                  <Icon className="h-6 w-6" strokeWidth={2.5} />
+                  <Icon className="h-7 w-7" strokeWidth={1.5} />
                 </button>
               );
             })}
