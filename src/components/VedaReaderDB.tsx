@@ -4,7 +4,7 @@
 import { useEffect, useLayoutEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle, GraduationCap, X, Maximize, Leaf, Copy, Link, Presentation } from "lucide-react";
+import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle, GraduationCap, Maximize, Leaf, Copy, Link, Presentation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { VerseCard } from "@/components/VerseCard";
 import { DualLanguageVerseCard } from "@/components/DualLanguageVerseCard";
@@ -1449,26 +1449,6 @@ export const VedaReaderDB = () => {
   // Не потрібно встановлювати inline font-size на контейнер
 
   return <div className="min-h-screen bg-background">
-      {/* Кнопка виходу з presentation/zen/fullscreen режиму */}
-      {(presentationMode || zenMode || fullscreenMode) && (
-        <button
-          onClick={() => {
-            if (presentationMode) setPresentationMode(false);
-            else if (zenMode) setZenMode(false);
-            else setFullscreenMode(false);
-          }}
-          className={presentationMode ? "presentation-exit-btn" : (zenMode ? "zen-exit-btn" : "fullscreen-exit-btn")}
-          title={presentationMode
-            ? t("Вийти з презентації (Esc)", "Exit presentation (Esc)")
-            : (zenMode
-              ? t("Вийти з Zen режиму (Esc)", "Exit Zen mode (Esc)")
-              : t("Вийти з повноекранного режиму (Esc)", "Exit fullscreen (Esc)")
-            )
-          }
-        >
-          <X className="h-5 w-5" />
-        </button>
-      )}
 
       <Header />
 

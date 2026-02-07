@@ -164,6 +164,15 @@ function AppContent() {
     document.documentElement.setAttribute('data-zen-mode', 'false');
     document.documentElement.setAttribute('data-presentation-mode', 'false');
 
+    // Скидаємо localStorage щоб useReaderSettings не відновлював режими на інших сторінках
+    try {
+      localStorage.setItem('vv_reader_fullscreenMode', 'false');
+      localStorage.setItem('vv_reader_zenMode', 'false');
+      localStorage.setItem('vv_reader_presentationMode', 'false');
+    } catch {
+      // localStorage may not be available
+    }
+
     // Завантажуємо та застосовуємо налаштування типографіки з адмінки
     const typographyConfig = loadAdminTypography();
     applyAdminTypographyToCSS(typographyConfig);
