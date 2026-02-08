@@ -4,11 +4,10 @@
 import { useEffect, useLayoutEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle, GraduationCap, Maximize, Leaf, Copy, Link, Presentation } from "lucide-react";
+import { ChevronLeft, ChevronRight, Languages, Bookmark, Share2, Download, Home, Highlighter, HelpCircle, GraduationCap, Maximize, Leaf, Copy, Link, Presentation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { VerseCard } from "@/components/VerseCard";
 import { DualLanguageVerseCard } from "@/components/DualLanguageVerseCard";
-import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 import { Header } from "@/components/Header";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { supabase } from "@/integrations/supabase/client";
@@ -94,7 +93,7 @@ export const VedaReaderDB = () => {
   const [searchParams] = useSearchParams();
   const previewToken = searchParams.get('preview');
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  // settingsOpen removed — settings accessible from Header gear icon
 
   // Bookmark state
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -1518,8 +1517,8 @@ export const VedaReaderDB = () => {
                 <Button variant="ghost" size="icon" onClick={() => setFullscreenMode(!fullscreenMode)} title={t("Повноекранний режим (f)", "Fullscreen mode (f)")}>
                   <Maximize className={`h-5 w-5 ${fullscreenMode ? "text-primary" : ""}`} />
                 </Button>
-                <Button variant="ghost" size="icon" onClick={() => setSettingsOpen(true)} title={t("Налаштування", "Settings")}>
-                  <Settings className="h-5 w-5" />
+                <Button variant={dualLanguageMode ? "secondary" : "ghost"} size="icon" onClick={() => setDualLanguageMode(!dualLanguageMode)} title={t("Двомовний режим", "Dual language")}>
+                  <Languages className="h-5 w-5" />
                 </Button>
               </div>
             </div>
@@ -1807,12 +1806,6 @@ export const VedaReaderDB = () => {
           </div>
         ) : null}
       </div>
-
-      <GlobalSettingsPanel
-        isOpen={settingsOpen}
-        onOpenChange={setSettingsOpen}
-        showFloatingButton={false}
-      />
 
       <SelectionTooltip
         isVisible={selectionTooltipVisible}

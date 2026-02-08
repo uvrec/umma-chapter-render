@@ -697,7 +697,7 @@ export const EnhancedInlineEditor = ({
 
       {/* STICKY TOOLBAR - завжди видимий, поза скрольним контейнером */}
       {editable && (
-        <div className="sticky top-0 flex-shrink-0 z-40 flex flex-col gap-2 border-b bg-background/95 backdrop-blur-sm px-4 py-2 rounded-t-md">
+        <div className="sticky top-[4.5rem] flex-shrink-0 z-40 flex flex-col gap-2 border-b bg-background/95 backdrop-blur-sm px-4 py-2 rounded-t-md">
           {label && <span className="text-sm font-medium text-muted-foreground">{label}</span>}
 
           <div className={`flex flex-wrap gap-1 ${compact ? "gap-0.5" : "gap-1"}`}>
