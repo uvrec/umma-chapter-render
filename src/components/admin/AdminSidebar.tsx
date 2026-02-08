@@ -39,6 +39,7 @@ import {
   Calendar,
   Target,
   Calculator,
+  BarChart3,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -99,6 +100,7 @@ const navGroups: NavGroup[] = [
     title: "Інструменти",
     items: [
       { title: "Нумерологія", href: "/admin/numcal", icon: Calculator },
+      { title: "Стат. нумерології", href: "/admin/numerology-stats", icon: BarChart3 },
       { title: "Календар", href: "/admin/calendar", icon: Calendar },
       { title: "Садгана трекер", href: "/admin/sadhana", icon: Target },
     ],

@@ -8,6 +8,7 @@ import { calculateNumCal, isValidBirthDate, formatDate, NumCalResult } from "@/u
 import { numberDescriptions, actionNumberDescriptions, realizationNumberDescriptions, resultNumberDescriptions, lastYearDigitDescriptions, personalYearDescriptions, personalMonthDescriptions, personalDayDescriptions } from "@/utils/numberDescriptions";
 import { toast } from "@/hooks/use-toast";
 import { Calendar } from "lucide-react";
+import { trackNumerologyCalculation } from "@/services/numerologyTracking";
 
 /**
  * NumCal - Нумерологічний калькулятор
@@ -39,6 +40,16 @@ const Numerology = () => {
 
     const calculatedResult = calculateNumCal(date);
     setResult(calculatedResult);
+
+    trackNumerologyCalculation({
+      tool_type: "numcal",
+      birth_date: birthDate,
+      mind_number: calculatedResult.mindNumber,
+      action_number: calculatedResult.actionNumber,
+      realization_number: calculatedResult.realizationNumber,
+      result_number: calculatedResult.resultNumber,
+      formatted: calculatedResult.formatted,
+    });
 
     toast({
       title: "Розрахунок виконано",
