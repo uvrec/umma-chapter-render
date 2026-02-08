@@ -1,7 +1,6 @@
 // src/components/DailyQuoteBanner.tsx
 import { useEffect, useState } from "react";
 import { useDailyQuote } from "@/hooks/useDailyQuote";
-import { Quote } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -53,25 +52,20 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
     >
 
       <div className="relative p-3 md:p-4 -mt-0.5">
-        {/* Іконка лапок */}
-        <div className="absolute top-3 left-3 text-white/10 dark:text-white/5">
-          <Quote className="w-6 h-6 md:w-8 md:h-8" strokeWidth={1.5} />
-        </div>
-
-        <div className="relative z-10 space-y-2 max-w-5xl mx-auto">
+        <div className="relative z-10 space-y-2 max-w-4xl mx-auto">
 
           {/* Санскрит/Транслітерація (якщо вірш) */}
           {quote.sanskrit && (
-            <div className="text-center space-y-2 pb-3 border-b border-white/20 dark:border-white/10">
+            <div className="text-center space-y-2 pb-3 border-b border-white/15">
               <p
-                className="font-sanskrit leading-relaxed font-semibold text-white/90"
+                className="font-sanskrit leading-relaxed font-semibold text-white/80"
                 style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)' }}
               >
                 {quote.sanskrit}
               </p>
               {quote.transliteration && (
                 <p
-                  className="italic font-medium text-white/80"
+                  className="italic font-medium text-white/60"
                   style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}
                 >
                   {quote.transliteration}
@@ -83,24 +77,30 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
           {/* Основна цитата */}
           <blockquote className="space-y-3">
             <p
-              className="text-center leading-relaxed font-serif font-semibold tracking-tight text-white/90"
+              className="text-center leading-snug italic text-white/90"
               style={{
+                fontFamily: '"Cormorant Garamond", Georgia, serif',
+                fontWeight: 500,
                 fontSize: quote.sanskrit
-                  ? 'clamp(1rem, 3vw, 1.25rem)'
-                  : 'clamp(1.125rem, 3.5vw, 1.5rem)',
+                  ? 'clamp(1.25rem, 3.5vw, 1.75rem)'
+                  : 'clamp(1.5rem, 4vw, 2rem)',
+                letterSpacing: '0.01em',
               }}
             >
-              <span className="relative inline-block">
-                <span className="relative">"{quote.text}"</span>
-              </span>
+              "{quote.text}"
             </p>
 
             {/* Автор і джерело */}
-            <footer className="flex flex-col items-center gap-2 pt-3">
+            <footer className="flex flex-col items-center gap-1.5 pt-2">
               {quote.author && (
                 <cite
-                  className="not-italic font-semibold tracking-wide text-white/80"
-                  style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1rem)' }}
+                  className="not-italic text-white/60"
+                  style={{
+                    fontFamily: '"Cormorant Garamond", Georgia, serif',
+                    fontWeight: 600,
+                    fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
+                    letterSpacing: '0.05em',
+                  }}
                 >
                   — {quote.author}
                 </cite>
@@ -109,7 +109,10 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
               {quote.source && (
                 <cite
                   className="not-italic block text-center"
-                  style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}
+                  style={{
+                    fontFamily: '"Cormorant Garamond", Georgia, serif',
+                    fontSize: 'clamp(0.8rem, 2vw, 0.9rem)',
+                  }}
                 >
                   {quote.link ? (
                     <Link
