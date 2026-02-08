@@ -1003,7 +1003,7 @@ export const ChapterVersesList = () => {
                               }}
                             />
                             <div
-                              className="prose prose-slate dark:prose-invert max-w-none border-l border-border pl-6"
+                              className="prose prose-slate dark:prose-invert max-w-none "
                               dangerouslySetInnerHTML={{
                                 __html: sanitizeForRender(paraEn || '<span class="italic text-muted-foreground">—</span>'),
                               }}
@@ -1126,7 +1126,7 @@ export const ChapterVersesList = () => {
                           )}
                         </p>
                         {/* English */}
-                        <p className="text-foreground text-justify leading-relaxed border-l border-border pl-6">
+                        <p className="text-foreground text-justify leading-relaxed ">
                           {showNumbers && (
                             <>
                               <Link to={getVerseUrl(verse.verse_number)} className="text-primary font-semibold hover:text-primary/80 transition-colors">
@@ -1164,7 +1164,7 @@ export const ChapterVersesList = () => {
                           )
                         )}
                       </p>
-                      <p className="text-foreground text-justify leading-relaxed border-l border-border pl-6">
+                      <p className="text-foreground text-justify leading-relaxed ">
                         {showNumbers && (<><Link to={getVerseUrl(verse.verse_number)} className="text-primary font-semibold hover:text-primary/80 transition-colors">Text {verse.verse_number}:</Link>{" "}</>)}
                         {stripParagraphTags(translationEn) || (<span className="italic text-muted-foreground">No translation</span>)}
                       </p>
@@ -1286,11 +1286,8 @@ export const ChapterVersesList = () => {
       </main>
       <Footer />
 
-      <GlobalSettingsPanel
-        isOpen={settingsOpen}
-        onOpenChange={setSettingsOpen}
-        showFloatingButton={false}
-      />
+
+      <GlobalSettingsPanel isOpen={settingsOpen} onOpenChange={setSettingsOpen} showFloatingButton={false} />
 
       {/* Mobile Verse Slider - бокова стрічка навігації */}
       {isMobile && verses.length > 0 && (

@@ -3,8 +3,8 @@
  * Використовується в Library.tsx та LecturesLibrary.tsx
  */
 
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +32,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 export const LecturesContent = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { language, t, getLocalizedPath } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<LectureFilters>({
@@ -44,6 +45,24 @@ export const LecturesContent = () => {
     sortOrder: "desc",
   });
   const [groupBy, setGroupBy] = useState<"date" | "location" | "type">("date");
+
+  // Initialize filters from URL params (from clickable metadata on lecture pages)
+  useEffect(() => {
+    const urlType = searchParams.get("type");
+    const urlLocation = searchParams.get("location");
+    const urlYearFrom = searchParams.get("yearFrom");
+    const urlYearTo = searchParams.get("yearTo");
+
+    if (urlType || urlLocation || urlYearFrom || urlYearTo) {
+      setFilters(prev => ({
+        ...prev,
+        type: urlType || prev.type,
+        location: urlLocation || prev.location,
+        dateFrom: urlYearFrom ? `${urlYearFrom}-01-01` : prev.dateFrom,
+        dateTo: urlYearTo ? `${urlYearTo}-12-31` : prev.dateTo,
+      }));
+    }
+  }, [searchParams]);
 
   // Завантаження лекцій з БД
   const { data: lectures = [], isLoading } = useQuery({
