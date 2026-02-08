@@ -16,7 +16,6 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,7 +31,7 @@ import {
   Pause,
   ChevronLeft,
   ChevronRight,
-  Volume2,
+
   Edit,
   Save,
   X,
@@ -416,12 +415,6 @@ export const LectureView = () => {
 
         {/* Заголовок лекції */}
         <div className="mb-8">
-          <div className="mb-4">
-            <Badge variant="secondary" className="mb-2">
-              {lecture.lecture_type}
-            </Badge>
-          </div>
-
           {isEditing && editedLecture ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
@@ -445,11 +438,17 @@ export const LectureView = () => {
             <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-center font-serif text-primary mb-4">{title}</h1>
           )}
 
-          <div className="flex flex-wrap justify-center gap-4 text-muted-foreground">
-            <div className="flex items-center">
-              <Calendar className="w-5 h-5 mr-2" />
+          <div className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground">
+            <button
+              onClick={() => {
+                const year = new Date(lecture.lecture_date).getFullYear();
+                navigate(getLocalizedPath(`/library/lectures?yearFrom=${year}&yearTo=${year}`));
+              }}
+              className="flex items-center gap-2 hover:text-primary hover:underline underline-offset-2 transition-colors"
+            >
+              <Calendar className="w-4 h-4" />
               {formatDate(lecture.lecture_date)}
-            </div>
+            </button>
             {isEditing && editedLecture ? (
               <div className="flex items-center gap-4">
                 <div className="flex items-center">
@@ -469,18 +468,24 @@ export const LectureView = () => {
                 />
               </div>
             ) : (
-              <div className="flex items-center">
-                <MapPin className="w-5 h-5 mr-2" />
+              <button
+                onClick={() => navigate(getLocalizedPath(`/library/lectures?location=${encodeURIComponent(lecture.location_en)}`))}
+                className="flex items-center gap-2 hover:text-primary hover:underline underline-offset-2 transition-colors"
+              >
+                <MapPin className="w-4 h-4" />
                 {location}
-              </div>
+              </button>
             )}
             {lecture.book_slug && (
-              <div className="flex items-center">
-                <BookOpen className="w-5 h-5 mr-2" />
+              <button
+                onClick={() => navigate(getLocalizedPath(`/library/lectures?type=${encodeURIComponent(lecture.lecture_type)}`))}
+                className="flex items-center gap-2 hover:text-primary hover:underline underline-offset-2 transition-colors"
+              >
+                <BookOpen className="w-4 h-4" />
                 {lecture.book_slug.toUpperCase()}
                 {lecture.chapter_number && ` ${lecture.chapter_number}`}
                 {lecture.verse_number && `.${lecture.verse_number}`}
-              </div>
+              </button>
             )}
           </div>
 
@@ -497,31 +502,36 @@ export const LectureView = () => {
               />
             </div>
           ) : lecture.audio_url ? (
-            <div className="mt-6">
-              <div className="flex items-center space-x-4">
-                <Button
-                  size="lg"
-                  variant={isThisLecturePlaying ? "default" : "outline"}
-                  onClick={togglePlayPause}
-                  className="w-12 h-12 rounded-full"
-                >
-                  {isThisLecturePlaying ? (
-                    <Pause className="w-6 h-6" />
-                  ) : (
-                    <Play className="w-6 h-6" />
-                  )}
-                </Button>
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <Volume2 className="w-4 h-4 mr-2" />
-                  {language === "uk" ? "Аудіо лекція" : "Audio lecture"}
-                  {isThisLecturePlaying && (
-                    <span className="ml-2 text-primary animate-pulse">
-                      {language === "uk" ? "● Відтворюється" : "● Playing"}
-                    </span>
-                  )}
-                </div>
-              </div>
-              {/* Audio is now played through the global ModernGlobalPlayer */}
+            <div className="mt-6 flex justify-center">
+              <button
+                onClick={togglePlayPause}
+                className={`
+                  flex items-center gap-2 px-5 py-2.5 rounded-full transition-all duration-200
+                  ${isThisLecturePlaying
+                    ? 'bg-primary text-primary-foreground shadow-lg'
+                    : 'bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground'
+                  }
+                `}
+                aria-label={isThisLecturePlaying ? "Пауза" : "Слухати"}
+              >
+                {isThisLecturePlaying ? (
+                  <>
+                    <Pause className="w-4 h-4" />
+                    <div className="flex items-end gap-0.5 h-4">
+                      <div className="w-0.5 bg-current rounded animate-pulse" style={{ height: '40%' }} />
+                      <div className="w-0.5 bg-current rounded animate-pulse" style={{ height: '70%', animationDelay: '0.15s' }} />
+                      <div className="w-0.5 bg-current rounded animate-pulse" style={{ height: '100%', animationDelay: '0.3s' }} />
+                      <div className="w-0.5 bg-current rounded animate-pulse" style={{ height: '70%', animationDelay: '0.15s' }} />
+                      <div className="w-0.5 bg-current rounded animate-pulse" style={{ height: '40%' }} />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-4 h-4" />
+                    <span className="text-sm font-medium">{language === "uk" ? "Слухати" : "Listen"}</span>
+                  </>
+                )}
+              </button>
             </div>
           ) : null}
         </div>
@@ -576,7 +586,7 @@ export const LectureView = () => {
                   >
                     <div className={`grid md:grid-cols-2 gap-6 transition-colors ${isCurrentParagraph ? "bg-primary/10 -mx-2 px-2 py-1" : ""}`}>
                       <div className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: sanitizeForRender(hasUkContent ? paragraph.content_uk! : '<span class="text-muted-foreground/50">—</span>') }} />
-                      <div className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed border-l border-border pl-6" dangerouslySetInnerHTML={{ __html: sanitizeForRender(paragraph.content_en) }} />
+                      <div className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: sanitizeForRender(paragraph.content_en) }} />
                     </div>
                   </div>
                 );
@@ -590,7 +600,7 @@ export const LectureView = () => {
                 return (
                   <div key={paragraph.id} ref={(el) => (paragraphRefs.current[paragraph.paragraph_number] = el)} className={`grid md:grid-cols-2 gap-6 transition-colors ${isCurrentParagraph ? "bg-primary/10 -mx-2 px-2 py-1" : ""}`}>
                     <div className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: sanitizeForRender(hasUkContent ? paragraph.content_uk! : '<span class="text-muted-foreground/50">—</span>') }} />
-                    <div className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed border-l border-border pl-6" dangerouslySetInnerHTML={{ __html: sanitizeForRender(paragraph.content_en) }} />
+                    <div className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: sanitizeForRender(paragraph.content_en) }} />
                   </div>
                 );
               })}

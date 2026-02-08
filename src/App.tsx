@@ -17,7 +17,6 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { BooksProvider } from "@/contexts/BooksContext";
 
-import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 import { AudioProvider as ModernAudioProvider } from "@/contexts/ModernAudioContext";
 import { ModernGlobalPlayer } from "@/components/ModernGlobalPlayer";
 
@@ -482,7 +481,6 @@ function AppContent() {
         <OfflineIndicator />
         <PWAUpdatePrompt />
         <ModernGlobalPlayer />
-        <GlobalSettingsPanel showFloatingButton={false} />
         <UnifiedSearch open={searchOpen} onOpenChange={setSearchOpen} />
         <ReadingModeExitButton />
       </BrowserRouter>

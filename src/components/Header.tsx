@@ -1,7 +1,6 @@
-import { Menu, LogIn, Home, BookOpen, Book, MessageCircle, Languages, ChevronDown, ChevronRight, FileText, User, Plus, GraduationCap, BookMarked, Wand2, Wrench, Bot } from "lucide-react";
+import { Menu, LogIn, Home, BookOpen, Book, MessageCircle, Languages, ChevronDown, ChevronRight, FileText, User, Plus, GraduationCap, BookMarked, Wand2, Wrench, Bot, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -10,6 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useState } from "react";
 import { RefreshFeedButton } from "@/components/admin/RefreshFeedButton";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 
 // Wrapper component - only uses useIsMobile hook
 export const Header = () => {
@@ -27,6 +27,7 @@ export const Header = () => {
 function DesktopHeader() {
   const [open, setOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const {
     t,
     getLocalizedPath
@@ -109,7 +110,9 @@ function DesktopHeader() {
 
           {/* Desktop Controls - visible from lg (1024px+) */}
           <div className="hidden items-center gap-2 lg:flex">
-            <ThemeToggle />
+            <Button variant="ghost" size="icon" onClick={() => setSettingsOpen(true)} aria-label={t("Налаштування", "Settings")}>
+              <Settings className="h-5 w-5" />
+            </Button>
             {!user && <Button variant="outline" size="sm" asChild className={navBtn}>
                 <Link to="/auth" aria-label="Вхід">
                   <LogIn className="mr-2 h-4 w-4" />
@@ -225,5 +228,6 @@ function DesktopHeader() {
           </div>}
         {/* === /БЛОК ДІЙ === */}
       </div>
+      <GlobalSettingsPanel isOpen={settingsOpen} onOpenChange={setSettingsOpen} showFloatingButton={false} />
     </header>;
 }
