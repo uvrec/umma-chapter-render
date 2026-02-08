@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { createBirthDate } from "@/utils/numerology/birthDateProcessor";
 import { calculateNumerologyReading, getNumberInterpretation } from "@/utils/numerology/lifeNumberCalculator";
 import { NumerologyReading } from "@/types/numerology";
+import { trackNumerologyCalculation } from "@/services/numerologyTracking";
 
 export default function NumerologyCalculator() {
   const [day, setDay] = useState("");
@@ -28,6 +29,20 @@ export default function NumerologyCalculator() {
     const numerologyReading = calculateNumerologyReading(birthDate);
     setReading(numerologyReading);
     setShowInterpretation(true);
+
+    const d = String(birthDate.day).padStart(2, "0");
+    const m = String(birthDate.month).padStart(2, "0");
+    const y = String(birthDate.year);
+    trackNumerologyCalculation({
+      tool_type: "calculator",
+      birth_date: `${y}-${m}-${d}`,
+      mind_number: numerologyReading.numbers.consciousness,
+      action_number: numerologyReading.numbers.action,
+      realization_number: numerologyReading.numbers.realization,
+      result_number: numerologyReading.numbers.lifeNumber,
+      formatted: numerologyReading.notation,
+    });
+
     toast.success("Розрахунок виконано!");
   };
 

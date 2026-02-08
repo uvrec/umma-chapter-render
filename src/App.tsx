@@ -58,6 +58,7 @@ const BookExport = lazy(() => import("./pages/admin/BookExport"));
 const MergeNoiChapters = lazy(() => import("./pages/admin/MergeNoiChapters"));
 const Highlights = lazy(() => import("./pages/admin/Highlights"));
 const NumCal = lazy(() => import("./pages/admin/NumCal"));
+const NumerologyStats = lazy(() => import("./pages/admin/NumerologyStats"));
 const TypographyAdmin = lazy(() => import("./pages/admin/Typography"));
 const CalendarAdmin = lazy(() => import("./pages/admin/CalendarAdmin"));
 const SadhanaAdmin = lazy(() => import("./pages/admin/SadhanaAdmin"));
@@ -463,6 +464,7 @@ function AppContent() {
           <Route path="/admin/lectures" element={<LecturesManager />} />
           <Route path="/admin/letters" element={<LettersManager />} />
           <Route path="/admin/numcal" element={<NumCal />} />
+          <Route path="/admin/numerology-stats" element={<NumerologyStats />} />
           <Route path="/admin/typography" element={<TypographyAdmin />} />
           <Route path="/admin/calendar" element={<CalendarAdmin />} />
           <Route path="/admin/sadhana" element={<SadhanaAdmin />} />
