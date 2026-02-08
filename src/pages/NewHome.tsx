@@ -516,7 +516,7 @@ export const NewHome = () => {
       <main>
         <Hero />
         <QuickActions />
-        <div className="container mx-auto px-4 py-8">
+        <div className="mx-auto w-full max-w-6xl px-4 py-8">
           <ContinueReadingSection className="mb-8" maxItems={3} />
         </div>
         <LatestContent />
