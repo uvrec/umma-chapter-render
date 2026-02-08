@@ -7,6 +7,7 @@ import { BookOpen, Clock, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { cn } from '@/lib/utils';
 import {
   getRecentReadingPositions,
   getReadingUrl,
@@ -51,7 +52,7 @@ export function ContinueReadingSection({ className, maxItems = 3 }: ContinueRead
   };
 
   return (
-    <section className={className}>
+    <section className={cn("italic", className)}>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold flex items-center gap-2">
           <BookOpen className="h-5 w-5 text-primary" />

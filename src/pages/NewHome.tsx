@@ -152,7 +152,7 @@ function Hero() {
           )}
 
           {/* Daily Quote */}
-          <div className="mt-1.5 sm:mt-3.5 mx-auto max-w-5xl sm:max-w-6xl px-2 sm:px-4">
+          <div className="-mt-1 sm:mt-1 mx-auto max-w-5xl sm:max-w-6xl px-2 sm:px-4">
             <DailyQuoteBanner />
           </div>
 
@@ -516,7 +516,7 @@ export const NewHome = () => {
       <main>
         <Hero />
         <QuickActions />
-        <div className="container mx-auto px-4 py-8">
+        <div className="mx-auto w-full max-w-6xl px-4 py-8">
           <ContinueReadingSection className="mb-8" maxItems={3} />
         </div>
         <LatestContent />
