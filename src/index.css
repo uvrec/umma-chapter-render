@@ -14,7 +14,7 @@
 .site-header {
   position: -webkit-sticky !important; /* Safari prefix ПЕРЕД стандартним */
   position: sticky !important;
-  top: 0 !important;
+  top: 0.75rem !important;
   z-index: 50 !important;
 }
 
