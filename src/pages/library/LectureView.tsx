@@ -271,14 +271,26 @@ export const LectureView = () => {
       // Parse edited content into paragraphs
       const ukParagraphs = parseHtmlParagraphs(editedLecture.content_uk);
       const enParagraphs = parseHtmlParagraphs(editedLecture.content_en);
+      const maxParagraphs = Math.max(ukParagraphs.length, enParagraphs.length);
 
       // Update existing paragraphs
       const sortedParagraphs = [...paragraphs].sort((a, b) => a.paragraph_number - b.paragraph_number);
 
       for (let i = 0; i < sortedParagraphs.length; i++) {
         const paragraph = sortedParagraphs[i];
+
+        // Paragraph was deleted in editor — remove from DB
+        if (i >= maxParagraphs) {
+          const { error } = await supabase
+            .from("lecture_paragraphs")
+            .delete()
+            .eq("id", paragraph.id);
+          if (error) throw error;
+          continue;
+        }
+
         const newUk = ukParagraphs[i] || "";
-        const newEn = enParagraphs[i] || paragraph.content_en;
+        const newEn = enParagraphs[i] || "";
 
         const updates: Partial<LectureParagraph> = {};
         if (newUk !== paragraph.content_uk) updates.content_uk = newUk;
@@ -291,6 +303,19 @@ export const LectureView = () => {
             .eq("id", paragraph.id);
           if (error) throw error;
         }
+      }
+
+      // Add new paragraphs if more were created in editor
+      for (let i = sortedParagraphs.length; i < maxParagraphs; i++) {
+        const { error } = await supabase
+          .from("lecture_paragraphs")
+          .insert({
+            lecture_id: lecture.id,
+            paragraph_number: i + 1,
+            content_uk: ukParagraphs[i] || "",
+            content_en: enParagraphs[i] || "",
+          });
+        if (error) throw error;
       }
     },
     onSuccess: () => {
