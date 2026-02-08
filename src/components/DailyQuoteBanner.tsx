@@ -77,7 +77,7 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
           {/* Основна цитата */}
           <blockquote className="space-y-3">
             <p
-              className="text-center leading-snug italic text-white/90"
+              className="text-center leading-snug italic text-white/90 max-w-2xl mx-auto"
               style={{
                 fontFamily: '"Cormorant Garamond", Georgia, serif',
                 fontWeight: 500,
