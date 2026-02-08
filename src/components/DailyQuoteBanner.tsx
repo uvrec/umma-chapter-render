@@ -111,7 +111,7 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
                   className="not-italic block text-center"
                   style={{
                     fontFamily: '"Cormorant Garamond", Georgia, serif',
-                    fontSize: 'clamp(0.8rem, 2vw, 0.9rem)',
+                    fontSize: 'clamp(0.95rem, 2.5vw, 1.15rem)',
                   }}
                 >
                   {quote.link ? (
