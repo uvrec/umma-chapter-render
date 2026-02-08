@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Bookmark,
   BookmarkCheck,
-  Settings,
+  Languages,
   ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { BookDrawer } from "@/components/BookDrawer";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { cn } from "@/lib/utils";
 
 interface Chapter {
@@ -50,7 +51,6 @@ interface BookReaderHeaderProps {
   verses?: Verse[];
   isBookmarked?: boolean;
   onBookmarkToggle?: () => void;
-  onSettingsClick?: () => void;
   // For intro chapters (Introduction, Preface, etc.)
   introTitle?: string;
 }
@@ -65,10 +65,10 @@ export const BookReaderHeader = ({
   verses = [],
   isBookmarked = false,
   onBookmarkToggle,
-  onSettingsClick,
   introTitle,
 }: BookReaderHeaderProps) => {
   const { language, t, getLocalizedPath } = useLanguage();
+  const { dualLanguageMode, setDualLanguageMode } = useReaderSettings();
   const navigate = useNavigate();
   const [chapterPopoverOpen, setChapterPopoverOpen] = useState(false);
   const [versePopoverOpen, setVersePopoverOpen] = useState(false);
@@ -141,12 +141,13 @@ export const BookReaderHeader = ({
               )}
             </Button>
             <Button
-              variant="ghost"
+              variant={dualLanguageMode ? "secondary" : "ghost"}
               size="icon"
               className="h-9 w-9 text-primary-foreground hover:bg-primary-foreground/20"
-              onClick={onSettingsClick}
+              onClick={() => setDualLanguageMode(!dualLanguageMode)}
+              title={t("Двомовний режим", "Dual language")}
             >
-              <Settings className="h-5 w-5" />
+              <Languages className="h-5 w-5" />
             </Button>
           </div>
         </div>
@@ -295,12 +296,13 @@ export const BookReaderHeader = ({
             )}
           </Button>
           <Button
-            variant="ghost"
+            variant={dualLanguageMode ? "secondary" : "ghost"}
             size="icon"
             className="h-9 w-9 text-primary-foreground hover:bg-primary-foreground/20"
-            onClick={onSettingsClick}
+            onClick={() => setDualLanguageMode(!dualLanguageMode)}
+            title={t("Двомовний режим", "Dual language")}
           >
-            <Settings className="h-5 w-5" />
+            <Languages className="h-5 w-5" />
           </Button>
         </div>
       </div>

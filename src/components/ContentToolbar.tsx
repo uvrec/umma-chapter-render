@@ -28,13 +28,11 @@ import {
   Leaf,
   Maximize2,
   Minimize2,
-  Settings,
   Keyboard,
   Pencil,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
-import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 import { KeyboardShortcutsModal } from "@/components/KeyboardShortcutsModal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
@@ -78,7 +76,6 @@ export const ContentToolbar = ({
     setFullscreenMode,
   } = useReaderSettings();
 
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -359,21 +356,7 @@ export const ContentToolbar = ({
           </TooltipContent>
         </Tooltip>
 
-        {/* Settings */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" onClick={() => setSettingsOpen(true)}>
-              <Settings className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            {language === "uk" ? "Налаштування" : "Settings"}
-          </TooltipContent>
-        </Tooltip>
       </div>
-
-      {/* Settings Panel */}
-      <GlobalSettingsPanel isOpen={settingsOpen} onOpenChange={setSettingsOpen} showFloatingButton={false} />
 
       {/* Keyboard Shortcuts Modal */}
       <KeyboardShortcutsModal

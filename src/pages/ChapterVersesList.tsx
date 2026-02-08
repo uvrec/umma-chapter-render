@@ -10,8 +10,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, BookOpen, Edit, Save, X, ChevronLeft, ChevronRight, Plus, Trash2, Settings } from "lucide-react";
-import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
+import { ArrowLeft, BookOpen, Edit, Save, X, ChevronLeft, ChevronRight, Plus, Trash2, Languages } from "lucide-react";
 import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import DOMPurify from "dompurify";
 import { VerseSlider } from "@/components/mobile/VerseSlider";
@@ -111,6 +110,7 @@ export const ChapterVersesList = () => {
     fontSize,
     lineHeight,
     dualLanguageMode,
+    setDualLanguageMode,
     showNumbers,
     flowMode,
     fullscreenMode,
@@ -144,7 +144,7 @@ export const ChapterVersesList = () => {
   const [editedContentUk, setEditedContentUk] = useState("");
   const [editedContentEn, setEditedContentEn] = useState("");
   const [verseToDelete, setVerseToDelete] = useState<string | null>(null);
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  // settingsOpen removed — settings accessible from Header gear icon
 
   // Mobile Bible-style navigation
   const [verseSliderOpen, setVerseSliderOpen] = useState(false);
@@ -889,15 +889,15 @@ export const ChapterVersesList = () => {
                   <span className="hidden sm:inline">{language === "uk" ? "Додати вірш" : "Add verse"}</span>
                 </Button>
               )}
-              {/* Settings button - hidden on mobile (Spine has settings) */}
+              {/* Dual language toggle - hidden on mobile */}
               {!isMobile && (
                 <Button
-                  variant="ghost"
+                  variant={dualLanguageMode ? "secondary" : "ghost"}
                   size="icon"
-                  onClick={() => setSettingsOpen(true)}
-                  title={language === "uk" ? "Налаштування" : "Settings"}
+                  onClick={() => setDualLanguageMode(!dualLanguageMode)}
+                  title={language === "uk" ? "Двомовний режим" : "Dual language"}
                 >
-                  <Settings className="h-5 w-5" />
+                  <Languages className="h-5 w-5" />
                 </Button>
               )}
             </div>
@@ -1286,8 +1286,6 @@ export const ChapterVersesList = () => {
       </main>
       <Footer />
 
-
-      <GlobalSettingsPanel isOpen={settingsOpen} onOpenChange={setSettingsOpen} showFloatingButton={false} />
 
       {/* Mobile Verse Slider - бокова стрічка навігації */}
       {isMobile && verses.length > 0 && (
