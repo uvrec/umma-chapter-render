@@ -130,6 +130,7 @@ export function RichTextEditor({
           size="icon"
           className="h-7 w-7"
           onClick={() => editor.chain().focus().toggleBold().run()}
+          onMouseDown={(e) => e.preventDefault()}
           title="Bold (Ctrl+B)"
         >
           <Bold className="h-3.5 w-3.5" />
@@ -140,6 +141,7 @@ export function RichTextEditor({
           size="icon"
           className="h-7 w-7"
           onClick={() => editor.chain().focus().toggleItalic().run()}
+          onMouseDown={(e) => e.preventDefault()}
           title="Italic (Ctrl+I)"
         >
           <Italic className="h-3.5 w-3.5" />
@@ -150,6 +152,7 @@ export function RichTextEditor({
           size="icon"
           className="h-7 w-7"
           onClick={() => editor.chain().focus().toggleUnderline().run()}
+          onMouseDown={(e) => e.preventDefault()}
           title="Underline (Ctrl+U)"
         >
           <UnderlineIcon className="h-3.5 w-3.5" />
@@ -163,6 +166,7 @@ export function RichTextEditor({
           size="icon"
           className="h-7 w-7"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
+          onMouseDown={(e) => e.preventDefault()}
           title="Bullet List"
         >
           <List className="h-3.5 w-3.5" />
@@ -173,6 +177,7 @@ export function RichTextEditor({
           size="icon"
           className="h-7 w-7"
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          onMouseDown={(e) => e.preventDefault()}
           title="Numbered List"
         >
           <ListOrdered className="h-3.5 w-3.5" />
@@ -186,6 +191,7 @@ export function RichTextEditor({
           size="icon"
           className="h-7 w-7"
           onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}
+          onMouseDown={(e) => e.preventDefault()}
           title="Clear Formatting"
         >
           <RemoveFormatting className="h-3.5 w-3.5" />
@@ -199,6 +205,7 @@ export function RichTextEditor({
           size="icon"
           className="h-7 w-7"
           onClick={() => editor.chain().focus().undo().run()}
+          onMouseDown={(e) => e.preventDefault()}
           disabled={!editor.can().undo()}
           title="Undo (Ctrl+Z)"
         >
@@ -210,6 +217,7 @@ export function RichTextEditor({
           size="icon"
           className="h-7 w-7"
           onClick={() => editor.chain().focus().redo().run()}
+          onMouseDown={(e) => e.preventDefault()}
           disabled={!editor.can().redo()}
           title="Redo (Ctrl+Y)"
         >
@@ -222,25 +230,7 @@ export function RichTextEditor({
         <EditorContent editor={editor} className="h-full" />
       </div>
 
-      {/* CSS for placeholder */}
-      <style>{`
-        .ProseMirror p.is-editor-empty:first-child::before {
-          color: hsl(var(--muted-foreground) / 0.5);
-          content: attr(data-placeholder);
-          float: left;
-          height: 0;
-          pointer-events: none;
-        }
-        .ProseMirror:focus {
-          outline: none;
-        }
-        .ProseMirror p {
-          margin: 0.5em 0;
-        }
-        .ProseMirror ul, .ProseMirror ol {
-          padding-left: 1.5em;
-        }
-      `}</style>
+      {/* ProseMirror styles defined in global index.css */}
     </div>
   );
 }
