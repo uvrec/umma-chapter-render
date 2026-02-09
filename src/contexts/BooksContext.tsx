@@ -15,7 +15,7 @@ interface BooksContextType {
 // Fallback список для початкового рендеру (поки не завантажено з БД)
 // Експортується для використання в утилітах без React контексту
 export const FALLBACK_CANTO_BOOKS = new Set([
-  "sb", "cc", "scc", "saranagati", "td", "scb", "pp"
+  "sb", "cc", "scc", "saranagati", "td", "scb"
 ]);
 
 /**
