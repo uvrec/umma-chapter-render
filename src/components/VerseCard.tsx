@@ -456,7 +456,7 @@ export const VerseCard = ({
         {/* НАВІГАЦІЯ МІЖ ВІРШАМИ + АУДІО - приховано на мобільних (є свайп) */}
         {onPrevVerse && onNextVerse && !isMobile && (
           <div className="flex items-center justify-between mb-4">
-            <Button variant="outline" onClick={onPrevVerse} disabled={isPrevDisabled}>
+            <Button variant="ghost" onClick={onPrevVerse} disabled={isPrevDisabled}>
               <ChevronLeft className="mr-2 h-4 w-4" />
               {prevLabel}
             </Button>
@@ -469,7 +469,7 @@ export const VerseCard = ({
             >
               <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
             </button>
-            <Button variant="outline" onClick={onNextVerse} disabled={isNextDisabled}>
+            <Button variant="ghost" onClick={onNextVerse} disabled={isNextDisabled}>
               {nextLabel}
               <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
