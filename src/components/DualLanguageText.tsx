@@ -5,6 +5,7 @@ import { applyDropCap } from "@/utils/text/dropCap";
 interface Paragraph {
   index: number;
   text: string;
+  align?: string;
 }
 
 interface DualLanguageTextProps {
@@ -31,27 +32,49 @@ interface DualLanguageTextProps {
 function parseTextToParagraphs(text?: string): Paragraph[] {
   if (!text) return [];
 
-  let paragraphs: string[] = [];
+  const result: Paragraph[] = [];
 
   // Перевіряємо чи є HTML теги <p>
   if (text.includes("<p>") || text.includes("<p ")) {
-    // Розбиваємо по </p> і очищуємо
-    paragraphs = text
-      .split(/<\/p>/i)
-      .map((p) => p.replace(/<p[^>]*>/gi, "").trim())
-      .filter((p) => p.length > 0);
+    // Використовуємо regex щоб зберегти атрибути (text-align і т.д.)
+    const pRegex = /<p([^>]*)>([\s\S]*?)<\/p>/gi;
+    let match;
+    while ((match = pRegex.exec(text)) !== null) {
+      const attrs = match[1] || "";
+      const content = match[2].trim();
+      if (content.length > 0) {
+        // Витягуємо text-align зі style атрибуту
+        const alignMatch = attrs.match(/style\s*=\s*["'][^"']*text-align:\s*(\w+)/i);
+        result.push({
+          index: result.length,
+          text: content.replace(/\n/g, " ").trim(),
+          align: alignMatch ? alignMatch[1] : undefined,
+        });
+      }
+    }
+
+    // Fallback якщо regex не знайшов (некоректний HTML)
+    if (result.length === 0) {
+      const fallback = text
+        .split(/<\/p>/i)
+        .map((p) => p.replace(/<p[^>]*>/gi, "").trim())
+        .filter((p) => p.length > 0);
+      fallback.forEach((t, i) => {
+        result.push({ index: i, text: t.replace(/\n/g, " ").trim() });
+      });
+    }
   } else {
     // Fallback: розбиваємо по подвійних переносах
-    paragraphs = text
+    const paragraphs = text
       .split(/\n\n+/)
       .map((p) => p.trim())
       .filter((p) => p.length > 0);
+    paragraphs.forEach((t, i) => {
+      result.push({ index: i, text: t.replace(/\n/g, " ").trim() });
+    });
   }
 
-  return paragraphs.map((text, index) => ({
-    index,
-    text: text.replace(/\n/g, " ").trim(),
-  }));
+  return result;
 }
 
 /**
@@ -86,23 +109,34 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
     <div className={`space-y-4 ${className}`}>
       {Array.from({ length: maxLength }).map((_, idx) => {
         // Apply drop-cap to first paragraph only if enabled and text exists
-        const ukContent = ukParas[idx]?.text || "&nbsp;";
-        const enContent = enParas[idx]?.text || "&nbsp;";
+        const ukPara = ukParas[idx];
+        const enPara = enParas[idx];
+        const ukContent = ukPara?.text || "&nbsp;";
+        const enContent = enPara?.text || "&nbsp;";
         const isFirstParagraph = idx === 0;
 
         // Inline style для динамічного розміру шрифту
-        const textStyle = fontSize ? { fontSize: `${fontSize}px`, lineHeight } : undefined;
+        const ukStyle: React.CSSProperties = fontSize ? { fontSize: `${fontSize}px`, lineHeight } : {};
+        const enStyle: React.CSSProperties = fontSize ? { fontSize: `${fontSize}px`, lineHeight } : {};
+
+        // Застосовуємо text-align зі збереженого стилю параграфа
+        if (ukPara?.align) ukStyle.textAlign = ukPara.align as any;
+        if (enPara?.align) enStyle.textAlign = enPara.align as any;
 
         // Determine purport class: first paragraph gets "purport first", others get "purport"
         const purportClass = enableDropCap
           ? (isFirstParagraph ? 'purport first' : 'purport')
           : '';
 
+        // Використовуємо text-justify тільки коли немає явного вирівнювання
+        const ukAlignClass = ukPara?.align ? '' : 'text-justify';
+        const enAlignClass = enPara?.align ? '' : 'text-justify';
+
         return (
           <div key={idx} className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8 items-start">
             <div
-              className={`text-justify ${purportClass} ${bold ? 'font-bold' : ''}`}
-              style={textStyle}
+              className={`${ukAlignClass} ${purportClass} ${bold ? 'font-bold' : ''}`}
+              style={ukStyle}
               dangerouslySetInnerHTML={{
                 __html: sanitizeForRender(
                   isFirstParagraph && enableDropCap && ukContent !== "&nbsp;"
@@ -112,8 +146,8 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
               }}
             />
             <div
-              className={`text-justify ${purportClass} ${bold ? 'font-bold' : ''}`}
-              style={textStyle}
+              className={`${enAlignClass} ${purportClass} ${bold ? 'font-bold' : ''}`}
+              style={enStyle}
               dangerouslySetInnerHTML={{
                 __html: sanitizeForRender(
                   isFirstParagraph && enableDropCap && enContent !== "&nbsp;"
