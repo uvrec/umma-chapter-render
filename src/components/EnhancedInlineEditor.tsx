@@ -338,7 +338,7 @@ export const EnhancedInlineEditor = ({
         },
       },
     },
-    [editable]
+    []
   );
 
   // Scroll sync: attach scroll listener to both the container and the editor element

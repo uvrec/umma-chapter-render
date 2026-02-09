@@ -248,7 +248,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
 
   const addYoutubeVideo = () => {
     const url = window.prompt("Введіть YouTube URL:");
-    if (url) editor?.commands.setYoutubeVideo({ src: url });
+    if (url) editor?.chain().focus().setYoutubeVideo({ src: url }).run();
   };
 
   const insertTable = () => {
@@ -281,6 +281,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
           variant="ghost"
           size="icon"
           onClick={() => editor.chain().focus().toggleBold().run()}
+          onMouseDown={(e) => e.preventDefault()}
           className={editor.isActive("bold") ? "bg-accent" : ""}
         >
           <Bold className="h-4 w-4" />
@@ -290,6 +291,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
           variant="ghost"
           size="icon"
           onClick={() => editor.chain().focus().toggleItalic().run()}
+          onMouseDown={(e) => e.preventDefault()}
           className={editor.isActive("italic") ? "bg-accent" : ""}
         >
           <Italic className="h-4 w-4" />
@@ -299,6 +301,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
           variant="ghost"
           size="icon"
           onClick={() => editor.chain().focus().toggleStrike().run()}
+          onMouseDown={(e) => e.preventDefault()}
           className={editor.isActive("strike") ? "bg-accent" : ""}
         >
           <Strikethrough className="h-4 w-4" />
@@ -314,6 +317,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
             variant="ghost"
             size="icon"
             onClick={() => editor.chain().focus().toggleHeading({ level: lvl as 1 | 2 | 3 | 4 | 5 | 6 }).run()}
+            onMouseDown={(e) => e.preventDefault()}
             className={editor.isActive("heading", { level: lvl }) ? "bg-accent" : ""}
           >
             {lvl === 1 ? (
@@ -334,6 +338,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
           variant="ghost"
           size="icon"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
+          onMouseDown={(e) => e.preventDefault()}
           className={editor.isActive("bulletList") ? "bg-accent" : ""}
         >
           <List className="h-4 w-4" />
@@ -343,6 +348,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
           variant="ghost"
           size="icon"
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          onMouseDown={(e) => e.preventDefault()}
           className={editor.isActive("orderedList") ? "bg-accent" : ""}
         >
           <ListOrdered className="h-4 w-4" />
@@ -351,16 +357,16 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
         <div className="w-px h-6 bg-border mx-1" />
 
         {/* Media + Links */}
-        <Button type="button" variant="ghost" size="icon" onClick={addLink}>
+        <Button type="button" variant="ghost" size="icon" onClick={addLink} onMouseDown={(e) => e.preventDefault()}>
           <LinkIcon className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="icon" onClick={handleImageUpload}>
+        <Button type="button" variant="ghost" size="icon" onClick={handleImageUpload} onMouseDown={(e) => e.preventDefault()}>
           <ImageIcon className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="icon" onClick={addYoutubeVideo}>
+        <Button type="button" variant="ghost" size="icon" onClick={addYoutubeVideo} onMouseDown={(e) => e.preventDefault()}>
           <YoutubeIcon className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="icon" onClick={insertTable}>
+        <Button type="button" variant="ghost" size="icon" onClick={insertTable} onMouseDown={(e) => e.preventDefault()}>
           <TableIcon className="h-4 w-4" />
         </Button>
 
@@ -372,6 +378,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
           variant="ghost"
           size="icon"
           onClick={() => editor.chain().focus().setTextAlign('left').run()}
+          onMouseDown={(e) => e.preventDefault()}
           className={editor.isActive({ textAlign: 'left' }) ? "bg-accent" : ""}
         >
           <AlignLeft className="h-4 w-4" />
@@ -381,6 +388,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
           variant="ghost"
           size="icon"
           onClick={() => editor.chain().focus().setTextAlign('center').run()}
+          onMouseDown={(e) => e.preventDefault()}
           className={editor.isActive({ textAlign: 'center' }) ? "bg-accent" : ""}
         >
           <AlignCenter className="h-4 w-4" />
@@ -390,6 +398,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
           variant="ghost"
           size="icon"
           onClick={() => editor.chain().focus().setTextAlign('right').run()}
+          onMouseDown={(e) => e.preventDefault()}
           className={editor.isActive({ textAlign: 'right' }) ? "bg-accent" : ""}
         >
           <AlignRight className="h-4 w-4" />
@@ -399,6 +408,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
           variant="ghost"
           size="icon"
           onClick={() => editor.chain().focus().setTextAlign('justify').run()}
+          onMouseDown={(e) => e.preventDefault()}
           className={editor.isActive({ textAlign: 'justify' }) ? "bg-accent" : ""}
         >
           <AlignJustify className="h-4 w-4" />
@@ -449,6 +459,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
           variant="ghost"
           size="icon"
           onClick={() => editor.chain().focus().undo().run()}
+          onMouseDown={(e) => e.preventDefault()}
           disabled={!editor.can().undo()}
         >
           <Undo className="h-4 w-4" />
@@ -457,6 +468,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
           variant="ghost"
           size="icon"
           onClick={() => editor.chain().focus().redo().run()}
+          onMouseDown={(e) => e.preventDefault()}
           disabled={!editor.can().redo()}
         >
           <Redo className="h-4 w-4" />
