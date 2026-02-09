@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 
 // Swipeable chapter row with verse numbers
@@ -163,6 +164,7 @@ export const CantoOverview = () => {
     dualLanguageMode
   } = useReaderSettings();
   const isMobile = useIsMobile();
+  const { isAdmin } = useAuth();
   const [searchParams] = useSearchParams();
 
   // Get preview token directly from URL (not from global state which may not be set yet)
@@ -240,7 +242,7 @@ export const CantoOverview = () => {
     data: chapters = [],
     isLoading: chaptersLoading
   } = useQuery({
-    queryKey: ["chapters-with-verse-counts", canto?.id, previewToken],
+    queryKey: ["chapters-with-verse-counts", canto?.id, previewToken, isAdmin],
     queryFn: async () => {
       if (!canto?.id) return [];
       // Try RPC first for preview token support
@@ -252,14 +254,14 @@ export const CantoOverview = () => {
       let chaptersData = data;
       if (error) {
         console.error('RPC get_chapters_by_canto_with_preview error:', error);
-        // Fallback to direct query - only filter by is_published if no preview token
+        // Fallback to direct query - only filter by is_published if not admin AND no preview token
         let fallbackQuery = supabase
           .from("chapters")
           .select("*")
           .eq("canto_id", canto.id);
 
-        // Only filter by is_published if user doesn't have a preview token
-        if (!previewToken) {
+        // Only filter by is_published if user is not admin AND doesn't have a preview token
+        if (!isAdmin && !previewToken) {
           fallbackQuery = fallbackQuery.eq("is_published", true);
         }
 
@@ -269,7 +271,7 @@ export const CantoOverview = () => {
       }
 
       // Fetch verse counts for each chapter
-      // Only filter by is_published if no preview token
+      // Only filter by is_published if not admin AND no preview token
       const chaptersWithCounts = await Promise.all(
         (chaptersData || []).map(async (chapter: any) => {
           let countQuery = supabase
@@ -278,7 +280,7 @@ export const CantoOverview = () => {
             .eq("chapter_id", chapter.id)
             .is("deleted_at", null);
 
-          if (!previewToken) {
+          if (!isAdmin && !previewToken) {
             countQuery = countQuery.eq("is_published", true);
           }
 
