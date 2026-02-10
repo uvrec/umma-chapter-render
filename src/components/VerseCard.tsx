@@ -17,7 +17,7 @@ import { addLearningWord, isWordInLearningList } from "@/utils/learningWords";
 import { toast } from "sonner";
 import DOMPurify from "dompurify";
 import { stripParagraphTags, sanitizeForRender } from "@/utils/import/normalizers";
-import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
+import { addSanskritLineBreaks, splitSanskritForMobile } from "@/utils/text/lineBreaks";
 import { parseSynonymPairs } from "@/utils/glossaryParser";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { formatExplanationParagraphs } from "@/utils/text/dropCap";
@@ -314,8 +314,9 @@ export const VerseCard = ({
 
   // Обробка санскриту для автоматичних розривів рядків (як у двомовному режимі)
   const processedSanskrit = useMemo(() => {
-    return addSanskritLineBreaks(sanskritText);
-  }, [sanskritText]);
+    const base = addSanskritLineBreaks(sanskritText);
+    return isMobile ? splitSanskritForMobile(base) : base;
+  }, [sanskritText, isMobile]);
 
   // Парсинг синонімів - використовуємо єдиний парсер з glossaryParser.ts
   const synonymPairs = parseSynonymPairs(isEditing ? edited.synonyms : synonyms);
