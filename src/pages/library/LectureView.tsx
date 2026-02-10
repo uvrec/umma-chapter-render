@@ -610,8 +610,8 @@ export const LectureView = () => {
                     className="pb-4"
                   >
                     <div className={`grid md:grid-cols-2 gap-6 transition-colors ${isCurrentParagraph ? "bg-primary/10 -mx-2 px-2 py-1" : ""}`}>
-                      <div className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: sanitizeForRender(hasUkContent ? paragraph.content_uk! : '<span class="text-muted-foreground/50">—</span>') }} />
-                      <div className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: sanitizeForRender(paragraph.content_en) }} />
+                      <div className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed" style={{ fontSize: "var(--vv-reader-font-size)", lineHeight: "var(--vv-reader-line-height)" }} dangerouslySetInnerHTML={{ __html: sanitizeForRender(hasUkContent ? paragraph.content_uk! : '<span class="text-muted-foreground/50">—</span>') }} />
+                      <div className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed" style={{ fontSize: "var(--vv-reader-font-size)", lineHeight: "var(--vv-reader-line-height)" }} dangerouslySetInnerHTML={{ __html: sanitizeForRender(paragraph.content_en) }} />
                     </div>
                   </div>
                 );
@@ -624,8 +624,8 @@ export const LectureView = () => {
                 const hasUkContent = paragraph.content_uk && paragraph.content_uk.trim().length > 0;
                 return (
                   <div key={paragraph.id} ref={(el) => (paragraphRefs.current[paragraph.paragraph_number] = el)} className={`grid md:grid-cols-2 gap-6 transition-colors ${isCurrentParagraph ? "bg-primary/10 -mx-2 px-2 py-1" : ""}`}>
-                    <div className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: sanitizeForRender(hasUkContent ? paragraph.content_uk! : '<span class="text-muted-foreground/50">—</span>') }} />
-                    <div className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: sanitizeForRender(paragraph.content_en) }} />
+                    <div className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed" style={{ fontSize: "var(--vv-reader-font-size)", lineHeight: "var(--vv-reader-line-height)" }} dangerouslySetInnerHTML={{ __html: sanitizeForRender(hasUkContent ? paragraph.content_uk! : '<span class="text-muted-foreground/50">—</span>') }} />
+                    <div className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed" style={{ fontSize: "var(--vv-reader-font-size)", lineHeight: "var(--vv-reader-line-height)" }} dangerouslySetInnerHTML={{ __html: sanitizeForRender(paragraph.content_en) }} />
                   </div>
                 );
               })}
@@ -634,7 +634,7 @@ export const LectureView = () => {
           ) : (
             // SINGLE LANGUAGE MODE
             shouldVirtualizeParagraphs && paragraphVirtualItems ? (
-            <div ref={lectureVirtualListRef} className="prose prose-lg dark:prose-invert max-w-none text-foreground" style={{ height: `${paragraphTotalSize}px`, width: '100%', position: 'relative' }}>
+            <div ref={lectureVirtualListRef} className="prose prose-lg dark:prose-invert max-w-none text-foreground" style={{ height: `${paragraphTotalSize}px`, width: '100%', position: 'relative', fontSize: "var(--vv-reader-font-size)", lineHeight: "var(--vv-reader-line-height)" }}>
               {paragraphVirtualItems.map((virtualRow) => {
                 const paragraph = paragraphs[virtualRow.index];
                 const content = language === "uk"
@@ -666,7 +666,7 @@ export const LectureView = () => {
               })}
             </div>
             ) : (
-            <div className="prose prose-lg dark:prose-invert max-w-none text-foreground">
+            <div className="prose prose-lg dark:prose-invert max-w-none text-foreground" style={{ fontSize: "var(--vv-reader-font-size)", lineHeight: "var(--vv-reader-line-height)" }}>
               {paragraphs.map((paragraph) => {
                 const content = language === "uk"
                   ? (paragraph.content_uk && paragraph.content_uk.trim().length > 0 ? paragraph.content_uk : null)

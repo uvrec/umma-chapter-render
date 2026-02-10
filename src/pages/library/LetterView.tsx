@@ -366,6 +366,7 @@ export const LetterView = () => {
               {hasContentUk ? (
                 <div
                   className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed"
+                  style={{ fontSize: "var(--vv-reader-font-size)", lineHeight: "var(--vv-reader-line-height)" }}
                   dangerouslySetInnerHTML={{ __html: letter.content_uk! }}
                 />
               ) : (
@@ -378,6 +379,7 @@ export const LetterView = () => {
               {hasContentEn ? (
                 <div
                   className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed"
+                  style={{ fontSize: "var(--vv-reader-font-size)", lineHeight: "var(--vv-reader-line-height)" }}
                   dangerouslySetInnerHTML={{ __html: letter.content_en }}
                 />
               ) : (
@@ -389,6 +391,7 @@ export const LetterView = () => {
           // SINGLE LANGUAGE MODE
           <div
             className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed"
+            style={{ fontSize: "var(--vv-reader-font-size)", lineHeight: "var(--vv-reader-line-height)" }}
             dangerouslySetInnerHTML={{
               __html: language === "uk" && letter.content_uk
                 ? letter.content_uk

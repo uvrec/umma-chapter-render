@@ -998,12 +998,14 @@ export const ChapterVersesList = () => {
                           >
                             <div
                               className="prose prose-slate dark:prose-invert max-w-none"
+                              style={readerTextStyle}
                               dangerouslySetInnerHTML={{
                                 __html: sanitizeForRender(paraUk || '<span class="italic text-muted-foreground">—</span>'),
                               }}
                             />
                             <div
                               className="prose prose-slate dark:prose-invert max-w-none "
+                              style={readerTextStyle}
                               dangerouslySetInnerHTML={{
                                 __html: sanitizeForRender(paraEn || '<span class="italic text-muted-foreground">—</span>'),
                               }}

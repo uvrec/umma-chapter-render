@@ -1549,8 +1549,8 @@ export const VedaReaderDB = () => {
         {/* Intro/preface block (render above verses if present) */}
         {(language === "uk" ? effectiveChapter.content_uk : effectiveChapter.content_en) && !isTextChapter && (
           <div className="verse-surface mb-8">
-            <div className="prose prose-lg max-w-none dark:prose-invert">
-              <TiptapRenderer content={language === "uk" ? effectiveChapter.content_uk || "" : effectiveChapter.content_en || ""} />
+            <div className="prose prose-lg max-w-none dark:prose-invert" style={{ fontSize: `${fontSize}px`, lineHeight }}>
+              <TiptapRenderer content={language === "uk" ? effectiveChapter.content_uk || "" : effectiveChapter.content_en || ""} fontSize={fontSize} lineHeight={lineHeight} />
             </div>
           </div>
         )}
@@ -1571,8 +1571,8 @@ export const VedaReaderDB = () => {
                 </Button>
               </div>
             )}
-            <div className="prose prose-lg max-w-none dark:prose-invert">
-              <TiptapRenderer content={language === "uk" ? effectiveChapter.content_uk || "" : effectiveChapter.content_en || effectiveChapter.content_uk || ""} />
+            <div className="prose prose-lg max-w-none dark:prose-invert" style={{ fontSize: `${fontSize}px`, lineHeight }}>
+              <TiptapRenderer content={language === "uk" ? effectiveChapter.content_uk || "" : effectiveChapter.content_en || effectiveChapter.content_uk || ""} fontSize={fontSize} lineHeight={lineHeight} />
             </div>
             {/* Навігація знизу для текстових глав - ховаємо на мобільних (є свайп) */}
             {!isMobile && (
