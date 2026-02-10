@@ -222,7 +222,7 @@ export const LettersContent = () => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
       {/* Results - Main content */}
-      <div className="lg:col-span-3 order-2 lg:order-1">
+      <div className="lg:col-span-3 order-1">
         {filteredAndSortedLetters.length > 0 && (
           <div className="mb-4 text-sm text-muted-foreground">
             {filteredAndSortedLetters.length} {t("листів", "letters")}
@@ -268,12 +268,12 @@ export const LettersContent = () => {
                           </span>
                         </div>
                         {letter.reference && (
-                          <Badge variant="outline">
+                          <Badge variant="outline" className="hidden sm:inline-flex">
                             Ref: {letter.reference}
                           </Badge>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2 mt-2">
+                      <p className="hidden sm:block text-sm text-muted-foreground line-clamp-2 mt-2">
                         {language === "uk" && letter.content_uk
                           ? stripHtmlTags(letter.content_uk).substring(0, 150) + "..."
                           : stripHtmlTags(letter.content_en).substring(0, 150) + "..."}
@@ -294,8 +294,8 @@ export const LettersContent = () => {
         )}
       </div>
 
-      {/* Sidebar - Filters */}
-      <div className="lg:col-span-1 order-1 lg:order-2">
+      {/* Sidebar - Filters (hidden on mobile) */}
+      <div className="hidden lg:block lg:col-span-1 order-2">
         <div className="sticky top-4 space-y-3">
           {/* Search */}
           <Input

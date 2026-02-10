@@ -8,6 +8,7 @@ import { Header } from "@/components/Header";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { debounce } from "lodash";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { addLearningWord, isWordInLearningList, LearningWord } from "@/utils/learningWords";
@@ -52,6 +53,7 @@ const PAGE_SIZE = 30;
 export default function GlossaryDB() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { language, t, getLocalizedPath } = useLanguage();
+  const isMobile = useIsMobile();
   const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
   const [searchType, setSearchType] = useState<"exact" | "contains" | "starts">("contains");
@@ -337,7 +339,7 @@ export default function GlossaryDB() {
         <div className="mb-8 border border-border rounded-lg p-4 bg-card">
           <div className="flex flex-col sm:flex-row gap-3 items-end">
             <div className="flex-1">
-              <label className="text-sm text-muted-foreground mb-1 block">{t("Слово", "Word")}</label>
+              <label className="text-sm text-muted-foreground mb-1 hidden sm:block">{t("Слово", "Word")}</label>
               <Input
                 placeholder={t("Термін...", "Word...")}
                 value={searchTerm}
@@ -357,7 +359,7 @@ export default function GlossaryDB() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex-1">
+            <div className="hidden sm:block flex-1">
               <label className="text-sm text-muted-foreground mb-1 block">{t("Переклад", "Translation")}</label>
               <Input
                 placeholder={t("Переклад...", "Translation...")}
@@ -398,8 +400,8 @@ export default function GlossaryDB() {
                   <Loader2 className="w-6 h-6 mx-auto animate-spin" />
                 </div>
               ) : !hasSearch ? (
-                <div className="py-16 text-center text-muted-foreground">
-                  <p>{t("Введіть запит для пошуку", "Enter a search query")}</p>
+                <div className="py-4 sm:py-16 text-center text-muted-foreground">
+                  <p className="hidden sm:block">{t("Введіть запит для пошуку", "Enter a search query")}</p>
                 </div>
               ) : isErrorGrouped ? (
                 <div className="py-16 text-center text-destructive">
@@ -409,7 +411,89 @@ export default function GlossaryDB() {
                 <div className="py-16 text-center text-muted-foreground">
                   <p>{t("Нічого не знайдено", "Nothing found")}</p>
                 </div>
+              ) : isMobile ? (
+                /* ===== MOBILE: compact word list ===== */
+                <>
+                  <div className="divide-y divide-border">
+                    {allGroupedTerms.map((groupedTerm) => {
+                      const singleUsageDetails = groupedTerm.usage_count === 1 ? expandedTermDetails[groupedTerm.term]?.[0] : null;
+                      const isMultiUsage = groupedTerm.usage_count > 1;
+                      const isExpanded = expandedTerms.has(groupedTerm.term);
+
+                      return (
+                        <div key={groupedTerm.term} className="py-2">
+                          {/* Single usage — tap to go to verse */}
+                          {singleUsageDetails ? (
+                            <Link
+                              to={getLocalizedPath(singleUsageDetails.verse_link)}
+                              className="flex items-baseline justify-between gap-2"
+                            >
+                              <div className="min-w-0">
+                                <span className="font-semibold italic text-foreground">{groupedTerm.term}</span>
+                                {(singleUsageDetails.meaning || groupedTerm.sample_meanings?.[0]) && (
+                                  <span className="text-muted-foreground text-sm italic"> — {singleUsageDetails.meaning || groupedTerm.sample_meanings?.[0]}</span>
+                                )}
+                              </div>
+                              <span className="text-primary text-xs font-medium whitespace-nowrap shrink-0">
+                                {formatVerseRef(singleUsageDetails)}
+                              </span>
+                            </Link>
+                          ) : (
+                            <>
+                              <div
+                                className={`flex items-baseline justify-between gap-2 ${isMultiUsage ? "cursor-pointer" : ""}`}
+                                onClick={isMultiUsage ? () => toggleTermExpanded(groupedTerm.term) : undefined}
+                              >
+                                <div className="min-w-0">
+                                  <span className="font-semibold italic text-foreground">{groupedTerm.term}</span>
+                                  {!isMultiUsage && groupedTerm.sample_meanings?.[0] && (
+                                    <span className="text-muted-foreground text-sm italic"> — {groupedTerm.sample_meanings[0]}</span>
+                                  )}
+                                </div>
+                                {isMultiUsage && (
+                                  <span className="text-muted-foreground text-xs whitespace-nowrap shrink-0 flex items-center gap-0.5">
+                                    ({groupedTerm.usage_count})
+                                    <ChevronDown className={`h-3 w-3 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                                  </span>
+                                )}
+                              </div>
+                              {/* Expanded usages */}
+                              {isMultiUsage && isExpanded && (
+                                <div className="ml-3 mt-1 space-y-1">
+                                  {loadingTerms.has(groupedTerm.term) ? (
+                                    <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+                                  ) : expandedTermDetails[groupedTerm.term]?.map((item, idx) => (
+                                    <Link
+                                      key={idx}
+                                      to={getLocalizedPath(item.verse_link)}
+                                      className="flex items-baseline justify-between gap-2 text-sm"
+                                    >
+                                      <span className="text-foreground italic min-w-0">{item.meaning || "—"}</span>
+                                      <span className="text-primary text-xs font-medium whitespace-nowrap shrink-0">
+                                        {formatVerseRef(item)}
+                                      </span>
+                                    </Link>
+                                  ))}
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {hasNextPage && (
+                    <div className="pt-3 text-center">
+                      <Button variant="ghost" size="sm" onClick={() => fetchNextPage()} disabled={isFetchingNextPage} className="gap-1">
+                        {isFetchingNextPage ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
+                        {t("Ще", "More")}
+                      </Button>
+                    </div>
+                  )}
+                </>
               ) : (
+                /* ===== DESKTOP: full Vedabase-style ===== */
                 <>
                   {allGroupedTerms.map((groupedTerm) => {
                     const singleUsageDetails = groupedTerm.usage_count === 1 ? expandedTermDetails[groupedTerm.term]?.[0] : null;
@@ -562,36 +646,7 @@ export default function GlossaryDB() {
           </div>
         </div>
 
-        {/* Mobile book filter — pills below search */}
-        <div className="lg:hidden">
-          {!isLoadingStats && statsData?.book_stats && (
-            <div className="flex flex-wrap gap-2 mb-6 -mt-4">
-              <button
-                onClick={() => setSelectedBook("all")}
-                className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
-                  selectedBook === "all"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted hover:bg-muted/80 text-muted-foreground"
-                }`}
-              >
-                {t("Всі", "All")} ({statsData?.unique_terms || 0})
-              </button>
-              {statsData?.book_stats?.map((book) => (
-                <button
-                  key={book.slug}
-                  onClick={() => setSelectedBook(book.slug)}
-                  className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
-                    selectedBook === book.slug
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted hover:bg-muted/80 text-muted-foreground"
-                  }`}
-                >
-                  {book.title} ({book.unique})
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        {/* Mobile book filter — removed for clean mobile experience */}
       </div>
     </div>
   );
