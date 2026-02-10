@@ -72,6 +72,7 @@ const KnowledgeCompiler = lazy(() => import("./pages/KnowledgeCompiler"));
 const TransliterationTool = lazy(() => import("./pages/TransliterationTool"));
 const JyotishCalculator = lazy(() => import("./pages/tools/JyotishCalculator"));
 const RagaExplorer = lazy(() => import("./pages/tools/RagaExplorer"));
+const SanskritMeterTool = lazy(() => import("./pages/tools/SanskritMeterTool"));
 const VaishnavCalendar = lazy(() => import("./pages/VaishnavCalendar"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const GlossaryDB = lazy(() => import("./pages/GlossaryDB"));
@@ -282,6 +283,7 @@ function AppContent() {
             <Route path="tools/numerology" element={<Numerology />} />
             <Route path="tools/jyotish" element={<JyotishCalculator />} />
             <Route path="tools/ragas" element={<RagaExplorer />} />
+            <Route path="tools/meters" element={<SanskritMeterTool />} />
             <Route path="tools/learning" element={<ScriptLearning />} />
             <Route path="tools/normalization" element={<TextNormalization />} />
             <Route path="tools/font-test" element={<FontComparisonTest />} />
@@ -390,6 +392,7 @@ function AppContent() {
           <Route path="/tools/numerology" element={<Numerology />} />
           <Route path="/tools/jyotish" element={<JyotishCalculator />} />
           <Route path="/tools/ragas" element={<RagaExplorer />} />
+          <Route path="/tools/meters" element={<SanskritMeterTool />} />
           <Route path="/tools/learning" element={<ScriptLearning />} />
           <Route path="/tools/normalization" element={<TextNormalization />} />
           <Route path="/tools/font-test" element={<FontComparisonTest />} />
