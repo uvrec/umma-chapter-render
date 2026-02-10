@@ -634,8 +634,8 @@ export const VerseCard = ({
                               </span>
                             ))}
                             {pair.meaning && <span> — {pair.meaning}</span>}
-                            {/* Learning button - hidden on mobile via CSS for clean reading */}
-                            <button
+                            {/* Learning button - only visible for admin */}
+                            {isAdmin && <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleAddToLearning(pair.term, pair.meaning || "");
@@ -647,7 +647,7 @@ export const VerseCard = ({
                               <GraduationCap
                                 className={`h-4 w-4 ${isWordInLearningList(pair.term) ? "text-green-600" : "text-muted-foreground group-hover:text-primary"}`}
                               />
-                            </button>
+                            </button>}
                             {i < synonymPairs.length - 1 && <span>; </span>}
                           </span>
                         );

@@ -321,8 +321,8 @@ export const DualLanguageVerseCard = ({
                   {getBookPrefix(bookSlug, "uk")} {verseNumber}
                 </span>
               )}
-              {/* Кнопка "Додати до вивчення" */}
-              {verseId && (
+              {/* Кнопка "Додати до вивчення" — тільки для адміна */}
+              {isAdmin && verseId && (
                 <button
                   onClick={handleAddToLearning}
                   disabled={isAddedToLearning}

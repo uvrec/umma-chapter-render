@@ -91,12 +91,12 @@ function DesktopHeader() {
                     Нормалізація
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
+                {isAdmin && <DropdownMenuItem asChild>
                   <Link to={getLocalizedPath("/tools/learning")} className="flex items-center cursor-pointer">
                     <GraduationCap className="mr-2 h-4 w-4" />
                     Вивчення
                   </Link>
-                </DropdownMenuItem>
+                </DropdownMenuItem>}
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -177,10 +177,10 @@ function DesktopHeader() {
                       <span>Нормалізація</span>
                     </Link>
 
-                    <Link to={getLocalizedPath("/tools/learning")} className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                    {isAdmin && <Link to={getLocalizedPath("/tools/learning")} className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                       <GraduationCap className="h-4 w-4" />
                       <span>Вивчення мов</span>
-                    </Link>
+                    </Link>}
 
                     <Link to={getLocalizedPath("/tools/compiler")} className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                       <BookMarked className="h-4 w-4" />

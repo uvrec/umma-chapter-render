@@ -1482,9 +1482,9 @@ export const VedaReaderDB = () => {
 
               {/* Icons - hidden on mobile (use Spine navigation instead) */}
               <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
-                <Button variant="ghost" size="icon" onClick={handleAddToLearning} disabled={!currentVerse} title={t("Додати до вивчення", "Add to learning")}>
+                {isAdmin && <Button variant="ghost" size="icon" onClick={handleAddToLearning} disabled={!currentVerse} title={t("Додати до вивчення", "Add to learning")}>
                   <GraduationCap className={`h-5 w-5 ${currentVerse && isVerseInLearningList(currentVerse.id) ? "fill-primary text-primary" : ""}`} />
-                </Button>
+                </Button>}
                 <Button variant="ghost" size="icon" onClick={toggleBookmark} title={t("Закладка", "Bookmark")}>
                   <Bookmark className={`h-5 w-5 ${isBookmarked ? "fill-primary text-primary" : ""}`} />
                 </Button>
