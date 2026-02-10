@@ -24,9 +24,6 @@ interface Lecture {
   verse_number: string | null;
 }
 
-// Prabhupada's active years
-const YEARS = [1966, 1967, 1968, 1969, 1970, 1971, 1972, 1973, 1974, 1975, 1976, 1977];
-
 const MONTHS_UK = [
   "Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень",
   "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"
@@ -40,7 +37,7 @@ const MONTHS_EN = [
 export function MobileLecturesTimeline() {
   const navigate = useNavigate();
   const { language, t, getLocalizedPath } = useLanguage();
-  const [selectedYear, setSelectedYear] = useState(1966);
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [selectedMonth, setSelectedMonth] = useState(1); // 1-12
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null); // null = all
   const yearScrollRef = useRef<HTMLDivElement>(null);
@@ -61,19 +58,70 @@ export function MobileLecturesTimeline() {
     },
   });
 
-  // Get unique locations
+  // Derive years from actual data
+  const years = useMemo(() => {
+    if (!lectures || lectures.length === 0) return [];
+    const uniqueYears = new Set<number>();
+    lectures.forEach(l => {
+      const year = new Date(l.lecture_date).getFullYear();
+      if (!isNaN(year)) uniqueYears.add(year);
+    });
+    return Array.from(uniqueYears).sort((a, b) => a - b);
+  }, [lectures]);
+
+  // Auto-select first year when data loads
+  useEffect(() => {
+    if (years.length > 0 && selectedYear === null) {
+      setSelectedYear(years[0]);
+    }
+  }, [years, selectedYear]);
+
+  // Auto-select first month with lectures when year changes
+  useEffect(() => {
+    if (!lectures || selectedYear === null) return;
+    const monthsWithData = new Set<number>();
+    lectures.forEach(l => {
+      const date = new Date(l.lecture_date);
+      if (date.getFullYear() === selectedYear) {
+        monthsWithData.add(date.getMonth() + 1);
+      }
+    });
+    if (monthsWithData.size > 0 && !monthsWithData.has(selectedMonth)) {
+      setSelectedMonth(Math.min(...monthsWithData));
+    }
+  }, [lectures, selectedYear]);
+
+  // Get unique locations for the selected year
   const locations = useMemo(() => {
     if (!lectures) return [];
     const uniqueLocations = new Set<string>();
     lectures.forEach(l => {
-      if (l.location_en) uniqueLocations.add(l.location_en);
+      if (l.location_en) {
+        const date = new Date(l.lecture_date);
+        if (selectedYear === null || date.getFullYear() === selectedYear) {
+          uniqueLocations.add(l.location_en);
+        }
+      }
     });
     return Array.from(uniqueLocations).sort();
-  }, [lectures]);
+  }, [lectures, selectedYear]);
+
+  // Months that have lectures for the selected year
+  const monthsWithLectures = useMemo(() => {
+    if (!lectures || selectedYear === null) return new Set<number>();
+    const months = new Set<number>();
+    lectures.forEach(l => {
+      const date = new Date(l.lecture_date);
+      if (date.getFullYear() === selectedYear) {
+        months.add(date.getMonth() + 1);
+      }
+    });
+    return months;
+  }, [lectures, selectedYear]);
 
   // Filter lectures by year, month, and location
   const filteredLectures = useMemo(() => {
-    if (!lectures) return [];
+    if (!lectures || selectedYear === null) return [];
 
     return lectures.filter(lecture => {
       const date = new Date(lecture.lecture_date);
@@ -88,23 +136,14 @@ export function MobileLecturesTimeline() {
     });
   }, [lectures, selectedYear, selectedMonth, selectedLocation]);
 
-  // Get lecture count for current month
-  const monthLectureCount = useMemo(() => {
-    if (!lectures) return 0;
-    return lectures.filter(l => {
-      const date = new Date(l.lecture_date);
-      return date.getFullYear() === selectedYear && date.getMonth() + 1 === selectedMonth;
-    }).length;
-  }, [lectures, selectedYear, selectedMonth]);
-
   // Scroll to selected year
   useEffect(() => {
-    if (yearScrollRef.current) {
-      const yearIndex = YEARS.indexOf(selectedYear);
+    if (yearScrollRef.current && selectedYear !== null) {
+      const yearIndex = years.indexOf(selectedYear);
       const scrollPosition = yearIndex * 80 - (window.innerWidth / 2) + 40;
       yearScrollRef.current.scrollTo({ left: scrollPosition, behavior: "smooth" });
     }
-  }, [selectedYear]);
+  }, [selectedYear, years]);
 
   // Scroll to selected month
   useEffect(() => {
@@ -147,7 +186,7 @@ export function MobileLecturesTimeline() {
         className="flex overflow-x-auto scrollbar-hide py-4 px-2"
         style={{ scrollSnapType: "x mandatory" }}
       >
-        {YEARS.map((year) => (
+        {years.map((year) => (
           <button
             key={year}
             onClick={() => setSelectedYear(year)}
@@ -170,21 +209,27 @@ export function MobileLecturesTimeline() {
         className="flex overflow-x-auto scrollbar-hide py-3 px-2"
         style={{ scrollSnapType: "x mandatory" }}
       >
-        {monthNames.map((month, index) => (
-          <button
-            key={index}
-            onClick={() => setSelectedMonth(index + 1)}
-            className={cn(
-              "flex-shrink-0 px-4 py-2 text-center font-serif text-base transition-all whitespace-nowrap",
-              "scroll-snap-align-center",
-              selectedMonth === index + 1
-                ? "text-brand-600 font-bold"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            {month}
-          </button>
-        ))}
+        {monthNames.map((month, index) => {
+          const monthNum = index + 1;
+          const hasData = monthsWithLectures.has(monthNum);
+          return (
+            <button
+              key={index}
+              onClick={() => setSelectedMonth(monthNum)}
+              className={cn(
+                "flex-shrink-0 px-4 py-2 text-center font-serif text-base transition-all whitespace-nowrap",
+                "scroll-snap-align-center",
+                selectedMonth === monthNum
+                  ? "text-brand-600 font-bold"
+                  : hasData
+                    ? "text-muted-foreground hover:text-foreground"
+                    : "text-muted-foreground/30"
+              )}
+            >
+              {month}
+            </button>
+          );
+        })}
       </div>
 
       {/* Location filter - horizontal scroll */}

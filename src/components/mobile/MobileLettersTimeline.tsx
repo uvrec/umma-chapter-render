@@ -75,6 +75,21 @@ export function MobileLettersTimeline() {
     }
   }, [years, selectedYear]);
 
+  // Auto-select first month with letters when year changes
+  useEffect(() => {
+    if (!letters || selectedYear === null) return;
+    const monthsWithData = new Set<number>();
+    letters.forEach(l => {
+      const date = new Date(l.letter_date);
+      if (date.getFullYear() === selectedYear) {
+        monthsWithData.add(date.getMonth() + 1);
+      }
+    });
+    if (monthsWithData.size > 0 && !monthsWithData.has(selectedMonth)) {
+      setSelectedMonth(Math.min(...monthsWithData));
+    }
+  }, [letters, selectedYear]);
+
   // Get unique locations
   const locations = useMemo(() => {
     if (!letters) return [];
@@ -84,6 +99,19 @@ export function MobileLettersTimeline() {
     });
     return Array.from(uniqueLocations).sort();
   }, [letters]);
+
+  // Months that have letters for the selected year
+  const monthsWithLetters = useMemo(() => {
+    if (!letters || selectedYear === null) return new Set<number>();
+    const months = new Set<number>();
+    letters.forEach(l => {
+      const date = new Date(l.letter_date);
+      if (date.getFullYear() === selectedYear) {
+        months.add(date.getMonth() + 1);
+      }
+    });
+    return months;
+  }, [letters, selectedYear]);
 
   // Filter letters by year, month, and location
   const filteredLetters = useMemo(() => {
@@ -203,21 +231,27 @@ export function MobileLettersTimeline() {
         className="flex overflow-x-auto scrollbar-hide py-3 px-2"
         style={{ scrollSnapType: "x mandatory" }}
       >
-        {monthNames.map((month, index) => (
-          <button
-            key={index}
-            onClick={() => setSelectedMonth(index + 1)}
-            className={cn(
-              "flex-shrink-0 px-4 py-2 text-center font-serif text-base transition-all whitespace-nowrap",
-              "scroll-snap-align-center",
-              selectedMonth === index + 1
-                ? "text-brand-600 font-bold"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            {month}
-          </button>
-        ))}
+        {monthNames.map((month, index) => {
+          const monthNum = index + 1;
+          const hasData = monthsWithLetters.has(monthNum);
+          return (
+            <button
+              key={index}
+              onClick={() => setSelectedMonth(monthNum)}
+              className={cn(
+                "flex-shrink-0 px-4 py-2 text-center font-serif text-base transition-all whitespace-nowrap",
+                "scroll-snap-align-center",
+                selectedMonth === monthNum
+                  ? "text-brand-600 font-bold"
+                  : hasData
+                    ? "text-muted-foreground hover:text-foreground"
+                    : "text-muted-foreground/30"
+              )}
+            >
+              {month}
+            </button>
+          );
+        })}
       </div>
 
       {/* Location filter - horizontal scroll */}
