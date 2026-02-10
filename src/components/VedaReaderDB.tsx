@@ -1482,9 +1482,9 @@ export const VedaReaderDB = () => {
 
               {/* Icons - hidden on mobile (use Spine navigation instead) */}
               <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
-                <Button variant="ghost" size="icon" onClick={handleAddToLearning} disabled={!currentVerse} title={t("Додати до вивчення", "Add to learning")}>
+                {isAdmin && <Button variant="ghost" size="icon" onClick={handleAddToLearning} disabled={!currentVerse} title={t("Додати до вивчення", "Add to learning")}>
                   <GraduationCap className={`h-5 w-5 ${currentVerse && isVerseInLearningList(currentVerse.id) ? "fill-primary text-primary" : ""}`} />
-                </Button>
+                </Button>}
                 <Button variant="ghost" size="icon" onClick={toggleBookmark} title={t("Закладка", "Bookmark")}>
                   <Bookmark className={`h-5 w-5 ${isBookmarked ? "fill-primary text-primary" : ""}`} />
                 </Button>
@@ -1549,8 +1549,8 @@ export const VedaReaderDB = () => {
         {/* Intro/preface block (render above verses if present) */}
         {(language === "uk" ? effectiveChapter.content_uk : effectiveChapter.content_en) && !isTextChapter && (
           <div className="verse-surface mb-8">
-            <div className="prose prose-lg max-w-none dark:prose-invert">
-              <TiptapRenderer content={language === "uk" ? effectiveChapter.content_uk || "" : effectiveChapter.content_en || ""} />
+            <div className="prose prose-lg max-w-none dark:prose-invert" style={{ fontSize: `${fontSize}px`, lineHeight }}>
+              <TiptapRenderer content={language === "uk" ? effectiveChapter.content_uk || "" : effectiveChapter.content_en || ""} fontSize={fontSize} lineHeight={lineHeight} />
             </div>
           </div>
         )}
@@ -1571,8 +1571,8 @@ export const VedaReaderDB = () => {
                 </Button>
               </div>
             )}
-            <div className="prose prose-lg max-w-none dark:prose-invert">
-              <TiptapRenderer content={language === "uk" ? effectiveChapter.content_uk || "" : effectiveChapter.content_en || effectiveChapter.content_uk || ""} />
+            <div className="prose prose-lg max-w-none dark:prose-invert" style={{ fontSize: `${fontSize}px`, lineHeight }}>
+              <TiptapRenderer content={language === "uk" ? effectiveChapter.content_uk || "" : effectiveChapter.content_en || effectiveChapter.content_uk || ""} fontSize={fontSize} lineHeight={lineHeight} />
             </div>
             {/* Навігація знизу для текстових глав - ховаємо на мобільних (є свайп) */}
             {!isMobile && (

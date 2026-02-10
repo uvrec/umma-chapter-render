@@ -9,7 +9,7 @@ import { useAudio } from "@/contexts/ModernAudioContext";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { VerseNumberEditor } from "@/components/VerseNumberEditor";
 import { DualLanguageText } from "@/components/DualLanguageText";
-import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
+import { addSanskritLineBreaks, splitSanskritForMobile } from "@/utils/text/lineBreaks";
 import { stripParagraphTags } from "@/utils/import/normalizers";
 import { parseSynonymPairs, type SynonymPair } from "@/utils/glossaryParser";
 import { addLearningVerse, isVerseInLearningList, LearningVerse } from "@/utils/learningVerses";
@@ -225,12 +225,14 @@ export const DualLanguageVerseCard = ({
 
   // Обробка санскриту для автоматичних розривів рядків
   const processedSanskritUk = useMemo(() => {
-    return addSanskritLineBreaks(sanskritTextUk);
-  }, [sanskritTextUk]);
+    const base = addSanskritLineBreaks(sanskritTextUk);
+    return isMobile ? splitSanskritForMobile(base) : base;
+  }, [sanskritTextUk, isMobile]);
 
   const processedSanskritEn = useMemo(() => {
-    return addSanskritLineBreaks(sanskritTextEn);
-  }, [sanskritTextEn]);
+    const base = addSanskritLineBreaks(sanskritTextEn);
+    return isMobile ? splitSanskritForMobile(base) : base;
+  }, [sanskritTextEn, isMobile]);
 
   // Парсинг синонімів - єдиний парсер з glossaryParser.ts
   const synonymsParsedUk = parseSynonymPairs(isEditing ? edited.synonymsUk : synonymsUk);
@@ -319,8 +321,8 @@ export const DualLanguageVerseCard = ({
                   {getBookPrefix(bookSlug, "uk")} {verseNumber}
                 </span>
               )}
-              {/* Кнопка "Додати до вивчення" */}
-              {verseId && (
+              {/* Кнопка "Додати до вивчення" — тільки для адміна */}
+              {isAdmin && verseId && (
                 <button
                   onClick={handleAddToLearning}
                   disabled={isAddedToLearning}

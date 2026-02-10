@@ -46,6 +46,37 @@ export function addSanskritLineBreaks(text: string): string {
 }
 
 /**
+ * Splits each line of already-processed Sanskrit text at the midpoint (by words)
+ * to create more lines for narrow/mobile displays.
+ * E.g. 2 lines → 4 lines (each half-verse splits into two quarter-verses)
+ */
+export function splitSanskritForMobile(text: string): string {
+  if (!text || typeof text !== 'string') return text || '';
+
+  const lines = text.split('\n');
+  const result: string[] = [];
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    // Split line into words
+    const words = trimmed.split(/\s+/);
+
+    // Only split if the line has enough words (4+) to make a meaningful split
+    if (words.length >= 4) {
+      const mid = Math.ceil(words.length / 2);
+      result.push(words.slice(0, mid).join(' '));
+      result.push(words.slice(mid).join(' '));
+    } else {
+      result.push(trimmed);
+    }
+  }
+
+  return result.join('\n');
+}
+
+/**
  * Adds line breaks to transliteration based on Sanskrit line breaks
  * Assumes transliteration roughly follows same structure as Sanskrit
  */

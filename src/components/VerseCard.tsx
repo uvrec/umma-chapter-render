@@ -17,7 +17,7 @@ import { addLearningWord, isWordInLearningList } from "@/utils/learningWords";
 import { toast } from "sonner";
 import DOMPurify from "dompurify";
 import { stripParagraphTags, sanitizeForRender } from "@/utils/import/normalizers";
-import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
+import { addSanskritLineBreaks, splitSanskritForMobile } from "@/utils/text/lineBreaks";
 import { parseSynonymPairs } from "@/utils/glossaryParser";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { formatExplanationParagraphs } from "@/utils/text/dropCap";
@@ -314,8 +314,9 @@ export const VerseCard = ({
 
   // Обробка санскриту для автоматичних розривів рядків (як у двомовному режимі)
   const processedSanskrit = useMemo(() => {
-    return addSanskritLineBreaks(sanskritText);
-  }, [sanskritText]);
+    const base = addSanskritLineBreaks(sanskritText);
+    return isMobile ? splitSanskritForMobile(base) : base;
+  }, [sanskritText, isMobile]);
 
   // Парсинг синонімів - використовуємо єдиний парсер з glossaryParser.ts
   const synonymPairs = parseSynonymPairs(isEditing ? edited.synonyms : synonyms);
@@ -633,8 +634,8 @@ export const VerseCard = ({
                               </span>
                             ))}
                             {pair.meaning && <span> — {pair.meaning}</span>}
-                            {/* Learning button - hidden on mobile via CSS for clean reading */}
-                            <button
+                            {/* Learning button - only visible for admin */}
+                            {isAdmin && <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleAddToLearning(pair.term, pair.meaning || "");
@@ -646,7 +647,7 @@ export const VerseCard = ({
                               <GraduationCap
                                 className={`h-4 w-4 ${isWordInLearningList(pair.term) ? "text-green-600" : "text-muted-foreground group-hover:text-primary"}`}
                               />
-                            </button>
+                            </button>}
                             {i < synonymPairs.length - 1 && <span>; </span>}
                           </span>
                         );
