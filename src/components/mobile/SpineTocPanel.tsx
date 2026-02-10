@@ -129,8 +129,6 @@ function SwipeableBookRow({
     return Array.from({ length: book.chapter_count || 0 }, (_, i) => i + 1);
   }, [book.chapter_count]);
 
-  const containerWidth = containerRef.current?.offsetWidth || 300;
-
   return (
     <div
       ref={containerRef}
@@ -145,7 +143,7 @@ function SwipeableBookRow({
         style={{
           transform: `translateX(${translateX}px)`,
           transition: touchStartRef.current ? 'none' : 'transform 200ms ease-out',
-          width: `${containerWidth * 2}px`,
+          width: '200%',
         }}
       >
         {/* Book info (left panel) */}
@@ -155,17 +153,17 @@ function SwipeableBookRow({
             "active:bg-muted/50",
             isCurrentBook && "bg-brand-50/50 dark:bg-brand-950/20"
           )}
-          style={{ width: `${containerWidth}px` }}
+          style={{ width: '50%' }}
           onClick={handleBookTap}
         >
           <div className="flex-1 min-w-0">
             <div className={cn(
-              "font-medium truncate text-sm",
-              isCurrentBook && "text-brand-600 dark:text-brand-400"
+              "font-serif truncate text-base",
+              isCurrentBook ? "text-brand-600 dark:text-brand-400" : "text-foreground"
             )}>
               {bookName}
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xs text-muted-foreground/70">
               {book.chapter_count || 0} {hasCanto ? t("Пісень", "Cantos") : t("Глав", "Ch.")}
             </div>
           </div>
@@ -174,7 +172,7 @@ function SwipeableBookRow({
         {/* Chapter numbers (right panel - revealed on swipe) */}
         <div
           className="flex items-center bg-muted/50"
-          style={{ width: `${containerWidth}px` }}
+          style={{ width: '50%' }}
         >
           {/* Back button */}
           <button
@@ -315,13 +313,13 @@ export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelPro
         )}
       >
         {/* Tabs */}
-        <div className="flex border-b pt-4">
+        <div className="flex pt-4">
           <button
             onClick={() => handleTabClick("books")}
             className={cn(
-              "flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors",
+              "flex-1 flex items-center justify-center gap-2 py-3 text-sm font-serif transition-colors",
               activeTab === "books"
-                ? "text-brand-500 border-b-2 border-brand-500"
+                ? "text-brand-500"
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
@@ -331,7 +329,7 @@ export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelPro
           <button
             onClick={() => handleTabClick("lectures")}
             className={cn(
-              "flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors",
+              "flex-1 flex items-center justify-center gap-2 py-3 text-sm font-serif transition-colors",
               "text-muted-foreground hover:text-foreground"
             )}
           >
@@ -341,7 +339,7 @@ export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelPro
           <button
             onClick={() => handleTabClick("letters")}
             className={cn(
-              "flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors",
+              "flex-1 flex items-center justify-center gap-2 py-3 text-sm font-serif transition-colors",
               "text-muted-foreground hover:text-foreground"
             )}
           >
@@ -353,7 +351,7 @@ export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelPro
         <ScrollArea className="h-[calc(100vh-60px)]">
           <div className="py-1">
             {/* Books List - flat, no category headers */}
-            <div className="divide-y divide-border/30">
+            <div>
               {Object.values(groupedBooks).flat().map((book) => {
                   const hasCanto = book.has_cantos || hasCantoStructure(book.slug);
                   const isCurrentBook = currentBookId === book.slug;

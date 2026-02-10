@@ -67,24 +67,24 @@ export const Library = () => {
       <div className="container mx-auto px-4 py-3 sm:py-4">
         {/* Tabs for sections */}
         <Tabs defaultValue={defaultTab} className="w-full">
-          <TabsList className="flex justify-center gap-8 bg-transparent mb-6 h-auto p-0">
+          <TabsList className="flex justify-center gap-8 bg-transparent mb-4 h-auto p-0 border-0">
             <TabsTrigger
               value="books"
-              className="flex items-center gap-2 bg-transparent px-0 py-2 data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none text-muted-foreground data-[state=active]:text-primary"
+              className="flex items-center gap-2 bg-transparent px-0 py-2 data-[state=active]:bg-transparent data-[state=active]:shadow-none border-0 rounded-none text-muted-foreground data-[state=active]:text-primary font-serif"
             >
               <BookOpen className="w-4 h-4" />
               <span>{t('Книги', 'Books')}</span>
             </TabsTrigger>
             <TabsTrigger
               value="lectures"
-              className="flex items-center gap-2 bg-transparent px-0 py-2 data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none text-muted-foreground data-[state=active]:text-primary"
+              className="flex items-center gap-2 bg-transparent px-0 py-2 data-[state=active]:bg-transparent data-[state=active]:shadow-none border-0 rounded-none text-muted-foreground data-[state=active]:text-primary font-serif"
             >
               <Mic className="w-4 h-4" />
               <span>{t('Лекції', 'Transcripts')}</span>
             </TabsTrigger>
             <TabsTrigger
               value="letters"
-              className="flex items-center gap-2 bg-transparent px-0 py-2 data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none text-muted-foreground data-[state=active]:text-primary"
+              className="flex items-center gap-2 bg-transparent px-0 py-2 data-[state=active]:bg-transparent data-[state=active]:shadow-none border-0 rounded-none text-muted-foreground data-[state=active]:text-primary font-serif"
             >
               <Mail className="w-4 h-4" />
               <span>{t('Листи', 'Letters')}</span>
