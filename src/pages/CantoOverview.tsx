@@ -360,7 +360,6 @@ export const CantoOverview = () => {
           <h1 className="text-4xl font-bold mb-4 text-center text-primary">
             {t("Пісня", "Canto")} {cantoNumber}: {cantoTitle}
           </h1>
-          {cantoDescription && <p className="text-lg text-muted-foreground text-center">{cantoDescription}</p>}
         </div>
 
         <div className="space-y-1">
