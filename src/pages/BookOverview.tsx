@@ -81,7 +81,6 @@ function SwipeableCantoRow({
   };
 
   const chapters = Array.from({ length: chapterCount }, (_, i) => i + 1);
-  const containerWidth = containerRef.current?.offsetWidth || 300;
 
   return (
     <div
@@ -96,25 +95,25 @@ function SwipeableCantoRow({
         style={{
           transform: `translateX(${translateX}px)`,
           transition: touchStartRef.current ? 'none' : 'transform 200ms ease-out',
-          width: `${containerWidth * 2}px`,
+          width: '200%',
         }}
       >
         {/* Row info */}
         <div
           className="flex items-center gap-3 px-4 py-4 cursor-pointer active:bg-muted/50"
-          style={{ width: `${containerWidth}px` }}
+          style={{ width: '50%' }}
           onClick={handleRowTap}
         >
           <div className="flex-1 min-w-0">
-            <div className="font-medium text-foreground">{label}</div>
+            <div className="font-serif text-base text-foreground">{label}</div>
             {chapterCount > 0 && (
-              <div className="text-sm text-muted-foreground">{chapterCount} глав</div>
+              <div className="text-xs text-muted-foreground/70">{chapterCount} глав</div>
             )}
           </div>
         </div>
 
         {/* Chapter numbers */}
-        <div className="flex items-center bg-muted/50" style={{ width: `${containerWidth}px` }}>
+        <div className="flex items-center bg-muted/50" style={{ width: '50%' }}>
           <button onClick={handleClose} className="h-full px-2 flex items-center text-muted-foreground">
             <ChevronLeft className="h-5 w-5" />
           </button>
@@ -210,7 +209,6 @@ function SwipeableChapterRow({
   };
 
   const verses = Array.from({ length: verseCount }, (_, i) => i + 1);
-  const containerWidth = containerRef.current?.offsetWidth || 300;
 
   return (
     <div
@@ -225,25 +223,25 @@ function SwipeableChapterRow({
         style={{
           transform: `translateX(${translateX}px)`,
           transition: touchStartRef.current ? 'none' : 'transform 200ms ease-out',
-          width: `${containerWidth * 2}px`,
+          width: '200%',
         }}
       >
         {/* Chapter info */}
         <div
           className="flex items-center gap-3 px-4 py-4 cursor-pointer active:bg-muted/50"
-          style={{ width: `${containerWidth}px` }}
+          style={{ width: '50%' }}
           onClick={handleRowTap}
         >
           <div className="flex-1 min-w-0">
-            <div className="font-medium text-foreground">{chapterNum}. {title}</div>
+            <div className="font-serif text-base text-foreground">{chapterNum}. {title}</div>
             {verseCount > 0 && (
-              <div className="text-sm text-muted-foreground">{verseCount} віршів</div>
+              <div className="text-xs text-muted-foreground/70">{verseCount} віршів</div>
             )}
           </div>
         </div>
 
         {/* Verse numbers */}
-        <div className="flex items-center bg-muted/50" style={{ width: `${containerWidth}px` }}>
+        <div className="flex items-center bg-muted/50" style={{ width: '50%' }}>
           <button onClick={handleClose} className="h-full px-2 flex items-center text-muted-foreground">
             <ChevronLeft className="h-5 w-5" />
           </button>

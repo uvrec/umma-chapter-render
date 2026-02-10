@@ -2,10 +2,10 @@
 // Мобільний таймлайн листів у стилі Neu Bible
 // Рік → Місяць (свайп) → Локація (чіпси) → Листи
 
-import { useState, useMemo, useRef, useCallback, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, MapPin, Calendar, Mail } from "lucide-react";
+import { MapPin, Calendar, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,9 +40,8 @@ export function MobileLettersTimeline() {
   const [selectedMonth, setSelectedMonth] = useState(1); // 1-12
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null); // null = all
   const yearScrollRef = useRef<HTMLDivElement>(null);
-
-  // Touch handling for month swipe
-  const touchStartX = useRef<number | null>(null);
+  const monthScrollRef = useRef<HTMLDivElement>(null);
+  const locationScrollRef = useRef<HTMLDivElement>(null);
 
   // Fetch all letters
   const { data: letters, isLoading } = useQuery({
@@ -76,6 +75,21 @@ export function MobileLettersTimeline() {
     }
   }, [years, selectedYear]);
 
+  // Auto-select first month with letters when year changes
+  useEffect(() => {
+    if (!letters || selectedYear === null) return;
+    const monthsWithData = new Set<number>();
+    letters.forEach(l => {
+      const date = new Date(l.letter_date);
+      if (date.getFullYear() === selectedYear) {
+        monthsWithData.add(date.getMonth() + 1);
+      }
+    });
+    if (monthsWithData.size > 0 && !monthsWithData.has(selectedMonth)) {
+      setSelectedMonth(Math.min(...monthsWithData));
+    }
+  }, [letters, selectedYear]);
+
   // Get unique locations
   const locations = useMemo(() => {
     if (!letters) return [];
@@ -85,6 +99,19 @@ export function MobileLettersTimeline() {
     });
     return Array.from(uniqueLocations).sort();
   }, [letters]);
+
+  // Months that have letters for the selected year
+  const monthsWithLetters = useMemo(() => {
+    if (!letters || selectedYear === null) return new Set<number>();
+    const months = new Set<number>();
+    letters.forEach(l => {
+      const date = new Date(l.letter_date);
+      if (date.getFullYear() === selectedYear) {
+        months.add(date.getMonth() + 1);
+      }
+    });
+    return months;
+  }, [letters, selectedYear]);
 
   // Filter letters by year, month, and location
   const filteredLetters = useMemo(() => {
@@ -121,57 +148,15 @@ export function MobileLettersTimeline() {
     }
   }, [selectedYear, years]);
 
-  // Month navigation
-  const goToPrevMonth = useCallback(() => {
-    if (selectedYear === null) return;
-
-    if (selectedMonth === 1) {
-      const prevYearIndex = years.indexOf(selectedYear) - 1;
-      if (prevYearIndex >= 0) {
-        setSelectedYear(years[prevYearIndex]);
-        setSelectedMonth(12);
-      }
-    } else {
-      setSelectedMonth(m => m - 1);
+  // Scroll to selected month
+  useEffect(() => {
+    if (monthScrollRef.current) {
+      const monthIndex = selectedMonth - 1;
+      const itemWidth = 100;
+      const scrollPosition = monthIndex * itemWidth - (window.innerWidth / 2) + itemWidth / 2;
+      monthScrollRef.current.scrollTo({ left: scrollPosition, behavior: "smooth" });
     }
-  }, [selectedMonth, selectedYear, years]);
-
-  const goToNextMonth = useCallback(() => {
-    if (selectedYear === null) return;
-
-    if (selectedMonth === 12) {
-      const nextYearIndex = years.indexOf(selectedYear) + 1;
-      if (nextYearIndex < years.length) {
-        setSelectedYear(years[nextYearIndex]);
-        setSelectedMonth(1);
-      }
-    } else {
-      setSelectedMonth(m => m + 1);
-    }
-  }, [selectedMonth, selectedYear, years]);
-
-  // Touch handlers for month swipe
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current === null) return;
-
-    const touchEndX = e.changedTouches[0].clientX;
-    const deltaX = touchEndX - touchStartX.current;
-    const threshold = 50;
-
-    if (Math.abs(deltaX) > threshold) {
-      if (deltaX > 0) {
-        goToPrevMonth();
-      } else {
-        goToNextMonth();
-      }
-    }
-
-    touchStartX.current = null;
-  };
+  }, [selectedMonth]);
 
   // Navigate to letter
   const handleLetterClick = (letter: Letter) => {
@@ -220,7 +205,7 @@ export function MobileLettersTimeline() {
       {/* Years horizontal scroll */}
       <div
         ref={yearScrollRef}
-        className="flex overflow-x-auto scrollbar-hide py-4 px-2 border-b border-border/50"
+        className="flex overflow-x-auto scrollbar-hide py-4 px-2"
         style={{ scrollSnapType: "x mandatory" }}
       >
         {years.map((year) => (
@@ -240,48 +225,50 @@ export function MobileLettersTimeline() {
         ))}
       </div>
 
-      {/* Month selector with swipe */}
+      {/* Months horizontal scroll */}
       <div
-        className="flex items-center justify-between px-4 py-6 border-b border-border/50"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
+        ref={monthScrollRef}
+        className="flex overflow-x-auto scrollbar-hide py-3 px-2"
+        style={{ scrollSnapType: "x mandatory" }}
       >
-        <button
-          onClick={goToPrevMonth}
-          className="p-2 text-muted-foreground hover:text-foreground transition-colors"
-          aria-label={t("Попередній місяць", "Previous month")}
-        >
-          <ChevronLeft className="h-6 w-6" />
-        </button>
-
-        <div className="text-center">
-          <h2 className="text-xl font-serif font-medium">
-            {monthNames[selectedMonth - 1]} {selectedYear}
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            {monthLetterCount} {t("листів", "letters")}
-          </p>
-        </div>
-
-        <button
-          onClick={goToNextMonth}
-          className="p-2 text-muted-foreground hover:text-foreground transition-colors"
-          aria-label={t("Наступний місяць", "Next month")}
-        >
-          <ChevronRight className="h-6 w-6" />
-        </button>
+        {monthNames.map((month, index) => {
+          const monthNum = index + 1;
+          const hasData = monthsWithLetters.has(monthNum);
+          return (
+            <button
+              key={index}
+              onClick={() => setSelectedMonth(monthNum)}
+              className={cn(
+                "flex-shrink-0 px-4 py-2 text-center font-serif text-base transition-all whitespace-nowrap",
+                "scroll-snap-align-center",
+                selectedMonth === monthNum
+                  ? "text-brand-600 font-bold"
+                  : hasData
+                    ? "text-muted-foreground hover:text-foreground"
+                    : "text-muted-foreground/30"
+              )}
+            >
+              {month}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Location filter chips */}
+      {/* Location filter - horizontal scroll */}
       {locations.length > 0 && (
-        <div className="flex overflow-x-auto scrollbar-hide gap-2 px-4 py-3 border-b border-border/50">
+        <div
+          ref={locationScrollRef}
+          className="flex overflow-x-auto scrollbar-hide py-3 px-2"
+          style={{ scrollSnapType: "x mandatory" }}
+        >
           <button
             onClick={() => setSelectedLocation(null)}
             className={cn(
-              "flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
+              "flex-shrink-0 px-4 py-2 text-center font-serif text-base transition-all whitespace-nowrap",
+              "scroll-snap-align-center",
               selectedLocation === null
-                ? "bg-brand-500 text-white"
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
+                ? "text-brand-600 font-bold"
+                : "text-muted-foreground hover:text-foreground"
             )}
           >
             {t("Всі", "All")}
@@ -291,10 +278,11 @@ export function MobileLettersTimeline() {
               key={location}
               onClick={() => setSelectedLocation(location)}
               className={cn(
-                "flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap",
+                "flex-shrink-0 px-4 py-2 text-center font-serif text-base transition-all whitespace-nowrap",
+                "scroll-snap-align-center",
                 selectedLocation === location
-                  ? "bg-brand-500 text-white"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  ? "text-brand-600 font-bold"
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
               {location}

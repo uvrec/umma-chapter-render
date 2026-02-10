@@ -106,8 +106,6 @@ function SwipeableBookRow({
     return Array.from({ length: book.chapter_count || 0 }, (_, i) => i + 1);
   }, [book.chapter_count]);
 
-  const containerWidth = containerRef.current?.offsetWidth || 300;
-
   return (
     <div
       ref={containerRef}
@@ -121,20 +119,20 @@ function SwipeableBookRow({
         style={{
           transform: `translateX(${translateX}px)`,
           transition: touchStartRef.current ? 'none' : 'transform 200ms ease-out',
-          width: `${containerWidth * 2}px`,
+          width: '200%',
         }}
       >
         {/* Book info (left panel) */}
         <div
           className="flex items-center gap-3 px-4 py-4 cursor-pointer active:bg-muted/50"
-          style={{ width: `${containerWidth}px` }}
+          style={{ width: '50%' }}
           onClick={handleBookTap}
         >
           <div className="flex-1 min-w-0">
-            <div className="font-medium text-foreground">
+            <div className="font-serif text-base text-foreground">
               {bookName}
             </div>
-            <div className="text-sm text-muted-foreground">
+            <div className="text-xs text-muted-foreground/70">
               {book.chapter_count || 0} {hasCanto ? t("Пісень", "Cantos") : t("Глав", "Chapters")}
             </div>
           </div>
@@ -143,7 +141,7 @@ function SwipeableBookRow({
         {/* Chapter/Canto numbers (right panel - revealed on swipe) */}
         <div
           className="flex items-center bg-muted/50"
-          style={{ width: `${containerWidth}px` }}
+          style={{ width: '50%' }}
         >
           <button
             onClick={handleClose}
@@ -198,7 +196,7 @@ export function MobileLibraryList({ books, isLoading }: MobileLibraryListProps) 
 
   if (isLoading) {
     return (
-      <div className="divide-y divide-border/50">
+      <div>
         {[...Array(6)].map((_, i) => (
           <div key={i} className="px-4 py-4 animate-pulse">
             <div className="h-4 w-40 bg-muted rounded mb-2" />
@@ -218,7 +216,7 @@ export function MobileLibraryList({ books, isLoading }: MobileLibraryListProps) 
   }
 
   return (
-    <div className="divide-y divide-border/50">
+    <div>
       {books.map((book) => {
         const hasCanto = book.has_cantos || hasCantoStructure(book.slug);
 

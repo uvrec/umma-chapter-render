@@ -39,31 +39,31 @@ function SwipeableChapterRow({
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     if (!touchStartRef.current) return;
     const deltaX = touchStartRef.current.x - e.touches[0].clientX;
-    const containerWidth = containerRef.current?.offsetWidth || 300;
+    const w = containerRef.current?.offsetWidth || 300;
     if (isExpanded) {
-      const newTranslate = Math.max(0, Math.min(deltaX, containerWidth));
-      setTranslateX(-containerWidth + newTranslate);
+      const newTranslate = Math.max(0, Math.min(deltaX, w));
+      setTranslateX(-w + newTranslate);
     } else {
-      const newTranslate = Math.max(0, Math.min(deltaX, containerWidth));
+      const newTranslate = Math.max(0, Math.min(deltaX, w));
       setTranslateX(-newTranslate);
     }
   }, [isExpanded]);
 
   const handleTouchEnd = useCallback(() => {
     if (!touchStartRef.current) return;
-    const containerWidth = containerRef.current?.offsetWidth || 300;
-    const threshold = containerWidth * 0.3;
+    const w = containerRef.current?.offsetWidth || 300;
+    const threshold = w * 0.3;
     if (isExpanded) {
-      if (translateX > -containerWidth + threshold) {
+      if (translateX > -w + threshold) {
         setIsExpanded(false);
         setTranslateX(0);
       } else {
-        setTranslateX(-containerWidth);
+        setTranslateX(-w);
       }
     } else {
       if (translateX < -threshold) {
         setIsExpanded(true);
-        setTranslateX(-containerWidth);
+        setTranslateX(-w);
       } else {
         setTranslateX(0);
       }
@@ -81,7 +81,7 @@ function SwipeableChapterRow({
   };
 
   const verses = Array.from({ length: verseCount }, (_, i) => i + 1);
-  const containerWidth = containerRef.current?.offsetWidth || 300;
+  const getContainerWidth = () => containerRef.current?.offsetWidth || 300;
 
   return (
     <div
@@ -96,23 +96,23 @@ function SwipeableChapterRow({
         style={{
           transform: `translateX(${translateX}px)`,
           transition: touchStartRef.current ? 'none' : 'transform 200ms ease-out',
-          width: `${containerWidth * 2}px`,
+          width: '200%',
         }}
       >
         {/* Chapter info */}
         <div
           className="flex items-center gap-3 px-4 py-4 cursor-pointer active:bg-muted/50"
-          style={{ width: `${containerWidth}px` }}
+          style={{ width: '50%' }}
           onClick={handleRowTap}
         >
           <div className="flex-1 min-w-0">
-            <div className="font-medium text-foreground">{chapterNum}. {title}</div>
-            <div className="text-sm text-muted-foreground">{verseCount} віршів</div>
+            <div className="font-serif text-base text-foreground">{chapterNum}. {title}</div>
+            <div className="text-xs text-muted-foreground/70">{verseCount} віршів</div>
           </div>
         </div>
 
         {/* Verse numbers */}
-        <div className="flex items-center bg-muted/50" style={{ width: `${containerWidth}px` }}>
+        <div className="flex items-center bg-muted/50" style={{ width: '50%' }}>
           <button onClick={handleClose} className="h-full px-2 flex items-center text-muted-foreground">
             <ChevronLeft className="h-5 w-5" />
           </button>
