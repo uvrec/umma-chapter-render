@@ -44,7 +44,7 @@ function DesktopHeader() {
   // ✅ показувати блок дій лише на сторінці керування постами І якщо користувач — адмін
   const showBlogAdminActions = isAdmin && pathname.startsWith("/admin/blog-posts");
   return <header className="site-header mx-4 lg:mx-8 rounded-2xl border border-foreground/10 bg-background/50 backdrop-blur-xl">
-      <div className="container mx-auto px-4 py-4">
+      <div className="container mx-auto px-4 py-2">
         {/* Top Bar */}
         <div className="flex items-center justify-between">
           {/* Desktop Navigation - visible from lg (1024px+) */}

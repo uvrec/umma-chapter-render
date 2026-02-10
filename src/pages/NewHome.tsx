@@ -98,7 +98,7 @@ function Hero() {
 
   return (
     <section
-      className="relative min-h-fit py-8 sm:py-12 md:min-h-[35vh] md:py-0 flex items-center justify-center bg-cover bg-center bg-no-repeat"
+      className="relative min-h-fit py-8 sm:py-12 md:min-h-[70vh] md:py-0 flex items-center justify-center bg-cover bg-center bg-no-repeat"
       style={{
         backgroundImage: `linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.6)), url(${settings.background_image})`,
       }}
