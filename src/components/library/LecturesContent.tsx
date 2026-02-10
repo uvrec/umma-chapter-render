@@ -226,7 +226,7 @@ export const LecturesContent = () => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
       {/* Results - Main content */}
-      <div className="lg:col-span-3 order-2 lg:order-1">
+      <div className="lg:col-span-3 order-1">
         {filteredAndSortedLectures.length > 0 && (
           <div className="mb-4 text-sm text-muted-foreground">
             {filteredAndSortedLectures.length} {t("лекцій", "lectures")}
@@ -270,7 +270,7 @@ export const LecturesContent = () => {
                             <span className="truncate">{getLectureLocation(lecture)}</span>
                           </div>
                           {lecture.book_slug && (
-                            <div className="flex items-center gap-1">
+                            <div className="hidden sm:flex items-center gap-1">
                               <BookOpen className="w-4 h-4" />
                               <span>
                                 {lecture.book_slug.toUpperCase()}
@@ -297,8 +297,8 @@ export const LecturesContent = () => {
         )}
       </div>
 
-      {/* Sidebar - Filters */}
-      <div className="lg:col-span-1 order-1 lg:order-2">
+      {/* Sidebar - Filters (hidden on mobile) */}
+      <div className="hidden lg:block lg:col-span-1 order-2">
         <div className="sticky top-4 space-y-3">
           {/* Search */}
           <div className="relative">
