@@ -2,10 +2,10 @@
 // Мобільний таймлайн лекцій у стилі Neu Bible
 // Рік → Місяць (свайп) → Локація (чіпси) → Лекції
 
-import { useState, useMemo, useRef, useCallback, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, MapPin, Calendar, Mic, BookOpen } from "lucide-react";
+import { MapPin, Calendar, Mic, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,9 +44,8 @@ export function MobileLecturesTimeline() {
   const [selectedMonth, setSelectedMonth] = useState(1); // 1-12
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null); // null = all
   const yearScrollRef = useRef<HTMLDivElement>(null);
-
-  // Touch handling for month swipe
-  const touchStartX = useRef<number | null>(null);
+  const monthScrollRef = useRef<HTMLDivElement>(null);
+  const locationScrollRef = useRef<HTMLDivElement>(null);
 
   // Fetch all lectures
   const { data: lectures, isLoading } = useQuery({
@@ -107,53 +106,15 @@ export function MobileLecturesTimeline() {
     }
   }, [selectedYear]);
 
-  // Month navigation
-  const goToPrevMonth = useCallback(() => {
-    if (selectedMonth === 1) {
-      const prevYear = YEARS[YEARS.indexOf(selectedYear) - 1];
-      if (prevYear) {
-        setSelectedYear(prevYear);
-        setSelectedMonth(12);
-      }
-    } else {
-      setSelectedMonth(m => m - 1);
+  // Scroll to selected month
+  useEffect(() => {
+    if (monthScrollRef.current) {
+      const monthIndex = selectedMonth - 1;
+      const itemWidth = 100; // approx width of month button
+      const scrollPosition = monthIndex * itemWidth - (window.innerWidth / 2) + itemWidth / 2;
+      monthScrollRef.current.scrollTo({ left: scrollPosition, behavior: "smooth" });
     }
-  }, [selectedMonth, selectedYear]);
-
-  const goToNextMonth = useCallback(() => {
-    if (selectedMonth === 12) {
-      const nextYear = YEARS[YEARS.indexOf(selectedYear) + 1];
-      if (nextYear) {
-        setSelectedYear(nextYear);
-        setSelectedMonth(1);
-      }
-    } else {
-      setSelectedMonth(m => m + 1);
-    }
-  }, [selectedMonth, selectedYear]);
-
-  // Touch handlers for month swipe
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current === null) return;
-
-    const touchEndX = e.changedTouches[0].clientX;
-    const deltaX = touchEndX - touchStartX.current;
-    const threshold = 50;
-
-    if (Math.abs(deltaX) > threshold) {
-      if (deltaX > 0) {
-        goToPrevMonth();
-      } else {
-        goToNextMonth();
-      }
-    }
-
-    touchStartX.current = null;
-  };
+  }, [selectedMonth]);
 
   // Navigate to lecture
   const handleLectureClick = (lecture: Lecture) => {
@@ -183,7 +144,7 @@ export function MobileLecturesTimeline() {
       {/* Years horizontal scroll */}
       <div
         ref={yearScrollRef}
-        className="flex overflow-x-auto scrollbar-hide py-4 px-2 border-b border-border/50"
+        className="flex overflow-x-auto scrollbar-hide py-4 px-2"
         style={{ scrollSnapType: "x mandatory" }}
       >
         {YEARS.map((year) => (
@@ -203,48 +164,44 @@ export function MobileLecturesTimeline() {
         ))}
       </div>
 
-      {/* Month selector with swipe */}
+      {/* Months horizontal scroll */}
       <div
-        className="flex items-center justify-between px-4 py-6 border-b border-border/50"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
+        ref={monthScrollRef}
+        className="flex overflow-x-auto scrollbar-hide py-3 px-2"
+        style={{ scrollSnapType: "x mandatory" }}
       >
-        <button
-          onClick={goToPrevMonth}
-          className="p-2 text-muted-foreground hover:text-foreground transition-colors"
-          aria-label={t("Попередній місяць", "Previous month")}
-        >
-          <ChevronLeft className="h-6 w-6" />
-        </button>
-
-        <div className="text-center">
-          <h2 className="text-xl font-serif font-medium">
-            {monthNames[selectedMonth - 1]} {selectedYear}
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            {monthLectureCount} {t("лекцій", "lectures")}
-          </p>
-        </div>
-
-        <button
-          onClick={goToNextMonth}
-          className="p-2 text-muted-foreground hover:text-foreground transition-colors"
-          aria-label={t("Наступний місяць", "Next month")}
-        >
-          <ChevronRight className="h-6 w-6" />
-        </button>
+        {monthNames.map((month, index) => (
+          <button
+            key={index}
+            onClick={() => setSelectedMonth(index + 1)}
+            className={cn(
+              "flex-shrink-0 px-4 py-2 text-center font-serif text-base transition-all whitespace-nowrap",
+              "scroll-snap-align-center",
+              selectedMonth === index + 1
+                ? "text-brand-600 font-bold"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {month}
+          </button>
+        ))}
       </div>
 
-      {/* Location filter chips */}
+      {/* Location filter - horizontal scroll */}
       {locations.length > 0 && (
-        <div className="flex overflow-x-auto scrollbar-hide gap-2 px-4 py-3 border-b border-border/50">
+        <div
+          ref={locationScrollRef}
+          className="flex overflow-x-auto scrollbar-hide py-3 px-2"
+          style={{ scrollSnapType: "x mandatory" }}
+        >
           <button
             onClick={() => setSelectedLocation(null)}
             className={cn(
-              "flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
+              "flex-shrink-0 px-4 py-2 text-center font-serif text-base transition-all whitespace-nowrap",
+              "scroll-snap-align-center",
               selectedLocation === null
-                ? "bg-brand-500 text-white"
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
+                ? "text-brand-600 font-bold"
+                : "text-muted-foreground hover:text-foreground"
             )}
           >
             {t("Всі", "All")}
@@ -254,10 +211,11 @@ export function MobileLecturesTimeline() {
               key={location}
               onClick={() => setSelectedLocation(location)}
               className={cn(
-                "flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap",
+                "flex-shrink-0 px-4 py-2 text-center font-serif text-base transition-all whitespace-nowrap",
+                "scroll-snap-align-center",
                 selectedLocation === location
-                  ? "bg-brand-500 text-white"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  ? "text-brand-600 font-bold"
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
               {location}
