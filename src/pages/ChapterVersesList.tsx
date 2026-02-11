@@ -10,7 +10,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, BookOpen, Edit, Save, X, ChevronLeft, ChevronRight, Plus, Trash2, Languages } from "lucide-react";
+import { ArrowLeft, BookOpen, Edit, Save, X, ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import DOMPurify from "dompurify";
 import { VerseSlider } from "@/components/mobile/VerseSlider";
@@ -860,7 +860,7 @@ export const ChapterVersesList = () => {
       <Header />
       <main className="flex-1 bg-background py-4 sm:py-8">
         <div className="container mx-auto max-w-6xl px-3 sm:px-4">
-          <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-2 sticky top-0 z-40 bg-background/95 backdrop-blur-sm py-2 -mx-3 px-3 sm:-mx-4 sm:px-4">
+          <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-2 sticky top-0 lg:top-[65px] z-40 bg-background/95 backdrop-blur-sm py-2 -mx-3 px-3 sm:-mx-4 sm:px-4">
             <Button variant="ghost" onClick={handleBack} className="gap-2" size="sm">
               <ArrowLeft className="h-4 w-4" />
               <span className="hidden xs:inline">Назад</span>
@@ -897,7 +897,7 @@ export const ChapterVersesList = () => {
                   onClick={() => setDualLanguageMode(!dualLanguageMode)}
                   title={language === "uk" ? "Двомовний режим" : "Dual language"}
                 >
-                  <Languages className="h-5 w-5" />
+                  <BookOpen className="h-5 w-5" />
                 </Button>
               )}
             </div>
