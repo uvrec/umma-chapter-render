@@ -5,11 +5,13 @@ import { toast } from "sonner";
 export interface Highlight {
   id: string;
   user_id: string;
-  book_id: string;
+  book_id?: string;
   canto_id?: string;
-  chapter_id: string;
+  chapter_id?: string;
   verse_id?: string;
   verse_number?: string;
+  letter_id?: string;
+  lecture_id?: string;
   selected_text: string;
   context_before?: string;
   context_after?: string;
@@ -28,14 +30,26 @@ export interface Highlight {
     title_uk?: string;
     title_en?: string;
   };
+  letter?: {
+    slug: string;
+    recipient_en: string;
+    recipient_uk?: string;
+  };
+  lecture?: {
+    slug: string;
+    title_en: string;
+    title_uk?: string;
+  };
 }
 
 export interface CreateHighlightParams {
-  book_id: string;
+  book_id?: string;
   canto_id?: string;
-  chapter_id: string;
+  chapter_id?: string;
   verse_id?: string;
   verse_number?: string;
+  letter_id?: string;
+  lecture_id?: string;
   selected_text: string;
   context_before?: string;
   context_after?: string;
@@ -129,6 +143,18 @@ export function groupHighlightsByTimeline(highlights: Highlight[], language: "uk
  * Get verse reference string for display
  */
 export function getHighlightReference(highlight: Highlight, language: "uk" | "en" = "uk"): string {
+  // Лист
+  if (highlight.letter_id && highlight.letter) {
+    const recipient = (language === "uk" ? highlight.letter.recipient_uk : null) || highlight.letter.recipient_en;
+    return `${language === "uk" ? "Лист до" : "Letter to"} ${recipient}`;
+  }
+
+  // Лекція
+  if (highlight.lecture_id && highlight.lecture) {
+    return (language === "uk" ? highlight.lecture.title_uk : null) || highlight.lecture.title_en;
+  }
+
+  // Книга (оригінальна логіка)
   const bookName = highlight.book
     ? (language === "uk" ? highlight.book.title_uk : highlight.book.title_en) || highlight.book.slug.toUpperCase()
     : "";
@@ -144,12 +170,18 @@ export function getHighlightReference(highlight: Highlight, language: "uk" | "en
   return bookName;
 }
 
-export const useHighlights = (chapterId?: string, fetchAll?: boolean) => {
+export const useHighlights = (
+  chapterId?: string,
+  fetchAll?: boolean,
+  options?: { letterId?: string; lectureId?: string }
+) => {
   const queryClient = useQueryClient();
+  const letterId = options?.letterId;
+  const lectureId = options?.lectureId;
 
-  // ✅ Enhanced query with book/chapter joins for timeline display
+  // ✅ Enhanced query with book/chapter/letter/lecture joins for timeline display
   const { data: highlights, isLoading } = useQuery({
-    queryKey: ["highlights", chapterId, fetchAll],
+    queryKey: ["highlights", chapterId, fetchAll, letterId, lectureId],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
@@ -161,7 +193,9 @@ export const useHighlights = (chapterId?: string, fetchAll?: boolean) => {
         .select(`
           *,
           book:book_id (slug, title_uk, title_en),
-          chapter:chapter_id (chapter_number, title_uk, title_en)
+          chapter:chapter_id (chapter_number, title_uk, title_en),
+          letter:letter_id (slug, recipient_en, recipient_uk),
+          lecture:lecture_id (slug, title_en, title_uk)
         `)
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
@@ -169,13 +203,19 @@ export const useHighlights = (chapterId?: string, fetchAll?: boolean) => {
       if (chapterId && !fetchAll) {
         query = query.eq("chapter_id", chapterId);
       }
+      if (letterId && !fetchAll) {
+        query = query.eq("letter_id", letterId);
+      }
+      if (lectureId && !fetchAll) {
+        query = query.eq("lecture_id", lectureId);
+      }
 
       const { data, error } = await query;
       if (error) throw error;
       // Bypass TypeScript - FK exists in DB, types.ts just needs regeneration
       return data as unknown as Highlight[];
     },
-    enabled: fetchAll || !!chapterId,
+    enabled: fetchAll || !!chapterId || !!letterId || !!lectureId,
   });
 
   const createHighlight = useMutation({
