@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Bookmark,
   BookmarkCheck,
-  Languages,
+  BookOpen,
   ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -147,7 +147,7 @@ export const BookReaderHeader = ({
               onClick={() => setDualLanguageMode(!dualLanguageMode)}
               title={t("Двомовний режим", "Dual language")}
             >
-              <Languages className="h-5 w-5" />
+              <BookOpen className="h-5 w-5" />
             </Button>
           </div>
         </div>
@@ -302,7 +302,7 @@ export const BookReaderHeader = ({
             onClick={() => setDualLanguageMode(!dualLanguageMode)}
             title={t("Двомовний режим", "Dual language")}
           >
-            <Languages className="h-5 w-5" />
+            <BookOpen className="h-5 w-5" />
           </Button>
         </div>
       </div>

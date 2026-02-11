@@ -10,7 +10,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, BookOpen, Edit, Save, X, ChevronLeft, ChevronRight, Plus, Trash2, Languages } from "lucide-react";
+import { ArrowLeft, BookOpen, Edit, Save, X, ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import DOMPurify from "dompurify";
 import { VerseSlider } from "@/components/mobile/VerseSlider";
@@ -897,7 +897,7 @@ export const ChapterVersesList = () => {
                   onClick={() => setDualLanguageMode(!dualLanguageMode)}
                   title={language === "uk" ? "Двомовний режим" : "Dual language"}
                 >
-                  <Languages className="h-5 w-5" />
+                  <BookOpen className="h-5 w-5" />
                 </Button>
               )}
             </div>

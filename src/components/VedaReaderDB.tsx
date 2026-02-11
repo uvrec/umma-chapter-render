@@ -4,7 +4,7 @@
 import { useEffect, useLayoutEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Languages, Bookmark, Share2, Download, Home, Highlighter, HelpCircle, GraduationCap, Maximize, Leaf, Copy, Link, Presentation } from "lucide-react";
+import { ChevronLeft, ChevronRight, BookOpen, Bookmark, Share2, Download, Home, Highlighter, HelpCircle, GraduationCap, Maximize, Leaf, Copy, Link, Presentation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { VerseCard } from "@/components/VerseCard";
 import { DualLanguageVerseCard } from "@/components/DualLanguageVerseCard";
@@ -1518,7 +1518,7 @@ export const VedaReaderDB = () => {
                   <Maximize className={`h-5 w-5 ${fullscreenMode ? "text-primary" : ""}`} />
                 </Button>
                 <Button variant={dualLanguageMode ? "secondary" : "ghost"} size="icon" onClick={() => setDualLanguageMode(!dualLanguageMode)} title={t("Двомовний режим", "Dual language")}>
-                  <Languages className="h-5 w-5" />
+                  <BookOpen className="h-5 w-5" />
                 </Button>
               </div>
             </div>
