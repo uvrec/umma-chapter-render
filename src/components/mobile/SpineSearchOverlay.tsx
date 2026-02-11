@@ -79,29 +79,15 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
-  const [isVisible, setIsVisible] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { t, getLocalizedPath, language } = useLanguage();
 
-  // ✅ Smooth translate-x animation on open/close
+  // Load recent searches when opening
   useEffect(() => {
-    if (open && !isVisible) {
-      setIsVisible(true);
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => setIsAnimating(true));
-      });
-    } else if (!open && isAnimating) {
-      setIsAnimating(false);
-      const timer = setTimeout(() => setIsVisible(false), 300);
-      return () => clearTimeout(timer);
+    if (open) {
+      setRecentSearches(getRecentSearches());
     }
-  }, [open, isVisible, isAnimating]);
-
-  // Load recent searches on mount
-  useEffect(() => {
-    setRecentSearches(getRecentSearches());
   }, [open]);
 
   // Fetch books for search
@@ -308,13 +294,9 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
   };
 
   const handleClose = () => {
-    setIsAnimating(false);
-    setTimeout(() => {
-      setIsVisible(false);
-      onClose();
-      setQuery("");
-      setResults([]);
-    }, 300);
+    onClose();
+    setQuery("");
+    setResults([]);
   };
 
   const getResultIcon = (type: SearchResult["type"]) => {
@@ -334,15 +316,14 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
     }
   };
 
-  if (!isVisible && !open) return null;
+  if (!open) return null;
 
   return (
     <div
       className={cn(
         "fixed left-14 top-0 bottom-0 z-[40] flex flex-col",
-        "transition-transform duration-300 ease-out",
         "bg-background",
-        isAnimating ? "translate-x-0" : "-translate-x-full"
+        "animate-in slide-in-from-left duration-300"
       )}
       style={{ width: 'calc(100% - 56px)' }}
     >
