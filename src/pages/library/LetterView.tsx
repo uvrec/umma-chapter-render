@@ -38,6 +38,7 @@ import { useContentSelectionTooltip } from "@/hooks/useContentSelectionTooltip";
 import { ContentToolbar } from "@/components/ContentToolbar";
 import { SelectionTooltip } from "@/components/SelectionTooltip";
 import { HighlightDialog } from "@/components/HighlightDialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 
 export const LetterView = () => {
@@ -47,6 +48,9 @@ export const LetterView = () => {
   const { isAdmin } = useAuth();
   const { language, getLocalizedPath } = useLanguage();
   const { dualLanguageMode } = useReaderSettings();
+  const isMobile = useIsMobile();
+  // На мобільному dual mode не має сенсу — показуємо тільки обрану мову
+  const effectiveDualMode = dualLanguageMode && !isMobile;
 
   // Завантажити лист (визначено тут для доступу до letter.id в хуку виділення)
   const { data: letter, isLoading } = useQuery({
@@ -222,14 +226,14 @@ export const LetterView = () => {
     return html.split(/\n\n+/).filter(p => p.trim()).map(p => `<p>${p.trim()}</p>`).join("\n");
   };
 
-  const paragraphsUk = dualLanguageMode ? splitLetterParagraphs(letter.content_uk) : [];
-  const paragraphsEn = dualLanguageMode ? splitLetterParagraphs(letter.content_en) : [];
+  const paragraphsUk = effectiveDualMode ? splitLetterParagraphs(letter.content_uk) : [];
+  const paragraphsEn = effectiveDualMode ? splitLetterParagraphs(letter.content_en) : [];
   const maxParagraphs = Math.max(paragraphsUk.length, paragraphsEn.length);
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className={`container mx-auto px-4 py-8 ${dualLanguageMode ? "max-w-7xl" : "max-w-4xl"}`}>
+      <main className={`container mx-auto px-4 py-8 ${effectiveDualMode ? "max-w-7xl" : "max-w-4xl"}`}>
         {/* Навігація + Toolbar + Edit button */}
         <div className="mb-6 flex items-center justify-between flex-wrap gap-2">
           <Button
@@ -412,7 +416,7 @@ export const LetterView = () => {
               </div>
             </div>
           </div>
-        ) : dualLanguageMode ? (
+        ) : effectiveDualMode ? (
           // DUAL MODE - Синхронізовані параграфи (side by side)
           <div className="space-y-2">
             {Array.from({ length: maxParagraphs }, (_, i) => (
