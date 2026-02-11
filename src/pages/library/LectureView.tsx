@@ -43,6 +43,7 @@ import { useSectionMemento } from "@/hooks/useSectionMemento";
 import { useContentSelectionTooltip } from "@/hooks/useContentSelectionTooltip";
 import { ContentToolbar } from "@/components/ContentToolbar";
 import { SelectionTooltip } from "@/components/SelectionTooltip";
+import { HighlightDialog } from "@/components/HighlightDialog";
 import { useAudio } from "@/contexts/ModernAudioContext";
 import { sanitizeForRender } from "@/utils/import/normalizers";
 import { useVirtualizedList } from "@/hooks/useVirtualizedList";
@@ -56,7 +57,23 @@ export const LectureView = () => {
   const { dualLanguageMode } = useReaderSettings();
   useSectionMemento(); // Preserve scroll position when navigating away and back
 
-  // Text selection tooltip (Copy / Share)
+  // Завантаження лекції (визначено тут для доступу до lecture.id в хуку виділення)
+  const { data: lecture, isLoading: lectureLoading } = useQuery({
+    queryKey: ["lecture", slug],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("lectures")
+        .select("*")
+        .eq("slug", slug)
+        .single();
+
+      if (error) throw error;
+      return data as Lecture;
+    },
+    enabled: !!slug,
+  });
+
+  // Text selection tooltip (Copy / Share / Highlight)
   const {
     selectionTooltipVisible,
     selectionTooltipPosition,
@@ -64,9 +81,14 @@ export const LectureView = () => {
     setSelectionTooltipVisible,
     handleCopy: handleCopySelected,
     handleShare: handleShareSelected,
+    highlightDialogOpen,
+    setHighlightDialogOpen,
+    handleOpenHighlightDialog,
+    handleSaveHighlight,
   } = useContentSelectionTooltip({
     title: `Lecture — ${slug || ""}`,
     path: getLocalizedPath(`/library/lectures/${slug}`),
+    lectureId: lecture?.id,
   });
 
   const [currentParagraph, setCurrentParagraph] = useState<number | null>(null);
@@ -86,22 +108,6 @@ export const LectureView = () => {
     content_uk: string;
     content_en: string;
   } | null>(null);
-
-  // Завантаження лекції
-  const { data: lecture, isLoading: lectureLoading } = useQuery({
-    queryKey: ["lecture", slug],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("lectures")
-        .select("*")
-        .eq("slug", slug)
-        .single();
-
-      if (error) throw error;
-      return data as Lecture;
-    },
-    enabled: !!slug,
-  });
 
   // Завантаження параграфів
   const { data: paragraphs = [], isLoading: paragraphsLoading } = useQuery({
@@ -721,7 +727,7 @@ export const LectureView = () => {
       </main>
       <Footer />
 
-      {/* Тултіп виділення тексту (Copy / Share) */}
+      {/* Тултіп виділення тексту (Copy / Share / Highlight) */}
       <SelectionTooltip
         isVisible={selectionTooltipVisible}
         position={selectionTooltipPosition}
@@ -729,6 +735,15 @@ export const LectureView = () => {
         onClose={() => setSelectionTooltipVisible(false)}
         onCopy={handleCopySelected}
         onShare={handleShareSelected}
+        onSave={handleOpenHighlightDialog}
+      />
+
+      {/* Діалог збереження хайлайту з нотаткою */}
+      <HighlightDialog
+        isOpen={highlightDialogOpen}
+        onClose={() => setHighlightDialogOpen(false)}
+        onSave={handleSaveHighlight}
+        selectedText={selectedTextForTooltip}
       />
     </div>
   );

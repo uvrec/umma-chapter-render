@@ -37,6 +37,7 @@ import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useContentSelectionTooltip } from "@/hooks/useContentSelectionTooltip";
 import { ContentToolbar } from "@/components/ContentToolbar";
 import { SelectionTooltip } from "@/components/SelectionTooltip";
+import { HighlightDialog } from "@/components/HighlightDialog";
 
 
 export const LetterView = () => {
@@ -47,32 +48,7 @@ export const LetterView = () => {
   const { language, getLocalizedPath } = useLanguage();
   const { dualLanguageMode } = useReaderSettings();
 
-  // Text selection tooltip (Copy / Share)
-  const {
-    selectionTooltipVisible,
-    selectionTooltipPosition,
-    selectedText: selectedTextForTooltip,
-    setSelectionTooltipVisible,
-    handleCopy: handleCopySelected,
-    handleShare: handleShareSelected,
-  } = useContentSelectionTooltip({
-    title: `Letter — ${slug || ""}`,
-    path: getLocalizedPath(`/library/letters/${slug}`),
-  });
-
-  // Inline editing state
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedLetter, setEditedLetter] = useState<{
-    recipient_uk: string;
-    recipient_en: string;
-    location_uk: string;
-    location_en: string;
-    content_uk: string;
-    content_en: string;
-    letter_date: string;
-  } | null>(null);
-
-  // Завантажити лист
+  // Завантажити лист (визначено тут для доступу до letter.id в хуку виділення)
   const { data: letter, isLoading } = useQuery({
     queryKey: ["letter", slug],
     queryFn: async () => {
@@ -87,6 +63,37 @@ export const LetterView = () => {
     },
     enabled: !!slug,
   });
+
+  // Text selection tooltip (Copy / Share / Highlight)
+  const {
+    selectionTooltipVisible,
+    selectionTooltipPosition,
+    selectedText: selectedTextForTooltip,
+    setSelectionTooltipVisible,
+    handleCopy: handleCopySelected,
+    handleShare: handleShareSelected,
+    highlightDialogOpen,
+    setHighlightDialogOpen,
+    handleOpenHighlightDialog,
+    handleSaveHighlight,
+  } = useContentSelectionTooltip({
+    title: `Letter — ${slug || ""}`,
+    path: getLocalizedPath(`/library/letters/${slug}`),
+    letterId: letter?.id,
+  });
+
+  // Inline editing state
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedLetter, setEditedLetter] = useState<{
+    recipient_uk: string;
+    recipient_en: string;
+    location_uk: string;
+    location_en: string;
+    content_uk: string;
+    content_en: string;
+    letter_date: string;
+  } | null>(null);
+
 
   // Mutation for saving letter changes
   const saveLetterMutation = useMutation({
@@ -440,7 +447,7 @@ export const LetterView = () => {
       </main>
       <Footer />
 
-      {/* Тултіп виділення тексту (Copy / Share) */}
+      {/* Тултіп виділення тексту (Copy / Share / Highlight) */}
       <SelectionTooltip
         isVisible={selectionTooltipVisible}
         position={selectionTooltipPosition}
@@ -448,6 +455,13 @@ export const LetterView = () => {
         onClose={() => setSelectionTooltipVisible(false)}
         onCopy={handleCopySelected}
         onShare={handleShareSelected}
+        onSave={handleOpenHighlightDialog}
+      />
+      <HighlightDialog
+        isOpen={highlightDialogOpen}
+        onClose={() => setHighlightDialogOpen(false)}
+        onSave={handleSaveHighlight}
+        selectedText={selectedTextForTooltip}
       />
     </div>
   );

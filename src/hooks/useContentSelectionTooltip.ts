@@ -1,23 +1,37 @@
 /**
- * Хук для виділення тексту з тултіпом (Copy / Share) у листах та лекціях.
- * Аналог функціоналу SelectionTooltip в читальці (VedaReaderDB),
- * але без збереження хайлайтів (потребує book_id/chapter_id).
+ * Хук для виділення тексту з тултіпом (Copy / Share / Highlight) у листах та лекціях.
+ * Повний аналог функціоналу SelectionTooltip в читальці (VedaReaderDB),
+ * включаючи збереження хайлайтів з нотатками.
  */
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import { useHighlights, type CreateHighlightParams } from "@/hooks/useHighlights";
 
 interface UseContentSelectionTooltipOptions {
   /** Заголовок контенту для копіювання/шерінгу */
   title: string;
   /** Повний шлях поточної сторінки (для посилання) */
   path: string;
+  /** ID листа (для збереження хайлайтів) */
+  letterId?: string;
+  /** ID лекції (для збереження хайлайтів) */
+  lectureId?: string;
 }
 
-export function useContentSelectionTooltip({ title, path }: UseContentSelectionTooltipOptions) {
+export function useContentSelectionTooltip({ title, path, letterId, lectureId }: UseContentSelectionTooltipOptions) {
   const [selectionTooltipVisible, setSelectionTooltipVisible] = useState(false);
   const [selectionTooltipPosition, setSelectionTooltipPosition] = useState({ x: 0, y: 0 });
   const [selectedText, setSelectedText] = useState("");
+  const [selectionContext, setSelectionContext] = useState({ before: "", after: "" });
+  const [highlightDialogOpen, setHighlightDialogOpen] = useState(false);
   const selectionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Highlights hook для збереження
+  const { createHighlight } = useHighlights(
+    undefined,
+    false,
+    { letterId, lectureId }
+  );
 
   const handleTextSelection = useCallback(() => {
     if (selectionTimeoutRef.current) {
@@ -62,11 +76,28 @@ export function useContentSelectionTooltip({ title, path }: UseContentSelectionT
       tooltipY = rect.top;
     }
 
+    // Контекст (текст до і після виділення)
+    let before = "";
+    let after = "";
+    try {
+      if (range.startContainer.nodeType === Node.TEXT_NODE) {
+        const text = range.startContainer.textContent || "";
+        before = text.substring(Math.max(0, range.startOffset - 50), range.startOffset);
+      }
+      if (range.endContainer.nodeType === Node.TEXT_NODE) {
+        const text = range.endContainer.textContent || "";
+        after = text.substring(range.endOffset, Math.min(text.length, range.endOffset + 50));
+      }
+    } catch {
+      // Ігноруємо помилки контексту
+    }
+
     // Затримка 700ms перед показом
     selectionTimeoutRef.current = setTimeout(() => {
       const currentSelection = window.getSelection()?.toString().trim();
       if (currentSelection === selText) {
         setSelectedText(selText);
+        setSelectionContext({ before, after });
         setSelectionTooltipPosition({ x: tooltipX, y: tooltipY });
         setSelectionTooltipVisible(true);
       }
@@ -118,6 +149,34 @@ export function useContentSelectionTooltip({ title, path }: UseContentSelectionT
     }
   }, [selectedText, title, path]);
 
+  // Відкрити діалог збереження хайлайту
+  const handleOpenHighlightDialog = useCallback(() => {
+    setSelectionTooltipVisible(false);
+    setHighlightDialogOpen(true);
+  }, []);
+
+  // Зберегти хайлайт з нотаткою та кольором
+  const handleSaveHighlight = useCallback((notes: string, color: string) => {
+    if (!selectedText) return;
+
+    const params: CreateHighlightParams = {
+      selected_text: selectedText,
+      context_before: selectionContext.before || undefined,
+      context_after: selectionContext.after || undefined,
+      notes: notes || undefined,
+      highlight_color: color || "yellow",
+    };
+
+    if (letterId) {
+      params.letter_id = letterId;
+    } else if (lectureId) {
+      params.lecture_id = lectureId;
+    }
+
+    createHighlight(params);
+    setHighlightDialogOpen(false);
+  }, [selectedText, selectionContext, letterId, lectureId, createHighlight]);
+
   return {
     selectionTooltipVisible,
     selectionTooltipPosition,
@@ -125,5 +184,10 @@ export function useContentSelectionTooltip({ title, path }: UseContentSelectionT
     setSelectionTooltipVisible,
     handleCopy,
     handleShare,
+    // Highlight (save note) support
+    highlightDialogOpen,
+    setHighlightDialogOpen,
+    handleOpenHighlightDialog,
+    handleSaveHighlight,
   };
 }
