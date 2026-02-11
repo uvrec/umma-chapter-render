@@ -499,7 +499,7 @@ export const VerseCard = ({
                     sanskrit: e.target.value,
                   }))
                 }
-                className="min-h-[100px] text-center sanskrit-text"
+                className="min-h-[60px] text-center sanskrit-text"
               />
             ) : (
               <p className="whitespace-pre-line text-center sanskrit-text" style={{ fontSize: `${fontSize}px`, lineHeight }}>{processedSanskrit}</p>
@@ -519,7 +519,7 @@ export const VerseCard = ({
                     transliteration: e.target.value,
                   }))
                 }
-                className="min-h-[80px] text-center iast-text text-muted-foreground"
+                className="min-h-[60px] text-center iast-text text-muted-foreground"
               />
             ) : (
               <div
@@ -570,7 +570,7 @@ export const VerseCard = ({
                         synonyms: e.target.value,
                       }))
                     }
-                    className="text-base min-h-[200px]"
+                    className="text-base min-h-[60px]"
                   />
                 ) : synonyms ? (
                   <p
@@ -676,7 +676,7 @@ export const VerseCard = ({
                   }))
                 }
                 label="Редагувати переклад"
-                minHeight="150px"
+                minHeight="60px"
                 compact={true}
               />
             ) : (
@@ -716,7 +716,7 @@ export const VerseCard = ({
                   }))
                 }
                 label="Редагувати пояснення"
-                minHeight="200px"
+                minHeight="80px"
                 compact={true}
               />
             ) : (

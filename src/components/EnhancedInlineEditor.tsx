@@ -208,7 +208,7 @@ export const EnhancedInlineEditor = ({
   label,
   placeholder = "Редагуйте контент...",
   editable = true,
-  minHeight = "200px",
+  minHeight = "80px",
   compact = false,
   showNormalizeButton = false,
   onScroll,
@@ -228,6 +228,8 @@ export const EnhancedInlineEditor = ({
   const [isEditorReady, setIsEditorReady] = useState(false);
   // Track copy feedback state
   const [copied, setCopied] = useState(false);
+  // Flag to skip content sync when the change originated from the editor itself
+  const isInternalUpdateRef = useRef(false);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -291,7 +293,10 @@ export const EnhancedInlineEditor = ({
         // Editor is being destroyed, mark as not ready
         setIsEditorReady(false);
       },
-      onUpdate: ({ editor }) => onChange(editor.getHTML()),
+      onUpdate: ({ editor }) => {
+        isInternalUpdateRef.current = true;
+        onChange(editor.getHTML());
+      },
       editorProps: {
         attributes: {
           class: "prose prose-sm dark:prose-invert max-w-none focus:outline-none p-4",
@@ -426,8 +431,13 @@ export const EnhancedInlineEditor = ({
   }, [editor, editable]);
 
   // Sync content from props (with normalized comparison to avoid update loops)
+  // Skip sync when the change originated from the editor itself (e.g. toolbar action)
   useEffect(() => {
     if (!editor) return;
+    if (isInternalUpdateRef.current) {
+      isInternalUpdateRef.current = false;
+      return;
+    }
     const newContent = content || "<p></p>";
     const currentHTML = editor.getHTML();
     // Normalize HTML for comparison to avoid false positives from whitespace differences
@@ -1143,7 +1153,7 @@ export const EnhancedInlineEditor = ({
       {/* EDITOR CONTENT - скрольний контейнер */}
       <div
         ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto min-h-[200px]"
+        className="flex-1 overflow-y-auto"
         style={{ minHeight }}
       >
         <EditorContent editor={editor} />

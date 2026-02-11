@@ -433,7 +433,7 @@ export const DualLanguageVerseCard = ({
                       sanskritUk: e.target.value,
                     }))
                   }
-                  className="font-[Noto_Sans_Devanagari] text-2xl text-center min-h-[200px]"
+                  className="font-[Noto_Sans_Devanagari] text-2xl text-center min-h-[80px]"
                 />
                 <Textarea
                   value={edited.sanskritEn}
@@ -443,7 +443,7 @@ export const DualLanguageVerseCard = ({
                       sanskritEn: e.target.value,
                     }))
                   }
-                  className="font-[Noto_Sans_Devanagari] text-2xl text-center min-h-[200px]"
+                  className="font-[Noto_Sans_Devanagari] text-2xl text-center min-h-[80px]"
                 />
               </div>
             ) : (
@@ -478,7 +478,7 @@ export const DualLanguageVerseCard = ({
                       transliterationUk: e.target.value,
                     }))
                   }
-                  className="italic text-lg text-center min-h-[150px]"
+                  className="italic text-lg text-center min-h-[60px]"
                 />
                 <Textarea
                   value={edited.transliterationEn}
@@ -488,7 +488,7 @@ export const DualLanguageVerseCard = ({
                       transliterationEn: e.target.value,
                     }))
                   }
-                  className="italic text-lg text-center min-h-[150px]"
+                  className="italic text-lg text-center min-h-[60px]"
                 />
               </div>
             ) : (
@@ -536,7 +536,7 @@ export const DualLanguageVerseCard = ({
                         synonymsUk: e.target.value,
                       }))
                     }
-                    className="text-base min-h-[200px]"
+                    className="text-base min-h-[60px]"
                   />
                 ) : synonymsUk ? (
                   <p
@@ -594,7 +594,7 @@ export const DualLanguageVerseCard = ({
                         synonymsEn: e.target.value,
                       }))
                     }
-                    className="text-base min-h-[200px]"
+                    className="text-base min-h-[60px]"
                   />
                 ) : synonymsEn ? (
                   <p
@@ -690,7 +690,7 @@ export const DualLanguageVerseCard = ({
                       translationUk: e.target.value,
                     }))
                   }
-                  className="text-base min-h-[150px]"
+                  className="text-base min-h-[60px]"
                 />
                 <Textarea
                   value={edited.translationEn}
@@ -700,7 +700,7 @@ export const DualLanguageVerseCard = ({
                       translationEn: e.target.value,
                     }))
                   }
-                  className="text-base min-h-[150px]"
+                  className="text-base min-h-[60px]"
                 />
               </div>
             ) : (
