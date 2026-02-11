@@ -14,6 +14,7 @@ export interface Letter {
   address_block: string | null;
   content_en: string;
   content_uk: string | null;
+  audio_url: string | null;
   created_at: string;
   updated_at: string;
 }
