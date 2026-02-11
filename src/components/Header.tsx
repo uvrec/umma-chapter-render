@@ -6,17 +6,25 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { RefreshFeedButton } from "@/components/admin/RefreshFeedButton";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 
-// Wrapper component - only uses useIsMobile hook
+// Wrapper component - shows header only on desktop (lg: 1024px+)
 export const Header = () => {
-  const isMobile = useIsMobile();
+  const [isDesktop, setIsDesktop] = useState(false);
 
-  // На мобільних не показуємо хедер - використовуємо Spine навігацію
-  if (isMobile) {
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const media = window.matchMedia("(min-width: 1024px)");
+    const update = () => setIsDesktop(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  // На мобільних і планшетах не показуємо хедер - використовуємо Spine навігацію
+  if (!isDesktop) {
     return null;
   }
 
