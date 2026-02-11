@@ -34,7 +34,9 @@ import {
 import type { Letter } from "@/types/letter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
+import { useContentSelectionTooltip } from "@/hooks/useContentSelectionTooltip";
 import { ContentToolbar } from "@/components/ContentToolbar";
+import { SelectionTooltip } from "@/components/SelectionTooltip";
 
 
 export const LetterView = () => {
@@ -44,6 +46,19 @@ export const LetterView = () => {
   const { isAdmin } = useAuth();
   const { language, getLocalizedPath } = useLanguage();
   const { dualLanguageMode } = useReaderSettings();
+
+  // Text selection tooltip (Copy / Share)
+  const {
+    selectionTooltipVisible,
+    selectionTooltipPosition,
+    selectedText: selectedTextForTooltip,
+    setSelectionTooltipVisible,
+    handleCopy: handleCopySelected,
+    handleShare: handleShareSelected,
+  } = useContentSelectionTooltip({
+    title: `Letter — ${slug || ""}`,
+    path: getLocalizedPath(`/library/letters/${slug}`),
+  });
 
   // Inline editing state
   const [isEditing, setIsEditing] = useState(false);
@@ -424,6 +439,16 @@ export const LetterView = () => {
         )}
       </main>
       <Footer />
+
+      {/* Тултіп виділення тексту (Copy / Share) */}
+      <SelectionTooltip
+        isVisible={selectionTooltipVisible}
+        position={selectionTooltipPosition}
+        selectedText={selectedTextForTooltip}
+        onClose={() => setSelectionTooltipVisible(false)}
+        onCopy={handleCopySelected}
+        onShare={handleShareSelected}
+      />
     </div>
   );
 };

@@ -1,0 +1,129 @@
+/**
+ * Хук для виділення тексту з тултіпом (Copy / Share) у листах та лекціях.
+ * Аналог функціоналу SelectionTooltip в читальці (VedaReaderDB),
+ * але без збереження хайлайтів (потребує book_id/chapter_id).
+ */
+
+import { useState, useCallback, useRef, useEffect } from "react";
+
+interface UseContentSelectionTooltipOptions {
+  /** Заголовок контенту для копіювання/шерінгу */
+  title: string;
+  /** Повний шлях поточної сторінки (для посилання) */
+  path: string;
+}
+
+export function useContentSelectionTooltip({ title, path }: UseContentSelectionTooltipOptions) {
+  const [selectionTooltipVisible, setSelectionTooltipVisible] = useState(false);
+  const [selectionTooltipPosition, setSelectionTooltipPosition] = useState({ x: 0, y: 0 });
+  const [selectedText, setSelectedText] = useState("");
+  const selectionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleTextSelection = useCallback(() => {
+    if (selectionTimeoutRef.current) {
+      clearTimeout(selectionTimeoutRef.current);
+      selectionTimeoutRef.current = null;
+    }
+
+    // Не перехоплювати виділення в редагованих елементах
+    const editableElement = document.activeElement as HTMLElement;
+    if (
+      editableElement?.tagName === "TEXTAREA" ||
+      editableElement?.tagName === "INPUT" ||
+      editableElement?.contentEditable === "true" ||
+      editableElement?.closest('[contenteditable="true"]')
+    ) {
+      return;
+    }
+
+    const selection = window.getSelection();
+    const selText = selection?.toString().trim();
+
+    // Мінімум 10 символів і має містити пробіл (не одне слово)
+    if (!selText || selText.length < 10 || !/\s/.test(selText)) {
+      return;
+    }
+
+    const range = selection?.getRangeAt(0);
+    if (!range) return;
+
+    // Позиція тултіпа (viewport-relative для position: fixed)
+    const rects = range.getClientRects();
+    let tooltipX: number;
+    let tooltipY: number;
+
+    if (rects.length > 0) {
+      const firstRect = rects[0];
+      tooltipX = firstRect.left + firstRect.width / 2;
+      tooltipY = firstRect.top;
+    } else {
+      const rect = range.getBoundingClientRect();
+      tooltipX = rect.left + rect.width / 2;
+      tooltipY = rect.top;
+    }
+
+    // Затримка 700ms перед показом
+    selectionTimeoutRef.current = setTimeout(() => {
+      const currentSelection = window.getSelection()?.toString().trim();
+      if (currentSelection === selText) {
+        setSelectedText(selText);
+        setSelectionTooltipPosition({ x: tooltipX, y: tooltipY });
+        setSelectionTooltipVisible(true);
+      }
+    }, 700);
+  }, []);
+
+  const handleSelectionChange = useCallback(() => {
+    const selection = window.getSelection();
+    const selText = selection?.toString().trim();
+    if (!selText || selText.length < 10) {
+      setSelectionTooltipVisible(false);
+    }
+  }, []);
+
+  // Слухачі подій
+  useEffect(() => {
+    document.addEventListener("mouseup", handleTextSelection);
+    document.addEventListener("selectionchange", handleSelectionChange);
+    return () => {
+      document.removeEventListener("mouseup", handleTextSelection);
+      document.removeEventListener("selectionchange", handleSelectionChange);
+      if (selectionTimeoutRef.current) clearTimeout(selectionTimeoutRef.current);
+    };
+  }, [handleTextSelection, handleSelectionChange]);
+
+  // Копіювати виділений текст з посиланням
+  const handleCopy = useCallback(async () => {
+    if (!selectedText) return;
+    const url = `${window.location.origin}${path}`;
+    const text = `${selectedText}\n\n— ${title}\n${url}`;
+    await navigator.clipboard.writeText(text);
+  }, [selectedText, title, path]);
+
+  // Поділитися виділеним текстом
+  const handleShare = useCallback(async () => {
+    if (!selectedText) return;
+    const url = `${window.location.origin}${path}`;
+    const shareText = `${selectedText}\n\n— ${title}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ text: shareText, url });
+      } catch {
+        // Користувач скасував — фолбек на копіювання
+        await navigator.clipboard.writeText(`${shareText}\n${url}`);
+      }
+    } else {
+      await navigator.clipboard.writeText(`${shareText}\n${url}`);
+    }
+  }, [selectedText, title, path]);
+
+  return {
+    selectionTooltipVisible,
+    selectionTooltipPosition,
+    selectedText,
+    setSelectionTooltipVisible,
+    handleCopy,
+    handleShare,
+  };
+}

@@ -40,7 +40,9 @@ import { AudioUploader } from "@/components/admin/shared/AudioUploader";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useSectionMemento } from "@/hooks/useSectionMemento";
+import { useContentSelectionTooltip } from "@/hooks/useContentSelectionTooltip";
 import { ContentToolbar } from "@/components/ContentToolbar";
+import { SelectionTooltip } from "@/components/SelectionTooltip";
 import { useAudio } from "@/contexts/ModernAudioContext";
 import { sanitizeForRender } from "@/utils/import/normalizers";
 import { useVirtualizedList } from "@/hooks/useVirtualizedList";
@@ -53,6 +55,20 @@ export const LectureView = () => {
   const { language, getLocalizedPath } = useLanguage();
   const { dualLanguageMode } = useReaderSettings();
   useSectionMemento(); // Preserve scroll position when navigating away and back
+
+  // Text selection tooltip (Copy / Share)
+  const {
+    selectionTooltipVisible,
+    selectionTooltipPosition,
+    selectedText: selectedTextForTooltip,
+    setSelectionTooltipVisible,
+    handleCopy: handleCopySelected,
+    handleShare: handleShareSelected,
+  } = useContentSelectionTooltip({
+    title: `Lecture — ${slug || ""}`,
+    path: getLocalizedPath(`/library/lectures/${slug}`),
+  });
+
   const [currentParagraph, setCurrentParagraph] = useState<number | null>(null);
   const paragraphRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
 
@@ -704,6 +720,16 @@ export const LectureView = () => {
         </div>
       </main>
       <Footer />
+
+      {/* Тултіп виділення тексту (Copy / Share) */}
+      <SelectionTooltip
+        isVisible={selectionTooltipVisible}
+        position={selectionTooltipPosition}
+        selectedText={selectedTextForTooltip}
+        onClose={() => setSelectionTooltipVisible(false)}
+        onCopy={handleCopySelected}
+        onShare={handleShareSelected}
+      />
     </div>
   );
 };
