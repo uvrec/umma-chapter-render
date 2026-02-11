@@ -172,6 +172,38 @@ export const LetterView = () => {
   const hasContentUk = letter.content_uk && letter.content_uk.trim().length > 20;
   const hasContentEn = letter.content_en && letter.content_en.trim().length > 20;
 
+  /**
+   * Розбити контент листа на параграфи для синхронізованого двомовного режиму.
+   * Підтримує і HTML (<p>...</p>) і legacy plain-text (розділений \n\n).
+   */
+  const splitLetterParagraphs = (html: string | null): string[] => {
+    if (!html || !html.trim()) return [];
+
+    // Якщо є <p> теги — розбити по них
+    if (html.includes("<p>") || html.includes("<p ")) {
+      const matches = html.match(/<p[^>]*>[\s\S]*?<\/p>/gi);
+      if (matches && matches.length > 0) return matches;
+    }
+
+    // Фолбек: plain-text з \n\n → обгорнути в <p>
+    return html.split(/\n\n+/).filter(p => p.trim()).map(p => `<p>${p.trim()}</p>`);
+  };
+
+  /**
+   * Нормалізувати контент для відображення:
+   * Якщо контент — plain-text без <p> тегів, обгорнути параграфи в <p>.
+   */
+  const normalizeContent = (html: string | null): string => {
+    if (!html || !html.trim()) return "";
+    if (html.includes("<p>") || html.includes("<p ")) return html;
+    // Legacy plain-text: розділити \n\n і обгорнути в <p>
+    return html.split(/\n\n+/).filter(p => p.trim()).map(p => `<p>${p.trim()}</p>`).join("\n");
+  };
+
+  const paragraphsUk = dualLanguageMode ? splitLetterParagraphs(letter.content_uk) : [];
+  const paragraphsEn = dualLanguageMode ? splitLetterParagraphs(letter.content_en) : [];
+  const maxParagraphs = Math.max(paragraphsUk.length, paragraphsEn.length);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -359,33 +391,22 @@ export const LetterView = () => {
             </div>
           </div>
         ) : dualLanguageMode ? (
-          // DUAL MODE - Side by side (no labels - functional minimalism)
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Ukrainian Column */}
-            <div>
-              {hasContentUk ? (
+          // DUAL MODE - Синхронізовані параграфи (side by side)
+          <div className="space-y-2">
+            {Array.from({ length: maxParagraphs }, (_, i) => (
+              <div key={i} className="grid md:grid-cols-2 gap-8">
                 <div
                   className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed"
                   style={{ fontSize: "var(--vv-reader-font-size)", lineHeight: "var(--vv-reader-line-height)" }}
-                  dangerouslySetInnerHTML={{ __html: letter.content_uk! }}
+                  dangerouslySetInnerHTML={{ __html: paragraphsUk[i] || '<p class="text-muted-foreground/30">—</p>' }}
                 />
-              ) : (
-                <div className="text-muted-foreground/50 italic">—</div>
-              )}
-            </div>
-
-            {/* English Column */}
-            <div>
-              {hasContentEn ? (
                 <div
                   className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed"
                   style={{ fontSize: "var(--vv-reader-font-size)", lineHeight: "var(--vv-reader-line-height)" }}
-                  dangerouslySetInnerHTML={{ __html: letter.content_en }}
+                  dangerouslySetInnerHTML={{ __html: paragraphsEn[i] || '<p class="text-muted-foreground/30">—</p>' }}
                 />
-              ) : (
-                <div className="text-muted-foreground/50 italic">—</div>
-              )}
-            </div>
+              </div>
+            ))}
           </div>
         ) : (
           // SINGLE LANGUAGE MODE
@@ -393,9 +414,11 @@ export const LetterView = () => {
             className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed"
             style={{ fontSize: "var(--vv-reader-font-size)", lineHeight: "var(--vv-reader-line-height)" }}
             dangerouslySetInnerHTML={{
-              __html: language === "uk" && letter.content_uk
-                ? letter.content_uk
-                : letter.content_en
+              __html: normalizeContent(
+                language === "uk" && letter.content_uk
+                  ? letter.content_uk
+                  : letter.content_en
+              )
             }}
           />
         )}

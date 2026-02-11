@@ -458,6 +458,21 @@ mark {
   /* The spine is always visible and content shifts right via body.spine-visible */
 }
 
+/* ==========================================
+   Підпис листа: italic, щільні рядки
+   ========================================== */
+.letter-signature {
+  font-style: italic;
+  margin-top: 1.5em;
+}
+.letter-signature em {
+  font-style: italic;
+}
+/* Prose override: прибрати зайві відступи всередині підпису */
+.prose .letter-signature {
+  margin-bottom: 0.5em;
+}
+
 /* Mobile clean mode - extra minimal for verse view */
 @media (max-width: 640px) {
   /* Even cleaner for small screens */
