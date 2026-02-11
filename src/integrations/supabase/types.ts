@@ -2215,6 +2215,7 @@ export type Database = {
       letters: {
         Row: {
           address_block: string | null
+          audio_url: string | null
           content_en: string
           content_uk: string | null
           created_at: string
@@ -2230,6 +2231,7 @@ export type Database = {
         }
         Insert: {
           address_block?: string | null
+          audio_url?: string | null
           content_en: string
           content_uk?: string | null
           created_at?: string
@@ -2245,6 +2247,7 @@ export type Database = {
         }
         Update: {
           address_block?: string | null
+          audio_url?: string | null
           content_en?: string
           content_uk?: string | null
           created_at?: string

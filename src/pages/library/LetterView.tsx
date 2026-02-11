@@ -10,7 +10,7 @@
  * - Мовний переключач (UA/EN)
  */
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,9 +30,13 @@ import {
   Edit,
   Save,
   X,
+  Play,
+  Pause,
 } from "lucide-react";
+import { AudioUploader } from "@/components/admin/shared/AudioUploader";
 import type { Letter } from "@/types/letter";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAudio } from "@/contexts/ModernAudioContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useContentSelectionTooltip } from "@/hooks/useContentSelectionTooltip";
 import { ContentToolbar } from "@/components/ContentToolbar";
@@ -49,6 +53,9 @@ export const LetterView = () => {
   const { language, getLocalizedPath } = useLanguage();
   const { dualLanguageMode } = useReaderSettings();
   const isMobile = useIsMobile();
+  // Global audio context for the player
+  const { playTrack, currentTrack, isPlaying, togglePlay } = useAudio();
+
   // На мобільному dual mode не має сенсу — показуємо тільки обрану мову
   const effectiveDualMode = dualLanguageMode && !isMobile;
 
@@ -96,6 +103,7 @@ export const LetterView = () => {
     content_uk: string;
     content_en: string;
     letter_date: string;
+    audio_url: string;
   } | null>(null);
 
 
@@ -112,6 +120,7 @@ export const LetterView = () => {
       if (editedLetter.content_uk !== letter.content_uk) updates.content_uk = editedLetter.content_uk;
       if (editedLetter.content_en !== letter.content_en) updates.content_en = editedLetter.content_en;
       if (editedLetter.letter_date !== letter.letter_date) updates.letter_date = editedLetter.letter_date;
+      if (editedLetter.audio_url !== (letter.audio_url || "")) updates.audio_url = editedLetter.audio_url || null;
 
       if (Object.keys(updates).length > 0) {
         const { error } = await supabase
@@ -142,6 +151,7 @@ export const LetterView = () => {
       content_uk: letter.content_uk || "",
       content_en: letter.content_en,
       letter_date: letter.letter_date,
+      audio_url: letter.audio_url || "",
     });
     setIsEditing(true);
   };
@@ -149,6 +159,32 @@ export const LetterView = () => {
   const cancelEdit = () => {
     setIsEditing(false);
     setEditedLetter(null);
+  };
+
+  // Audio playback for the letter
+  const letterTrackId = letter?.id ? `letter-${letter.id}` : null;
+  const isThisLetterPlaying = useMemo(() => {
+    return currentTrack?.id === letterTrackId && isPlaying;
+  }, [currentTrack?.id, letterTrackId, isPlaying]);
+
+  const togglePlayPause = () => {
+    if (!letter?.audio_url) return;
+
+    if (currentTrack?.id === letterTrackId) {
+      togglePlay();
+      return;
+    }
+
+    const r = language === "uk" && letter.recipient_uk ? letter.recipient_uk : letter.recipient_en;
+    const loc = language === "uk" && letter.location_uk ? letter.location_uk : letter.location_en;
+
+    playTrack({
+      id: letterTrackId!,
+      title: `${language === "uk" ? "Лист до" : "Letter to"} ${r}`,
+      subtitle: loc,
+      src: letter.audio_url,
+      artist: "Шріла Прабгупада",
+    });
   };
 
   const saveEdit = () => {
@@ -392,6 +428,51 @@ export const LetterView = () => {
               )}
             </div>
           )}
+
+          {/* Аудіо плеєр / Завантаження аудіо */}
+          {isEditing && editedLetter ? (
+            <div className="mt-6">
+              <AudioUploader
+                label="Аудіо листа"
+                value={editedLetter.audio_url}
+                onChange={(url) => setEditedLetter({ ...editedLetter, audio_url: url })}
+                bucket="verse-audio"
+                primary
+              />
+            </div>
+          ) : letter.audio_url ? (
+            <div className="mt-6 flex justify-center">
+              <button
+                onClick={togglePlayPause}
+                className={`
+                  flex items-center gap-2 px-5 py-2.5 rounded-full transition-all duration-200
+                  ${isThisLetterPlaying
+                    ? 'bg-primary text-primary-foreground shadow-lg'
+                    : 'bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground'
+                  }
+                `}
+                aria-label={isThisLetterPlaying ? "Пауза" : "Слухати"}
+              >
+                {isThisLetterPlaying ? (
+                  <>
+                    <Pause className="w-4 h-4" />
+                    <div className="flex items-end gap-0.5 h-4">
+                      <div className="w-0.5 bg-current rounded animate-pulse" style={{ height: '40%' }} />
+                      <div className="w-0.5 bg-current rounded animate-pulse" style={{ height: '70%', animationDelay: '0.15s' }} />
+                      <div className="w-0.5 bg-current rounded animate-pulse" style={{ height: '100%', animationDelay: '0.3s' }} />
+                      <div className="w-0.5 bg-current rounded animate-pulse" style={{ height: '70%', animationDelay: '0.15s' }} />
+                      <div className="w-0.5 bg-current rounded animate-pulse" style={{ height: '40%' }} />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-4 h-4" />
+                    <span className="text-sm font-medium">{language === "uk" ? "Слухати" : "Listen"}</span>
+                  </>
+                )}
+              </button>
+            </div>
+          ) : null}
         </div>
 
         {/* Текст листа */}

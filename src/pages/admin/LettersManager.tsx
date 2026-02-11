@@ -40,6 +40,7 @@ import {
   Languages,
   Sparkles,
 } from "lucide-react";
+import { AudioUploader } from "@/components/admin/shared/AudioUploader";
 import { transliterateIAST } from "@/utils/text/transliteration";
 import type { Letter } from "@/types/letter";
 import { toast } from "sonner";
@@ -84,6 +85,7 @@ export default function LettersManager() {
           content_en: letter.content_en,
           content_uk: letter.content_uk,
           letter_date: letter.letter_date,
+          audio_url: letter.audio_url || null,
         })
         .eq("id", letter.id);
 
@@ -241,6 +243,7 @@ export default function LettersManager() {
                     <TableHead>Отримувач</TableHead>
                     <TableHead>Локація</TableHead>
                     <TableHead>Reference</TableHead>
+                    <TableHead>Аудіо</TableHead>
                     <TableHead>UA</TableHead>
                     <TableHead className="text-right">Дії</TableHead>
                   </TableRow>
@@ -260,6 +263,13 @@ export default function LettersManager() {
                       <TableCell>{letter.location_en}</TableCell>
                       <TableCell>
                         <Badge variant="outline">{letter.reference}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        {letter.audio_url ? (
+                          <Badge variant="secondary">Так</Badge>
+                        ) : (
+                          <Badge variant="outline">Ні</Badge>
+                        )}
                       </TableCell>
                       <TableCell>
                         {letter.content_uk ? (
@@ -386,6 +396,17 @@ export default function LettersManager() {
                     />
                   </div>
                 </div>
+
+                {/* Аудіо */}
+                <AudioUploader
+                  label="Аудіо листа"
+                  value={editingLetter.audio_url || ""}
+                  onChange={(url) =>
+                    setEditingLetter({ ...editingLetter, audio_url: url })
+                  }
+                  bucket="verse-audio"
+                  primary
+                />
 
                 {/* Контент */}
                 <div>
