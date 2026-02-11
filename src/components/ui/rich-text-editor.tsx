@@ -13,7 +13,7 @@ import {
   Redo,
   RemoveFormatting,
 } from 'lucide-react';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 interface RichTextEditorProps {
   value: string;
@@ -32,6 +32,9 @@ export function RichTextEditor({
   className,
   editorClassName,
 }: RichTextEditorProps) {
+  // Flag to skip content sync when the change originated from the editor itself
+  const isInternalUpdateRef = useRef(false);
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -95,6 +98,7 @@ export function RichTextEditor({
       },
     },
     onUpdate: ({ editor }) => {
+      isInternalUpdateRef.current = true;
       const html = editor.getHTML();
       onChange(html);
       if (onTextChange) {
@@ -103,9 +107,14 @@ export function RichTextEditor({
     },
   });
 
-  // Update editor content when value changes externally
+  // Update editor content only when value changes externally (not from editor's own updates)
   useEffect(() => {
-    if (editor && value !== editor.getHTML()) {
+    if (!editor) return;
+    if (isInternalUpdateRef.current) {
+      isInternalUpdateRef.current = false;
+      return;
+    }
+    if (value !== editor.getHTML()) {
       editor.commands.setContent(value);
     }
   }, [editor, value]);
