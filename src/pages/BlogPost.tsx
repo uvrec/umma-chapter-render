@@ -28,6 +28,7 @@ import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { SITE_CONFIG } from "@/lib/constants";
 import { BlogPostSchema, BreadcrumbSchema } from "@/components/StructuredData";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
@@ -35,6 +36,9 @@ export default function BlogPost() {
   const { isAdmin } = useAuth();
   const queryClient = useQueryClient();
   const { dualLanguageMode, zenMode, fullscreenMode, setZenMode, setFullscreenMode } = useReaderSettings();
+  const isMobile = useIsMobile();
+  // На мобільному dual mode не має сенсу — показуємо тільки обрану мову
+  const effectiveDualMode = dualLanguageMode && !isMobile;
   useSectionMemento();
 
   // ✅ ДОДАНО: Display blocks для контролю видимості блоків
@@ -352,7 +356,7 @@ export default function BlogPost() {
       {!zenMode && <Header />}
 
       <article className={`container mx-auto ${zenMode ? "py-4" : "py-8"}`}>
-        <div className={dualLanguageMode ? "max-w-7xl mx-auto" : "max-w-4xl mx-auto"}>
+        <div className={effectiveDualMode ? "max-w-7xl mx-auto" : "max-w-4xl mx-auto"}>
           {/* ✅ ДОДАНО: Панель налаштувань блоків (тільки для адміна) */}
           {isAdmin && !zenMode && (
             <div className="mb-6 p-4 bg-card/50">
@@ -434,7 +438,7 @@ export default function BlogPost() {
             </div>
           )}
 
-          {dualLanguageMode ? (
+          {effectiveDualMode ? (
             // DUAL MODE - Side by side
             <div className="grid md:grid-cols-2 gap-8">
               {/* Ukrainian Column */}
@@ -653,7 +657,7 @@ export default function BlogPost() {
           )}
 
           {/* Embeds - показуємо один раз, не дублюємо в dual mode */}
-          {!dualLanguageMode && (
+          {!effectiveDualMode && (
             <div className="space-y-8 mb-8 mt-8">
               {post.video_url && <VideoEmbed url={post.video_url} />}
               {post.audio_url && <AudioEmbed url={post.audio_url} />}

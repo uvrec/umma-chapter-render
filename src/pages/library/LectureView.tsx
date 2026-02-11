@@ -47,6 +47,7 @@ import { HighlightDialog } from "@/components/HighlightDialog";
 import { useAudio } from "@/contexts/ModernAudioContext";
 import { sanitizeForRender } from "@/utils/import/normalizers";
 import { useVirtualizedList } from "@/hooks/useVirtualizedList";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const LectureView = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -55,6 +56,9 @@ export const LectureView = () => {
   const { isAdmin } = useAuth();
   const { language, getLocalizedPath } = useLanguage();
   const { dualLanguageMode } = useReaderSettings();
+  const isMobile = useIsMobile();
+  // На мобільному dual mode не має сенсу — показуємо тільки обрану мову
+  const effectiveDualMode = dualLanguageMode && !isMobile;
   useSectionMemento(); // Preserve scroll position when navigating away and back
 
   // Завантаження лекції (визначено тут для доступу до lecture.id в хуку виділення)
@@ -604,7 +608,7 @@ export const LectureView = () => {
                 />
               </div>
             </div>
-          ) : dualLanguageMode ? (
+          ) : effectiveDualMode ? (
             // DUAL MODE - Paired rows for synchronized paragraph alignment
             shouldVirtualizeParagraphs && paragraphVirtualItems ? (
             <div ref={lectureVirtualListRef} style={{ height: `${paragraphTotalSize}px`, width: '100%', position: 'relative' }}>
