@@ -341,6 +341,20 @@ export const DualLanguageVerseCard = ({
           </div>
         )}
 
+        {/* Аудіо кнопка для санскриту - по центру */}
+        {!isMobile && (
+          <div className="flex justify-center mb-4">
+            <button
+              onClick={() => playSection("Санскрит", audioSanskrit)}
+              disabled={!audioSanskrit && !audioUrl}
+              className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              aria-label="Слухати санскрит"
+            >
+              <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
+            </button>
+          </div>
+        )}
+
         {/* КНОПКА РЕДАГУВАННЯ - sticky при редагуванні (hidden on mobile) */}
         {isAdmin && (
           <div className={`hidden md:flex justify-center mb-4 ${isEditing ? 'sticky top-0 z-50 bg-background/95 backdrop-blur-sm py-3 -mx-6 px-6 border-b shadow-sm' : ''}`}>
@@ -384,29 +398,6 @@ export const DualLanguageVerseCard = ({
                 )}
               </div>
             )}
-          </div>
-        )}
-
-        {/* НАВІГАЦІЯ МІЖ ВІРШАМИ + АУДІО - приховано на мобільних (є свайп) */}
-        {onPrevVerse && onNextVerse && !isMobile && (
-          <div className="flex items-center justify-between mb-4">
-            <Button variant="ghost" onClick={onPrevVerse} disabled={isPrevDisabled}>
-              <ChevronLeft className="mr-2 h-4 w-4" />
-              {prevLabel}
-            </Button>
-            {/* Аудіо кнопка для санскриту - по центру */}
-            <button
-              onClick={() => playSection("Санскрит", audioSanskrit)}
-              disabled={!audioSanskrit && !audioUrl}
-              className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              aria-label="Слухати санскрит"
-            >
-              <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
-            </button>
-            <Button variant="ghost" onClick={onNextVerse} disabled={isNextDisabled}>
-              {nextLabel}
-              <ChevronRight className="ml-2 h-4 w-4" />
-            </Button>
           </div>
         )}
 

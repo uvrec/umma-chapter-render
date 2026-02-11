@@ -408,6 +408,20 @@ export const VerseCard = ({
           </div>
         )}
 
+        {/* Аудіо кнопка для санскриту - по центру */}
+        {!isMobile && (
+          <div className="flex justify-center mb-4">
+            <button
+              onClick={() => playSection("Санскрит", audioSanskrit)}
+              disabled={!audioSanskrit && !audioUrl}
+              className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              aria-label="Слухати санскрит"
+            >
+              <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
+            </button>
+          </div>
+        )}
+
         {/* КНОПКА РЕДАГУВАННЯ - по центру під номером вірша (hidden on mobile) */}
         {isAdmin && (
           <div className="hidden md:flex justify-center mb-4">
@@ -451,29 +465,6 @@ export const VerseCard = ({
                 )}
               </div>
             )}
-          </div>
-        )}
-
-        {/* НАВІГАЦІЯ МІЖ ВІРШАМИ + АУДІО - приховано на мобільних (є свайп) */}
-        {onPrevVerse && onNextVerse && !isMobile && (
-          <div className="flex items-center justify-between mb-4">
-            <Button variant="ghost" onClick={onPrevVerse} disabled={isPrevDisabled}>
-              <ChevronLeft className="mr-2 h-4 w-4" />
-              {prevLabel}
-            </Button>
-            {/* Аудіо кнопка для санскриту - по центру */}
-            <button
-              onClick={() => playSection("Санскрит", audioSanskrit)}
-              disabled={!audioSanskrit && !audioUrl}
-              className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              aria-label="Слухати санскрит"
-            >
-              <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
-            </button>
-            <Button variant="ghost" onClick={onNextVerse} disabled={isNextDisabled}>
-              {nextLabel}
-              <ChevronRight className="ml-2 h-4 w-4" />
-            </Button>
           </div>
         )}
 

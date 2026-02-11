@@ -301,6 +301,41 @@ function parseLecture(html: string, slug: string) {
   };
 }
 
+// Допоміжний маппінг місяців
+const MONTH_MAP: Record<string, string> = {
+  january: "01", february: "02", march: "03", april: "04",
+  may: "05", june: "06", july: "07", august: "08",
+  september: "09", october: "10", november: "11", december: "12"
+};
+
+/**
+ * Парсить дату з тексту типу "February 4th 1968", "4 February 1968", "January 1, 1968"
+ */
+function parseDateFromText(text: string): string | null {
+  const patterns = [
+    // "February 4th 1968" або "February 4, 1968"
+    /(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})/i,
+    // "4th February 1968" або "4 February 1968"
+    /(\d{1,2})(?:st|nd|rd|th)?\s+(January|February|March|April|May|June|July|August|September|October|November|December),?\s+(\d{4})/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (!match) continue;
+
+    let monthName: string, day: string, year: string;
+    if (/^\d/.test(match[1])) {
+      day = match[1]; monthName = match[2]; year = match[3];
+    } else {
+      monthName = match[1]; day = match[2]; year = match[3];
+    }
+
+    const month = MONTH_MAP[monthName.toLowerCase()];
+    if (month) return `${year}-${month}-${day.padStart(2, "0")}`;
+  }
+  return null;
+}
+
 // Парсер листа
 function parseLetter(html: string, slug: string) {
   const doc = new DOMParser().parseFromString(html, "text/html");
@@ -308,120 +343,136 @@ function parseLetter(html: string, slug: string) {
 
   const title = doc.querySelector("h1")?.textContent?.trim() || "";
 
-  // Спробувати отримати дату з slug (формат YYMMDD)
-  let letterDate = parseDateFromSlug(slug);
+  // --- 1. Витягнути метадані зі структурованого блоку Vedabase (div.mb-9) ---
+  // Формат: <span class="inline-block w-32">Dated:</span> <a ...>February 4th 1968</a>
+  let letterDate: string | null = null;
+  let location = "";
+  let recipient = "";
 
-  // Якщо не вдалося - шукаємо дату в контенті сторінки
-  if (!letterDate) {
-    // Шукаємо дату у форматі "January 1, 1968" або "1 January 1968" або "68-01-01"
-    const datePatterns = [
-      /(\d{1,2})\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{4})/i,
-      /(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2}),?\s+(\d{4})/i,
-      /(\d{2})-(\d{2})-(\d{2})/,
-    ];
+  const metaContainer = doc.querySelector(".mb-9");
+  if (metaContainer) {
+    metaContainer.querySelectorAll("div").forEach((node) => {
+      const el = node as unknown as Element;
+      const text = el.textContent?.trim() || "";
+      const link = el.querySelector("a") as unknown as Element | null;
+      const linkText = link?.textContent?.trim() || "";
 
-    const months: Record<string, string> = {
-      january: "01", february: "02", march: "03", april: "04",
-      may: "05", june: "06", july: "07", august: "08",
-      september: "09", october: "10", november: "11", december: "12"
-    };
-
-    for (const pattern of datePatterns) {
-      const match = html.match(pattern);
-      if (match) {
-        if (pattern.source.includes("January|February")) {
-          // Format: "1 January 1968" or "January 1, 1968"
-          const monthName = (match[1].toLowerCase().match(/[a-z]+/) ? match[1] : match[2]).toLowerCase();
-          const day = match[1].match(/\d+/) ? match[1] : match[2];
-          const year = match[3];
-          const month = months[monthName];
-          if (month) {
-            letterDate = `${year}-${month}-${day.padStart(2, "0")}`;
-            break;
-          }
-        } else {
-          // Format: "68-01-01"
-          const [, yy, mm, dd] = match;
-          const year = parseInt(yy) > 50 ? `19${yy}` : `20${yy}`;
-          letterDate = `${year}-${mm}-${dd}`;
-          break;
-        }
+      if (text.startsWith("Dated:") && linkText) {
+        letterDate = parseDateFromText(linkText);
+      } else if (text.startsWith("Location:") && linkText) {
+        location = linkText;
+      } else if (text.startsWith("Letter to:") && linkText) {
+        recipient = linkText;
       }
-    }
+    });
   }
 
-  // Якщо все ще немає дати - використовуємо placeholder
+  // --- 2. Фолбеки для дати ---
+  if (!letterDate) {
+    letterDate = parseDateFromSlug(slug);
+  }
+  if (!letterDate) {
+    // Шукати дату в HTML (з підтримкою ordinals: 4th, 1st, 2nd, 3rd)
+    const dateMatch = html.match(
+      /(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4}/i
+    );
+    if (dateMatch) {
+      letterDate = parseDateFromText(dateMatch[0]);
+    }
+  }
+  if (!letterDate) {
+    // Формат "68-01-01" в контенті
+    const shortMatch = html.match(/(\d{2})-(\d{2})-(\d{2})/);
+    if (shortMatch) {
+      const [, yy, mm, dd] = shortMatch;
+      const year = parseInt(yy) > 50 ? `19${yy}` : `20${yy}`;
+      letterDate = `${year}-${mm}-${dd}`;
+    }
+  }
   if (!letterDate) {
     console.warn(`Could not parse date for letter: ${slug}, using placeholder`);
     letterDate = "1900-01-01";
   }
 
-  // Отримувач - спочатку пробуємо з H1 заголовку
-  let recipient = "";
-
-  // Спробувати отримати з H1 (формат: "Letter to Someone Name" або просто "Someone Name")
-  const titleMatch = title.match(/(?:Letter\s+to\s+)?(.+?)(?:\s*[-–—]|\s*$)/i);
-  if (titleMatch && titleMatch[1]) {
-    recipient = titleMatch[1].trim();
-    // Видалити "Letter to" якщо залишилось
-    recipient = recipient.replace(/^Letter\s+to\s+/i, "").trim();
-  }
-
-  // Якщо не вдалося з H1 - отримати з slug
+  // --- 3. Фолбеки для отримувача ---
   if (!recipient) {
-    // Видалити числовий префікс (YYMMDD) якщо є
+    // Витягнути з H1: "Letter to: Hansadutta" → "Hansadutta"
+    recipient = title.replace(/^Letter\s+to:?\s*/i, "").trim();
+  }
+  if (!recipient) {
+    // Витягнути з slug: "letter-to-hansadutta-5" → "Hansadutta"
     let slugRecipient = slug.replace(/^\d{6}_?/, "");
-    // Видалити "letter-to-" префікс
     slugRecipient = slugRecipient.replace(/^letter-to-/i, "");
-    // Замінити дефіси та підкреслення на пробіли
+    slugRecipient = slugRecipient.replace(/-\d+$/, ""); // Видалити trailing number (-5)
     slugRecipient = slugRecipient.replace(/[-_]/g, " ");
-    // Капіталізувати кожне слово
     recipient = slugRecipient.split(" ").map(word =>
       word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
     ).join(" ");
   }
 
-  // Локація
-  let location = "Unknown";
-  const locationMatch = html.match(/(?:from|written in|written at)\s+([A-Za-z\s]+?)(?:[,\.\n])/i);
-  if (locationMatch) {
-    location = locationMatch[1].trim();
+  // --- 4. Фолбек для локації ---
+  if (!location) {
+    const locationMatch = html.match(/(?:from|written in|written at)\s+([A-Za-z\s]+?)(?:[,\.\n])/i);
+    if (locationMatch) {
+      location = locationMatch[1].trim();
+    }
+  }
+  if (!location) {
+    location = "Unknown";
   }
 
-  // Reference
+  // --- 5. Reference ---
   let reference: string | null = null;
   const refMatch = html.match(/(?:Ref|Reference)[:\s]+([^\n<]+)/i);
   if (refMatch) {
     reference = refMatch[1].trim();
   }
 
-  // Контент - Vedabase використовує div.copy для параграфів
-  const mainContent = doc.querySelector("main") || doc.querySelector("body");
+  // --- 6. Контент: витягнути параграфи як HTML з <p> тегами ---
   const paragraphs: string[] = [];
-
-  // Паттерни для пропуску
   const skipPatterns = ["previous", "next", "share", "download", "copyright", "vedabase.io"];
 
-  // Шукаємо div елементи з класом "copy"
+  // Vedabase: кожен параграф — div з класом "copy" та вкладеним div з текстом
+  const mainContent = doc.querySelector("main") || doc.querySelector("body");
   let paragraphElements = mainContent?.querySelectorAll('div[class*="copy"]');
 
-  // Якщо не знайдено, спробувати <p> теги
   if (!paragraphElements || paragraphElements.length === 0) {
     paragraphElements = mainContent?.querySelectorAll("p") || doc.querySelectorAll("p");
   }
 
-  paragraphElements?.forEach((el) => {
+  paragraphElements?.forEach((node) => {
+    const el = node as unknown as Element;
     const text = el.textContent?.trim() || "";
-    if (text && text.length > 5) {
-      const textLower = text.toLowerCase();
-      const shouldSkip = skipPatterns.some(pattern => textLower.includes(pattern));
-      if (!shouldSkip) {
-        paragraphs.push(text);
-      }
+    if (!text || text.length < 3) return;
+
+    const textLower = text.toLowerCase();
+    if (skipPatterns.some(p => textLower.includes(p))) return;
+
+    // Пропустити H1 заголовок всередині copy div
+    if (el.querySelector("h1")) return;
+
+    // Пропустити рядок з кодом дати: "68-02-04"
+    if (/^\d{2}-\d{2}-\d{2}$/.test(text)) return;
+
+    // Отримати innerHTML внутрішнього div (зберігає <br>, <em>, <strong>)
+    const innerDiv = el.querySelector("div") as unknown as Element | null;
+    const innerHtml = (innerDiv?.innerHTML || el.innerHTML || text).trim();
+
+    // Визначити підпис листа: "Your ever well-wisher,<br>..."
+    const isSignature = /^Your\s+(ever\s+)?well[- ]?wisher/i.test(text) ||
+      /^Your\s+humble\s+servant/i.test(text) ||
+      /^Yours\s+(sincerely|faithfully|in\s+)/i.test(text) ||
+      /^A\.?\s*C\.?\s*Bhaktivedanta/i.test(text);
+
+    if (isSignature) {
+      // Підпис: italic, <br> для щільних рядків (без відступів між ними)
+      paragraphs.push(`<p class="letter-signature"><em>${innerHtml}</em></p>`);
+    } else {
+      paragraphs.push(`<p>${innerHtml}</p>`);
     }
   });
 
-  const content = paragraphs.join("\n\n");
+  const content = paragraphs.join("\n");
 
   if (!content) {
     console.warn(`No content found for ${slug}`);
