@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Mark, mergeAttributes } from "@tiptap/core";
@@ -134,6 +134,9 @@ interface TiptapEditorProps {
 }
 
 export const TiptapEditor = ({ content, onChange, placeholder = "Почніть писати..." }: TiptapEditorProps) => {
+  // Flag to skip content sync when the change originated from the editor itself
+  const isInternalUpdateRef = useRef(false);
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -161,7 +164,10 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
       Placeholder.configure({ placeholder }),
     ],
     content,
-    onUpdate: ({ editor }) => onChange(editor.getHTML()),
+    onUpdate: ({ editor }) => {
+      isInternalUpdateRef.current = true;
+      onChange(editor.getHTML());
+    },
     editorProps: {
       attributes: {
         class: "prose prose-sm dark:prose-invert max-w-none p-4 min-h-[400px] focus:outline-none",
@@ -208,9 +214,14 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
     },
   });
 
-  // Sync content when it changes externally
+  // Sync content only when it changes externally (not from editor's own updates)
   useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
+    if (!editor) return;
+    if (isInternalUpdateRef.current) {
+      isInternalUpdateRef.current = false;
+      return;
+    }
+    if (content !== editor.getHTML()) {
       editor.commands.setContent(content);
     }
   }, [content, editor]);
