@@ -1456,7 +1456,7 @@ export const VedaReaderDB = () => {
 
       {/* 🆕 Sticky Breadcrumbs - прилипає під хедером, ховається при скролі вниз на мобільних */}
       {/* Hidden on mobile via CSS for clean reading */}
-      <div className={`hidden md:block sticky top-[65px] z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-transform duration-300 ${isHeaderHidden ? '-translate-y-full md:translate-y-0' : 'translate-y-0'}`}>
+      <div className={`hidden md:block sticky top-0 lg:top-[65px] z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-transform duration-300 ${isHeaderHidden ? '-translate-y-full md:translate-y-0' : 'translate-y-0'}`}>
         <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
             {/* Row 1: Breadcrumbs + Icons */}
             <div className="flex items-center justify-between gap-2">
