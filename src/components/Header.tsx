@@ -113,13 +113,13 @@ function DesktopHeader() {
             <Button variant="ghost" size="icon" onClick={() => setSettingsOpen(true)} aria-label={t("Налаштування", "Settings")}>
               <Settings className="h-5 w-5" />
             </Button>
-            {!user && <Button variant="outline" size="sm" asChild className={navBtn}>
+            {!user && <Button variant="ghost" size="sm" asChild className={navBtn}>
                 <Link to="/auth" aria-label="Вхід">
                   <LogIn className="mr-2 h-4 w-4" />
                   Вхід
                 </Link>
               </Button>}
-            {isAdmin && <Button variant="outline" size="sm" asChild className={navBtn}>
+            {isAdmin && <Button variant="ghost" size="sm" asChild className={navBtn}>
                 <Link to="/admin/dashboard" aria-label="Адмін">
                   <User className="mr-2 h-4 w-4" />
                   {t("Адмін", "Admin")}
@@ -142,23 +142,23 @@ function DesktopHeader() {
               </SheetHeader>
 
               <div className="mt-6 space-y-4">
-                <Link to={getLocalizedPath("/")} className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                <Link to={getLocalizedPath("/")} className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5" onClick={() => setOpen(false)}>
                   <Home className="h-5 w-5" />
                   <span>Головна</span>
                 </Link>
 
-                <Link to={getLocalizedPath("/library")} className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                <Link to={getLocalizedPath("/library")} className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5" onClick={() => setOpen(false)}>
                   <BookOpen className="h-5 w-5" />
                   <span>Бібліотека</span>
                 </Link>
 
-                <Link to={getLocalizedPath("/glossary")} className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                <Link to={getLocalizedPath("/glossary")} className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5" onClick={() => setOpen(false)}>
                   <Book className="h-5 w-5" />
                   <span>Глосарій</span>
                 </Link>
 
                 <Collapsible open={toolsOpen} onOpenChange={setToolsOpen}>
-                  <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20">
+                  <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5">
                     <div className="flex items-center space-x-3">
                       <Wrench className="h-5 w-5" />
                       <span>Інструменти</span>
@@ -167,22 +167,22 @@ function DesktopHeader() {
                   </CollapsibleTrigger>
 
                   <CollapsibleContent className="ml-6 mt-2 space-y-2">
-                    <Link to={getLocalizedPath("/tools/transliteration")} className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                    <Link to={getLocalizedPath("/tools/transliteration")} className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5" onClick={() => setOpen(false)}>
                       <Languages className="h-4 w-4" />
                       <span>Транслітерація</span>
                     </Link>
 
-                    <Link to={getLocalizedPath("/tools/normalization")} className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                    <Link to={getLocalizedPath("/tools/normalization")} className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5" onClick={() => setOpen(false)}>
                       <Wand2 className="h-4 w-4" />
                       <span>Нормалізація</span>
                     </Link>
 
-                    {isAdmin && <Link to={getLocalizedPath("/tools/learning")} className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                    {isAdmin && <Link to={getLocalizedPath("/tools/learning")} className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5" onClick={() => setOpen(false)}>
                       <GraduationCap className="h-4 w-4" />
                       <span>Вивчення мов</span>
                     </Link>}
 
-                    <Link to={getLocalizedPath("/tools/compiler")} className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                    <Link to={getLocalizedPath("/tools/compiler")} className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5" onClick={() => setOpen(false)}>
                       <BookMarked className="h-4 w-4" />
                       <span>Збірки знань</span>
                     </Link>
@@ -190,22 +190,22 @@ function DesktopHeader() {
                   </CollapsibleContent>
                 </Collapsible>
 
-                <Link to={getLocalizedPath("/blog")} className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                <Link to={getLocalizedPath("/blog")} className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5" onClick={() => setOpen(false)}>
                   <FileText className="h-5 w-5" />
                   <span>Блог</span>
                 </Link>
 
-                <Link to={getLocalizedPath("/contact")} className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                <Link to={getLocalizedPath("/contact")} className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5" onClick={() => setOpen(false)}>
                   <MessageCircle className="h-5 w-5" />
                   <span>Контакти</span>
                 </Link>
 
-                {!user && <Link to="/auth" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                {!user && <Link to="/auth" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5" onClick={() => setOpen(false)}>
                     <LogIn className="h-5 w-5" />
                     <span>Вхід</span>
                   </Link>}
 
-                {isAdmin && <Link to="/admin/dashboard" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                {isAdmin && <Link to="/admin/dashboard" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5" onClick={() => setOpen(false)}>
                     <User className="h-5 w-5" />
                     <span>{t("Адмін", "Admin")}</span>
                   </Link>}
