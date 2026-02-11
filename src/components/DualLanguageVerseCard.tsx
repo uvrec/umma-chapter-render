@@ -1,5 +1,5 @@
 // DualLanguageVerseCard.tsx - Side-by-side view як на vedabase.io
-import { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef, useLayoutEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Edit, Save, X, Volume2, Star, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -223,6 +223,17 @@ export const DualLanguageVerseCard = ({
     commentaryEn,
   });
 
+  // Auto-resize all textareas to fit their content
+  const editContainerRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    if (!isEditing || !editContainerRef.current) return;
+    const textareas = editContainerRef.current.querySelectorAll('textarea');
+    textareas.forEach((ta) => {
+      ta.style.height = 'auto';
+      ta.style.height = ta.scrollHeight + 'px';
+    });
+  }, [isEditing, edited]);
+
   // Обробка санскриту для автоматичних розривів рядків
   const processedSanskritUk = useMemo(() => {
     const base = addSanskritLineBreaks(sanskritTextUk);
@@ -309,7 +320,7 @@ export const DualLanguageVerseCard = ({
         lineHeight,
       }}
     >
-      <div className={flowMode ? "pb-6" : "px-6 pb-6"}>
+      <div ref={editContainerRef} className={flowMode ? "pb-6" : "px-6 pb-6"}>
         {/* НОМЕР ВІРША */}
         {showNumbers && (
           <div className="flex flex-col items-center mb-4">
@@ -433,7 +444,7 @@ export const DualLanguageVerseCard = ({
                       sanskritUk: e.target.value,
                     }))
                   }
-                  className="font-[Noto_Sans_Devanagari] text-2xl text-center min-h-[200px]"
+                  className="font-[Noto_Sans_Devanagari] text-2xl text-center resize-none overflow-hidden"
                 />
                 <Textarea
                   value={edited.sanskritEn}
@@ -443,7 +454,7 @@ export const DualLanguageVerseCard = ({
                       sanskritEn: e.target.value,
                     }))
                   }
-                  className="font-[Noto_Sans_Devanagari] text-2xl text-center min-h-[200px]"
+                  className="font-[Noto_Sans_Devanagari] text-2xl text-center resize-none overflow-hidden"
                 />
               </div>
             ) : (
@@ -478,7 +489,7 @@ export const DualLanguageVerseCard = ({
                       transliterationUk: e.target.value,
                     }))
                   }
-                  className="italic text-lg text-center min-h-[150px]"
+                  className="italic text-lg text-center resize-none overflow-hidden"
                 />
                 <Textarea
                   value={edited.transliterationEn}
@@ -488,7 +499,7 @@ export const DualLanguageVerseCard = ({
                       transliterationEn: e.target.value,
                     }))
                   }
-                  className="italic text-lg text-center min-h-[150px]"
+                  className="italic text-lg text-center resize-none overflow-hidden"
                 />
               </div>
             ) : (
@@ -536,7 +547,7 @@ export const DualLanguageVerseCard = ({
                         synonymsUk: e.target.value,
                       }))
                     }
-                    className="text-base min-h-[200px]"
+                    className="text-base resize-none overflow-hidden"
                   />
                 ) : synonymsUk ? (
                   <p
@@ -594,7 +605,7 @@ export const DualLanguageVerseCard = ({
                         synonymsEn: e.target.value,
                       }))
                     }
-                    className="text-base min-h-[200px]"
+                    className="text-base resize-none overflow-hidden"
                   />
                 ) : synonymsEn ? (
                   <p
@@ -690,7 +701,7 @@ export const DualLanguageVerseCard = ({
                       translationUk: e.target.value,
                     }))
                   }
-                  className="text-base min-h-[150px]"
+                  className="text-base resize-none overflow-hidden"
                 />
                 <Textarea
                   value={edited.translationEn}
@@ -700,7 +711,7 @@ export const DualLanguageVerseCard = ({
                       translationEn: e.target.value,
                     }))
                   }
-                  className="text-base min-h-[150px]"
+                  className="text-base resize-none overflow-hidden"
                 />
               </div>
             ) : (

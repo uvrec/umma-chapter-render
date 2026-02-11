@@ -4,7 +4,7 @@
 // + STICKY HEADER для верхньої панелі
 // + Inline редактор для коментарів з автозбереженням
 
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo, useLayoutEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Edit, Save, X, Volume2, GraduationCap, Play, Pause, ChevronLeft, ChevronRight, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -243,6 +243,17 @@ export const VerseCard = ({
     commentary: commentary || "",
   });
 
+  // Auto-resize all textareas to fit their content
+  const editContainerRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    if (!isEditing || !editContainerRef.current) return;
+    const textareas = editContainerRef.current.querySelectorAll('textarea');
+    textareas.forEach((ta) => {
+      ta.style.height = 'auto';
+      ta.style.height = ta.scrollHeight + 'px';
+    });
+  }, [isEditing, edited]);
+
   // ✅ Оновлювати edited коли props змінюються (напр. при переході між віршами)
   useEffect(() => {
     setEdited({
@@ -339,6 +350,7 @@ export const VerseCard = ({
       className={`verse-surface w-full animate-fade-in ${contourClasses} ${famousVerseClasses}`}
     >
       <div
+        ref={editContainerRef}
         className="pb-6"
         style={{
           fontSize: `${fontSize}px`,
@@ -499,7 +511,7 @@ export const VerseCard = ({
                     sanskrit: e.target.value,
                   }))
                 }
-                className="min-h-[100px] text-center sanskrit-text"
+                className="text-center sanskrit-text resize-none overflow-hidden"
               />
             ) : (
               <p className="whitespace-pre-line text-center sanskrit-text" style={{ fontSize: `${fontSize}px`, lineHeight }}>{processedSanskrit}</p>
@@ -519,7 +531,7 @@ export const VerseCard = ({
                     transliteration: e.target.value,
                   }))
                 }
-                className="min-h-[80px] text-center iast-text text-muted-foreground"
+                className="text-center iast-text text-muted-foreground resize-none overflow-hidden"
               />
             ) : (
               <div
@@ -570,7 +582,7 @@ export const VerseCard = ({
                         synonyms: e.target.value,
                       }))
                     }
-                    className="text-base min-h-[200px]"
+                    className="text-base resize-none overflow-hidden"
                   />
                 ) : synonyms ? (
                   <p
@@ -676,7 +688,7 @@ export const VerseCard = ({
                   }))
                 }
                 label="Редагувати переклад"
-                minHeight="150px"
+                minHeight="60px"
                 compact={true}
               />
             ) : (
@@ -716,7 +728,7 @@ export const VerseCard = ({
                   }))
                 }
                 label="Редагувати пояснення"
-                minHeight="200px"
+                minHeight="80px"
                 compact={true}
               />
             ) : (
