@@ -164,14 +164,6 @@ export const LettersContent = () => {
       .map(([label, letters]) => ({ label, letters }));
   }, [filteredAndSortedLetters, groupBy, t]);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
   // Порахувати листи за роками для сайдбару
   const yearCounts = useMemo(() => {
     const counts: { [year: string]: number } = {};
@@ -182,6 +174,14 @@ export const LettersContent = () => {
     return Object.entries(counts)
       .sort(([a], [b]) => parseInt(b) - parseInt(a));
   }, [filteredAndSortedLetters]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div>
