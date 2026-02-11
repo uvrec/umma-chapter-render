@@ -42,6 +42,9 @@ CREATE TRIGGER trg_blog_posts_search_vector
 -- 2. BLOG: Fix create_blog_post() function parameters
 -- ============================================================================
 
+-- Must DROP first — PostgreSQL cannot rename parameters via CREATE OR REPLACE
+DROP FUNCTION IF EXISTS public.create_blog_post(text,text,text,text,text,text,uuid,text[],boolean,timestamp with time zone,text,text,text);
+
 CREATE OR REPLACE FUNCTION public.create_blog_post(
   _title_uk text,
   _title_en text,
@@ -139,6 +142,8 @@ $function$;
 -- 3. CALENDAR: Fix get_calendar_events()
 -- ============================================================================
 
+DROP FUNCTION IF EXISTS get_calendar_events(DATE, DATE, UUID);
+
 CREATE OR REPLACE FUNCTION get_calendar_events(
   p_start_date DATE,
   p_end_date DATE,
@@ -207,6 +212,8 @@ $func$;
 -- ============================================================================
 -- 4. CALENDAR: Fix get_today_events()
 -- ============================================================================
+
+DROP FUNCTION IF EXISTS get_today_events(UUID);
 
 CREATE OR REPLACE FUNCTION get_today_events(
   p_location_id UUID DEFAULT NULL
@@ -483,6 +490,8 @@ $$;
 -- 10. QUOTES: Fix search_quotes()
 -- ============================================================================
 
+DROP FUNCTION IF EXISTS search_quotes(TEXT, TEXT, TEXT, TEXT, INTEGER, INTEGER);
+
 CREATE OR REPLACE FUNCTION search_quotes(
     p_query TEXT,
     p_category_slug TEXT DEFAULT NULL,
@@ -548,6 +557,8 @@ $$ LANGUAGE plpgsql STABLE;
 -- 11. QUOTES: Fix get_verse_quotes()
 -- ============================================================================
 
+DROP FUNCTION IF EXISTS get_verse_quotes(TEXT, INTEGER, INTEGER, TEXT);
+
 CREATE OR REPLACE FUNCTION get_verse_quotes(
     p_book_slug TEXT,
     p_canto_number INTEGER,
@@ -586,6 +597,8 @@ $$ LANGUAGE plpgsql STABLE;
 -- 12. QUOTES: Fix get_featured_quote_categories()
 -- ============================================================================
 
+DROP FUNCTION IF EXISTS get_featured_quote_categories(INTEGER);
+
 CREATE OR REPLACE FUNCTION get_featured_quote_categories(p_limit INTEGER DEFAULT 10)
 RETURNS TABLE (
     id UUID,
@@ -612,6 +625,8 @@ $$ LANGUAGE plpgsql STABLE;
 -- ============================================================================
 -- 13. VERSES: Fix get_chapter_verses()
 -- ============================================================================
+
+DROP FUNCTION IF EXISTS get_chapter_verses(UUID);
 
 CREATE OR REPLACE FUNCTION get_chapter_verses(p_chapter_id UUID)
 RETURNS TABLE (
@@ -658,6 +673,8 @@ $$ LANGUAGE plpgsql STABLE;
 -- ============================================================================
 -- 14. BOOKS: Fix get_book_by_vedabase_slug()
 -- ============================================================================
+
+DROP FUNCTION IF EXISTS get_book_by_vedabase_slug(TEXT);
 
 CREATE OR REPLACE FUNCTION get_book_by_vedabase_slug(v_slug TEXT)
 RETURNS TABLE (
