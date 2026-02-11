@@ -1,16 +1,13 @@
 // src/components/mobile/SpineTypographyPanel.tsx
 // Typography settings panel for Spine Navigation
 // Панель налаштувань типографіки у стилі Neu Bible
+// Uses custom overlay (not Sheet/Radix Dialog) to avoid pointer-events and onOpenChange conflicts
 
-import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/components/ThemeProvider";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
-import { Sun, Moon, Palette, RotateCcw, Eye, Snowflake } from "lucide-react";
+import { Sun, Moon, Palette, Eye, Snowflake } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const MIN_FONT = 12;
@@ -75,11 +72,23 @@ export function SpineTypographyPanel({ open, onClose }: SpineTypographyPanelProp
     { id: "spacious", value: 2.0, icon: "spacious" },
   ];
 
+  if (!open) return null;
+
   return (
-    <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <SheetContent
-        side="bottom"
-        className="rounded-t-2xl max-h-[70vh] overflow-y-auto"
+    <>
+      {/* Backdrop overlay - starts after Spine (left-14 = 56px) to keep spine buttons accessible */}
+      <div
+        className="fixed inset-0 left-14 z-[50] bg-black/60 animate-in fade-in-0 duration-300"
+        onClick={onClose}
+      />
+
+      {/* Bottom panel - slides up from bottom, positioned after spine */}
+      <div
+        className={cn(
+          "fixed bottom-0 left-14 right-0 z-[60]",
+          "bg-background rounded-t-2xl max-h-[70vh] overflow-y-auto",
+          "animate-in slide-in-from-bottom duration-300"
+        )}
       >
         {/* Handle indicator */}
         <div className="flex justify-center pt-2 pb-4">
@@ -109,7 +118,6 @@ export function SpineTypographyPanel({ open, onClose }: SpineTypographyPanelProp
               );
             })}
           </div>
-
 
           {/* Font Size Slider - Aa indicators only, no label */}
           <div className="space-y-3">
@@ -177,8 +185,8 @@ export function SpineTypographyPanel({ open, onClose }: SpineTypographyPanelProp
             })}
           </div>
         </div>
-      </SheetContent>
-    </Sheet>
+      </div>
+    </>
   );
 }
 

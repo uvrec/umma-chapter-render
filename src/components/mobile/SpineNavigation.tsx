@@ -88,8 +88,12 @@ export function SpineNavigation({
     localStorage.setItem(SPINE_THEME_STORAGE_KEY, String(newIndex));
   }, [spineThemeIndex, setTheme]);
 
-  // Handle touch start
+  // Handle touch start - reset drag state to prevent stuck isDragging
   const handleTouchStart = (e: React.TouchEvent) => {
+    if (isDragging) {
+      setIsDragging(false);
+      setDragX(0);
+    }
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
   };
