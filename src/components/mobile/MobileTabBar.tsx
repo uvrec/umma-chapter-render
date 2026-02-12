@@ -115,7 +115,7 @@ export function MobileTabBar() {
               key={tab.id}
               onClick={() => { selection(); navigate(getTabPath(tab)); }}
               className={cn(
-                "flex flex-col items-center justify-center flex-1 h-full py-1 px-2 transition-colors",
+                "relative flex flex-col items-center justify-center flex-1 h-full py-1 px-2 transition-colors duration-200",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                 active
                   ? "text-primary"
@@ -126,18 +126,25 @@ export function MobileTabBar() {
             >
               <Icon
                 className={cn(
-                  "h-6 w-6 transition-transform",
+                  "h-6 w-6 transition-all duration-200",
                   active && "scale-110"
                 )}
               />
               <span
                 className={cn(
-                  "text-xs mt-1 font-medium truncate max-w-[64px]",
-                  active && "font-semibold"
+                  "text-xs mt-1 font-medium truncate max-w-[64px] transition-opacity duration-200",
+                  active ? "font-semibold" : "opacity-70"
                 )}
               >
                 {label}
               </span>
+              {/* Active tab indicator */}
+              <span
+                className={cn(
+                  "absolute bottom-1.5 h-0.5 rounded-full bg-primary tab-active-indicator",
+                  active ? "w-4 opacity-100" : "w-0 opacity-0"
+                )}
+              />
             </button>
           );
         })}
