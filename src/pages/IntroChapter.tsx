@@ -1,9 +1,10 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ChevronLeft, Edit, Save, X } from 'lucide-react';
+import { ArrowLeft, BookOpen, ChevronLeft, ChevronRight, Edit, Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/Header';
-import { Breadcrumb } from '@/components/Breadcrumb';
+import { Footer } from '@/components/Footer';
+import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -39,7 +40,7 @@ export const IntroChapter = () => {
   const { language, getLocalizedPath } = useLanguage();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { fontSize, lineHeight, dualLanguageMode } = useReaderSettings();
+  const { fontSize, lineHeight, dualLanguageMode, setDualLanguageMode } = useReaderSettings();
   const isMobile = useIsMobile();
 
   // Editing state
@@ -153,32 +154,49 @@ export const IntroChapter = () => {
     }
   });
 
+  const readerTextStyle = {
+    fontSize: `${fontSize}px`,
+    lineHeight,
+  };
+
+  const handleBack = () => {
+    navigate(getLocalizedPath(`/lib/${bookId}`));
+  };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="flex min-h-screen flex-col">
         <Header />
-        <div className="container mx-auto px-4 py-8">
-          <p className="text-center text-muted-foreground">Завантаження...</p>
-        </div>
+        <main className="flex-1 bg-background py-8">
+          <div className="container mx-auto max-w-6xl px-4">
+            <Skeleton className="mb-4 h-8 w-48" />
+            <Skeleton className="mb-8 h-12 w-96" />
+            <div className="space-y-4">
+              {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-24 w-full" />)}
+            </div>
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }
 
   if (!introChapter) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="flex min-h-screen flex-col">
         <Header />
-        <div className="container mx-auto px-4 py-8 text-center">
-          <p className="text-muted-foreground mb-4">Глава не знайдена</p>
-          <Button
-            variant="outline"
-            onClick={() => navigate(getLocalizedPath(`/lib/${bookId}`))}
-          >
-            <ChevronLeft className="h-4 w-4 mr-2" />
-            Назад до книги
-          </Button>
-        </div>
+        <main className="flex-1 bg-background py-8">
+          <div className="container mx-auto max-w-6xl px-4 text-center">
+            <p className="text-muted-foreground mb-4">
+              {language === 'uk' ? 'Глава не знайдена' : 'Chapter not found'}
+            </p>
+            <Button variant="outline" onClick={handleBack}>
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              {language === 'uk' ? 'Назад до книги' : 'Back to book'}
+            </Button>
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }
@@ -187,16 +205,14 @@ export const IntroChapter = () => {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background">
-        {/* Title only */}
         <div className="px-4 pt-6 pb-4">
-          <h1 className="text-2xl font-bold text-primary text-center">{chapterTitle}</h1>
+          <h1 className="text-2xl font-bold text-primary text-center font-serif">{chapterTitle}</h1>
         </div>
 
-        {/* Content */}
         <div className="px-4 pb-8">
           <div
             className="prose prose-slate dark:prose-invert max-w-none text-justify"
-            style={{ fontSize: `${fontSize}px`, lineHeight }}
+            style={readerTextStyle}
             dangerouslySetInnerHTML={{
               __html: sanitizeForRender(
                 language === 'uk'
@@ -210,183 +226,222 @@ export const IntroChapter = () => {
     );
   }
 
-  // Desktop: Full view
+  // Desktop: Full view — matches ChapterVersesList layout
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex min-h-screen flex-col">
       <Header />
+      <main className="flex-1 bg-background py-4 sm:py-8">
+        <div className="container mx-auto max-w-6xl px-3 sm:px-4">
+          {/* Sticky toolbar — matches ChapterVersesList */}
+          <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-2 sticky top-0 lg:top-[65px] z-40 bg-background/95 backdrop-blur-sm py-2 -mx-3 px-3 sm:-mx-4 sm:px-4">
+            <Button variant="ghost" onClick={handleBack} className="gap-2" size="sm">
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden xs:inline">{language === 'uk' ? 'Назад' : 'Back'}</span>
+            </Button>
 
-      <div className="container mx-auto px-4 py-8">
-        <Breadcrumb
-          items={[
-            { label: 'Бібліотека', href: getLocalizedPath('/library') },
-            { label: bookTitle || '', href: getLocalizedPath(`/lib/${bookId}`) },
-            { label: chapterTitle || '' }
-          ]}
-        />
-
-        <div className="verse-surface w-full animate-fade-in py-6">
-          {/* Sticky Header - Title + Edit Button */}
-          <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm pb-4 mb-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-foreground mb-1">{bookTitle}</h1>
-                <h2 className="section-header text-xl text-foreground font-serif">{chapterTitle}</h2>
-              </div>
-
-              {/* Admin Edit Button */}
-              {user && (
-                <div className="flex gap-2">
-                  {isEditingContent ? (
-                    <>
-                      <Button
-                        onClick={() => saveContentMutation.mutate()}
-                        disabled={saveContentMutation.isPending}
-                        variant="default"
-                        size="sm"
-                        className="gap-2"
-                      >
-                        <Save className="h-4 w-4" />
-                        {language === 'uk' ? 'Зберегти' : 'Save'}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setIsEditingContent(false);
-                          setEditedContentUk(introChapter?.content_uk || "");
-                          setEditedContentEn(introChapter?.content_en || "");
-                        }}
-                        className="gap-2"
-                      >
-                        <X className="h-4 w-4" />
-                        {language === 'uk' ? 'Скасувати' : 'Cancel'}
-                      </Button>
-                    </>
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsEditingContent(true)}
-                      className="gap-2"
-                    >
-                      <Edit className="h-4 w-4" />
-                      {language === 'uk' ? 'Редагувати' : 'Edit'}
-                    </Button>
-                  )}
-                </div>
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+              {/* Prev/Next intro chapter navigation */}
+              {prevChapter && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate(getLocalizedPath(`/lib/${bookId}/intro/${prevChapter.slug}`))}
+                  className="gap-1 flex-1 sm:flex-none"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  <span className="hidden sm:inline">{language === 'uk' ? 'Попередня' : 'Previous'}</span>
+                </Button>
               )}
+              {nextChapter && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate(getLocalizedPath(`/lib/${bookId}/intro/${nextChapter.slug}`))}
+                  className="gap-1 flex-1 sm:flex-none"
+                >
+                  <span className="hidden sm:inline">{language === 'uk' ? 'Наступна' : 'Next'}</span>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              )}
+
+              {/* Admin edit controls */}
+              {user && !isEditingContent && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsEditingContent(true)}
+                  className="gap-2"
+                >
+                  <Edit className="h-4 w-4" />
+                  <span className="hidden sm:inline">{language === 'uk' ? 'Редагувати' : 'Edit'}</span>
+                </Button>
+              )}
+              {user && isEditingContent && (
+                <>
+                  <Button
+                    onClick={() => saveContentMutation.mutate()}
+                    disabled={saveContentMutation.isPending}
+                    size="sm"
+                    className="gap-2"
+                  >
+                    <Save className="h-4 w-4" />
+                    <span className="hidden sm:inline">{language === 'uk' ? 'Зберегти' : 'Save'}</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setIsEditingContent(false);
+                      setEditedContentUk(introChapter?.content_uk || "");
+                      setEditedContentEn(introChapter?.content_en || "");
+                    }}
+                    className="gap-2"
+                  >
+                    <X className="h-4 w-4" />
+                    <span className="hidden sm:inline">{language === 'uk' ? 'Скасувати' : 'Cancel'}</span>
+                  </Button>
+                </>
+              )}
+
+              {/* Dual language toggle */}
+              <Button
+                variant={dualLanguageMode ? "secondary" : "ghost"}
+                size="icon"
+                onClick={() => setDualLanguageMode(!dualLanguageMode)}
+                title={language === 'uk' ? 'Двомовний режим' : 'Dual language'}
+              >
+                <BookOpen className="h-5 w-5" />
+              </Button>
             </div>
+          </div>
+
+          {/* Title block — matches ChapterVersesList */}
+          <div className="mb-6 sm:mb-8">
+            <div className="mb-2 gap-2 text-xs sm:text-sm text-muted-foreground flex-wrap flex items-center justify-center">
+              <BookOpen className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+              <span className="truncate max-w-[200px] sm:max-w-none">{bookTitle}</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-bold break-words text-center md:text-4xl font-serif text-primary">
+              {chapterTitle}
+            </h1>
           </div>
 
           {/* Content */}
           {isEditingContent ? (
-            // Editing mode - Side-by-side EnhancedInlineEditor
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-2">Українська</h3>
-                <EnhancedInlineEditor
-                  content={editedContentUk}
-                  onChange={setEditedContentUk}
-                />
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-2">English</h3>
-                <EnhancedInlineEditor
-                  content={editedContentEn}
-                  onChange={setEditedContentEn}
-                />
+            <div className="mb-8 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <EnhancedInlineEditor content={editedContentUk} onChange={setEditedContentUk} label="Українська" />
+                <EnhancedInlineEditor content={editedContentEn} onChange={setEditedContentEn} label="English" />
               </div>
             </div>
+          ) : dualLanguageMode ? (
+            <div className="mb-8 space-y-4" style={readerTextStyle}>
+              {synchronizedParagraphs.map((pair, index) => (
+                <div key={index} className="grid gap-6 md:grid-cols-2">
+                  <div
+                    className="prose prose-slate dark:prose-invert max-w-none"
+                    style={readerTextStyle}
+                    dangerouslySetInnerHTML={{
+                      __html: sanitizeForRender(pair.uk || '<span class="italic text-muted-foreground">—</span>')
+                    }}
+                  />
+                  <div
+                    className="prose prose-slate dark:prose-invert max-w-none"
+                    style={readerTextStyle}
+                    dangerouslySetInnerHTML={{
+                      __html: sanitizeForRender(pair.en || '<span class="italic text-muted-foreground">—</span>')
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
           ) : (
-            // Reading mode
-            dualLanguageMode ? (
-              // Dual language mode - synchronized paragraphs
-              <div className="space-y-8">
-                {synchronizedParagraphs.map((pair, index) => (
-                  <div key={index} className="grid grid-cols-1 lg:grid-cols-2 gap-x-12">
-                    {/* Ukrainian paragraph */}
-                    <div
-                      className="prose prose-slate dark:prose-invert max-w-none"
-                      style={{ fontSize: `${fontSize}px`, lineHeight }}
-                      dangerouslySetInnerHTML={{
-                        __html: sanitizeForRender(pair.uk)
-                      }}
-                    />
+            <div
+              className="mb-8 prose prose-slate dark:prose-invert max-w-none"
+              style={readerTextStyle}
+              dangerouslySetInnerHTML={{
+                __html: sanitizeForRender(
+                  language === 'uk'
+                    ? (introChapter?.content_uk || introChapter?.content_en || "")
+                    : (introChapter?.content_en || introChapter?.content_uk || "")
+                )
+              }}
+            />
+          )}
 
-                    {/* English paragraph */}
-                    <div
-                      className="prose prose-slate dark:prose-invert max-w-none"
-                      style={{ fontSize: `${fontSize}px`, lineHeight }}
-                      dangerouslySetInnerHTML={{
-                        __html: sanitizeForRender(pair.en)
-                      }}
-                    />
+          {/* Bottom navigation — matches ChapterVersesList */}
+          {(prevChapter || nextChapter) && (
+            <div className="mt-12 flex items-center justify-between border-t border-border pt-6">
+              {prevChapter ? (
+                <Button
+                  variant="outline"
+                  onClick={() => navigate(getLocalizedPath(`/lib/${bookId}/intro/${prevChapter.slug}`))}
+                  className="gap-2"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  <div className="text-left">
+                    <div className="text-xs text-muted-foreground">
+                      {language === 'uk' ? 'Попередній розділ' : 'Previous section'}
+                    </div>
+                    <div className="font-medium">
+                      {language === 'uk' ? prevChapter.title_uk : prevChapter.title_en}
+                    </div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              // Single mode - one language
-              <div
-                className="prose prose-slate dark:prose-invert max-w-none"
-                style={{ fontSize: `${fontSize}px`, lineHeight }}
-                dangerouslySetInnerHTML={{
-                  __html: sanitizeForRender(
-                    language === 'uk'
-                      ? (introChapter?.content_uk || introChapter?.content_en || "")
-                      : (introChapter?.content_en || introChapter?.content_uk || "")
-                  )
-                }}
-              />
-            )
+                </Button>
+              ) : (
+                <Button variant="outline" onClick={handleBack} className="gap-2">
+                  <ChevronLeft className="h-4 w-4" />
+                  <div className="text-left">
+                    <div className="text-xs text-muted-foreground">
+                      {language === 'uk' ? 'Назад' : 'Back'}
+                    </div>
+                    <div className="font-medium">
+                      {bookTitle}
+                    </div>
+                  </div>
+                </Button>
+              )}
+
+              {nextChapter ? (
+                <Button
+                  variant="outline"
+                  onClick={() => navigate(getLocalizedPath(`/lib/${bookId}/intro/${nextChapter.slug}`))}
+                  className="gap-2"
+                >
+                  <div className="text-right">
+                    <div className="text-xs text-muted-foreground">
+                      {language === 'uk' ? 'Наступний розділ' : 'Next section'}
+                    </div>
+                    <div className="font-medium">
+                      {language === 'uk' ? nextChapter.title_uk : nextChapter.title_en}
+                    </div>
+                  </div>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              ) : (
+                <Button
+                  variant="default"
+                  onClick={() => {
+                    const firstChapterPath = book?.has_cantos
+                      ? getLocalizedPath(`/lib/${bookId}/1/1`)
+                      : getLocalizedPath(`/lib/${bookId}/1`);
+                    navigate(firstChapterPath);
+                  }}
+                  className="gap-2"
+                >
+                  <div className="text-right">
+                    <div className="text-xs">
+                      {language === 'uk' ? 'Почати читання' : 'Start reading'}
+                    </div>
+                  </div>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           )}
         </div>
-
-        {/* Navigation - ховаємо на мобільних (є свайп) */}
-        {!isMobile && (
-          <div className="flex justify-between items-center">
-            {prevChapter ? (
-              <Button
-                variant="secondary"
-                onClick={() => navigate(getLocalizedPath(`/lib/${bookId}/intro/${prevChapter.slug}`))}
-              >
-                <ChevronLeft className="h-4 w-4 mr-2" />
-                {language === 'uk' ? prevChapter.title_uk : prevChapter.title_en}
-              </Button>
-            ) : (
-              <Button
-                variant="secondary"
-                onClick={() => navigate(getLocalizedPath(`/lib/${bookId}`))}
-              >
-                <ChevronLeft className="h-4 w-4 mr-2" />
-                Назад до книги
-              </Button>
-            )}
-
-            {nextChapter ? (
-              <Button
-                variant="secondary"
-                onClick={() => navigate(getLocalizedPath(`/lib/${bookId}/intro/${nextChapter.slug}`))}
-              >
-                {language === 'uk' ? nextChapter.title_uk : nextChapter.title_en}
-                <ChevronLeft className="h-4 w-4 ml-2 rotate-180" />
-              </Button>
-            ) : (
-              <Button
-                variant="default"
-                onClick={() => {
-                  const firstChapterPath = book?.has_cantos
-                    ? getLocalizedPath(`/lib/${bookId}/1/1`)
-                    : getLocalizedPath(`/lib/${bookId}/1`);
-                  navigate(firstChapterPath);
-                }}
-              >
-                Почати читання
-                <ChevronLeft className="h-4 w-4 ml-2 rotate-180" />
-              </Button>
-            )}
-          </div>
-        )}
-      </div>
+      </main>
+      <Footer />
     </div>
   );
 };
