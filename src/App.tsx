@@ -149,6 +149,7 @@ import { OfflineIndicator } from "./components/OfflineIndicator";
 import { PWAUpdatePrompt } from "./components/PWAUpdatePrompt";
 import { UnifiedSearch, useUnifiedSearch } from "./components/UnifiedSearch";
 import { MobileLayout } from "./components/mobile";
+import { PageTransition } from "./components/PageTransition";
 import { ReadingModeExitButton } from "./components/ReadingModeExitButton";
 import { useEffect } from "react";
 import { loadAdminTypography, applyAdminTypographyToCSS } from "./constants/adminTypography";
@@ -194,6 +195,7 @@ function AppContent() {
       <BrowserRouter>
         <MobileLayout>
         <Suspense fallback={<LoadingFallback />}>
+        <PageTransition>
         <Routes>
           {/* ============================================================
               ROOT → LANGUAGE REDIRECT
@@ -479,6 +481,7 @@ function AppContent() {
           <Route path="/404" element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </PageTransition>
         </Suspense>
         </MobileLayout>
 

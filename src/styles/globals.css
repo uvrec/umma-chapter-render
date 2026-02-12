@@ -346,7 +346,7 @@ mark {
 
 /* Smooth transition for content when spine expands/collapses */
 .mobile-layout {
-  transition: padding-left 0.2s ease-out;
+  transition: padding-left 0.3s ease-out;
 }
 
 /* ==========================================
@@ -471,6 +471,45 @@ mark {
 /* Prose override: прибрати зайві відступи всередині підпису */
 .prose .letter-signature {
   margin-bottom: 0.5em;
+}
+
+/* ==========================================
+   Page Transitions
+   ========================================== */
+
+/* Desktop — very subtle opacity fade, just softens the hard cut */
+@keyframes page-fade {
+  from { opacity: 0.85; }
+  to { opacity: 1; }
+}
+
+.page-transition-desktop {
+  animation: page-fade 0.15s ease-out both;
+}
+
+/* Mobile / Capacitor — smooth slide-fade with iOS-like deceleration curve */
+@keyframes page-slide-fade {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-transition-mobile {
+  animation: page-slide-fade 0.28s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+
+/* ==========================================
+   Mobile Tab Bar — active indicator
+   ========================================== */
+
+.tab-active-indicator {
+  transition: width 0.25s cubic-bezier(0.2, 0.9, 0.3, 1),
+              opacity 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
 }
 
 /* Mobile clean mode - extra minimal for verse view */
