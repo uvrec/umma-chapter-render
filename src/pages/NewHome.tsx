@@ -370,30 +370,27 @@ function FeaturedBooks() {
         </Button>
       </div>
 
-      {/* Book covers — shadow allowed per design rules */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
         {books.map((book) => (
           <Link key={book.id} to={getLocalizedPath(`/lib/${book.slug}`)} className="group cursor-pointer">
-            <div className="relative rounded-2xl p-3 sm:p-4 bg-background/50 backdrop-blur-xl border border-foreground/10 group-hover:bg-background/70 transition-all duration-300">
-              <div className="relative aspect-[2/3] overflow-hidden rounded-lg">
-                {book.cover_image_url ? (
-                  <img
-                    src={book.cover_image_url}
-                    alt={language === "uk" ? book.title_uk : book.title_en}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-muted/50 flex items-center justify-center">
-                    <BookOpen className="h-10 w-10 text-primary/50" />
-                  </div>
-                )}
-              </div>
-
-              <h3 className="mt-2 sm:mt-3 text-xs sm:text-sm font-medium text-center line-clamp-2 text-foreground group-hover:text-primary transition-colors px-1">
-                {language === "uk" ? book.title_uk : book.title_en}
-              </h3>
+            <div className="relative aspect-[2/3] overflow-hidden rounded-lg">
+              {book.cover_image_url ? (
+                <img
+                  src={book.cover_image_url}
+                  alt={language === "uk" ? book.title_uk : book.title_en}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="w-full h-full bg-muted/50 flex items-center justify-center">
+                  <BookOpen className="h-10 w-10 text-primary/50" />
+                </div>
+              )}
             </div>
+
+            <h3 className="mt-2 sm:mt-3 text-xs sm:text-sm font-medium text-center line-clamp-2 text-foreground group-hover:text-primary transition-colors">
+              {language === "uk" ? book.title_uk : book.title_en}
+            </h3>
           </Link>
         ))}
       </div>
