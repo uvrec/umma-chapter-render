@@ -228,7 +228,7 @@ export const useHighlights = (
         .insert({
           user_id: user.id,
           ...params,
-        })
+        } as any)
         .select()
         .single();
 

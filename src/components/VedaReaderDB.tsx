@@ -738,7 +738,7 @@ export const VedaReaderDB = () => {
       chapterNumber: parseInt(effectiveChapterParam || "1"),
       verseNumber: verseIdx,
       verseText: language === 'uk' ? currentVerse.translation_uk : currentVerse.translation_en,
-      sanskritText: currentVerse.text,
+      sanskritText: currentVerse.sanskrit,
     };
 
     await shareVerse(verseParams, {
@@ -782,7 +782,7 @@ export const VedaReaderDB = () => {
       chapterNumber: parseInt(effectiveChapterParam || "1"),
       verseNumber: verseIdx,
       verseText: language === 'uk' ? currentVerse.translation_uk : currentVerse.translation_en,
-      sanskritText: currentVerse.text,
+      sanskritText: currentVerse.sanskrit,
     };
 
     await copyVerseWithLink(verseParams, {
@@ -882,7 +882,7 @@ export const VedaReaderDB = () => {
       bookSlug: bookId,
       cantoNumber: cantoNumber,
       chapterNumber: isCantoMode ? chapterNumber : effectiveChapter?.chapter_number?.toString(),
-      sanskritText: currentVerse.text || "",
+      sanskritText: currentVerse.sanskrit || "",
       transliteration: currentVerse.transliteration || undefined,
       translation: language === 'uk' ? currentVerse.translation_uk || "" : currentVerse.translation_en || "",
       commentary: language === 'uk' ? currentVerse.commentary_uk || undefined : currentVerse.commentary_en || undefined,
@@ -1385,7 +1385,7 @@ export const VedaReaderDB = () => {
       } else {
         setShowKeyboardShortcuts(false);
         setShowJumpDialog(false);
-        setSettingsOpen(false);
+        // setSettingsOpen removed - no longer used
       }
     },
     category: 'help'
