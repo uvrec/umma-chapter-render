@@ -56,7 +56,7 @@ export const LecturesContent = () => {
     if (urlType || urlLocation || urlYearFrom || urlYearTo) {
       setFilters(prev => ({
         ...prev,
-        type: urlType || prev.type,
+        type: (urlType as typeof prev.type) || prev.type,
         location: urlLocation || prev.location,
         dateFrom: urlYearFrom ? `${urlYearFrom}-01-01` : prev.dateFrom,
         dateTo: urlYearTo ? `${urlYearTo}-12-31` : prev.dateTo,

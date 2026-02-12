@@ -197,8 +197,8 @@ describe("sortByReviewPriority", () => {
   });
 
   it("does not mutate original array", () => {
-    const items = [{ id: 1 }, { id: 2 }];
-    const sorted = sortByReviewPriority(items);
+    const items = [{ id: 1, srs: undefined }, { id: 2, srs: undefined }];
+    const sorted = sortByReviewPriority(items as any);
     expect(sorted).not.toBe(items);
   });
 });
@@ -213,8 +213,8 @@ describe("getReviewStats", () => {
   });
 
   it("counts totals correctly", () => {
-    const items = [{ id: 1 }, { id: 2 }, { id: 3 }];
-    const stats = getReviewStats(items);
+    const items = [{ id: 1, srs: undefined }, { id: 2, srs: undefined }, { id: 3, srs: undefined }];
+    const stats = getReviewStats(items as any);
     expect(stats.total).toBe(3);
     expect(stats.dueToday).toBe(3); // no SRS => due
   });

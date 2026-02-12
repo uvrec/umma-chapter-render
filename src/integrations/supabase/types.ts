@@ -1982,14 +1982,16 @@ export type Database = {
       }
       highlights: {
         Row: {
-          book_id: string
+          book_id: string | null
           canto_id: string | null
-          chapter_id: string
+          chapter_id: string | null
           context_after: string | null
           context_before: string | null
           created_at: string
           highlight_color: string | null
           id: string
+          lecture_id: string | null
+          letter_id: string | null
           notes: string | null
           selected_text: string
           updated_at: string
@@ -1998,14 +2000,16 @@ export type Database = {
           verse_number: string | null
         }
         Insert: {
-          book_id: string
+          book_id?: string | null
           canto_id?: string | null
-          chapter_id: string
+          chapter_id?: string | null
           context_after?: string | null
           context_before?: string | null
           created_at?: string
           highlight_color?: string | null
           id?: string
+          lecture_id?: string | null
+          letter_id?: string | null
           notes?: string | null
           selected_text: string
           updated_at?: string
@@ -2014,14 +2018,16 @@ export type Database = {
           verse_number?: string | null
         }
         Update: {
-          book_id?: string
+          book_id?: string | null
           canto_id?: string | null
-          chapter_id?: string
+          chapter_id?: string | null
           context_after?: string | null
           context_before?: string | null
           created_at?: string
           highlight_color?: string | null
           id?: string
+          lecture_id?: string | null
+          letter_id?: string | null
           notes?: string | null
           selected_text?: string
           updated_at?: string
@@ -2057,6 +2063,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "readable_chapters"
             referencedColumns: ["chapter_id"]
+          },
+          {
+            foreignKeyName: "highlights_lecture_id_fkey"
+            columns: ["lecture_id"]
+            isOneToOne: false
+            referencedRelation: "lectures"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "highlights_letter_id_fkey"
+            columns: ["letter_id"]
+            isOneToOne: false
+            referencedRelation: "letters"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -2260,6 +2280,45 @@ export type Database = {
           reference?: string | null
           slug?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      numerology_calculations: {
+        Row: {
+          action_number: number
+          birth_date: string
+          created_at: string
+          formatted: string | null
+          id: string
+          mind_number: number
+          realization_number: number
+          result_number: number
+          tool_type: string
+          user_id: string | null
+        }
+        Insert: {
+          action_number: number
+          birth_date: string
+          created_at?: string
+          formatted?: string | null
+          id?: string
+          mind_number: number
+          realization_number: number
+          result_number: number
+          tool_type: string
+          user_id?: string | null
+        }
+        Update: {
+          action_number?: number
+          birth_date?: string
+          created_at?: string
+          formatted?: string | null
+          id?: string
+          mind_number?: number
+          realization_number?: number
+          result_number?: number
+          tool_type?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -4548,7 +4607,7 @@ export type Database = {
           slug: string | null
           sort_date: string | null
           title_en: string | null
-          title_ua: string | null
+          title_uk: string | null
         }
         Relationships: [
           {
@@ -4776,6 +4835,7 @@ export type Database = {
       }
     }
     Functions: {
+      _find_fn_oid_by_identity: { Args: { identity: string }; Returns: unknown }
       compile_canto_knowledge: {
         Args: {
           language_code?: string
@@ -4807,15 +4867,15 @@ export type Database = {
           _audio_url?: string
           _category_id?: string
           _content_en: string
-          _content_ua: string
+          _content_uk: string
           _cover_image_url?: string
           _excerpt_en?: string
-          _excerpt_ua?: string
+          _excerpt_uk?: string
           _is_published?: boolean
           _scheduled_publish_at?: string
           _tags?: string[]
           _title_en: string
-          _title_ua: string
+          _title_uk: string
           _video_url?: string
         }
         Returns: {
@@ -5007,7 +5067,7 @@ export type Database = {
           id: string
           slug: string
           title_en: string
-          title_ua: string
+          title_uk: string
           vedabase_slug: string
         }[]
       }
@@ -5078,7 +5138,7 @@ export type Database = {
           category_color: string
           category_slug: string
           description_en: string
-          description_ua: string
+          description_uk: string
           event_date: string
           event_id: string
           event_type: string
@@ -5086,7 +5146,7 @@ export type Database = {
           is_major: boolean
           moon_phase: number
           name_en: string
-          name_ua: string
+          name_uk: string
           sunrise_time: string
           sunset_time: string
         }[]
@@ -5190,16 +5250,16 @@ export type Database = {
         Returns: {
           audio_url: string
           commentary_en: string
-          commentary_ua: string
+          commentary_uk: string
           end_verse: number
           id: string
           is_composite: boolean
           sanskrit: string
           start_verse: number
           synonyms_en: string
-          synonyms_ua: string
+          synonyms_uk: string
           translation_en: string
-          translation_ua: string
+          translation_uk: string
           transliteration: string
           verse_count: number
           verse_number: string
@@ -5282,7 +5342,7 @@ export type Database = {
           quotes_count: number
           slug: string
           title: string
-          title_ua: string
+          title_uk: string
         }[]
       }
       get_glossary_stats: {
@@ -5440,8 +5500,25 @@ export type Database = {
           depth: number
           id: string
           name_en: string
-          name_ua: string
+          name_uk: string
           slug: string
+        }[]
+      }
+      get_tattva_tree: {
+        Args: { p_parent_id?: string }
+        Returns: {
+          category: string
+          children_count: number
+          depth: number
+          description_en: string
+          description_uk: string
+          display_order: number
+          id: string
+          name_en: string
+          name_uk: string
+          parent_id: string
+          slug: string
+          verses_count: number
         }[]
       }
       get_tattva_verses: {
@@ -5460,7 +5537,7 @@ export type Database = {
           sanskrit: string
           tattva_name: string
           translation_en: string
-          translation_ua: string
+          translation_uk: string
           verse_id: string
           verse_number: string
         }[]
@@ -5473,11 +5550,11 @@ export type Database = {
           event_type: string
           is_ekadashi: boolean
           name_en: string
-          name_ua: string
+          name_uk: string
           parana_end_time: string
           parana_start_time: string
           short_description_en: string
-          short_description_ua: string
+          short_description_uk: string
         }[]
       }
       get_topic_statistics: {
@@ -5571,7 +5648,7 @@ export type Database = {
           source_reference: string
           source_type: string
           text_en: string
-          text_ua: string
+          text_uk: string
         }[]
       }
       get_verse_tattvas: {
@@ -5580,8 +5657,7 @@ export type Database = {
           category: string
           id: string
           name_en: string
-          name_sanskrit: string
-          name_ua: string
+          name_uk: string
           relevance_score: number
           slug: string
         }[]
@@ -5647,7 +5723,7 @@ export type Database = {
       }
       is_chapter_readable: { Args: { chapter_uuid: string }; Returns: boolean }
       is_verse_famous: { Args: { p_verse_id: string }; Returns: boolean }
-      jsonb_no_ua_keys: { Args: { j: Json }; Returns: boolean }
+      jsonb_no_uk_keys: { Args: { j: Json }; Returns: boolean }
       link_verse_to_tattva: {
         Args: {
           p_book_slug: string
@@ -5859,7 +5935,7 @@ export type Database = {
           source_reference: string
           source_type: string
           text_en: string
-          text_ua: string
+          text_uk: string
           verse_number: string
         }[]
       }
@@ -5987,11 +6063,10 @@ export type Database = {
         Returns: {
           category: string
           description_en: string
-          description_ua: string
+          description_uk: string
           id: string
           name_en: string
-          name_sanskrit: string
-          name_ua: string
+          name_uk: string
           parent_id: string
           parent_slug: string
           slug: string
