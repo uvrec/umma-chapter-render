@@ -16,18 +16,34 @@ import DOMPurify from 'dompurify';
 import { sanitizeForRender } from '@/utils/import/normalizers';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-// Функція для розбиття HTML на параграфи
+// Розбиває HTML на блоки верхнього рівня для синхронізованого двомовного відображення.
+// Використовує лише прямих дітей, щоб уникнути дублювання
+// (наприклад, <blockquote> містить <p>, який не треба рахувати окремо).
 const parseHTMLToParagraphs = (html: string): string[] => {
   if (!html) return [];
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = DOMPurify.sanitize(html);
 
+  const blockTags = new Set(['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'UL', 'OL', 'PRE', 'DIV', 'TABLE', 'FIGURE']);
   const paragraphs: string[] = [];
-  const elements = tempDiv.querySelectorAll('p, h1, h2, h3, h4, h5, h6, blockquote, ul, ol, pre');
 
-  elements.forEach((el) => {
-    paragraphs.push(el.outerHTML);
-  });
+  for (const child of Array.from(tempDiv.childNodes)) {
+    if (child.nodeType === Node.ELEMENT_NODE) {
+      const el = child as HTMLElement;
+      if (blockTags.has(el.tagName)) {
+        paragraphs.push(el.outerHTML);
+      } else {
+        // Inline elements — wrap in a paragraph
+        const wrapper = document.createElement('p');
+        wrapper.appendChild(el.cloneNode(true));
+        paragraphs.push(wrapper.outerHTML);
+      }
+    } else if (child.nodeType === Node.TEXT_NODE && child.textContent?.trim()) {
+      const wrapper = document.createElement('p');
+      wrapper.textContent = child.textContent;
+      paragraphs.push(wrapper.outerHTML);
+    }
+  }
 
   return paragraphs.length > 0 ? paragraphs : [html];
 };
