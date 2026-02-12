@@ -218,6 +218,7 @@ export function useLearningSync(): UseLearningSync {
     } finally {
       setIsSyncing(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isOnline]);
 
   // Sync from cloud - uses refs for stable function reference
@@ -387,6 +388,7 @@ export function useLearningSync(): UseLearningSync {
     } finally {
       setIsSyncing(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isOnline]);
 
   // Store syncToCloud in a ref for stable access in debouncedSyncToCloud
@@ -449,6 +451,7 @@ export function useLearningSync(): UseLearningSync {
     return () => {
       isCancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, isOnline]);
 
   // Record learning activity

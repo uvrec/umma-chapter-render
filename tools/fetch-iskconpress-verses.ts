@@ -160,7 +160,7 @@ function parseWikiVerse(content: string): ParsedVerse {
       }
 
       if (inPurportSection) {
-        let cleaned = line
+        const cleaned = line
           .replace(/\/\/([^/]+)\/\//g, '$1')  // //italic// -> italic
           .replace(/\[\[.*?\|(.*?)\]\]/g, '$1')  // [[link|text]] -> text
           .replace(/\[\[([^\]|]+)\]\]/g, '$1')   // [[link]] -> link

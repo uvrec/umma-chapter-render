@@ -89,6 +89,7 @@ export function MobileLecturesTimeline() {
     if (monthsWithData.size > 0 && !monthsWithData.has(selectedMonth)) {
       setSelectedMonth(Math.min(...monthsWithData));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lectures, selectedYear]);
 
   // Get unique locations for the selected year

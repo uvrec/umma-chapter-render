@@ -216,7 +216,7 @@ function extractGitabaseContent(html: string) {
     // Пояснення
     if (result.translation) {
       const purportStart = html.indexOf(result.translation) + result.translation.length;
-      let purport = html
+      const purport = html
         .substring(purportStart)
         .replace(/<[^>]+>/g, " ")
         .replace(/\s+/g, " ")

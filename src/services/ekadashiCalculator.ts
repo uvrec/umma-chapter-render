@@ -779,7 +779,7 @@ export function findAllEkadashisInYear(year: number, location: GeoLocation): Arr
 
   const startDate = new Date(year, 0, 1);
   const endDate = new Date(year, 11, 31);
-  let currentDate = new Date(startDate);
+  const currentDate = new Date(startDate);
 
   while (currentDate <= endDate) {
     const result = isEkadashiISKCON(currentDate, location);

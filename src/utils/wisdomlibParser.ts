@@ -190,7 +190,7 @@ export function parseWisdomlibVersePage(html: string, verseUrl: string): Wisdoml
 
       // Bengali in 2nd paragraph (index 1)
       if (paragraphs.length >= 2) {
-        let secondP = paragraphs[1].textContent?.trim() || "";
+        const secondP = paragraphs[1].textContent?.trim() || "";
 
         if (isBengali(secondP)) {
           // Remove Devanagari but keep danda punctuation
@@ -408,7 +408,7 @@ export function extractWisdomlibVerseUrls(
       if (!match) return;
 
       // Get verse number (3rd part: Z or Z-W)
-      let verseNumber = match[3].replace(/[–—]/g, '-').replace(/\s+/g, '');
+      const verseNumber = match[3].replace(/[–—]/g, '-').replace(/\s+/g, '');
 
       // Build full URL
       let fullUrl = href;

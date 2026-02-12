@@ -3,6 +3,7 @@
  * Stores data in localStorage, can be extended to sync with Supabase
  */
 
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 
 // Types

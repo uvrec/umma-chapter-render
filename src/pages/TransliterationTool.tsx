@@ -50,16 +50,18 @@ export default function TransliterationTool() {
         let result = "";
 
         switch (sourceMode) {
-          case "devanagari":
+          case "devanagari": {
             // Деванагарі → IAST → Українська
             const devanagariIAST = devanagariToIAST(text);
             result = convertIASTtoUkrainian(devanagariIAST);
             break;
-          case "bengali":
+          }
+          case "bengali": {
             // Бенгалі → IAST → Українська
             const bengaliIAST = bengaliToIAST(text);
             result = convertIASTtoUkrainian(bengaliIAST);
             break;
+          }
           case "iast":
             // IAST → Українська
             result = convertIASTtoUkrainian(text);
@@ -77,6 +79,7 @@ export default function TransliterationTool() {
         setIsProcessing(false);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [mode, textType],
   );
 

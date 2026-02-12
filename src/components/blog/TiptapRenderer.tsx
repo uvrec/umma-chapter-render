@@ -68,7 +68,7 @@ export const TiptapRenderer = ({ content, className = "", fontSize, lineHeight, 
         ],
         ADD_ATTR: ["loading"], // allow lazy-loading for images
         ALLOW_DATA_ATTR: true,
-        ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+        ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp):|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i,
         RETURN_DOM: false,
       });
 
@@ -86,10 +86,6 @@ export const TiptapRenderer = ({ content, className = "", fontSize, lineHeight, 
       return `<p class='text-destructive'>Помилка відображення контенту</p>`;
     }
   }, [content]);
-
-  if (!sanitizedContent) {
-    return <div className="text-muted-foreground italic">Контент відсутній</div>;
-  }
 
   // ✅ ДОДАНО: Стиль для приховування блоків згідно з налаштуваннями
   const hiddenBlocksStyle = useMemo(() => {
@@ -110,6 +106,10 @@ export const TiptapRenderer = ({ content, className = "", fontSize, lineHeight, 
 
     return styles;
   }, [fontSize, lineHeight, displayBlocks]);
+
+  if (!sanitizedContent) {
+    return <div className="text-muted-foreground italic">Контент відсутній</div>;
+  }
 
   return (
     <div

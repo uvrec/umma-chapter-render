@@ -412,7 +412,7 @@ function parseLetter(html: string, slug: string) {
 
   // --- 4. Фолбек для локації ---
   if (!location) {
-    const locationMatch = html.match(/(?:from|written in|written at)\s+([A-Za-z\s]+?)(?:[,\.\n])/i);
+    const locationMatch = html.match(/(?:from|written in|written at)\s+([A-Za-z\s]+?)(?:[,.\n])/i);
     if (locationMatch) {
       location = locationMatch[1].trim();
     }

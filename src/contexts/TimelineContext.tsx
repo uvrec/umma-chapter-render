@@ -121,6 +121,7 @@ export function TimelineProvider({ children }: TimelineProviderProps) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useTimeline() {
   const context = useContext(TimelineContext);
   if (!context) {

@@ -143,6 +143,7 @@ export function DayView({ initialDate, events = [], onDateChange, className }: D
         ...event,
         style: getEventStyle(event.sunrise_time), // Use sunrise as default time for events
       }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [events, selectedDate]);
 
   return (

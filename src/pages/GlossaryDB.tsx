@@ -70,7 +70,9 @@ export default function GlossaryDB() {
         const words = JSON.parse(stored) as LearningWord[];
         return new Set(words.map((w) => w.iast.toLowerCase()));
       }
-    } catch {}
+    } catch {
+      // ignore
+    }
     return new Set();
   });
 
@@ -152,11 +154,13 @@ export default function GlossaryDB() {
     [lexiconAvailable, lookupWord, etymologyData, loadingEtymology],
   );
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSetSearch = useCallback(
     debounce((term: string) => setDebouncedSearchTerm(term), 400),
     [],
   );
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSetTranslation = useCallback(
     debounce((term: string) => setDebouncedTranslation(term), 400),
     [],

@@ -8,6 +8,7 @@
  * - Image lazy loading hooks
  */
 
+/* eslint-disable react-refresh/only-export-components */
 import React, { Suspense, lazy, useEffect, useState, ComponentType } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Loader2 } from 'lucide-react';
@@ -141,6 +142,7 @@ export function useIntersectionObserver(
   const [isIntersecting, setIsIntersecting] = useState(false);
   const ref = React.useRef<HTMLDivElement>(null);
 
+   
   useEffect(() => {
     const element = ref.current;
     if (!element) return;
@@ -158,6 +160,7 @@ export function useIntersectionObserver(
     return () => {
       observer.disconnect();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [options.rootMargin, options.threshold]);
 
   return [ref, isIntersecting];

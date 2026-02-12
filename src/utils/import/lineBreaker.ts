@@ -112,7 +112,7 @@ export function addTransliterationLineBreaks(sanskrit: string, transliteration: 
 
   if (hasDouble || hasSingle) {
     // Нормалізація пробілів
-    let t = softNormalizeBeforeSplit(transliteration);
+    const t = softNormalizeBeforeSplit(transliteration);
 
     // Спочатку розіб'ємо по '||', далі — по '|' усередині кожного сегмента,
     // щоб зберегти ієрархію (подвійні данди — сильніший роздільник).
@@ -133,7 +133,7 @@ export function addTransliterationLineBreaks(sanskrit: string, transliteration: 
   }
 
   // 2) Немає маркерів — мʼяка евристика: розбиваємо на ~рівні шматки
-  let t = softNormalizeBeforeSplit(transliteration);
+  const t = softNormalizeBeforeSplit(transliteration);
   const words = t.split(/\s+/);
   const perLine = Math.max(1, Math.round(words.length / sanskritLineCount));
 

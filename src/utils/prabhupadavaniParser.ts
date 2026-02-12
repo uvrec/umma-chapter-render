@@ -119,7 +119,7 @@ export function parseTDChapterPage(html: string, chapterNum: number = 1): TDChap
     }
 
     // Extract main content
-    let contentEl =
+    const contentEl =
       doc.querySelector(".entry-content") ||
       doc.querySelector("article .content") ||
       doc.querySelector(".post-content") ||
@@ -223,13 +223,13 @@ export function parseTDIntroPage(html: string, slug: string, displayOrder: numbe
     const doc = parser.parseFromString(html, "text/html");
 
     // Extract title
-    let title =
+    const title =
       doc.querySelector("h1.entry-title")?.textContent?.trim() ||
       doc.querySelector("h1")?.textContent?.trim() ||
       slug.charAt(0).toUpperCase() + slug.slice(1);
 
     // Extract content
-    let contentEl =
+    const contentEl =
       doc.querySelector(".entry-content") ||
       doc.querySelector("article .content") ||
       doc.querySelector(".post-content");

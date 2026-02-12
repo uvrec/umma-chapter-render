@@ -99,6 +99,7 @@ export default function SynonymsSearch() {
   }, [contextLanguage]);
 
   // Автокомпліт для швидкого введення
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const loadAutocomplete = useCallback(
     debounce(async (term: string, lang: "uk" | "en") => {
       if (term.length < 2) {

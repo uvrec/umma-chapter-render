@@ -16,7 +16,7 @@ export function toSafeFilename(name: string) {
   return name
     .trim()
     .normalize("NFKD")
-    .replace(/[^\p{L}\p{N}\.\-\s_]/gu, "") // лишаємо літери/цифри/.-_ та пробіли
+    .replace(/[^\p{L}\p{N}.\-\s_]/gu, "") // лишаємо літери/цифри/.-_ та пробіли
     .replace(/\s+/g, "-")
     .toLowerCase();
 }

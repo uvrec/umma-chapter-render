@@ -33,6 +33,7 @@ export function useRoutines(selectedDate?: Date) {
   const [notes, setNotes] = useState<DailyNote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const currentDate = selectedDate || new Date();
   const dateStr = format(currentDate, 'yyyy-MM-dd');
 

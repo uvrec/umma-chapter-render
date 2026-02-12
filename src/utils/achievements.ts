@@ -436,7 +436,7 @@ export function updateDailyGoal(increment: number = 1): DailyGoal {
   const progress = getLearningProgress();
   const today = getTodayString();
 
-  let dailyGoals = progress.dailyGoals.filter(g => g.date >= today); // Keep only today and future
+  const dailyGoals = progress.dailyGoals.filter(g => g.date >= today); // Keep only today and future
   const existingIndex = dailyGoals.findIndex(g => g.date === today);
 
   let todaysGoal: DailyGoal;

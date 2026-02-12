@@ -20,13 +20,6 @@ export default function ImportWizard() {
   const navigate = useNavigate();
   const { user, isAdmin } = useAuth();
 
-  // редірект, якщо не адмін
-  useEffect(() => {
-    if (!user || !isAdmin) navigate("/auth");
-  }, [user, isAdmin, navigate]);
-
-  if (!user || !isAdmin) return null;
-
   const [currentStep, setCurrentStep] = useState<Step>("upload");
   const [extractedText, setExtractedText] = useState<string>("");
 
@@ -48,6 +41,13 @@ export default function ImportWizard() {
       ] as { id: Step; label: string; icon: React.ComponentType<any> }[],
     [],
   );
+
+  // редірект, якщо не адмін
+  useEffect(() => {
+    if (!user || !isAdmin) navigate("/auth");
+  }, [user, isAdmin, navigate]);
+
+  if (!user || !isAdmin) return null;
 
   const currentStepIndex = steps.findIndex((s) => s.id === currentStep);
 

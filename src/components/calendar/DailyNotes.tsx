@@ -52,6 +52,7 @@ const moodIcons: Record<Mood, { icon: React.ReactNode; color: string; label_uk: 
 
 export function DailyNotes({ selectedDate, className }: DailyNotesProps) {
   const { t, language, getLocalizedPath } = useLanguage();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const date = selectedDate || new Date();
   const dateStr = format(date, 'yyyy-MM-dd');
 

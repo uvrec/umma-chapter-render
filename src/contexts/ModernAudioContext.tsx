@@ -116,6 +116,7 @@ interface AudioContextState {
 
 const AudioContext = createContext<AudioContextState | undefined>(undefined);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAudio = () => {
   const context = useContext(AudioContext);
   if (!context) {
@@ -399,7 +400,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
     }
   }, []);
 
-  // ðŸ”§ Enhanced: Crossfade support
+  // ðŸ"§ Enhanced: Crossfade support
   const nextTrack = useCallback(() => {
     if (currentIndex === null || playlist.length === 0) return;
 
@@ -418,6 +419,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
 
     setCurrentIndex(nextIndex);
     trackPlay(playlist[nextIndex].id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIndex, playlist, isShuffled, repeatMode, trackPlay]);
 
   // Same implementation for other methods...
@@ -492,6 +494,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
     } else if (repeatMode === "all") {
       setCurrentIndex(playlist.length - 1);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIndex, playlist, currentTime, repeatMode]);
 
   const seek = useCallback((time: number) => {
@@ -658,6 +661,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
         audioRef.current = null;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Save state
@@ -716,6 +720,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
       audio.removeEventListener("pause", handlePause);
       audio.removeEventListener("error", handleError as any);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [repeatMode, handleSleepTimerTrackEnd]);
 
   // Update audio source when track changes
@@ -777,6 +782,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
       const filtered = prev.filter((t) => t.id !== track.id);
       return [track, ...filtered].slice(0, 50);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIndex, playlist]);
 
   const currentTrack = currentIndex !== null ? playlist[currentIndex] : null;

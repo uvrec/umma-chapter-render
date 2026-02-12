@@ -122,8 +122,8 @@ function processInlineTags(text: string, keepHtml: boolean = false): string {
     result = result.replace(/<MI>([^<]*)<\/?D>/g, "<em>$1</em>");
     result = result.replace(/<MI>/g, "<em>");
     result = result.replace(/<\/?D>/g, "</em>");
-    result = result.replace(/<\/em>\s*<em>([,.\;:])/g, "</em>$1");
-    result = result.replace(/<\/strong>\s*<strong>([,.\;:])/g, "</strong>$1");
+    result = result.replace(/<\/em>\s*<em>([,.;:])/g, "</em>$1");
+    result = result.replace(/<\/strong>\s*<strong>([,.;:])/g, "</strong>$1");
     result = result.replace(/<em><\/em>/g, "");
     result = result.replace(/<strong><\/strong>/g, "");
     result = result.replace(/<\/em>\s*<em>/g, " ");
@@ -434,7 +434,9 @@ function readFile(filePath: string): string {
     if (text.includes("@") && text.includes(" = ")) {
       return text.replace(/^\ufeff/, "");
     }
-  } catch {}
+  } catch {
+    // ignore
+  }
 
   // Fallback to UTF-8
   return buffer.toString("utf8").replace(/^\ufeff/, "");

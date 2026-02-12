@@ -16,9 +16,10 @@ interface PageRendererProps {
 
 const BlockRenderer = ({ block, language }: { block: PageBlock; language: string }) => {
   switch (block.type) {
-    case "text":
+    case "text": {
       const textContent = language === "uk" ? block.content.text_uk : block.content.text_en;
       return textContent ? <TiptapRenderer content={textContent} /> : null;
+    }
 
     case "heading": {
       const HeadingTag = `h${block.content.level || 2}` as keyof JSX.IntrinsicElements;
@@ -61,7 +62,7 @@ const BlockRenderer = ({ block, language }: { block: PageBlock; language: string
       );
     }
 
-    case "image":
+    case "image": {
       const imageCaption = language === "uk" ? block.content.caption_uk : block.content.caption_en;
       return block.content.url ? (
         <figure className="my-6">
@@ -69,8 +70,9 @@ const BlockRenderer = ({ block, language }: { block: PageBlock; language: string
           {imageCaption && <figcaption className="text-sm text-muted-foreground text-center mt-2">{imageCaption}</figcaption>}
         </figure>
       ) : null;
+    }
 
-    case "audio":
+    case "audio": {
       const audioCaption = language === "uk" ? block.content.caption_uk : block.content.caption_en;
       return block.content.url ? (
         <div className="my-6">
@@ -80,8 +82,9 @@ const BlockRenderer = ({ block, language }: { block: PageBlock; language: string
           {audioCaption && <p className="text-sm text-muted-foreground mt-2">{audioCaption}</p>}
         </div>
       ) : null;
+    }
 
-    case "video":
+    case "video": {
       const videoCaption = language === "uk" ? block.content.caption_uk : block.content.caption_en;
       return block.content.url ? (
         <div className="my-6">
@@ -91,6 +94,7 @@ const BlockRenderer = ({ block, language }: { block: PageBlock; language: string
           {videoCaption && <p className="text-sm text-muted-foreground mt-2">{videoCaption}</p>}
         </div>
       ) : null;
+    }
 
     case "divider":
       return <hr className="my-8 border-t" />;

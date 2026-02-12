@@ -16,16 +16,10 @@ export function LanguageWrapper() {
   const { lang } = useParams<{ lang: string }>();
   const { setLanguage, language } = useLanguage();
 
-  // Validate language parameter
-  if (!isValidLang(lang)) {
-    // Invalid language - redirect to current language
-    const currentPath = window.location.pathname.replace(/^\/[^/]+/, '');
-    return <Navigate to={`/${language}${currentPath || '/'}`} replace />;
-  }
-
   // Sync URL language with context when URL changes (e.g., direct navigation, back/forward)
   // We check localStorage (not context state) to avoid race conditions during user-initiated switches
   useEffect(() => {
+    if (!isValidLang(lang)) return;
     const storedLang = localStorage.getItem('language');
     // Only sync if URL language differs from stored language
     // This means it's an external navigation, not a user switch
@@ -33,6 +27,13 @@ export function LanguageWrapper() {
       setLanguage(lang);
     }
   }, [lang, setLanguage]);
+
+  // Validate language parameter
+  if (!isValidLang(lang)) {
+    // Invalid language - redirect to current language
+    const currentPath = window.location.pathname.replace(/^\/[^/]+/, '');
+    return <Navigate to={`/${language}${currentPath || '/'}`} replace />;
+  }
 
   return <Outlet />;
 }

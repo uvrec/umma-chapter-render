@@ -184,8 +184,8 @@ function processInlineTags(text: string, keepHtml: boolean = false): string {
     result = result.replace(/<MI>([^<]*)<\/?D>/g, "<em>$1</em>");
     result = result.replace(/<MI>/g, "<em>");
     result = result.replace(/<\/?D>/g, "</em>");
-    result = result.replace(/<\/em>\s*<em>([,.\;:])/g, "</em>$1");
-    result = result.replace(/<\/strong>\s*<strong>([,.\;:])/g, "</strong>$1");
+    result = result.replace(/<\/em>\s*<em>([,.;:])/g, "</em>$1");
+    result = result.replace(/<\/strong>\s*<strong>([,.;:])/g, "</strong>$1");
     result = result.replace(/<em><\/em>/g, "");
     result = result.replace(/<strong><\/strong>/g, "");
     result = result.replace(/<\/em>\s*<em>/g, " ");
@@ -260,7 +260,7 @@ function processProse(text: string, keepHtml: boolean = false): string {
 }
 
 function processFirstParagraph(text: string): string {
-  let result = processProse(text, true);
+  const result = processProse(text, true);
   if (result && result.length > 0) {
     let i = 0;
     let leadingTags = "";
@@ -321,7 +321,7 @@ function extractVerseNumber(text: string): string {
 }
 
 function extractChapterNumber(text: string): number {
-  let norm = text
+  const norm = text
     .toUpperCase()
     .replace(/ʼ/g, "'")
     .replace(/\u2019/g, "'")
@@ -384,7 +384,7 @@ function parseVentura(text: string): Chapter {
       // Sanskrit verse text in devanagari encoding
       if (currentVerse) {
         // Clean up the content: remove line break markers and tags
-        let sanskrit = content
+        const sanskrit = content
           .replace(/<\/?R>/g, "\n")
           .replace(/<[^>]+>/g, "")
           .replace(/@\w+\s*=?\s*/g, "") // Remove any @tag = patterns
@@ -550,7 +550,9 @@ function readFile(filePath: string): string {
     if (text.includes("@") && text.includes(" = ")) {
       return text.replace(/^\ufeff/, "");
     }
-  } catch {}
+  } catch {
+    // ignore
+  }
 
   // Fallback to UTF-8
   return buffer.toString("utf8").replace(/^\ufeff/, "");

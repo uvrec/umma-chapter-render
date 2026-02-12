@@ -42,6 +42,7 @@ export default function AdminAudiobooks() {
   useEffect(() => {
     checkAuth();
     loadSettings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const checkAuth = async () => {

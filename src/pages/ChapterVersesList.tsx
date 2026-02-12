@@ -659,6 +659,7 @@ export const ChapterVersesList = () => {
         navigate(getPathWithPreview(`/lib/${bookId}/${chapterNum}`));
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [adjacentChapters?.prev, isCantoMode, navigate, getLocalizedPath, bookId, cantoNumber]);
 
   const handleNextChapter = useCallback(() => {
@@ -670,6 +671,7 @@ export const ChapterVersesList = () => {
         navigate(getPathWithPreview(`/lib/${bookId}/${chapterNum}`));
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [adjacentChapters?.next, isCantoMode, navigate, getLocalizedPath, bookId, cantoNumber]);
 
   // Keyboard shortcuts for chapter navigation

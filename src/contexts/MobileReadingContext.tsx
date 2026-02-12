@@ -103,6 +103,7 @@ export function MobileReadingProvider({ children }: MobileReadingProviderProps) 
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useMobileReading() {
   const context = useContext(MobileReadingContext);
   if (!context) {

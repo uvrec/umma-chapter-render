@@ -143,7 +143,7 @@ export function ChapterPickerStep({ chapters, onNext, onBack }: ChapterPickerSte
                       {
                         ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'a', 'div', 'span'],
                         ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
-                        ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+                        ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto):|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i,
                       }
                     ),
                   }}

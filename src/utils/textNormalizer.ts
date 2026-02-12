@@ -895,7 +895,7 @@ export function sanitizeFilename(filename: string, maxLength: number = 200): str
   // Замінюємо пробіли та спецсимволи на дефіси
   result = result
     .replace(/\s+/g, "-") // пробіли → дефіс
-    .replace(/[^\w\-\.]/g, "-") // спецсимволи → дефіс
+    .replace(/[^\w\-.]/g, "-") // спецсимволи → дефіс
     .replace(/-+/g, "-") // множинні дефіси → один
     .replace(/^-+|-+$/g, ""); // видаляємо дефіси на початку/кінці
 

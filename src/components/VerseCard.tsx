@@ -193,7 +193,9 @@ export const VerseCard = ({
       const newState = { ...prev, [section]: !prev[section] };
       try {
         localStorage.setItem('vv_collapsed_sections', JSON.stringify(newState));
-      } catch {}
+      } catch {
+        // ignore
+      }
       return newState;
     });
   }, []);
