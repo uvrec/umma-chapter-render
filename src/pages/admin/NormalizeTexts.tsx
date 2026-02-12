@@ -28,6 +28,8 @@ import {
   ruleCategories,
 } from "@/utils/text/textNormalizationRules";
 
+const ALL_VALUE = "__all__";
+
 interface EncodingRemnant {
   table_name: string;
   column_name: string;
@@ -544,9 +546,9 @@ export default function NormalizeTexts() {
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Пісня</label>
                   <Select
-                    value={selectedCantoId}
+                    value={selectedCantoId || ALL_VALUE}
                     onValueChange={(value) => {
-                      setSelectedCantoId(value);
+                      setSelectedCantoId(value === ALL_VALUE ? "" : value);
                       setSelectedChapterId("");
                       setVerseChanges([]);
                     }}
@@ -556,7 +558,7 @@ export default function NormalizeTexts() {
                       <SelectValue placeholder="Вся книга" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Вся книга</SelectItem>
+                      <SelectItem value={ALL_VALUE}>Вся книга</SelectItem>
                       {cantos.map((canto) => (
                         <SelectItem key={canto.id} value={canto.id}>
                           Пісня {canto.canto_number}: {canto.title_uk}
@@ -570,9 +572,9 @@ export default function NormalizeTexts() {
               <div className="space-y-2">
                 <label className="text-sm font-medium">Глава</label>
                 <Select
-                  value={selectedChapterId}
+                  value={selectedChapterId || ALL_VALUE}
                   onValueChange={(value) => {
-                    setSelectedChapterId(value);
+                    setSelectedChapterId(value === ALL_VALUE ? "" : value);
                     setVerseChanges([]);
                   }}
                   disabled={isLoadingChapters || !selectedBookId || (selectedBook?.has_cantos && !selectedCantoId)}
@@ -581,7 +583,7 @@ export default function NormalizeTexts() {
                     <SelectValue placeholder={selectedBook?.has_cantos && !selectedCantoId ? "Оберіть пісню" : "Вся пісня/книга"} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">{selectedCantoId ? "Вся пісня" : "Вся книга"}</SelectItem>
+                    <SelectItem value={ALL_VALUE}>{selectedCantoId ? "Вся пісня" : "Вся книга"}</SelectItem>
                     {chapters.map((chapter) => (
                       <SelectItem key={chapter.id} value={chapter.id}>
                         Глава {chapter.chapter_number}: {chapter.title_uk}
