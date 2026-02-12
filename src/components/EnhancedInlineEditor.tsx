@@ -107,14 +107,17 @@ import {
 const SpanMark = Mark.create({
   name: "span",
 
-  // Include span mark when pasting/copying
-  inclusive: true,
+  // Do NOT extend across new content typed at span boundaries
+  inclusive: false,
 
   // Group with other inline marks
   group: "inline",
 
-  // Lower priority to not interfere with other marks (lower number = lower priority)
-  priority: 50,
+  // Must be lower than bold/italic/underline so it never blocks them
+  priority: 1000,
+
+  // Allow other marks (bold, italic, etc.) inside this mark
+  excludes: "",
 
   parseHTML() {
     return [
@@ -122,12 +125,12 @@ const SpanMark = Mark.create({
         tag: "span",
         getAttrs: (node) => {
           const element = node as HTMLElement;
-          // Only preserve class, style and id - other attributes are not supported
-          return {
-            class: element.getAttribute("class"),
-            style: element.getAttribute("style"),
-            id: element.getAttribute("id"),
-          };
+          const cls = element.getAttribute("class");
+          const style = element.getAttribute("style");
+          const id = element.getAttribute("id");
+          // Only parse spans that actually carry meaningful attributes
+          if (!cls && !style && !id) return false;
+          return { class: cls, style, id };
         },
       },
     ];
@@ -221,15 +224,19 @@ export const EnhancedInlineEditor = ({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   // Track if we're currently syncing to prevent loops
   const isSyncingRef = useRef(false);
-  // Store onScroll callback in ref to avoid stale closures
+  // Store callbacks in refs to avoid stale closures (useEditor deps = [])
   const onScrollRef = useRef(onScroll);
   onScrollRef.current = onScroll;
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
   // Track when editor view is fully initialized (prevents "view not available" errors)
   const [isEditorReady, setIsEditorReady] = useState(false);
   // Track copy feedback state
   const [copied, setCopied] = useState(false);
   // Flag to skip content sync when the change originated from the editor itself
   const isInternalUpdateRef = useRef(false);
+  // Flag to skip onUpdate when content is set programmatically from sync effect
+  const isProgrammaticUpdateRef = useRef(false);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -294,8 +301,11 @@ export const EnhancedInlineEditor = ({
         setIsEditorReady(false);
       },
       onUpdate: ({ editor }) => {
+        // Skip firing onChange when content was set programmatically (from sync effect)
+        if (isProgrammaticUpdateRef.current) return;
         isInternalUpdateRef.current = true;
-        onChange(editor.getHTML());
+        // Use ref to always call the latest onChange (avoids stale closure from [] deps)
+        onChangeRef.current(editor.getHTML());
       },
       editorProps: {
         attributes: {
@@ -430,8 +440,9 @@ export const EnhancedInlineEditor = ({
     }
   }, [editor, editable]);
 
-  // Sync content from props (with normalized comparison to avoid update loops)
-  // Skip sync when the change originated from the editor itself (e.g. toolbar action)
+  // Sync content from props to editor.
+  // Skip when the change originated from the editor itself (onUpdate → onChange → parent re-render).
+  // Use isProgrammaticUpdateRef to prevent setContent from firing onUpdate back.
   useEffect(() => {
     if (!editor) return;
     if (isInternalUpdateRef.current) {
@@ -443,7 +454,9 @@ export const EnhancedInlineEditor = ({
     // Normalize HTML for comparison to avoid false positives from whitespace differences
     const normalizeHTML = (html: string) => html.trim().replace(/\s+/g, " ");
     if (normalizeHTML(newContent) !== normalizeHTML(currentHTML)) {
-      editor.commands.setContent(newContent);
+      isProgrammaticUpdateRef.current = true;
+      editor.commands.setContent(newContent, false);
+      isProgrammaticUpdateRef.current = false;
     }
   }, [editor, content]);
 
