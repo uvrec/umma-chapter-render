@@ -455,7 +455,7 @@ export const EnhancedInlineEditor = ({
     const normalizeHTML = (html: string) => html.trim().replace(/\s+/g, " ");
     if (normalizeHTML(newContent) !== normalizeHTML(currentHTML)) {
       isProgrammaticUpdateRef.current = true;
-      editor.commands.setContent(newContent, false);
+      editor.commands.setContent(newContent, { emitUpdate: false });
       isProgrammaticUpdateRef.current = false;
     }
   }, [editor, content]);
