@@ -258,8 +258,6 @@ export const LazyJyotishCalculator = lazy(() => import('@/pages/tools/JyotishCal
 export const LazyRagaExplorer = lazy(() => import('@/pages/tools/RagaExplorer'));
 
 // Heavy content pages
-export const LazyChat = lazy(() => import('@/pages/Chat'));
-export const LazyLocalChat = lazy(() => import('@/pages/LocalChat'));
 export const LazyKnowledgeCompiler = lazy(() => import('@/pages/KnowledgeCompiler'));
 
 // Calendar pages

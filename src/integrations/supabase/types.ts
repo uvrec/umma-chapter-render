@@ -1154,224 +1154,6 @@ export type Database = {
         }
         Relationships: []
       }
-      chat_messages: {
-        Row: {
-          citations: Json | null
-          content: string
-          created_at: string | null
-          id: string
-          response_level: string | null
-          role: string
-          session_id: string
-          tattva_ids: string[] | null
-        }
-        Insert: {
-          citations?: Json | null
-          content: string
-          created_at?: string | null
-          id?: string
-          response_level?: string | null
-          role: string
-          session_id: string
-          tattva_ids?: string[] | null
-        }
-        Update: {
-          citations?: Json | null
-          content?: string
-          created_at?: string | null
-          id?: string
-          response_level?: string | null
-          role?: string
-          session_id?: string
-          tattva_ids?: string[] | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "chat_messages_session_id_fkey"
-            columns: ["session_id"]
-            isOneToOne: false
-            referencedRelation: "chat_sessions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      chat_sessions: {
-        Row: {
-          created_at: string | null
-          id: string
-          language: string | null
-          title: string | null
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          language?: string | null
-          title?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          language?: string | null
-          title?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      content_tattvas: {
-        Row: {
-          created_at: string
-          id: string
-          relevance_score: number
-          tagged_by: string
-          tattva_id: string
-          updated_at: string
-          verse_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          relevance_score?: number
-          tagged_by?: string
-          tattva_id: string
-          updated_at?: string
-          verse_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          relevance_score?: number
-          tagged_by?: string
-          tattva_id?: string
-          updated_at?: string
-          verse_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "content_tattvas_tattva_id_fkey"
-            columns: ["tattva_id"]
-            isOneToOne: false
-            referencedRelation: "tattvas"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "content_tattvas_verse_id_fkey"
-            columns: ["verse_id"]
-            isOneToOne: false
-            referencedRelation: "verses"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "content_tattvas_verse_id_fkey"
-            columns: ["verse_id"]
-            isOneToOne: false
-            referencedRelation: "verses_with_metadata"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "content_tattvas_verse_id_fkey"
-            columns: ["verse_id"]
-            isOneToOne: false
-            referencedRelation: "verses_with_structure"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "content_tattvas_verse_id_fkey"
-            columns: ["verse_id"]
-            isOneToOne: false
-            referencedRelation: "verses_with_synonyms"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      cross_references: {
-        Row: {
-          confidence: number | null
-          created_at: string | null
-          id: string
-          reference_type: string | null
-          source_verse_id: string
-          target_verse_id: string
-        }
-        Insert: {
-          confidence?: number | null
-          created_at?: string | null
-          id?: string
-          reference_type?: string | null
-          source_verse_id: string
-          target_verse_id: string
-        }
-        Update: {
-          confidence?: number | null
-          created_at?: string | null
-          id?: string
-          reference_type?: string | null
-          source_verse_id?: string
-          target_verse_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "cross_references_source_verse_id_fkey"
-            columns: ["source_verse_id"]
-            isOneToOne: false
-            referencedRelation: "verses"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cross_references_source_verse_id_fkey"
-            columns: ["source_verse_id"]
-            isOneToOne: false
-            referencedRelation: "verses_with_metadata"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cross_references_source_verse_id_fkey"
-            columns: ["source_verse_id"]
-            isOneToOne: false
-            referencedRelation: "verses_with_structure"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cross_references_source_verse_id_fkey"
-            columns: ["source_verse_id"]
-            isOneToOne: false
-            referencedRelation: "verses_with_synonyms"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cross_references_target_verse_id_fkey"
-            columns: ["target_verse_id"]
-            isOneToOne: false
-            referencedRelation: "verses"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cross_references_target_verse_id_fkey"
-            columns: ["target_verse_id"]
-            isOneToOne: false
-            referencedRelation: "verses_with_metadata"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cross_references_target_verse_id_fkey"
-            columns: ["target_verse_id"]
-            isOneToOne: false
-            referencedRelation: "verses_with_structure"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cross_references_target_verse_id_fkey"
-            columns: ["target_verse_id"]
-            isOneToOne: false
-            referencedRelation: "verses_with_synonyms"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       daily_quotes: {
         Row: {
           author_en: string | null
@@ -3017,56 +2799,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
-      }
-      tattvas: {
-        Row: {
-          category: string | null
-          created_at: string | null
-          description_en: string | null
-          description_uk: string | null
-          display_order: number | null
-          id: string
-          name_en: string
-          name_sanskrit: string | null
-          name_uk: string
-          parent_id: string | null
-          slug: string
-        }
-        Insert: {
-          category?: string | null
-          created_at?: string | null
-          description_en?: string | null
-          description_uk?: string | null
-          display_order?: number | null
-          id?: string
-          name_en: string
-          name_sanskrit?: string | null
-          name_uk: string
-          parent_id?: string | null
-          slug: string
-        }
-        Update: {
-          category?: string | null
-          created_at?: string | null
-          description_en?: string | null
-          description_uk?: string | null
-          display_order?: number | null
-          id?: string
-          name_en?: string
-          name_sanskrit?: string | null
-          name_uk?: string
-          parent_id?: string | null
-          slug?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "tattvas_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "tattvas"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       tithi_types: {
         Row: {
@@ -5494,54 +5226,6 @@ export type Database = {
           verse_refs: string[]
         }[]
       }
-      get_tattva_breadcrumb: {
-        Args: { p_tattva_slug: string }
-        Returns: {
-          depth: number
-          id: string
-          name_en: string
-          name_uk: string
-          slug: string
-        }[]
-      }
-      get_tattva_tree: {
-        Args: { p_parent_id?: string }
-        Returns: {
-          category: string
-          children_count: number
-          depth: number
-          description_en: string
-          description_uk: string
-          display_order: number
-          id: string
-          name_en: string
-          name_uk: string
-          parent_id: string
-          slug: string
-          verses_count: number
-        }[]
-      }
-      get_tattva_verses: {
-        Args: {
-          p_include_children?: boolean
-          p_limit?: number
-          p_offset?: number
-          p_tattva_slug: string
-        }
-        Returns: {
-          book_slug: string
-          book_title: string
-          canto_number: number
-          chapter_number: number
-          relevance_score: number
-          sanskrit: string
-          tattva_name: string
-          translation_en: string
-          translation_uk: string
-          verse_id: string
-          verse_number: string
-        }[]
-      }
       get_today_events: {
         Args: { p_location_id?: string }
         Returns: {
@@ -5594,14 +5278,6 @@ export type Database = {
           total_sessions: number
         }[]
       }
-      get_verse_id_by_ref: {
-        Args: {
-          p_book_slug: string
-          p_chapter_number: number
-          p_verse_number: string
-        }
-        Returns: string
-      }
       get_verse_lectures: {
         Args: {
           p_book_slug: string
@@ -5649,17 +5325,6 @@ export type Database = {
           source_type: string
           text_en: string
           text_uk: string
-        }[]
-      }
-      get_verse_tattvas: {
-        Args: { p_verse_id: string }
-        Returns: {
-          category: string
-          id: string
-          name_en: string
-          name_uk: string
-          relevance_score: number
-          slug: string
         }[]
       }
       get_verses_by_chapter_with_preview: {
@@ -5724,17 +5389,6 @@ export type Database = {
       is_chapter_readable: { Args: { chapter_uuid: string }; Returns: boolean }
       is_verse_famous: { Args: { p_verse_id: string }; Returns: boolean }
       jsonb_no_uk_keys: { Args: { j: Json }; Returns: boolean }
-      link_verse_to_tattva: {
-        Args: {
-          p_book_slug: string
-          p_chapter_number: number
-          p_relevance?: number
-          p_tagged_by?: string
-          p_tattva_slug: string
-          p_verse_number: string
-        }
-        Returns: undefined
-      }
       normalize_english_word: { Args: { word: string }; Returns: string }
       normalize_language_code: { Args: { lang: string }; Returns: string }
       normalize_sanskrit_word: { Args: { word: string }; Returns: string }
@@ -6056,21 +5710,6 @@ export type Database = {
           translation: string
           verse_id: string
           verse_number: string
-        }[]
-      }
-      search_tattvas: {
-        Args: { p_query: string }
-        Returns: {
-          category: string
-          description_en: string
-          description_uk: string
-          id: string
-          name_en: string
-          name_uk: string
-          parent_id: string
-          parent_slug: string
-          slug: string
-          verses_count: number
         }[]
       }
       search_verses_fulltext:

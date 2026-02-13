@@ -235,7 +235,7 @@ export async function getVerseReferences(
 
   try {
     // Query cross_references with target verse details
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('cross_references')
       .select(`
         id,
@@ -326,7 +326,7 @@ export async function getBidirectionalReferences(
     const sourceRefs = await getVerseReferences(verseId, { language, limit: limit / 2 });
 
     // Get references where this verse is the target
-    const { data: targetData, error } = await supabase
+    const { data: targetData, error } = await (supabase as any)
       .from('cross_references')
       .select(`
         id,
