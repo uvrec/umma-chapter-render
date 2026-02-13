@@ -342,9 +342,8 @@ function FeaturedBooks() {
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="space-y-2">
+            <div key={i}>
               <div className="aspect-[2/3] w-full rounded-lg bg-muted animate-pulse" />
-              <div className="h-4 w-3/4 mx-auto bg-muted animate-pulse rounded" />
             </div>
           ))}
         </div>
@@ -388,9 +387,6 @@ function FeaturedBooks() {
               )}
             </div>
 
-            <h3 className="mt-2 sm:mt-3 text-xs sm:text-sm font-medium text-center line-clamp-2 text-foreground group-hover:text-primary transition-colors">
-              {language === "uk" ? book.title_uk : book.title_en}
-            </h3>
           </Link>
         ))}
       </div>

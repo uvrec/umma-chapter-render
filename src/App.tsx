@@ -66,8 +66,6 @@ const SadhanaAdmin = lazy(() => import("./pages/admin/SadhanaAdmin"));
 // ============================================================
 // LAZY LOADED HEAVY PAGES (великі сторінки)
 // ============================================================
-const Chat = lazy(() => import("./pages/Chat"));
-const LocalChat = lazy(() => import("./pages/LocalChat"));
 const KnowledgeCompiler = lazy(() => import("./pages/KnowledgeCompiler"));
 const TransliterationTool = lazy(() => import("./pages/TransliterationTool"));
 const JyotishCalculator = lazy(() => import("./pages/tools/JyotishCalculator"));
@@ -88,8 +86,6 @@ const PrabhupadaTimeline = lazy(() => import("./pages/PrabhupadaTimeline"));
 const GVReferences = lazy(() => import("./pages/GVReferences"));
 const EkadashiList = lazy(() => import("./pages/EkadashiList"));
 const EkadashiDetail = lazy(() => import("./pages/EkadashiDetail"));
-const TattvasIndex = lazy(() => import("./pages/TattvasIndex"));
-const TattvaPage = lazy(() => import("./pages/TattvaPage"));
 const ReadingStatsPage = lazy(() => import("./pages/ReadingStatsPage"));
 const BookSearch = lazy(() => import("./pages/BookSearch"));
 const Quotes = lazy(() => import("./pages/Quotes"));
@@ -295,11 +291,7 @@ function AppContent() {
             <Route path="tools/bengali-dictionary" element={<BengaliDictionary />} />
             <Route path="install" element={<Install />} />
             <Route path="search" element={<BookSearch />} />
-            <Route path="chat" element={<Chat />} />
-            <Route path="chat/local" element={<LocalChat />} />
             <Route path="quotes" element={<Quotes />} />
-            <Route path="tattvas" element={<TattvasIndex />} />
-            <Route path="tattva/:slug" element={<TattvaPage />} />
             <Route path="stats" element={<ReadingStatsPage />} />
             <Route path="timeline" element={<TimelinePage />} />
             <Route path="prabhupada/timeline" element={<PrabhupadaTimeline />} />
@@ -404,11 +396,7 @@ function AppContent() {
           <Route path="/tools/bengali-dictionary" element={<BengaliDictionary />} />
           <Route path="/install" element={<Install />} />
           <Route path="/search" element={<BookSearch />} />
-          <Route path="/chat" element={<Chat />} />
-          <Route path="/chat/local" element={<LocalChat />} />
           <Route path="/quotes" element={<Quotes />} />
-          <Route path="/tattvas" element={<TattvasIndex />} />
-          <Route path="/tattva/:slug" element={<TattvaPage />} />
           <Route path="/stats" element={<ReadingStatsPage />} />
           <Route path="/timeline" element={<TimelinePage />} />
           <Route path="/prabhupada/timeline" element={<PrabhupadaTimeline />} />

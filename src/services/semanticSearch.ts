@@ -193,19 +193,6 @@ export async function hybridSearch(options: SearchOptions): Promise<SearchResult
 }
 
 /**
- * Search for verses related to a specific tattva (philosophical concept)
- */
-export async function searchByTattva(
-  _tattvaSlug: string,
-  _options: Omit<SearchOptions, 'query'> = {}
-): Promise<SearchResult[]> {
-  // Note: tattvas and content_tattvas tables may not exist yet
-  // Return empty array until the schema is implemented
-  console.warn('searchByTattva: tattvas table not implemented yet');
-  return [];
-}
-
-/**
  * Cross-reference types
  */
 export type ReferenceType =
