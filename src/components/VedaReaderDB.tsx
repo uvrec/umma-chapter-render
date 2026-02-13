@@ -29,8 +29,9 @@ import { JumpToVerseDialog } from "@/components/JumpToVerseDialog";
 import { SwipeIndicator } from "@/components/SwipeIndicator";
 import { ChapterVerseSelector } from "@/components/ChapterVerseSelector";
 import { RelatedVerses } from "@/components/RelatedVerses";
-import { VerseTattvas } from "@/components/verse/VerseTattvas";
+
 import { cleanHtml, cleanSanskrit } from "@/utils/import/normalizers";
+import { formatExplanationParagraphs } from "@/utils/text/dropCap";
 import { shareVerse, copyVerseWithLink, copyVerseUrl, VerseParams } from "@/utils/verseShare";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
@@ -1572,7 +1573,7 @@ export const VedaReaderDB = () => {
               </div>
             )}
             <div className="prose prose-lg max-w-none dark:prose-invert" style={{ fontSize: `${fontSize}px`, lineHeight }}>
-              <TiptapRenderer content={language === "uk" ? effectiveChapter.content_uk || "" : effectiveChapter.content_en || effectiveChapter.content_uk || ""} fontSize={fontSize} lineHeight={lineHeight} />
+              <TiptapRenderer content={formatExplanationParagraphs(language === "uk" ? effectiveChapter.content_uk || "" : effectiveChapter.content_en || effectiveChapter.content_uk || "")} fontSize={fontSize} lineHeight={lineHeight} />
             </div>
             {/* Навігація знизу для текстових глав - ховаємо на мобільних (є свайп) */}
             {!isMobile && (
@@ -1774,11 +1775,6 @@ export const VedaReaderDB = () => {
                 prevLabel={currentVerseIndex === 0 ? t("Попередня глава", "Previous Chapter") : t("Попередній вірш", "Previous Verse")}
                 nextLabel={currentVerseIndex === verses.length - 1 ? t("Наступна глава", "Next Chapter") : t("Наступний вірш", "Next Verse")}
               />
-            )}
-
-            {/* Tattvas */}
-            {currentVerse?.id && (
-              <VerseTattvas verseId={currentVerse.id} className="mt-4" />
             )}
 
             {/* Related verses */}

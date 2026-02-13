@@ -17,10 +17,8 @@ const routePrefetchMap: Record<string, () => Promise<any>> = {
   '/audio': () => import('@/pages/Audio'),
   '/calendar': () => import('@/pages/VaishnavCalendar'),
   '/quotes': () => import('@/pages/Quotes'),
-  '/tattvas': () => import('@/pages/TattvasIndex'),
   '/tools/transliteration': () => import('@/pages/TransliterationTool'),
   '/tools/numerology': () => import('@/pages/tools/Numerology'),
-  '/chat': () => import('@/pages/Chat'),
   // Admin routes
   '/admin': () => import('@/pages/admin/Dashboard'),
   '/admin/books': () => import('@/pages/admin/Books'),
