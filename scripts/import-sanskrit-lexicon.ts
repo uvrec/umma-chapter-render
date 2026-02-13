@@ -250,7 +250,7 @@ function iastToDevanagari(iast: string): string {
     }
 
     // Check for vowels
-    if (VOWEL_MATRAS.hasOwnProperty(oneChar)) {
+    if (Object.hasOwn(VOWEL_MATRAS, oneChar)) {
       if (prevWasConsonant) {
         result += VOWEL_MATRAS[oneChar];
         prevWasConsonant = false;

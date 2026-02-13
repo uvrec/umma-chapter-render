@@ -137,7 +137,7 @@ function parseChapterContent(content: string, filename: string): ParsedChapter |
   const description_en = descMatch ? descMatch[1].trim() : undefined;
 
   // Clean content - remove wiki markup
-  let content_en = content
+  const content_en = content
     // Remove metadata tags
     .replace(/~~[^~]+~~/g, "")
     // Remove description tags

@@ -290,7 +290,7 @@ SLUGS=(
 
 for slug in "\${SLUGS[@]}"; do
   python tools/lectures_importer.py --slug "$slug"
-  python tools/lecture_translator.py --input "tools/outputs/lectures/$\{slug\}.json"
+  python tools/lecture_translator.py --input "tools/outputs/lectures/${slug}.json"
   sleep 3
 done`}
                     </pre>

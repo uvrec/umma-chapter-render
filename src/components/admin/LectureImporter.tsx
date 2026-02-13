@@ -57,7 +57,7 @@ export const LectureImporter = () => {
    */
   const handleImportFromUrl = async () => {
     // Extract slug from URL - support both /lectures/ and /transcripts/
-    const match = vedabaseUrl.match(/\/(?:lectures|transcripts)\/([^\/]+)/);
+    const match = vedabaseUrl.match(/\/(?:lectures|transcripts)\/([^/]+)/);
     if (!match) {
       toast({
         title: "Помилка",

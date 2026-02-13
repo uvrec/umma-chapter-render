@@ -214,8 +214,8 @@ function processInlineTags(text: string, keepHtml: boolean = false): string {
     result = result.replace(/<\/?D>/g, '</em>');
 
     // Clean up punctuation in italic/bold
-    result = result.replace(/<\/em>\s*<em>([,.\;:])/g, '</em>$1');
-    result = result.replace(/<\/strong>\s*<strong>([,.\;:])/g, '</strong>$1');
+    result = result.replace(/<\/em>\s*<em>([,.;:])/g, '</em>$1');
+    result = result.replace(/<\/strong>\s*<strong>([,.;:])/g, '</strong>$1');
 
     // Remove empty tags
     result = result.replace(/<em><\/em>/g, '');
@@ -282,7 +282,7 @@ function processInlineTags(text: string, keepHtml: boolean = false): string {
     result = result.replace(/<[^>]*>/g, '');
 
     // 3. Remove markers, keeping the preserved tags
-    result = result.replace(/\x00KEEP\x00/g, '');
+    result = result.replaceAll(tempMarker, '');
   } else {
     result = result.replace(/<[^>]*>/g, '');
   }
@@ -323,7 +323,7 @@ function processProse(text: string, keepHtml: boolean = false): string {
 }
 
 function processFirstParagraph(text: string): string {
-  let result = processProse(text, true);
+  const result = processProse(text, true);
 
   // Add drop cap to first letter
   if (result && result.length > 0) {

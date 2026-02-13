@@ -278,12 +278,12 @@ function parseChapterPage(html: string, chapterNum: number): Chapter {
 
   // Process content to clean HTML
   const contentParts: string[] = [];
-  let dates: string[] = [];
+  const dates: string[] = [];
 
   contentEl.find("p, h2, h3, h4, blockquote, ul, ol").each((_, el) => {
     const $el = $(el);
     const tagName = el.tagName?.toLowerCase() || "p";
-    let text = $el.text().trim();
+    const text = $el.text().trim();
 
     // Skip empty elements
     if (!text) return;
@@ -356,7 +356,7 @@ function parseIntroPage(html: string, slug: string, displayOrder: number): Intro
   const $ = cheerioLoad(html);
 
   // Extract title
-  let title =
+  const title =
     $("h1.entry-title").text().trim() ||
     $("h1").first().text().trim() ||
     slug.charAt(0).toUpperCase() + slug.slice(1);

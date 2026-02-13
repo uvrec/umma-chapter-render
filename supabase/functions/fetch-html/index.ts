@@ -183,7 +183,9 @@ Deno.serve(async (req) => {
     try {
       const u = new URL(rawUrl);
       host = (u.hostname || u.host || "").toLowerCase();
-    } catch {}
+    } catch {
+      // ignore
+    }
 
     if (!host || !ALLOWED_HOSTS.has(host)) {
       console.warn(`[fetch-html] Domain not allowed: host="${host}", url="${rawUrl}", user=${userId}`);

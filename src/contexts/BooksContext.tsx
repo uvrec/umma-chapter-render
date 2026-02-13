@@ -3,6 +3,7 @@
  * Використовується для динамічного визначення структури книг (канто/глави)
  */
 
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 

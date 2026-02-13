@@ -68,6 +68,7 @@ export default function TransliterationTool() {
   /**
    * 🔥 LIVE PREVIEW з debounce
    */
+   
   useEffect(() => {
     const timer = setTimeout(() => {
       const result = performTransliteration(inputText);
@@ -75,6 +76,7 @@ export default function TransliterationTool() {
     }, 500);
 
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputText, mode, textType]);
 
   /**

@@ -378,7 +378,7 @@ export default function NormalizeTexts() {
 
     setIsNormalizingUA(true);
     try {
-      // @ts-ignore - SQL function will be created in Supabase
+      // @ts-expect-error SQL function will be created in Supabase
       const { error } = await supabase.rpc('normalize_ukrainian_cc_texts');
       if (error) throw error;
       toast.success('✅ Українські тексти успішно нормалізовано!', {
@@ -401,7 +401,7 @@ export default function NormalizeTexts() {
 
     setIsNormalizingEN(true);
     try {
-      // @ts-ignore - SQL function will be created in Supabase
+      // @ts-expect-error SQL function will be created in Supabase
       const { error } = await supabase.rpc('remove_duplicate_words_in_synonyms');
       if (error) throw error;
       toast.success('✅ Англійські synonyms очищено від дублів!', {

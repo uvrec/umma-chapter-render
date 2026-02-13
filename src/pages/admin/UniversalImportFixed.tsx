@@ -746,6 +746,7 @@ export default function UniversalImportFixed() {
       setIsProcessing(false);
       setProgress(0);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vedabaseBook, vedabaseCanto, vedabaseChapter, vedabaseVerse, lilaNum]);
 
   /** Імпорт ВСІХ глав книги/канто */
@@ -1220,6 +1221,7 @@ export default function UniversalImportFixed() {
         setProgress(0);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [vedabaseBook, vedabaseCanto, vedabaseChapter, vedabaseVerse, importData, wisdomlibThrottle],
   );
 
@@ -1398,6 +1400,7 @@ export default function UniversalImportFixed() {
         setProgress(0);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [vedabaseBook, importData],
   );
 
@@ -1508,6 +1511,7 @@ export default function UniversalImportFixed() {
         setProgress(0);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [vedabaseBook, importData],
   );
 
@@ -1643,6 +1647,7 @@ export default function UniversalImportFixed() {
         setProgress(0);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [vedabaseCanto, importData],
   );
 
@@ -1718,6 +1723,7 @@ export default function UniversalImportFixed() {
         e.target.value = "";
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [selectedTemplate],
   );
 
@@ -1931,6 +1937,7 @@ export default function UniversalImportFixed() {
   }, [parsedChapters]);
 
   /** Імпорт розділу з файлу */
+   
   const handleFileChapterImport = useCallback(async () => {
     if (parsedChapters.length === 0) {
       toast({ title: "Помилка", description: "Немає розділів для імпорту", variant: "destructive" });
@@ -2025,9 +2032,11 @@ export default function UniversalImportFixed() {
       setIsProcessing(false);
       setProgress(0);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [parsedChapters, selectedChapterIndex, importData, vedabaseBook, vedabaseCanto, currentBookInfo, navigate]);
 
   /** Збереження у базу */
+   
   const saveToDatabase = useCallback(
     async (dataOverride?: ImportData) => {
       const data = dataOverride ?? importData;
@@ -2120,6 +2129,7 @@ export default function UniversalImportFixed() {
         setProgress(0);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [importData],
   );
 

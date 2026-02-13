@@ -204,7 +204,7 @@ function parseLectureContent(content: string, filename: string): ParsedLecture |
   }
 
   // Extract main content (remove metadata)
-  let content_en = content
+  const content_en = content
     .replace(/~~[^~]+~~/g, "")
     .replace(/----\s*dataentry[^-]+----/gs, "")
     .replace(/<audio>[^<]*<\/audio>/g, "")

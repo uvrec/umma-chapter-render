@@ -55,7 +55,7 @@ export const LetterImporter = () => {
    */
   const handleImportFromUrl = async () => {
     // Extract slug from URL
-    const match = vedabaseUrl.match(/\/letters\/([^\/]+)/);
+    const match = vedabaseUrl.match(/\/letters\/([^/]+)/);
     if (!match) {
       toast({
         title: "Помилка",

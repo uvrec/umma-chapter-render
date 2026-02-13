@@ -100,7 +100,7 @@ function parseVedabaseHtml(html: string): {
 
     if (devanagariMatch) {
       // First, replace <br/> with newlines to preserve verse structure
-      let devanagariText = devanagariMatch[1]
+      const devanagariText = devanagariMatch[1]
         .replace(/<br\s*\/?>/gi, '\n')
         .replace(/<[^>]+>/g, '')  // Remove other HTML tags
         .trim();
@@ -201,7 +201,7 @@ function parseVedabaseHtml(html: string): {
       let match;
       while ((match = contentPattern.exec(purportHtml)) !== null) {
         // Strip HTML tags but preserve text content
-        let text = decodeHtmlEntities(
+        const text = decodeHtmlEntities(
           match[1]
             .replace(/<br\s*\/?>/gi, ' ')
             .replace(/<[^>]+>/g, '')  // Remove all HTML tags

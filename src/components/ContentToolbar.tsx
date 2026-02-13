@@ -208,6 +208,7 @@ export const ContentToolbar = ({
         }
         break;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dualLanguageMode, zenMode, fullscreenMode]);
 
   useEffect(() => {

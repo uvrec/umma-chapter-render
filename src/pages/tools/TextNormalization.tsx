@@ -217,12 +217,16 @@ export default function TextNormalization() {
     if (savedCategories) {
       try {
         setEnabledCategories(new Set(JSON.parse(savedCategories)));
-      } catch {}
+      } catch {
+        // ignore
+      }
     }
     if (savedCustomRules) {
       try {
         setCustomRules(JSON.parse(savedCustomRules));
-      } catch {}
+      } catch {
+        // ignore
+      }
     }
   }, []);
 

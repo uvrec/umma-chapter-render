@@ -82,7 +82,9 @@ export function getLastAudioMetadata(): { trackId: string; positionMs: number } 
           latestTime = data.timestamp;
           latest = { trackId: data.trackId, positionMs: data.positionMs || 0 };
         }
-      } catch {}
+      } catch {
+        // ignore
+      }
     }
     
     return latest;

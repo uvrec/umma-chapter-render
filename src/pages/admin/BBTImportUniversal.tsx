@@ -348,11 +348,13 @@ export default function BBTImportUniversal() {
 
     try {
       // Get or create book
-      let { data: book, error: bookError } = await supabase
+      const result = await supabase
         .from("books")
         .select("id")
         .eq("slug", bookConfig.slug)
         .single();
+      let book = result.data;
+      const bookError = result.error;
 
       if (bookError || !book) {
         // Create the book if it doesn't exist

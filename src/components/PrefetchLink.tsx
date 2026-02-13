@@ -5,6 +5,7 @@
  * This improves perceived performance by loading the next page before click.
  */
 
+/* eslint-disable react-refresh/only-export-components */
 import { Link, LinkProps } from 'react-router-dom';
 import { useState, useCallback, forwardRef } from 'react';
 

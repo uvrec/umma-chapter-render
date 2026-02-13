@@ -56,6 +56,7 @@ export default function AdminBanners() {
   useEffect(() => {
     checkAuth();
     loadBanners();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const checkAuth = async () => {

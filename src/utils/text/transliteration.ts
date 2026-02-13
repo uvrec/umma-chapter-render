@@ -493,7 +493,7 @@ export function convertNumbers(text: string): string {
  */
 export function preservePunctuation(text: string): string {
   // Конвертувати данди в крапку
-  let result = text.replace(/।/g, ".");
+  const result = text.replace(/।/g, ".");
   // Подвійну данду залишаємо як є
   // Вже збережено ॥
   return result;

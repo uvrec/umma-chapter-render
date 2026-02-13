@@ -234,7 +234,9 @@ export const useAudioQueue = (options?: Options) => {
         el.currentTime = 0;
         // якщо пауза — одразу play (за потреби)
         if (el.paused) el.play().catch(() => {});
-      } catch {}
+      } catch {
+        // ignore
+      }
     } else {
       // без доступу до елемента — інкрементимо токен для контролю зверху
       setRepeatToken((t) => t + 1);

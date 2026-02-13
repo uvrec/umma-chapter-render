@@ -13,7 +13,7 @@ import type {
 } from '@/types/gv-references';
 
 // Type assertion helper for tables not yet in generated types
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 const fromTable = (table: string) => supabase.from(table as any);
 
 /**
@@ -178,9 +178,9 @@ export async function fetchCataloguesWithBooks(): Promise<GVBookCatalogue[]> {
   if (cbError) throw cbError;
 
   // Map books to catalogues
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const cataloguesWithBooks = ((catalogues as unknown) as any[]).map((catalogue: any) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const books = ((catalogueBooks as unknown) as any[])
       .filter((cb: any) => cb.catalogue_id === catalogue.id)
       .map((cb: any) => cb.book as GVBookReference)

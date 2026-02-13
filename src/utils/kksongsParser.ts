@@ -90,7 +90,7 @@ export function parseKKSongMainPage(html: string): {
     const title = titleEl?.textContent?.trim() || 'Untitled';
 
     // Get content - simple approach that works
-    let contentEl = doc.querySelector('pre') || doc.querySelector('body');
+    const contentEl = doc.querySelector('pre') || doc.querySelector('body');
     if (!contentEl) {
       console.warn('Не знайдено контент для парсингу');
       return { verses: [], title };
@@ -107,7 +107,7 @@ export function parseKKSongMainPage(html: string): {
     // Split by verse numbers (1), (2), etc or by line breaks
     const lines = text.split('\n').filter(l => l.trim());
 
-    let currentVerse: Partial<BhaktivinodaVerse> = {};
+    const currentVerse: Partial<BhaktivinodaVerse> = {};
     let verseNumber = 1;
     let transliterationLines: string[] = [];
 
@@ -157,7 +157,7 @@ export function parseKKSongBengaliPage(html: string): Record<string, string> {
     const doc = parser.parseFromString(html, 'text/html');
 
     // ✅ ВИПРАВЛЕННЯ: Витягати ЛИШЕ бенгальський текст
-    let contentEl = doc.querySelector('.song-content') || 
+    const contentEl = doc.querySelector('.song-content') || 
                     doc.querySelector('.bengali-text') ||
                     doc.querySelector('main') || 
                     doc.querySelector('article') ||
@@ -219,7 +219,7 @@ export function parseKKSongCommentaryPage(html: string): string {
     const doc = parser.parseFromString(html, 'text/html');
 
     // ✅ ВИПРАВЛЕННЯ: Витягати ЛИШЕ текст коментаря
-    let contentEl = doc.querySelector('.commentary') || 
+    const contentEl = doc.querySelector('.commentary') || 
                     doc.querySelector('.purport') ||
                     doc.querySelector('main') || 
                     doc.querySelector('article') ||

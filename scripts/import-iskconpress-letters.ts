@@ -114,7 +114,7 @@ function parseLetterContent(content: string, filename: string): ParsedLetter | n
 
   // Parse location
   const placeMatch = content.match(/Place_letter\s*:\s*(.+)/);
-  let location_en = placeMatch ? placeMatch[1].trim() : "Unknown";
+  const location_en = placeMatch ? placeMatch[1].trim() : "Unknown";
 
   // Extract address block (lines before "Dear...")
   let address_block: string | undefined;

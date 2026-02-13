@@ -192,7 +192,7 @@ function processInlineTags(text: string, keepHtml: boolean = false): string {
 
     // Handle italic: <MI>text<D> → <em>text</em>
     // But skip punctuation-only: <MI>,<D> → just ","
-    result = result.replace(/<MI>([,.\;:]+)<\/?D>/g, '$1');
+    result = result.replace(/<MI>([,.;:]+)<\/?D>/g, '$1');
     result = result.replace(/<MI>([^<]*)<\/?D>/g, '<em>$1</em>');
 
     // Handle remaining unclosed tags

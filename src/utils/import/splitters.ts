@@ -415,7 +415,7 @@ function parseVerse(
         // Collect non-empty lines (skip obvious headers/labels)
         if (
           line &&
-          !/^(?:ВІРШ|ТЕКСТ|МАНТРА|MANTRA|ПОСЛІВНИЙ|WORD FOR WORD|ПЕРЕКЛАД|TRANSLATION|ПОЯСНЕННЯ|PURPORT)[:\-]?/i.test(
+          !/^(?:ВІРШ|ТЕКСТ|МАНТРА|MANTRA|ПОСЛІВНИЙ|WORD FOR WORD|ПЕРЕКЛАД|TRANSLATION|ПОЯСНЕННЯ|PURPORT)[:-]?/i.test(
             line
           )
         ) {

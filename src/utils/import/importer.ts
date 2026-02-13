@@ -181,7 +181,9 @@ export async function upsertChapter(
         .maybeSingle();
       if (cantoMeta) fallbackExtras.push(cantoMeta.title_uk || "", cantoMeta.title_en || "");
     }
-  } catch {}
+  } catch {
+    // ignore
+  }
   fallbackExtras = fallbackExtras.filter(Boolean);
 
   // Build payloads carefully to avoid overwriting existing titles when not provided

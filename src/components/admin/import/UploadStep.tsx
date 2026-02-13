@@ -38,7 +38,7 @@ export function UploadStep({ onNext, onProgress, onError, statusText, errorText 
   // ───────────── helpers
   const isLikelyHTML = (s: string) => /<\s*(p|div|h1|h2|h3|h4|h5|h6|ul|ol|li|table|strong|em|a)\b/i.test(s.trim());
   const isLikelyMarkdown = (s: string) =>
-    /(^|\n)\s{0,3}(#{1,6}\s)|(\*\s)|(\-\s)|(\d+\.\s)|(\*\*.+\*\*)|(_.+_)|(`.+`)/.test(s);
+    /(^|\n)\s{0,3}(#{1,6}\s)|(\*\s)|(-\s)|(\d+\.\s)|(\*\*.+\*\*)|(_.+_)|(`.+`)/.test(s);
 
   const detectKind = (s: string): SourceKind => {
     if (isLikelyHTML(s)) return "html";
@@ -333,7 +333,7 @@ export function UploadStep({ onNext, onProgress, onError, statusText, errorText 
               __html: DOMPurify.sanitize(previewHTML, {
                 ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'a', 'div', 'span', 'table', 'thead', 'tbody', 'tr', 'th', 'td'],
                 ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'style'],
-                ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+                ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto):|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i,
               })
             }}
           />
