@@ -179,7 +179,7 @@ export default function GlossaryDB() {
   const hasSearch = debouncedSearchTerm || debouncedTranslation || selectedBook !== "all";
   const searchMode = searchType === "starts" ? "starts_with" : searchType;
 
-  // Single query using search_glossary_terms_v2 — returns flat results with full context
+  // Try search_glossary_terms_v2 first, fall back to get_glossary_terms_grouped + get_glossary_term_details
   const {
     data: searchData,
     fetchNextPage,
@@ -187,10 +187,12 @@ export default function GlossaryDB() {
     isFetchingNextPage,
     isLoading: isLoadingSearch,
     isError: isErrorSearch,
+    error: searchError,
   } = useInfiniteQuery({
     queryKey: ["glossary-v2", language, debouncedSearchTerm, debouncedTranslation, searchMode, selectedBook],
     queryFn: async ({ pageParam }) => {
-      const { data, error } = await (supabase as any).rpc("search_glossary_terms_v2", {
+      // Try v2 first
+      const { data: v2Data, error: v2Error } = await (supabase as any).rpc("search_glossary_terms_v2", {
         search_term: debouncedSearchTerm || null,
         search_translation: debouncedTranslation || null,
         search_language: language,
@@ -200,12 +202,54 @@ export default function GlossaryDB() {
         page_size: PAGE_SIZE,
       });
 
-      if (error) throw error;
-      const results = (data || []) as GlossaryTermResult[];
+      if (!v2Error) {
+        const results = (v2Data || []) as GlossaryTermResult[];
+        return {
+          results,
+          page: pageParam as number,
+          totalCount: results[0]?.total_count || 0,
+        };
+      }
+
+      // Fallback: use get_glossary_terms_grouped + get_glossary_term_details
+      console.warn("search_glossary_terms_v2 failed, falling back to grouped approach:", v2Error.message);
+
+      const { data: groupedData, error: groupedError } = await (supabase as any).rpc("get_glossary_terms_grouped", {
+        search_term: debouncedSearchTerm || null,
+        search_translation: debouncedTranslation || null,
+        search_language: language,
+        search_mode: searchMode,
+        book_filter: selectedBook !== "all" ? selectedBook : null,
+        page_number: pageParam,
+        page_size: PAGE_SIZE,
+      });
+
+      if (groupedError) throw groupedError;
+
+      const groupedTerms = (groupedData || []) as Array<{
+        term: string;
+        usage_count: number;
+        books: string[];
+        sample_meanings: string[];
+        total_unique_terms: number;
+      }>;
+
+      // Fetch details for each term
+      const allResults: GlossaryTermResult[] = [];
+      for (const gt of groupedTerms) {
+        const { data: detailData } = await (supabase as any).rpc("get_glossary_term_details", {
+          term_text: gt.term,
+          search_language: language,
+        });
+        if (detailData) {
+          allResults.push(...(detailData as GlossaryTermResult[]));
+        }
+      }
+
       return {
-        results,
+        results: allResults,
         page: pageParam as number,
-        totalCount: results[0]?.total_count || 0,
+        totalCount: groupedTerms[0]?.total_unique_terms || 0,
       };
     },
     getNextPageParam: (lastPage, allPages) => {
@@ -334,6 +378,9 @@ export default function GlossaryDB() {
               ) : isErrorSearch ? (
                 <div className="py-16 text-center text-destructive">
                   <p>{t("Помилка завантаження", "Error loading")}</p>
+                  {searchError && (
+                    <p className="text-xs mt-2 text-muted-foreground">{(searchError as Error).message}</p>
+                  )}
                 </div>
               ) : groupedByTerm.length === 0 ? (
                 <div className="py-16 text-center text-muted-foreground">
