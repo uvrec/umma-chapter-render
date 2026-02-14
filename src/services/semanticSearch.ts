@@ -270,10 +270,11 @@ export async function getVerseReferences(
       .limit(limit);
 
     if (error) {
-      // PGRST205 = table doesn't exist yet — suppress noise
-      if (error.code !== 'PGRST205') {
-        console.error('Error fetching cross-references:', error);
+      // PGRST205 / 42P01: table not found — cross_references table was dropped
+      if (error.code === 'PGRST205' || error.code === '42P01') {
+        return [];
       }
+      console.error('Error fetching cross-references:', error);
       return [];
     }
 
@@ -363,9 +364,11 @@ export async function getBidirectionalReferences(
       .limit(limit / 2);
 
     if (error) {
-      if (error.code !== 'PGRST205') {
-        console.error('Error fetching reverse cross-references:', error);
+      // PGRST205 / 42P01: table not found — cross_references table was dropped
+      if (error.code === 'PGRST205' || error.code === '42P01') {
+        return sourceRefs;
       }
+      console.error('Error fetching reverse cross-references:', error);
       return sourceRefs;
     }
 
