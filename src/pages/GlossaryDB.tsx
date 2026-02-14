@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
-import { Search, Loader2, ChevronDown, ChevronRight, Plus } from "lucide-react";
+import { Search, Loader2, ChevronDown, ChevronRight, Plus, BookOpen } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/Header";
@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { addLearningWord, isWordInLearningList, LearningWord } from "@/utils/learningWords";
 import { addSavedTerm, isTermVerseSaved, getSavedTerms, removeSavedTerm, SavedTerm } from "@/utils/savedTerms";
 import { useSanskritLexicon, LexiconEntry } from "@/hooks/useSanskritLexicon";
+import { useBengaliLexicon } from "@/hooks/useBengaliLexicon";
 
 interface GlossaryTermResult {
   term: string;
@@ -131,7 +132,8 @@ export default function GlossaryDB() {
   const isSaved = (term: string, verseLink: string) =>
     savedTermsState.some((st) => st.term.toLowerCase() === term.toLowerCase() && st.verseLink === verseLink);
 
-  const { lookupWord, lexiconAvailable, getGrammarLabel, getDictionaryLink } = useSanskritLexicon();
+  const { lookupWord, lexiconAvailable, getGrammarLabel, getDictionaryLink: getSanskritDictLink } = useSanskritLexicon();
+  const { lexiconAvailable: bengaliAvailable, getDictionaryLink: getBengaliDictLink } = useBengaliLexicon();
   const [etymologyData, setEtymologyData] = useState<Record<string, LexiconEntry[]>>({});
   const [loadingEtymology, setLoadingEtymology] = useState<Set<string>>(new Set());
 
@@ -327,6 +329,31 @@ export default function GlossaryDB() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupedData?.pages.length]);
 
+  // Auto-fetch etymology for visible terms (batched)
+  useEffect(() => {
+    if (!lexiconAvailable || !allGroupedTerms.length) return;
+    const termsNeedingEtymology = allGroupedTerms.filter(
+      (t) => !etymologyData[t.term] && !loadingEtymology.has(t.term)
+    );
+    if (termsNeedingEtymology.length === 0) return;
+
+    let cancelled = false;
+    (async () => {
+      const BATCH = 10;
+      for (let i = 0; i < termsNeedingEtymology.length; i += BATCH) {
+        if (cancelled) break;
+        await Promise.all(
+          termsNeedingEtymology.slice(i, i + BATCH).map((t) => fetchEtymology(t.term))
+        );
+      }
+    })();
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [groupedData?.pages.length, lexiconAvailable]);
+
+  // Helper to detect if a term looks like Bengali (contains Bengali Unicode)
+  const isBengaliTerm = (term: string) => /[\u0980-\u09FF]/.test(term);
+
   const handleSearch = () => {
     if (searchTerm) {
       setSearchParams({ search: searchTerm });
@@ -443,9 +470,29 @@ export default function GlossaryDB() {
 
                       return (
                         <div key={groupedTerm.term} className="py-2">
-                          {/* Term heading */}
+                          {/* Term heading + dictionary links */}
                           <div className="flex items-baseline justify-between gap-2">
-                            <span className="font-semibold italic text-foreground">{groupedTerm.term}</span>
+                            <div className="min-w-0 flex items-baseline gap-1.5 flex-wrap">
+                              <span className="font-semibold italic text-foreground">{groupedTerm.term}</span>
+                              {lexiconAvailable && !isBengaliTerm(groupedTerm.term) && (
+                                <Link
+                                  to={getLocalizedPath(getSanskritDictLink(groupedTerm.term))}
+                                  className="text-muted-foreground hover:text-primary"
+                                  title="Skt"
+                                >
+                                  <BookOpen className="h-3 w-3" />
+                                </Link>
+                              )}
+                              {bengaliAvailable && isBengaliTerm(groupedTerm.term) && (
+                                <Link
+                                  to={getLocalizedPath(getBengaliDictLink(groupedTerm.term))}
+                                  className="text-muted-foreground hover:text-primary"
+                                  title="Bn"
+                                >
+                                  <BookOpen className="h-3 w-3" />
+                                </Link>
+                              )}
+                            </div>
                             {isMultiUsage && (
                               <span className="text-muted-foreground text-xs whitespace-nowrap shrink-0">
                                 ({groupedTerm.usage_count})
@@ -522,17 +569,42 @@ export default function GlossaryDB() {
 
                     return (
                       <div key={groupedTerm.term} className="mb-6">
-                        {/* Term heading */}
-                        <div className="text-xl font-bold text-foreground">
-                          {groupedTerm.term}
+                        {/* Term heading + dictionary links */}
+                        <div className="flex items-baseline gap-2 flex-wrap">
+                          <span className="text-xl font-bold text-foreground">
+                            {groupedTerm.term}
+                          </span>
                           {isMultiUsage && (
-                            <span className="text-sm font-normal text-muted-foreground ml-2">
+                            <span className="text-sm font-normal text-muted-foreground">
                               ({groupedTerm.usage_count})
                             </span>
                           )}
+                          {/* Dictionary links */}
+                          <span className="flex items-center gap-1.5 ml-1">
+                            {lexiconAvailable && !isBengaliTerm(groupedTerm.term) && (
+                              <Link
+                                to={getLocalizedPath(getSanskritDictLink(groupedTerm.term))}
+                                className="inline-flex items-center gap-0.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+                                title={t("Санскритський словник", "Sanskrit Dictionary")}
+                              >
+                                <BookOpen className="h-3 w-3" />
+                                <span>Skt</span>
+                              </Link>
+                            )}
+                            {bengaliAvailable && isBengaliTerm(groupedTerm.term) && (
+                              <Link
+                                to={getLocalizedPath(getBengaliDictLink(groupedTerm.term))}
+                                className="inline-flex items-center gap-0.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+                                title={t("Бенгальський словник", "Bengali Dictionary")}
+                              >
+                                <BookOpen className="h-3 w-3" />
+                                <span>Bn</span>
+                              </Link>
+                            )}
+                          </span>
                         </div>
 
-                        {/* Etymology */}
+                        {/* Etymology from Sanskrit lexicon */}
                         {lexiconAvailable && etymologyData[groupedTerm.term]?.length > 0 && (
                           <div className="pl-8 mt-1 text-sm text-muted-foreground">
                             {etymologyData[groupedTerm.term].slice(0, 1).map((entry, i) => (
