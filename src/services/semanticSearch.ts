@@ -236,6 +236,7 @@ export async function getVerseReferences(
 
   try {
     // Query cross_references with target verse details
+    // Note: table may not exist yet — silently return empty
     const { data, error } = await (supabase as any)
       .from('cross_references')
       .select(`
@@ -269,7 +270,10 @@ export async function getVerseReferences(
       .limit(limit);
 
     if (error) {
-      console.error('Error fetching cross-references:', error);
+      // PGRST205 = table doesn't exist yet — suppress noise
+      if (error.code !== 'PGRST205') {
+        console.error('Error fetching cross-references:', error);
+      }
       return [];
     }
 
@@ -359,7 +363,9 @@ export async function getBidirectionalReferences(
       .limit(limit / 2);
 
     if (error) {
-      console.error('Error fetching reverse cross-references:', error);
+      if (error.code !== 'PGRST205') {
+        console.error('Error fetching reverse cross-references:', error);
+      }
       return sourceRefs;
     }
 

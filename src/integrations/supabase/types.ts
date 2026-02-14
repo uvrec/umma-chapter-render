@@ -5102,16 +5102,17 @@ export type Database = {
         }[]
       }
       get_glossary_term_details: {
-        Args: { search_language?: string; term_to_find: string }
+        Args: { search_language?: string; term_text: string }
         Returns: {
           book_slug: string
           book_title: string
           canto_number: number
           chapter_number: number
-          has_cantos: boolean
           meaning: string
+          sanskrit: string
           term: string
           transliteration: string
+          verse_id: string
           verse_link: string
           verse_number: string
         }[]
