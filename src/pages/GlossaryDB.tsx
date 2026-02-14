@@ -407,7 +407,7 @@ export default function GlossaryDB() {
                       <div key={term.toLowerCase()} className={isMobile ? "py-2 border-b border-border" : "mb-6"}>
                         {/* Term heading + dictionary links */}
                         <div className="flex items-baseline gap-2 flex-wrap">
-                          <span className={isMobile ? "font-semibold italic text-foreground" : "text-xl font-bold text-foreground"}>
+                          <span className={isMobile ? "font-semibold italic text-foreground" : "text-xl font-bold italic text-foreground"}>
                             {term}
                           </span>
                           {items.length > 1 && (
