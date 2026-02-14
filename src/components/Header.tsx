@@ -93,12 +93,12 @@ function DesktopHeader() {
                     Транслітерація
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
+                {isAdmin && <DropdownMenuItem asChild>
                   <Link to={getLocalizedPath("/tools/normalization")} className="flex items-center cursor-pointer">
                     <Wand2 className="mr-2 h-4 w-4" />
                     Нормалізація
                   </Link>
-                </DropdownMenuItem>
+                </DropdownMenuItem>}
                 {isAdmin && <DropdownMenuItem asChild>
                   <Link to={getLocalizedPath("/tools/learning")} className="flex items-center cursor-pointer">
                     <GraduationCap className="mr-2 h-4 w-4" />
@@ -180,10 +180,10 @@ function DesktopHeader() {
                       <span>Транслітерація</span>
                     </Link>
 
-                    <Link to={getLocalizedPath("/tools/normalization")} className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5" onClick={() => setOpen(false)}>
+                    {isAdmin && <Link to={getLocalizedPath("/tools/normalization")} className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5" onClick={() => setOpen(false)}>
                       <Wand2 className="h-4 w-4" />
                       <span>Нормалізація</span>
-                    </Link>
+                    </Link>}
 
                     {isAdmin && <Link to={getLocalizedPath("/tools/learning")} className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5" onClick={() => setOpen(false)}>
                       <GraduationCap className="h-4 w-4" />

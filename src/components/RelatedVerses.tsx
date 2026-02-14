@@ -13,6 +13,7 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ChevronDown, ChevronUp, Link2, ExternalLink, BookOpen } from "lucide-react";
+import { getBookPrefix } from "@/utils/bookPrefixes";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -31,15 +32,6 @@ interface RelatedVersesProps {
   limit?: number;
 }
 
-// Book abbreviations for display
-const BOOK_ABBR: Record<string, { uk: string; en: string }> = {
-  bg: { uk: "БГ", en: "BG" },
-  sb: { uk: "ШБ", en: "SB" },
-  cc: { uk: "ЧЧ", en: "CC" },
-  noi: { uk: "НН", en: "NOI" },
-  iso: { uk: "Ішо", en: "ISO" },
-  nod: { uk: "НВ", en: "NOD" },
-};
 
 // Reference type labels
 const REFERENCE_LABELS: Record<ReferenceType, { uk: string; en: string }> = {
@@ -78,7 +70,7 @@ function buildVerseUrl(ref: CrossReference): string {
  * Format verse reference for display
  */
 function formatReference(ref: CrossReference, language: "uk" | "en"): string {
-  const bookAbbr = BOOK_ABBR[ref.bookSlug]?.[language] || ref.bookSlug.toUpperCase();
+  const bookAbbr = getBookPrefix(ref.bookSlug, language);
 
   if (ref.cantoNumber) {
     return `${bookAbbr} ${ref.cantoNumber}.${ref.chapterNumber}.${ref.verseNumber}`;

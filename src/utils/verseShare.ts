@@ -14,28 +14,17 @@ export interface VerseParams {
   sanskritText?: string;
 }
 
-// Скорочення для книг
-const BOOK_ABBREVIATIONS: Record<string, { uk: string; en: string }> = {
-  bg: { uk: "Б.-ґ.", en: "Bg." },
-  sb: { uk: "Бгаґ.", en: "SB" },
-  cc: { uk: "Ч.-ч.", en: "Cc." },
-  iso: { uk: "Ішо.", en: "Iso." },
-  noi: { uk: "НВ", en: "NOI" },
-  nod: { uk: "НВ", en: "NOD" },
-  tlk: { uk: "ВНК", en: "TLK" },
-  kb: { uk: "КБ", en: "KB" },
-  easy: { uk: "Б.-ґ.ЛЧ", en: "BGEW" },
-};
+import { getBookPrefix } from "@/utils/bookPrefixes";
 
 /**
- * Генерує посилання на вірш (формат: "БГ 2.47" або "ШБ 1.1.1")
+ * Генерує посилання на вірш (формат: "БҐ 2.47" або "ШБ 1.1.1")
  */
 export function getVerseReference(
   params: VerseParams,
   lang: "uk" | "en" = "uk"
 ): string {
   const { bookSlug, cantoNumber, chapterNumber, verseNumber } = params;
-  const abbrev = BOOK_ABBREVIATIONS[bookSlug.toLowerCase()]?.[lang] || bookSlug.toUpperCase();
+  const abbrev = getBookPrefix(bookSlug, lang);
 
   if (cantoNumber) {
     return `${abbrev} ${cantoNumber}.${chapterNumber}.${verseNumber}`;

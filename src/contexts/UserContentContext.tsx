@@ -5,6 +5,7 @@
 
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { getBookPrefix } from "@/utils/bookPrefixes";
 
 // Types
 export interface Bookmark {
@@ -72,9 +73,10 @@ export const buildVerseRef = (
   bookSlug: string,
   cantoNumber: number | undefined,
   chapterNumber: number,
-  verseNumber: string
+  verseNumber: string,
+  language?: string
 ): string => {
-  const bookAbbrev = bookSlug.toUpperCase();
+  const bookAbbrev = getBookPrefix(bookSlug, language);
   if (cantoNumber) {
     return `${bookAbbrev} ${cantoNumber}.${chapterNumber}.${verseNumber}`;
   }
