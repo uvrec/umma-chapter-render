@@ -52,8 +52,11 @@ function formatVerseRef(item: GlossaryTermResult, language: string): string {
   return `${abbr} ${item.chapter_number}.${item.verse_number}`;
 }
 
-// Detect Bengali script
-const isBengaliTerm = (term: string) => /[\u0980-\u09FF]/.test(term);
+// Detect Bengali script characters
+const isBengaliScript = (term: string) => /[\u0980-\u09FF]/.test(term);
+
+// Bengali-origin book slugs (Chaitanya-charitamrita, Chaitanya-bhagavata)
+const BENGALI_BOOK_SLUGS = new Set(['cc', 'scc', 'scb']);
 
 export default function GlossaryDB() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -393,6 +396,13 @@ export default function GlossaryDB() {
                     const hasMore = items.length > INLINE_LIMIT;
                     const visibleItems = isExpanded ? items : items.slice(0, INLINE_LIMIT);
 
+                    // Determine language from book context + script detection
+                    const hasBengaliScript = isBengaliScript(term);
+                    const fromBengaliBook = items.some(item => BENGALI_BOOK_SLUGS.has(item.book_slug));
+                    const fromSanskritBook = items.some(item => !BENGALI_BOOK_SLUGS.has(item.book_slug));
+                    const isBengali = hasBengaliScript || fromBengaliBook;
+                    const isSanskrit = !hasBengaliScript && fromSanskritBook;
+
                     return (
                       <div key={term.toLowerCase()} className={isMobile ? "py-2 border-b border-border" : "mb-6"}>
                         {/* Term heading + dictionary links */}
@@ -407,7 +417,7 @@ export default function GlossaryDB() {
                           )}
                           {/* Dictionary links */}
                           <span className="flex items-center gap-1.5 ml-1">
-                            {lexiconAvailable && !isBengaliTerm(term) && (
+                            {lexiconAvailable && isSanskrit && (
                               <Link
                                 to={getLocalizedPath(getSanskritDictLink(term))}
                                 className="inline-flex items-center gap-0.5 text-xs text-muted-foreground hover:text-primary transition-colors"
@@ -417,7 +427,7 @@ export default function GlossaryDB() {
                                 {!isMobile && <span>Skt</span>}
                               </Link>
                             )}
-                            {bengaliAvailable && isBengaliTerm(term) && (
+                            {bengaliAvailable && isBengali && (
                               <Link
                                 to={getLocalizedPath(getBengaliDictLink(term))}
                                 className="inline-flex items-center gap-0.5 text-xs text-muted-foreground hover:text-primary transition-colors"
