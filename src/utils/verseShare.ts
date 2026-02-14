@@ -14,7 +14,7 @@ export interface VerseParams {
   sanskritText?: string;
 }
 
-// Скорочення для книг
+// Скорочення для цитат (повний формат для поширення)
 const BOOK_ABBREVIATIONS: Record<string, { uk: string; en: string }> = {
   bg: { uk: "Б.-ґ.", en: "Bg." },
   sb: { uk: "Бгаґ.", en: "SB" },
@@ -25,10 +25,11 @@ const BOOK_ABBREVIATIONS: Record<string, { uk: string; en: string }> = {
   tlk: { uk: "ВНК", en: "TLK" },
   kb: { uk: "КБ", en: "KB" },
   easy: { uk: "Б.-ґ.ЛЧ", en: "BGEW" },
+  bs: { uk: "БС", en: "BS" },
 };
 
 /**
- * Генерує посилання на вірш (формат: "БГ 2.47" або "ШБ 1.1.1")
+ * Генерує посилання на вірш (формат: "Б.-ґ. 2.47" або "Бгаґ. 1.1.1")
  */
 export function getVerseReference(
   params: VerseParams,

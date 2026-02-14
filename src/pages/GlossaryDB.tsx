@@ -15,6 +15,7 @@ import { addLearningWord, LearningWord } from "@/utils/learningWords";
 import { addSavedTerm, isTermVerseSaved, getSavedTerms, removeSavedTerm, SavedTerm } from "@/utils/savedTerms";
 import { useSanskritLexicon } from "@/hooks/useSanskritLexicon";
 import { useBengaliLexicon } from "@/hooks/useBengaliLexicon";
+import { getBookPrefix } from "@/utils/bookPrefixes";
 
 interface GlossaryTermResult {
   term: string;
@@ -43,18 +44,8 @@ interface GlossaryStats {
 
 const PAGE_SIZE = 50;
 
-// Book slug → short abbreviation
-const BOOK_ABBR: Record<string, string> = {
-  bg: "BG",
-  sb: "ŚB",
-  cc: "CC",
-  noi: "NoI",
-  iso: "Śrī Īśo",
-  bs: "BS",
-};
-
-function formatVerseRef(item: GlossaryTermResult): string {
-  const abbr = BOOK_ABBR[item.book_slug] || item.book_slug.toUpperCase();
+function formatVerseRef(item: GlossaryTermResult, language: string): string {
+  const abbr = getBookPrefix(item.book_slug, language);
   if (item.canto_number) {
     return `${abbr} ${item.canto_number}.${item.chapter_number}.${item.verse_number}`;
   }
@@ -407,7 +398,7 @@ export default function GlossaryDB() {
                                   : "text-primary hover:underline font-medium"
                                 }
                               >
-                                {formatVerseRef(item)}
+                                {formatVerseRef(item, language)}
                               </Link>
                               {!isMobile && (
                                 <>

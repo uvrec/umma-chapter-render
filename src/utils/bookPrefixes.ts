@@ -20,6 +20,10 @@ const prefixesUk: Record<string, string> = {
   tpj: "ПСП",      // Подорож самопізнання
   sos: "НС",       // Наука самоусвідомлення
   eji: "ЛВ",       // Легкий шлях в інший світ
+  bs: "БС",        // Брахма-самгіта
+  kb: "КБ",        // Кришна-книга
+  tlk: "ВНК",      // Вчення Наради Капіли
+  easy: "Б.-ґ.ЛЧ", // Бгаґавад-ґіта — легка читанка
 };
 
 const prefixesEn: Record<string, string> = {
@@ -39,6 +43,10 @@ const prefixesEn: Record<string, string> = {
   tpj: "TPJ",
   sos: "SOS",
   eji: "EJI",
+  bs: "BS",
+  kb: "KB",
+  tlk: "TLK",
+  easy: "BGEW",
 };
 
 /**

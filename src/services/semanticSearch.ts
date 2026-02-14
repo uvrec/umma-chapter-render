@@ -10,6 +10,7 @@
  */
 
 import { supabase } from "@/integrations/supabase/client";
+import { getBookPrefix } from "@/utils/bookPrefixes";
 
 // ============================================================================
 // TYPES
@@ -430,14 +431,5 @@ export function formatSearchResult(
  * Get book abbreviation based on slug
  */
 function getBookAbbreviation(slug: string, language: 'uk' | 'en'): string {
-  const abbreviations: Record<string, { uk: string; en: string }> = {
-    'bg': { uk: 'БГ', en: 'BG' },
-    'sb': { uk: 'ШБ', en: 'SB' },
-    'cc': { uk: 'ЧЧ', en: 'CC' },
-    'noi': { uk: 'НН', en: 'NOI' },
-    'nod': { uk: 'НВ', en: 'NOD' },
-    'iso': { uk: 'Ішо', en: 'ISO' },
-  };
-
-  return abbreviations[slug]?.[language] || slug.toUpperCase();
+  return getBookPrefix(slug, language);
 }
