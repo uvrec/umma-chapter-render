@@ -2,11 +2,10 @@
  * Bengali Dictionary Page
  *
  * Search and browse the English-Bengali dictionary.
- * Source: https://github.com/MinhasKamal/BengaliDictionary
- * License: GPL-3.0
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -15,7 +14,7 @@ import { Footer } from "@/components/Footer";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, BookOpen, Languages } from "lucide-react";
+import { Search, Languages } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
 
 interface LexiconEntry {
@@ -29,9 +28,19 @@ type SearchMode = "english" | "bengali";
 
 export const BengaliDictionary = () => {
   const { language } = useLanguage();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchParams] = useSearchParams();
+  const initialSearch = searchParams.get("search") || "";
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [searchMode, setSearchMode] = useState<SearchMode>("english");
   const debouncedSearch = useDebounce(searchTerm, 300);
+
+  // Sync search term from URL params
+  useEffect(() => {
+    const urlSearch = searchParams.get("search");
+    if (urlSearch && urlSearch !== searchTerm) {
+      setSearchTerm(urlSearch);
+    }
+  }, [searchParams]);
 
   // Search query
   const {
@@ -44,7 +53,6 @@ export const BengaliDictionary = () => {
       if (!debouncedSearch || debouncedSearch.length < 2) return [];
 
       if (searchMode === "bengali") {
-        // Search by Bengali word
         const { data, error } = await supabase.rpc("search_bengali_by_bengali", {
           search_term: debouncedSearch,
           result_limit: 50,
@@ -52,7 +60,6 @@ export const BengaliDictionary = () => {
         if (error) throw error;
         return (data as LexiconEntry[]) || [];
       } else {
-        // Search by English word
         const { data, error } = await supabase.rpc("search_bengali_lexicon", {
           search_term: debouncedSearch,
           search_mode: "contains",
@@ -65,40 +72,13 @@ export const BengaliDictionary = () => {
     enabled: debouncedSearch.length >= 2,
   });
 
-  // Get total count
-  const { data: totalCount } = useQuery({
-    queryKey: ["bengali-dictionary-count"],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from("bengali_lexicon")
-        .select("*", { count: "exact", head: true });
-      if (error) return 0;
-      return count || 0;
-    },
-  });
-
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1 bg-background py-8">
         <div className="container mx-auto max-w-4xl px-4">
-          {/* Header */}
-          <div className="mb-8 text-center">
-            <div className="mb-4 flex items-center justify-center gap-2">
-              <BookOpen className="h-8 w-8 text-primary" />
-              <h1 className="text-3xl font-bold text-primary md:text-4xl">
-                {language === "uk" ? "Бенгальський словник" : "Bengali Dictionary"}
-              </h1>
-            </div>
-            <p className="text-muted-foreground">
-              {language === "uk"
-                ? `Англо-бенгальський словник • ${totalCount?.toLocaleString() || "..."} слів`
-                : `English-Bengali Dictionary • ${totalCount?.toLocaleString() || "..."} words`}
-            </p>
-          </div>
-
           {/* Search Tabs */}
-          <Tabs value={searchMode} onValueChange={(v) => setSearchMode(v as SearchMode)} className="mb-6">
+          <Tabs value={searchMode} onValueChange={(v) => setSearchMode(v as SearchMode)} className="mb-4">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="english" className="gap-2">
                 <Languages className="h-4 w-4" />
@@ -142,7 +122,7 @@ export const BengaliDictionary = () => {
           {isLoading ? (
             <div className="space-y-4">
               {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-24 w-full" />
+                <Skeleton key={i} className="h-20 w-full" />
               ))}
             </div>
           ) : error ? (
@@ -150,30 +130,25 @@ export const BengaliDictionary = () => {
               {language === "uk" ? "Помилка пошуку. Спробуйте пізніше." : "Search error. Please try again later."}
             </div>
           ) : results && results.length > 0 ? (
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
+            <div>
+              <p className="text-sm text-muted-foreground mb-4">
                 {language === "uk"
                   ? `Знайдено ${results.length} результатів`
                   : `Found ${results.length} results`}
               </p>
               {results.map((entry) => (
-                <div key={entry.id} className="py-4 hover:bg-muted/30 transition-colors border-b border-border">
-                  <div className="flex flex-col gap-2">
-                    <div className="flex flex-wrap items-baseline justify-between gap-2">
-                      <h3 className="text-xl font-semibold text-primary">
-                        {entry.word_en}
-                      </h3>
-                    </div>
-                    <p className="text-2xl text-foreground leading-relaxed" style={{ fontFamily: "'Noto Sans Bengali', sans-serif" }}>
-                      {entry.word_bn}
-                    </p>
-                  </div>
+                <div key={entry.id} className="py-3 border-b border-border last:border-b-0">
+                  <h3 className="text-lg font-semibold text-primary">
+                    {entry.word_en}
+                  </h3>
+                  <p className="mt-1 text-xl text-foreground leading-relaxed" style={{ fontFamily: "'Noto Sans Bengali', sans-serif" }}>
+                    {entry.word_bn}
+                  </p>
                 </div>
               ))}
             </div>
           ) : debouncedSearch.length >= 2 ? (
             <div className="py-12 text-center">
-              <Search className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
               <p className="text-lg text-muted-foreground">
                 {language === "uk"
                   ? "Нічого не знайдено. Спробуйте інший запит."
@@ -182,7 +157,6 @@ export const BengaliDictionary = () => {
             </div>
           ) : (
             <div className="py-12 text-center">
-              <BookOpen className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
               <p className="text-lg text-muted-foreground">
                 {language === "uk"
                   ? "Почніть вводити слово для пошуку"

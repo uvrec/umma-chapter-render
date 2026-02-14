@@ -2,22 +2,20 @@
  * Sanskrit Dictionary Page
  *
  * Search and browse the Digital Corpus of Sanskrit (DCS) lexicon.
- * Source: https://github.com/OliverHellwig/sanskrit
- * License: CC BY 4.0
  */
 
-import { useState, useCallback } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, BookOpen, Languages, Info } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Search, Languages } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
 
 // Grammar abbreviations
@@ -47,9 +45,19 @@ type SearchMode = "word" | "meaning";
 
 export const SanskritDictionary = () => {
   const { language } = useLanguage();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialSearch = searchParams.get("search") || "";
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [searchMode, setSearchMode] = useState<SearchMode>("word");
   const debouncedSearch = useDebounce(searchTerm, 300);
+
+  // Sync search term from URL params (e.g. when navigating from glossary)
+  useEffect(() => {
+    const urlSearch = searchParams.get("search");
+    if (urlSearch && urlSearch !== searchTerm) {
+      setSearchTerm(urlSearch);
+    }
+  }, [searchParams]);
 
   // Search query
   const {
@@ -62,7 +70,6 @@ export const SanskritDictionary = () => {
       if (!debouncedSearch || debouncedSearch.length < 2) return [];
 
       if (searchMode === "meaning") {
-        // Search by English meaning
         const { data, error } = await supabase.rpc("search_sanskrit_by_meaning", {
           search_term: debouncedSearch,
           result_limit: 50,
@@ -70,7 +77,6 @@ export const SanskritDictionary = () => {
         if (error) throw error;
         return (data as LexiconEntry[]) || [];
       } else {
-        // Search by Sanskrit word
         const { data, error } = await supabase.rpc("search_sanskrit_lexicon", {
           search_term: debouncedSearch,
           search_mode: "contains",
@@ -82,18 +88,6 @@ export const SanskritDictionary = () => {
       }
     },
     enabled: debouncedSearch.length >= 2,
-  });
-
-  // Get total count
-  const { data: totalCount } = useQuery({
-    queryKey: ["sanskrit-dictionary-count"],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from("sanskrit_lexicon")
-        .select("*", { count: "exact", head: true });
-      if (error) return 0;
-      return count || 0;
-    },
   });
 
   const getGrammarBadge = (grammar: string | null) => {
@@ -118,23 +112,8 @@ export const SanskritDictionary = () => {
       <Header />
       <main className="flex-1 bg-background py-8">
         <div className="container mx-auto max-w-4xl px-4">
-          {/* Header */}
-          <div className="mb-8 text-center">
-            <div className="mb-4 flex items-center justify-center gap-2">
-              <BookOpen className="h-8 w-8 text-primary" />
-              <h1 className="text-3xl font-bold text-primary md:text-4xl">
-                {language === "uk" ? "Санскритський словник" : "Sanskrit Dictionary"}
-              </h1>
-            </div>
-            <p className="text-muted-foreground">
-              {language === "uk"
-                ? `Digital Corpus of Sanskrit (DCS) • ${totalCount?.toLocaleString() || "..."} слів`
-                : `Digital Corpus of Sanskrit (DCS) • ${totalCount?.toLocaleString() || "..."} words`}
-            </p>
-          </div>
-
           {/* Search Tabs */}
-          <Tabs value={searchMode} onValueChange={(v) => setSearchMode(v as SearchMode)} className="mb-6">
+          <Tabs value={searchMode} onValueChange={(v) => setSearchMode(v as SearchMode)} className="mb-4">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="word" className="gap-2">
                 <Languages className="h-4 w-4" />
@@ -178,7 +157,7 @@ export const SanskritDictionary = () => {
           {isLoading ? (
             <div className="space-y-4">
               {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-32 w-full" />
+                <Skeleton key={i} className="h-20 w-full" />
               ))}
             </div>
           ) : error ? (
@@ -186,51 +165,44 @@ export const SanskritDictionary = () => {
               {language === "uk" ? "Помилка пошуку. Спробуйте пізніше." : "Search error. Please try again later."}
             </div>
           ) : results && results.length > 0 ? (
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
+            <div>
+              <p className="text-sm text-muted-foreground mb-4">
                 {language === "uk"
                   ? `Знайдено ${results.length} результатів`
                   : `Found ${results.length} results`}
               </p>
               {results.map((entry) => (
-                <div key={entry.id} className="py-4 hover:bg-muted/30 transition-colors">
-                  <div className="pb-2">
-                    <div className="flex flex-wrap items-start justify-between gap-2">
-                      <div>
-                        <h3 className="text-xl font-semibold">
-                          <span className="font-serif text-primary">{entry.word}</span>
-                          {entry.word_devanagari && (
-                            <span className="ml-3 text-2xl text-muted-foreground">
-                              {entry.word_devanagari}
-                            </span>
-                          )}
-                        </h3>
-                      </div>
-                      <div className="flex gap-2">
-                        {getGrammarBadge(entry.grammar)}
-                        {entry.preverbs && (
-                          <Badge variant="outline">
-                            {language === "uk" ? "преверб" : "preverb"}: {entry.preverbs}
-                          </Badge>
-                        )}
-                      </div>
+                <div key={entry.id} className="py-3 border-b border-border last:border-b-0">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <span className="text-lg font-semibold font-serif text-primary">{entry.word}</span>
+                      {entry.word_devanagari && (
+                        <span className="ml-3 text-xl text-muted-foreground">
+                          {entry.word_devanagari}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      {getGrammarBadge(entry.grammar)}
+                      {entry.preverbs && (
+                        <Badge variant="outline">
+                          {language === "uk" ? "преверб" : "preverb"}: {entry.preverbs}
+                        </Badge>
+                      )}
                     </div>
                   </div>
-                  <div>
-                    {entry.meanings ? (
-                      <p className="text-foreground leading-relaxed">{entry.meanings}</p>
-                    ) : (
-                      <p className="text-muted-foreground italic">
-                        {language === "uk" ? "Значення не вказано" : "No meaning provided"}
-                      </p>
-                    )}
-                  </div>
+                  {entry.meanings ? (
+                    <p className="mt-1 text-foreground leading-relaxed">{entry.meanings}</p>
+                  ) : (
+                    <p className="mt-1 text-muted-foreground italic">
+                      {language === "uk" ? "Значення не вказано" : "No meaning provided"}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
           ) : debouncedSearch.length >= 2 ? (
             <div className="py-12 text-center">
-              <Search className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
               <p className="text-lg text-muted-foreground">
                 {language === "uk"
                   ? "Нічого не знайдено. Спробуйте інший запит."
@@ -239,7 +211,6 @@ export const SanskritDictionary = () => {
             </div>
           ) : (
             <div className="py-12 text-center">
-              <BookOpen className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
               <p className="text-lg text-muted-foreground">
                 {language === "uk"
                   ? "Почніть вводити слово для пошуку"
@@ -247,30 +218,6 @@ export const SanskritDictionary = () => {
               </p>
             </div>
           )}
-
-          {/* Attribution */}
-          <div className="mt-12 rounded-lg border border-border bg-muted/30 p-4">
-            <div className="flex items-start gap-2">
-              <Info className="mt-0.5 h-4 w-4 text-muted-foreground" />
-              <div className="text-sm text-muted-foreground">
-                <p className="font-medium">
-                  {language === "uk" ? "Джерело даних:" : "Data source:"}
-                </p>
-                <p>
-                  Oliver Hellwig: Digital Corpus of Sanskrit (DCS). 2010-2024.{" "}
-                  <a
-                    href="https://github.com/OliverHellwig/sanskrit"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline"
-                  >
-                    GitHub
-                  </a>
-                </p>
-                <p className="mt-1">License: CC BY 4.0</p>
-              </div>
-            </div>
-          </div>
         </div>
       </main>
       <Footer />
