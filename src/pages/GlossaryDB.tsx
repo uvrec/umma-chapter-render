@@ -451,8 +451,8 @@ export default function GlossaryDB() {
                               <Link
                                 to={getLocalizedPath(item.verse_link)}
                                 className={isMobile
-                                  ? "text-primary text-xs font-medium whitespace-nowrap shrink-0"
-                                  : "text-primary hover:underline font-medium"
+                                  ? "text-primary text-xs font-bold whitespace-nowrap shrink-0"
+                                  : "text-primary hover:underline font-bold"
                                 }
                               >
                                 {formatVerseRef(item, language)}
