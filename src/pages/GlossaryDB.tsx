@@ -286,30 +286,44 @@ export default function GlossaryDB() {
   const allGroupedTerms = groupedData?.pages.flatMap((page) => page.terms) || [];
   const totalUniqueTerms = groupedData?.pages[0]?.totalCount || 0;
 
-  // Auto-fetch details for visible single-usage terms (only first 5, lazy)
+  // Auto-fetch details for all visible terms (batched to avoid overwhelming the server)
   useEffect(() => {
     if (!allGroupedTerms.length) return;
-    const singleUsageTerms = allGroupedTerms.filter(
-      (t) => t.usage_count === 1 && !expandedTermDetails[t.term] && !loadingTerms.has(t.term)
+    const termsNeedingDetails = allGroupedTerms.filter(
+      (t) => !expandedTermDetails[t.term] && !loadingTerms.has(t.term)
     );
 
-    // Fetch only first 5 to avoid performance issues
-    const batch = singleUsageTerms.slice(0, 5);
-    if (batch.length === 0) return;
+    if (termsNeedingDetails.length === 0) return;
 
-    batch.forEach(async (term) => {
-      setLoadingTerms((prev) => new Set(prev).add(term.term));
-      try {
-        const details = await fetchTermDetails(term.term);
-        setExpandedTermDetails((prev) => ({ ...prev, [term.term]: details }));
-      } finally {
-        setLoadingTerms((prev) => {
-          const next = new Set(prev);
-          next.delete(term.term);
-          return next;
-        });
+    // Fetch in batches of 10 with small delays between batches
+    const fetchBatch = async (batch: GroupedTermResult[]) => {
+      await Promise.all(
+        batch.map(async (term) => {
+          setLoadingTerms((prev) => new Set(prev).add(term.term));
+          try {
+            const details = await fetchTermDetails(term.term);
+            setExpandedTermDetails((prev) => ({ ...prev, [term.term]: details }));
+          } finally {
+            setLoadingTerms((prev) => {
+              const next = new Set(prev);
+              next.delete(term.term);
+              return next;
+            });
+          }
+        })
+      );
+    };
+
+    const BATCH_SIZE = 10;
+    let cancelled = false;
+    (async () => {
+      for (let i = 0; i < termsNeedingDetails.length; i += BATCH_SIZE) {
+        if (cancelled) break;
+        await fetchBatch(termsNeedingDetails.slice(i, i + BATCH_SIZE));
       }
-    });
+    })();
+
+    return () => { cancelled = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupedData?.pages.length]);
 
@@ -416,71 +430,70 @@ export default function GlossaryDB() {
                   <p>{t("Нічого не знайдено", "Nothing found")}</p>
                 </div>
               ) : isMobile ? (
-                /* ===== MOBILE: compact word list ===== */
+                /* ===== MOBILE: compact word list with inline details ===== */
                 <>
                   <div className="divide-y divide-border">
                     {allGroupedTerms.map((groupedTerm) => {
-                      const singleUsageDetails = groupedTerm.usage_count === 1 ? expandedTermDetails[groupedTerm.term]?.[0] : null;
+                      const details = expandedTermDetails[groupedTerm.term];
+                      const isLoading = loadingTerms.has(groupedTerm.term);
                       const isMultiUsage = groupedTerm.usage_count > 1;
                       const isExpanded = expandedTerms.has(groupedTerm.term);
+                      const INLINE_LIMIT_MOBILE = 2;
+                      const hasMoreUsages = details && details.length > INLINE_LIMIT_MOBILE;
 
                       return (
                         <div key={groupedTerm.term} className="py-2">
-                          {/* Single usage — tap to go to verse */}
-                          {singleUsageDetails ? (
-                            <Link
-                              to={getLocalizedPath(singleUsageDetails.verse_link)}
-                              className="flex items-baseline justify-between gap-2"
-                            >
-                              <div className="min-w-0">
-                                <span className="font-semibold italic text-foreground">{groupedTerm.term}</span>
-                                {(singleUsageDetails.meaning || groupedTerm.sample_meanings?.[0]) && (
-                                  <span className="text-muted-foreground text-sm italic"> — {singleUsageDetails.meaning || groupedTerm.sample_meanings?.[0]}</span>
-                                )}
-                              </div>
-                              <span className="text-primary text-xs font-medium whitespace-nowrap shrink-0">
-                                {formatVerseRef(singleUsageDetails)}
+                          {/* Term heading */}
+                          <div className="flex items-baseline justify-between gap-2">
+                            <span className="font-semibold italic text-foreground">{groupedTerm.term}</span>
+                            {isMultiUsage && (
+                              <span className="text-muted-foreground text-xs whitespace-nowrap shrink-0">
+                                ({groupedTerm.usage_count})
                               </span>
-                            </Link>
-                          ) : (
-                            <>
-                              <div
-                                className={`flex items-baseline justify-between gap-2 ${isMultiUsage ? "cursor-pointer" : ""}`}
-                                onClick={isMultiUsage ? () => toggleTermExpanded(groupedTerm.term) : undefined}
-                              >
-                                <div className="min-w-0">
-                                  <span className="font-semibold italic text-foreground">{groupedTerm.term}</span>
-                                  {!isMultiUsage && groupedTerm.sample_meanings?.[0] && (
-                                    <span className="text-muted-foreground text-sm italic"> — {groupedTerm.sample_meanings[0]}</span>
-                                  )}
-                                </div>
-                                {isMultiUsage && (
-                                  <span className="text-muted-foreground text-xs whitespace-nowrap shrink-0 flex items-center gap-0.5">
-                                    ({groupedTerm.usage_count})
-                                    <ChevronDown className={`h-3 w-3 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                            )}
+                          </div>
+
+                          {/* Loading */}
+                          {isLoading && !details && (
+                            <div className="ml-3 mt-1">
+                              <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+                            </div>
+                          )}
+
+                          {/* Usages with meaning + verse reference */}
+                          {details && (
+                            <div className="ml-3 mt-1 space-y-0.5">
+                              {(isExpanded ? details : details.slice(0, INLINE_LIMIT_MOBILE)).map((item, idx) => (
+                                <Link
+                                  key={idx}
+                                  to={getLocalizedPath(item.verse_link)}
+                                  className="flex items-baseline justify-between gap-2 text-sm"
+                                >
+                                  <span className="text-foreground italic min-w-0">{item.meaning || "—"}</span>
+                                  <span className="text-primary text-xs font-medium whitespace-nowrap shrink-0">
+                                    {formatVerseRef(item)}
                                   </span>
-                                )}
-                              </div>
-                              {/* Expanded usages */}
-                              {isMultiUsage && isExpanded && (
-                                <div className="ml-3 mt-1 space-y-1">
-                                  {loadingTerms.has(groupedTerm.term) ? (
-                                    <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
-                                  ) : expandedTermDetails[groupedTerm.term]?.map((item, idx) => (
-                                    <Link
-                                      key={idx}
-                                      to={getLocalizedPath(item.verse_link)}
-                                      className="flex items-baseline justify-between gap-2 text-sm"
-                                    >
-                                      <span className="text-foreground italic min-w-0">{item.meaning || "—"}</span>
-                                      <span className="text-primary text-xs font-medium whitespace-nowrap shrink-0">
-                                        {formatVerseRef(item)}
-                                      </span>
-                                    </Link>
-                                  ))}
-                                </div>
+                                </Link>
+                              ))}
+                              {hasMoreUsages && (
+                                <button
+                                  onClick={() => toggleTermExpanded(groupedTerm.term)}
+                                  className="text-xs text-muted-foreground hover:text-primary flex items-center gap-0.5"
+                                >
+                                  <ChevronDown className={`h-3 w-3 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                                  {isExpanded
+                                    ? t("Згорнути", "Collapse")
+                                    : t(`Ще ${details.length - INLINE_LIMIT_MOBILE}`, `${details.length - INLINE_LIMIT_MOBILE} more`)}
+                                </button>
                               )}
-                            </>
+                            </div>
+                          )}
+
+                          {/* Fallback */}
+                          {!details && !isLoading && groupedTerm.sample_meanings?.[0] && (
+                            <div className="ml-3 mt-0.5">
+                              <span className="text-muted-foreground text-sm italic">{groupedTerm.sample_meanings[0]}</span>
+                            </div>
                           )}
                         </div>
                       );
@@ -497,104 +510,107 @@ export default function GlossaryDB() {
                   )}
                 </>
               ) : (
-                /* ===== DESKTOP: full Vedabase-style ===== */
+                /* ===== DESKTOP: show all details inline ===== */
                 <>
                   {allGroupedTerms.map((groupedTerm) => {
-                    const singleUsageDetails = groupedTerm.usage_count === 1 ? expandedTermDetails[groupedTerm.term]?.[0] : null;
+                    const details = expandedTermDetails[groupedTerm.term];
+                    const isLoading = loadingTerms.has(groupedTerm.term);
                     const isMultiUsage = groupedTerm.usage_count > 1;
                     const isExpanded = expandedTerms.has(groupedTerm.term);
+                    const INLINE_LIMIT = 3;
+                    const hasMoreUsages = details && details.length > INLINE_LIMIT;
 
                     return (
                       <div key={groupedTerm.term} className="mb-6">
-                        {/* Single usage with details — entire block is a link */}
-                        {singleUsageDetails ? (
-                          <Link
-                            to={getLocalizedPath(singleUsageDetails.verse_link)}
-                            className="block hover:bg-muted/30 rounded-lg px-2 -mx-2 py-1 transition-colors group"
-                          >
-                            <div className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
-                              {groupedTerm.term}
-                            </div>
-                            <div className="pl-8 mt-1">
-                              <span className="text-foreground">{singleUsageDetails.meaning || groupedTerm.sample_meanings?.[0] || "—"}</span>
-                              <span className="text-muted-foreground"> — </span>
-                              <span className="text-primary font-medium">
-                                {formatVerseRef(singleUsageDetails)}
-                              </span>
-                            </div>
-                          </Link>
-                        ) : (
-                          <>
-                            {/* Term — bold, large */}
-                            <div
-                              className={`text-xl font-bold text-foreground ${isMultiUsage ? "cursor-pointer hover:text-primary transition-colors" : ""}`}
-                              onClick={isMultiUsage ? () => toggleTermExpanded(groupedTerm.term) : undefined}
-                            >
-                              {groupedTerm.term}
-                              {isMultiUsage && (
-                                <span className="text-sm font-normal text-muted-foreground ml-2">
-                                  ({groupedTerm.usage_count})
-                                  <ChevronDown className={`inline h-4 w-4 ml-1 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
-                                </span>
-                              )}
-                            </div>
-
-                            {/* Single usage without details yet */}
-                            {!isMultiUsage && loadingTerms.has(groupedTerm.term) ? (
-                              <div className="pl-8 mt-1">
-                                <span className="text-muted-foreground">{groupedTerm.sample_meanings?.[0] || "..."}</span>
-                              </div>
-                            ) : !isMultiUsage ? (
-                              <div className="pl-8 mt-1">
-                                <span className="text-foreground">{groupedTerm.sample_meanings?.[0] || "—"}</span>
-                              </div>
-                            ) : null}
-                          </>
-                        )}
-
-                        {/* Multi usage — collapsed: show sample meanings */}
-                        {isMultiUsage && !isExpanded && (
-                          <div className="pl-8 mt-1">
-                            <span className="text-muted-foreground">
-                              {groupedTerm.sample_meanings?.slice(0, 3).join("; ") || "—"}
+                        {/* Term heading */}
+                        <div className="text-xl font-bold text-foreground">
+                          {groupedTerm.term}
+                          {isMultiUsage && (
+                            <span className="text-sm font-normal text-muted-foreground ml-2">
+                              ({groupedTerm.usage_count})
                             </span>
+                          )}
+                        </div>
+
+                        {/* Etymology */}
+                        {lexiconAvailable && etymologyData[groupedTerm.term]?.length > 0 && (
+                          <div className="pl-8 mt-1 text-sm text-muted-foreground">
+                            {etymologyData[groupedTerm.term].slice(0, 1).map((entry, i) => (
+                              <span key={i}>
+                                {entry.word_devanagari && <span className="mr-2">{entry.word_devanagari}</span>}
+                                {entry.grammar && <span className="text-xs mr-2">({getGrammarLabel(entry.grammar, language as "uk" | "en") || entry.grammar})</span>}
+                                {entry.meanings && <span className="text-foreground/70">{entry.meanings}</span>}
+                              </span>
+                            ))}
                           </div>
                         )}
 
-                        {/* Multi usage — expanded: show all details */}
-                        {isMultiUsage && isExpanded && (
-                          <div className="pl-8 mt-2 space-y-1">
-                            {loadingTerms.has(groupedTerm.term) ? (
-                              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                            ) : expandedTermDetails[groupedTerm.term] ? (
-                              <>
-                                {/* Etymology */}
-                                {lexiconAvailable && etymologyData[groupedTerm.term]?.length > 0 && (
-                                  <div className="text-sm text-muted-foreground pb-2">
-                                    {etymologyData[groupedTerm.term].slice(0, 1).map((entry, i) => (
-                                      <span key={i}>
-                                        {entry.word_devanagari && <span className="mr-2">{entry.word_devanagari}</span>}
-                                        {entry.grammar && <span className="text-xs mr-2">({getGrammarLabel(entry.grammar, language as "uk" | "en") || entry.grammar})</span>}
-                                        {entry.meanings && <span className="text-foreground/70">{entry.meanings}</span>}
-                                      </span>
-                                    ))}
-                                  </div>
+                        {/* Loading state */}
+                        {isLoading && !details && (
+                          <div className="pl-8 mt-1">
+                            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground inline" />
+                          </div>
+                        )}
+
+                        {/* Usages with meaning + verse reference — always visible */}
+                        {details && (
+                          <div className="pl-8 mt-1 space-y-0.5">
+                            {(isExpanded ? details : details.slice(0, INLINE_LIMIT)).map((item, idx) => (
+                              <div key={idx} className="py-0.5 flex items-baseline gap-1 flex-wrap">
+                                <span className="text-foreground">{item.meaning || "—"}</span>
+                                <span className="text-muted-foreground">—</span>
+                                <Link
+                                  to={getLocalizedPath(item.verse_link)}
+                                  className="text-primary hover:underline font-medium"
+                                >
+                                  {formatVerseRef(item)}
+                                </Link>
+                                <button
+                                  onClick={(e) => { e.preventDefault(); handleSaveTerm(item); }}
+                                  className={`ml-1 text-xs px-1.5 py-0.5 rounded transition-colors ${
+                                    isSaved(item.term, item.verse_link)
+                                      ? "text-primary bg-primary/10"
+                                      : "text-muted-foreground hover:text-primary hover:bg-primary/5"
+                                  }`}
+                                  title={t("Зберегти", "Save")}
+                                >
+                                  {isSaved(item.term, item.verse_link) ? "★" : "☆"}
+                                </button>
+                                {!isInLearning(item.term) && (
+                                  <button
+                                    onClick={(e) => { e.preventDefault(); handleAddToLearning(item); }}
+                                    className="text-xs text-muted-foreground hover:text-primary px-1"
+                                    title={t("Додати до вивчення", "Add to learning")}
+                                  >
+                                    +
+                                  </button>
                                 )}
-                                {/* Each usage */}
-                                {expandedTermDetails[groupedTerm.term].map((item, idx) => (
-                                  <div key={idx} className="py-0.5">
-                                    <span className="text-foreground">{item.meaning || "—"}</span>
-                                    <span className="text-muted-foreground"> — </span>
-                                    <Link
-                                      to={getLocalizedPath(item.verse_link)}
-                                      className="text-primary hover:underline font-medium"
-                                    >
-                                      {formatVerseRef(item)}
-                                    </Link>
-                                  </div>
-                                ))}
-                              </>
-                            ) : null}
+                              </div>
+                            ))}
+                            {/* Show more / collapse toggle */}
+                            {hasMoreUsages && (
+                              <button
+                                onClick={() => toggleTermExpanded(groupedTerm.term)}
+                                className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 pt-1"
+                              >
+                                <ChevronDown className={`h-3 w-3 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                                {isExpanded
+                                  ? t("Згорнути", "Collapse")
+                                  : t(`Ще ${details.length - INLINE_LIMIT}`, `${details.length - INLINE_LIMIT} more`)}
+                              </button>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Fallback if details not loaded yet and not loading */}
+                        {!details && !isLoading && (
+                          <div className="pl-8 mt-1">
+                            <span className="text-muted-foreground">
+                              {groupedTerm.sample_meanings?.filter(Boolean).slice(0, 3).join("; ") || "—"}
+                              {groupedTerm.books?.length > 0 && (
+                                <span className="ml-2 text-xs">({groupedTerm.books.join(", ")})</span>
+                              )}
+                            </span>
                           </div>
                         )}
                       </div>
