@@ -209,44 +209,41 @@ BEGIN
     ),
     extracted_terms AS (
       SELECT
-        book_title,
-        -- Clean HTML/JS noise and extract term
+        pt.book_title,
         regexp_replace(
           regexp_replace(
             TRIM(
               CASE
-                WHEN synonym_part LIKE '% — %' THEN SPLIT_PART(synonym_part, ' — ', 1)
-                WHEN synonym_part LIKE '% – %' THEN SPLIT_PART(synonym_part, ' – ', 1)
-                WHEN synonym_part LIKE '% - %' THEN SPLIT_PART(synonym_part, ' - ', 1)
-                WHEN synonym_part LIKE '%—%' THEN SPLIT_PART(synonym_part, '—', 1)
-                WHEN synonym_part LIKE '%–%' THEN SPLIT_PART(synonym_part, '–', 1)
-                ELSE synonym_part
+                WHEN pt.synonym_part LIKE '% — %' THEN SPLIT_PART(pt.synonym_part, ' — ', 1)
+                WHEN pt.synonym_part LIKE '% – %' THEN SPLIT_PART(pt.synonym_part, ' – ', 1)
+                WHEN pt.synonym_part LIKE '% - %' THEN SPLIT_PART(pt.synonym_part, ' - ', 1)
+                WHEN pt.synonym_part LIKE '%—%' THEN SPLIT_PART(pt.synonym_part, '—', 1)
+                WHEN pt.synonym_part LIKE '%–%' THEN SPLIT_PART(pt.synonym_part, '–', 1)
+                ELSE pt.synonym_part
               END
             ),
-            '/\*.*?\*/', '', 'g'  -- Remove JS comments
+            '/\*.*?\*/', '', 'g'
           ),
-          '[\{\}\(\)\[\]<>"\|\\\/\*]', '', 'g'  -- Remove special chars
+          '[\{\}\(\)\[\]<>"\|\\\/\*]', '', 'g'
         ) as term,
-        -- Extract meaning
         TRIM(
           CASE
-            WHEN synonym_part LIKE '% — %' THEN SUBSTRING(synonym_part FROM POSITION(' — ' IN synonym_part) + 3)
-            WHEN synonym_part LIKE '% – %' THEN SUBSTRING(synonym_part FROM POSITION(' – ' IN synonym_part) + 3)
-            WHEN synonym_part LIKE '% - %' THEN SUBSTRING(synonym_part FROM POSITION(' - ' IN synonym_part) + 3)
-            WHEN synonym_part LIKE '%—%' THEN SUBSTRING(synonym_part FROM POSITION('—' IN synonym_part) + 1)
-            WHEN synonym_part LIKE '%–%' THEN SUBSTRING(synonym_part FROM POSITION('–' IN synonym_part) + 1)
+            WHEN pt.synonym_part LIKE '% — %' THEN SUBSTRING(pt.synonym_part FROM POSITION(' — ' IN pt.synonym_part) + 3)
+            WHEN pt.synonym_part LIKE '% – %' THEN SUBSTRING(pt.synonym_part FROM POSITION(' – ' IN pt.synonym_part) + 3)
+            WHEN pt.synonym_part LIKE '% - %' THEN SUBSTRING(pt.synonym_part FROM POSITION(' - ' IN pt.synonym_part) + 3)
+            WHEN pt.synonym_part LIKE '%—%' THEN SUBSTRING(pt.synonym_part FROM POSITION('—' IN pt.synonym_part) + 1)
+            WHEN pt.synonym_part LIKE '%–%' THEN SUBSTRING(pt.synonym_part FROM POSITION('–' IN pt.synonym_part) + 1)
             ELSE ''
           END
         ) as meaning
-      FROM parsed_terms
-      WHERE synonym_part != '' AND LENGTH(TRIM(synonym_part)) > 1
+      FROM parsed_terms pt
+      WHERE pt.synonym_part != '' AND LENGTH(TRIM(pt.synonym_part)) > 1
     ),
     valid_terms AS (
-      SELECT DISTINCT book_title, term, meaning
+      SELECT DISTINCT et.book_title, et.term, et.meaning
       FROM extracted_terms et
       WHERE et.term != ''
         AND LENGTH(TRIM(et.term)) > 0
-        -- Validate term contains at least one letter (not just punctuation/numbers)
         AND et.term ~ '[a-zA-Zа-яА-ЯіїєІЇЄāīūṛṝḷḹēōṃḥśṣṭḍṇñṅĀĪŪṚṜḶḸĒŌṂḤŚṢṬḌṆÑṄ]'
     ),
     filtered_terms AS (
@@ -530,22 +527,22 @@ BEGIN
     ),
     extracted_terms AS (
       SELECT
-        verse_id,
-        verse_number,
-        chapter_number,
-        canto_number,
-        book_title,
-        book_slug,
+        pt.verse_id,
+        pt.verse_number,
+        pt.chapter_number,
+        pt.canto_number,
+        pt.book_title,
+        pt.book_slug,
         regexp_replace(
           regexp_replace(
             TRIM(
               CASE
-                WHEN synonym_part LIKE '% — %' THEN SPLIT_PART(synonym_part, ' — ', 1)
-                WHEN synonym_part LIKE '% – %' THEN SPLIT_PART(synonym_part, ' – ', 1)
-                WHEN synonym_part LIKE '% - %' THEN SPLIT_PART(synonym_part, ' - ', 1)
-                WHEN synonym_part LIKE '%—%' THEN SPLIT_PART(synonym_part, '—', 1)
-                WHEN synonym_part LIKE '%–%' THEN SPLIT_PART(synonym_part, '–', 1)
-                ELSE synonym_part
+                WHEN pt.synonym_part LIKE '% — %' THEN SPLIT_PART(pt.synonym_part, ' — ', 1)
+                WHEN pt.synonym_part LIKE '% – %' THEN SPLIT_PART(pt.synonym_part, ' – ', 1)
+                WHEN pt.synonym_part LIKE '% - %' THEN SPLIT_PART(pt.synonym_part, ' - ', 1)
+                WHEN pt.synonym_part LIKE '%—%' THEN SPLIT_PART(pt.synonym_part, '—', 1)
+                WHEN pt.synonym_part LIKE '%–%' THEN SPLIT_PART(pt.synonym_part, '–', 1)
+                ELSE pt.synonym_part
               END
             ),
             '/\*.*?\*/', '', 'g'
@@ -554,24 +551,24 @@ BEGIN
         ) as term,
         TRIM(
           CASE
-            WHEN synonym_part LIKE '% — %' THEN SUBSTRING(synonym_part FROM POSITION(' — ' IN synonym_part) + 3)
-            WHEN synonym_part LIKE '% – %' THEN SUBSTRING(synonym_part FROM POSITION(' – ' IN synonym_part) + 3)
-            WHEN synonym_part LIKE '% - %' THEN SUBSTRING(synonym_part FROM POSITION(' - ' IN synonym_part) + 3)
-            WHEN synonym_part LIKE '%—%' THEN SUBSTRING(synonym_part FROM POSITION('—' IN synonym_part) + 1)
-            WHEN synonym_part LIKE '%–%' THEN SUBSTRING(synonym_part FROM POSITION('–' IN synonym_part) + 1)
+            WHEN pt.synonym_part LIKE '% — %' THEN SUBSTRING(pt.synonym_part FROM POSITION(' — ' IN pt.synonym_part) + 3)
+            WHEN pt.synonym_part LIKE '% – %' THEN SUBSTRING(pt.synonym_part FROM POSITION(' – ' IN pt.synonym_part) + 3)
+            WHEN pt.synonym_part LIKE '% - %' THEN SUBSTRING(pt.synonym_part FROM POSITION(' - ' IN pt.synonym_part) + 3)
+            WHEN pt.synonym_part LIKE '%—%' THEN SUBSTRING(pt.synonym_part FROM POSITION('—' IN pt.synonym_part) + 1)
+            WHEN pt.synonym_part LIKE '%–%' THEN SUBSTRING(pt.synonym_part FROM POSITION('–' IN pt.synonym_part) + 1)
             ELSE ''
           END
         ) as meaning
-      FROM parsed_terms
-      WHERE synonym_part != ''
-        AND LENGTH(TRIM(synonym_part)) > 1
+      FROM parsed_terms pt
+      WHERE pt.synonym_part != ''
+        AND LENGTH(TRIM(pt.synonym_part)) > 1
     ),
     valid_terms AS (
-      SELECT DISTINCT verse_id, verse_number, chapter_number, canto_number, book_title, book_slug, term, meaning
-      FROM extracted_terms
-      WHERE term != ''
-        AND LENGTH(term) > 0
-        AND term ~ '[a-zA-Zа-яА-ЯіїєІЇЄāīūṛṝḷḹēōṃḥśṣṭḍṇñṅĀĪŪṚṜḶḸĒŌṂḤŚṢṬḌṆÑṄ]'
+      SELECT DISTINCT et.verse_id, et.verse_number, et.chapter_number, et.canto_number, et.book_title, et.book_slug, et.term, et.meaning
+      FROM extracted_terms et
+      WHERE et.term != ''
+        AND LENGTH(et.term) > 0
+        AND et.term ~ '[a-zA-Zа-яА-ЯіїєІЇЄāīūṛṝḷḹēōṃḥśṣṭḍṇñṅĀĪŪṚṜḶḸĒŌṂḤŚṢṬḌṆÑṄ]'
     ),
     filtered_terms AS (
       SELECT
