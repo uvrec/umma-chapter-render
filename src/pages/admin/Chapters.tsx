@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Edit, Trash2, FileText, BookOpen, Eye, EyeOff } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
+import { TiptapEditor } from "@/components/blog/TiptapEditor";
 import { PreviewShareButton } from "@/components/PreviewShareButton";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -430,14 +430,14 @@ export default function Chapters() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       <div>
                         <Label className="mb-2 block">Контент (українською)</Label>
-                        <EnhancedInlineEditor
+                        <TiptapEditor
                           content={form.content_uk}
                           onChange={(html) => setForm((f) => ({ ...f, content_uk: html }))}
                         />
                       </div>
                       <div>
                         <Label className="mb-2 block">Контент (англійською)</Label>
-                        <EnhancedInlineEditor
+                        <TiptapEditor
                           content={form.content_en}
                           onChange={(html) => setForm((f) => ({ ...f, content_en: html }))}
                         />
