@@ -475,12 +475,12 @@ BEGIN
     WITH parsed_terms AS (
       -- Parse from synonyms_uk
       SELECT
-        v.id as verse_id,
-        v.verse_number,
-        ch.chapter_number,
-        ca.canto_number,
-        CASE WHEN search_language = 'uk' THEN b.title_uk ELSE b.title_en END as book_title,
-        b.slug as book_slug,
+        v.id as p_verse_id,
+        v.verse_number as p_verse_number,
+        ch.chapter_number as p_chapter_number,
+        ca.canto_number as p_canto_number,
+        CASE WHEN search_language = 'uk' THEN b.title_uk ELSE b.title_en END as p_book_title,
+        b.slug as p_book_slug,
         TRIM(part) as synonym_part
       FROM public.verses v
       JOIN public.chapters ch ON ch.id = v.chapter_id
@@ -502,12 +502,12 @@ BEGIN
 
       -- Parse from synonyms_en
       SELECT
-        v.id as verse_id,
-        v.verse_number,
-        ch.chapter_number,
-        ca.canto_number,
-        CASE WHEN search_language = 'uk' THEN b.title_uk ELSE b.title_en END as book_title,
-        b.slug as book_slug,
+        v.id as p_verse_id,
+        v.verse_number as p_verse_number,
+        ch.chapter_number as p_chapter_number,
+        ca.canto_number as p_canto_number,
+        CASE WHEN search_language = 'uk' THEN b.title_uk ELSE b.title_en END as p_book_title,
+        b.slug as p_book_slug,
         TRIM(part) as synonym_part
       FROM public.verses v
       JOIN public.chapters ch ON ch.id = v.chapter_id
@@ -527,12 +527,12 @@ BEGIN
     ),
     extracted_terms AS (
       SELECT
-        pt.verse_id,
-        pt.verse_number,
-        pt.chapter_number,
-        pt.canto_number,
-        pt.book_title,
-        pt.book_slug,
+        pt.p_verse_id,
+        pt.p_verse_number,
+        pt.p_chapter_number,
+        pt.p_canto_number,
+        pt.p_book_title,
+        pt.p_book_slug,
         regexp_replace(
           regexp_replace(
             TRIM(
@@ -548,7 +548,7 @@ BEGIN
             '/\*.*?\*/', '', 'g'
           ),
           '[\{\}\(\)\[\]<>"\|\\\/\*]', '', 'g'
-        ) as term,
+        ) as p_term,
         TRIM(
           CASE
             WHEN pt.synonym_part LIKE '% — %' THEN SUBSTRING(pt.synonym_part FROM POSITION(' — ' IN pt.synonym_part) + 3)
@@ -558,48 +558,55 @@ BEGIN
             WHEN pt.synonym_part LIKE '%–%' THEN SUBSTRING(pt.synonym_part FROM POSITION('–' IN pt.synonym_part) + 1)
             ELSE ''
           END
-        ) as meaning
+        ) as p_meaning
       FROM parsed_terms pt
       WHERE pt.synonym_part != ''
         AND LENGTH(TRIM(pt.synonym_part)) > 1
     ),
     valid_terms AS (
-      SELECT DISTINCT et.verse_id, et.verse_number, et.chapter_number, et.canto_number, et.book_title, et.book_slug, et.term, et.meaning
+      SELECT DISTINCT et.p_verse_id, et.p_verse_number, et.p_chapter_number, et.p_canto_number, et.p_book_title, et.p_book_slug, et.p_term, et.p_meaning
       FROM extracted_terms et
-      WHERE et.term != ''
-        AND LENGTH(et.term) > 0
-        AND et.term ~ '[a-zA-Zа-яА-ЯіїєІЇЄāīūṛṝḷḹēōṃḥśṣṭḍṇñṅĀĪŪṚṜḶḸĒŌṂḤŚṢṬḌṆÑṄ]'
+      WHERE et.p_term != ''
+        AND LENGTH(et.p_term) > 0
+        AND et.p_term ~ '[a-zA-Zа-яА-ЯіїєІЇЄāīūṛṝḷḹēōṃḥśṣṭḍṇñṅĀĪŪṚṜḶḸĒŌṂḤŚṢṬḌṆÑṄ]'
     ),
     filtered_terms AS (
       SELECT
-        vt.*,
+        vt.p_verse_id,
+        vt.p_verse_number,
+        vt.p_chapter_number,
+        vt.p_canto_number,
+        vt.p_book_title,
+        vt.p_book_slug,
+        vt.p_term,
+        vt.p_meaning,
         CASE
-          WHEN vt.canto_number IS NOT NULL THEN
-            '/veda-reader/' || vt.book_slug || '/canto/' || vt.canto_number || '/chapter/' || vt.chapter_number || '/' || vt.verse_number
+          WHEN vt.p_canto_number IS NOT NULL THEN
+            '/veda-reader/' || vt.p_book_slug || '/canto/' || vt.p_canto_number || '/chapter/' || vt.p_chapter_number || '/' || vt.p_verse_number
           ELSE
-            '/veda-reader/' || vt.book_slug || '/' || vt.chapter_number || '/' || vt.verse_number
-        END as verse_link
+            '/veda-reader/' || vt.p_book_slug || '/' || vt.p_chapter_number || '/' || vt.p_verse_number
+        END as p_verse_link
       FROM valid_terms vt
-      WHERE (term_pattern = '%' OR term_pattern = '%%' OR vt.term ILIKE term_pattern)
-        AND (meaning_pattern = '%' OR meaning_pattern = '%%' OR vt.meaning ILIKE meaning_pattern)
+      WHERE (term_pattern = '%' OR term_pattern = '%%' OR vt.p_term ILIKE term_pattern)
+        AND (meaning_pattern = '%' OR meaning_pattern = '%%' OR vt.p_meaning ILIKE meaning_pattern)
     ),
     counted AS (
       SELECT COUNT(*) as cnt FROM filtered_terms
     )
     SELECT
-      ft.term,
-      ft.meaning,
-      ft.verse_id,
-      ft.verse_number,
-      ft.chapter_number,
-      ft.canto_number,
-      ft.book_title,
-      ft.book_slug,
-      ft.verse_link,
+      ft.p_term,
+      ft.p_meaning,
+      ft.p_verse_id,
+      ft.p_verse_number,
+      ft.p_chapter_number,
+      ft.p_canto_number,
+      ft.p_book_title,
+      ft.p_book_slug,
+      ft.p_verse_link,
       c.cnt as total_count
     FROM filtered_terms ft
     CROSS JOIN counted c
-    ORDER BY LOWER(ft.term), ft.book_title, ft.chapter_number, ft.verse_number
+    ORDER BY LOWER(ft.p_term), ft.p_book_title, ft.p_chapter_number, ft.p_verse_number
     LIMIT page_size OFFSET offset_val;
 END;
 $$;
