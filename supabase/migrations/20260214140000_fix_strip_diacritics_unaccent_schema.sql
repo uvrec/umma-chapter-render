@@ -1,47 +1,34 @@
 -- ============================================================================
--- FIX: strip_diacritics() — qualify unaccent with extensions schema
+-- FIX: strip_diacritics() — remove dependency on unaccent extension
 -- ============================================================================
--- Problem: strip_diacritics() calls unaccent() without schema qualification.
--- On Supabase the unaccent extension lives in the 'extensions' schema, so
--- calling bare unaccent() fails with "function unaccent(text) does not exist"
--- when search_path does not include 'extensions'.
+-- Problem: strip_diacritics() calls unaccent() which may not be available
+-- or may live in a different schema (extensions vs public) on Supabase.
 --
--- Solution: Use extensions.unaccent() explicitly. Add a fallback so the
--- function still works if unaccent is installed in public schema (local dev).
+-- Solution: Use translate() for IAST/Latin precomposed characters instead
+-- of unaccent(). This is a pure SQL approach with zero extension dependency.
+-- Combined with regexp_replace() for combining diacritical marks (Cyrillic).
 -- ============================================================================
 
 CREATE OR REPLACE FUNCTION public.strip_diacritics(input_text text)
 RETURNS text
-LANGUAGE plpgsql
+LANGUAGE sql
 IMMUTABLE
 PARALLEL SAFE
 AS $$
-BEGIN
-  -- Try extensions.unaccent first (Supabase production)
-  BEGIN
-    RETURN regexp_replace(
-      extensions.unaccent(input_text),
-      E'[\u0300-\u036F]', '', 'g'
-    );
-  EXCEPTION WHEN undefined_function OR undefined_schema THEN
-    -- Fallback: try public.unaccent (local dev / self-hosted)
-    BEGIN
-      RETURN regexp_replace(
-        public.unaccent(input_text),
-        E'[\u0300-\u036F]', '', 'g'
-      );
-    EXCEPTION WHEN undefined_function THEN
-      -- Last resort: just strip combining marks without unaccent
-      RETURN regexp_replace(
-        input_text,
-        E'[\u0300-\u036F]', '', 'g'
-      );
-    END;
-  END;
-END;
+  SELECT regexp_replace(
+    translate(
+      input_text,
+      -- IAST precomposed characters (lowercase + uppercase)
+      'āīūṛṝḷḹēōṃḥśṣṭḍṇñṅĀĪŪṚṜḶḸĒŌṂḤŚṢṬḌṆÑṄàáâãäåèéêëìíîïòóôõöùúûüýÿÀÁÂÃÄÅÈÉÊËÌÍÎÏÒÓÔÕÖÙÚÛÜÝ',
+      -- ASCII replacements
+      'aiurrlleomhsstdnnnaIURRLLEOMHSSTDNNNaaaaaaeeeeiiiioooooeuuuuyYAAAAAEEEEIIIIOOOOOUUUUY'
+    ),
+    -- Strip combining diacritical marks (U+0300-U+036F) for Cyrillic
+    E'[\u0300-\u036F]', '', 'g'
+  );
 $$;
 
 COMMENT ON FUNCTION public.strip_diacritics IS
-'Strips diacritical marks from text: extensions.unaccent for Latin precomposed (ā→a), regexp_replace for combining marks (а̄→а). Falls back gracefully if unaccent is unavailable.';
+'Strips diacritical marks from text: translate() for IAST precomposed chars (ā→a, ś→s), regexp_replace for combining marks (а̄→а). No extension dependencies.';
 
 GRANT EXECUTE ON FUNCTION public.strip_diacritics(text) TO anon, authenticated;
